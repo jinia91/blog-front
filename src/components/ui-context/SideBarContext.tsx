@@ -5,7 +5,11 @@ const initialValue = {isCollapsed: false};
 
 const SidebarContext: React.Context<any> = createContext(initialValue);
 
-const DynamicLayout = ({sideBar, main}: { sideBar: React.ReactNode, main: React.ReactNode }) => {
+const DynamicLayout = ({topNav, sideBar, main}: {
+  topNav: React.ReactNode,
+  sideBar: React.ReactNode,
+  main: React.ReactNode
+}) => {
   const [isCollapsed, setCollapse] = useState(false);
   console.log("동적 레이아웃 렌더링")
   
@@ -13,16 +17,17 @@ const DynamicLayout = ({sideBar, main}: { sideBar: React.ReactNode, main: React.
     setCollapse((prevState) => !prevState);
   };
   
-  const mainClass = isCollapsed ? 'main-full' : 'main-with-sidebar';
-  
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
-      <aside className={isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}>
-        {sideBar}
-      </aside>
-      <main className={mainClass}>
-        {main}
-      </main>
+      <header className="sticky top-0 z-10 flex-shrink-0 w-full">{topNav}</header>
+      <div className="md:flex">
+        <aside className="fixed md:static h-screen bg-white dark:bg-black">
+          {sideBar}
+        </aside>
+        <main className={"bg-white dark:bg-gray-700 text-black dark:text-white w-screen"}>
+          {main}
+        </main>
+      </div>
     </SidebarContext.Provider>
   );
 };

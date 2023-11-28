@@ -2,7 +2,7 @@
 import {useEffect, useState} from 'react'
 import {useTheme} from 'next-themes'
 
-export default function DarkLightSwitch() {
+export default function DarkLightToggle() {
   console.log("스위치 렌더링")
   
   const [mounted, setMounted] = useState(false)

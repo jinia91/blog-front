@@ -56,11 +56,8 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     {/*실제 마크업 시작*/}
     <UiContext>
       <section className="flex flex-col h-screen">
-        <header className="sticky top-0 z-10 flex-shrink-0 w-full"><TopNav/></header>
-        <div className="flex flex-1">
-          <DynamicLayout main={children} sideBar={<Sidebar/>}>
+          <DynamicLayout topNav={<TopNav/>} main={children} sideBar={<Sidebar/>}>
           </DynamicLayout>
-        </div>
       </section>
     </UiContext>
     </body>
