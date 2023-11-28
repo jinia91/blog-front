@@ -19,12 +19,12 @@ const DynamicLayout = ({topNav, sideBar, main}: {
   
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
-      <header className="sticky top-0 z-10 flex-shrink-0 w-full">{topNav}</header>
-      <div className="md:flex">
-        <aside className="fixed md:static h-screen bg-white dark:bg-black">
+      <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
+      <div className="md:flex overflow-hidden">
+        <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r">
           {sideBar}
         </aside>
-        <main className={"bg-white dark:bg-gray-700 text-black dark:text-white w-screen"}>
+        <main className="flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
           {main}
         </main>
       </div>

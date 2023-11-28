@@ -52,13 +52,11 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
   return (
     <html lang="ko">
     <head></head>
-    <body>
+    <body className="overflow-hidden">
     {/*실제 마크업 시작*/}
     <UiContext>
-      <section className="flex flex-col h-screen">
-          <DynamicLayout topNav={<TopNav/>} main={children} sideBar={<Sidebar/>}>
-          </DynamicLayout>
-      </section>
+      <DynamicLayout topNav={<TopNav/>} main={children} sideBar={<Sidebar/>}>
+      </DynamicLayout>
     </UiContext>
     </body>
     </html>
