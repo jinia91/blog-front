@@ -1,16 +1,29 @@
 "use client";
 import Link from "next/link";
-import {Url} from "url";
 import React, {useContext} from "react";
-import {TabBarContext} from "@/components/TabWindow";
-import * as url from "url";
+import {TabBarContext} from "@/components/DynamicLayout";
 
-export default function TabLink({href, children}: { href: string, children: React.ReactNode }) {
-  const {selectTab, addTab} = useContext(TabBarContext)
+export default function TabLink({ name, href, children } : { name:string, href: string, children: React.ReactNode }) {
+  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  
+  const addTab = () => {
+    const existingTabIndex = tabs.findIndex(function (tab : any) {
+      return tab.context === href;
+    });
+    
+    if (existingTabIndex !== -1) {
+      setSelectedTabIdx(existingTabIndex);
+    } else {
+      const newTab = { name: name, context: href };
+      const updatedTabs = [...tabs, newTab];
+      setTabs(updatedTabs);
+      setSelectedTabIdx(updatedTabs.length - 1);
+    }
+  };
   
   return (
     <Link href={href} onClick={addTab}>
       {children}
     </Link>
-  )
+  );
 }

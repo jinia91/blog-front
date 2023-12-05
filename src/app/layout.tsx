@@ -6,7 +6,6 @@ import blogMetaData from "@/static/blogMetaData";
 import UiContext from "@/components/UiContext";
 import {DynamicLayout} from "@/components/DynamicLayout";
 import Sidebar from "@/components/SideBar";
-import {TabWindow} from "@/components/TabWindow";
 
 
 export const metadata: Metadata = {
@@ -59,7 +58,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
       <DynamicLayout
         topNav={<TopNav/>}
         sideBar={<Sidebar/>}
-        tabBar={<TabWindow context={children} name={"Home"}/>}
+        page={children}
       >
       </DynamicLayout>
     </UiContext>
