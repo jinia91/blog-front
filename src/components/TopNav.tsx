@@ -11,8 +11,10 @@ export default function TopNav() {
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-center py-4">
         <SideBarToggle/>
-        <Link href="#" className="text-lg font-semibold">
-          헤더부분입니다
+        <Link href="#" className="text-2xl font-semibold">
+          <span className="retro-font-animation">
+          {"__JINIA'S_LOG__!!"}
+          </span>
         </Link>
         <DarkLightToggle/>
       </div>

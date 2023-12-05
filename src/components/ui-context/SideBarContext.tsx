@@ -24,7 +24,7 @@ const DynamicLayout = ({topNav, sideBar, main}: {
         <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r">
           {sideBar}
         </aside>
-        <main className="flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
+        <main className="p-5 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
           {main}
         </main>
       </div>

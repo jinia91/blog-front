@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'Retro Gaming';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Retro Gaming'), url('Retro Gaming.woff') format('woff');
+}
+
+.retro-font {
+    font-family: 'Retro Gaming', sans-serif;
+}
+
+.retro-font-animation {
+    font-family: 'Retro Gaming', monospace;
+    display: inline-block;
+    border-right: 2px solid orange;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 12s steps(15, jump-both) infinite, blink-caret 0.75s step-end infinite;
+}
+
+
+@keyframes typing {
+    0% { width: 0; }
+    50% { width: 100%; }
+    100% { width: 0; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: orange; }
+}

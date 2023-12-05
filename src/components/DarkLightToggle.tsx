@@ -1,6 +1,9 @@
 'use client'
 import {useEffect, useState} from 'react'
 import {useTheme} from 'next-themes'
+import Image from 'next/image'
+import moon from '../../public/moon.png'
+import sun from '../../public/sun.png'
 
 export default function DarkLightToggle() {
   console.log("스위치 렌더링")
@@ -16,7 +19,8 @@ export default function DarkLightToggle() {
       type='button'
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
     >
-      {theme === 'dark' ? '🌙' : '☀'}
+      {theme === 'dark' ? <Image src={moon} alt={"Dark Mode"} width={40} height={40}/>
+        : <Image src={sun} alt={"Light Mode"}  width={40} height={40}/>}
     </button>
     ) : null
 }
