@@ -4,9 +4,11 @@ import {AiOutlineHome} from "react-icons/ai";
 import {BsPeople} from "react-icons/bs";
 import {TiContacts} from "react-icons/ti";
 import {FiMail} from "react-icons/fi";
-import {useContext} from "react";
-import {SidebarContext} from "@/components/ui-context/SideBarContext";
+import React, {useContext} from "react";
+import {SidebarContext} from "@/components/DynamicLayout";
 import {VT323} from "next/dist/compiled/@next/font/dist/google";
+import Link from "next/link";
+import TabLink from "@/components/TabLink";
 
 const sidebarItems = [
   {
@@ -69,12 +71,15 @@ export default function Sidebar() {
           {sidebarItems.map(({name, href, icon: Icon}) => {
             return (
               <li className="flex items-center mb-2 last:mb-0" key={name}>
-                <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
-                <span className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${textWidth}`}
-                      style={{opacity: isCollapsed ? 0 : 1, maxWidth: isCollapsed ? '20px' : 'auto'}}
-                >
+                <TabLink href={href}>
+                  <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                  <span
+                    className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${textWidth}`}
+                    style={{opacity: isCollapsed ? 0 : 1, maxWidth: isCollapsed ? '20px' : 'auto'}}
+                  >
                   {name}
                 </span>
+                </TabLink>
               </li>
             );
           })}

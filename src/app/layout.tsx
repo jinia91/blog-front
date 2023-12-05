@@ -1,11 +1,12 @@
 import type {Metadata} from 'next'
-import '../../styles/globals.css'
+import '../styles/globals.css'
 import React from "react";
 import TopNav from "@/components/TopNav";
 import blogMetaData from "@/static/blogMetaData";
-import UiContext from "@/components/ui-context/UiContext";
-import {DynamicLayout} from "@/components/ui-context/SideBarContext";
+import UiContext from "@/components/UiContext";
+import {DynamicLayout} from "@/components/DynamicLayout";
 import Sidebar from "@/components/SideBar";
+import {TabWindow} from "@/components/TabWindow";
 
 
 export const metadata: Metadata = {
@@ -55,7 +56,11 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     <body className="overflow-hidden">
     {/*실제 마크업 시작*/}
     <UiContext>
-      <DynamicLayout topNav={<TopNav/>} main={children} sideBar={<Sidebar/>}>
+      <DynamicLayout
+        topNav={<TopNav/>}
+        sideBar={<Sidebar/>}
+        tabBar={<TabWindow context={children} name={"Home"}/>}
+      >
       </DynamicLayout>
     </UiContext>
     </body>
