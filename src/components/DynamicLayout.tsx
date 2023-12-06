@@ -95,7 +95,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                       <Link href={tab.context} onClick={() => selectTab(idx)}
                             className={`flex items-center justify-center p-2 rounded-t-lg ${selectedTabIdx === idx ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer`}
                       >
-            <span className={`truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
+            <span className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
               {tab.name}
             </span>
                       </Link>

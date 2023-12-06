@@ -34,3 +34,14 @@
     from, to { border-color: transparent; }
     50% { border-color: orange; }
 }
+
+@font-face {
+    font-family: 'DOSIyagiMedium';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/DOSIyagiMedium.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.dos-font {
+    font-family: 'DOSIyagiMedium', sans-serif;
+}

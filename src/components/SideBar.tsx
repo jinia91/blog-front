@@ -1,5 +1,5 @@
 "use client";
-import {AiOutlineHome} from "react-icons/ai";
+import {AiFillCodepenCircle, AiOutlineHome, AiTwotoneFolder, AiTwotoneFolderOpen} from "react-icons/ai";
 import {BsPeople} from "react-icons/bs";
 import {TiContacts} from "react-icons/ti";
 import {FiMail} from "react-icons/fi";
@@ -27,6 +27,16 @@ const sidebarItems = [
     name: "Contact",
     href: "/contact",
     icon: TiContacts,
+  },
+  {
+    name: "Memo",
+    href: "/memo",
+    icon: AiTwotoneFolderOpen,
+  },
+  {
+    name: "MemoView",
+    href: "/memoview",
+    icon: AiTwotoneFolder,
   },
 ];
 
