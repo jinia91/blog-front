@@ -23,7 +23,7 @@ const initialTabStatus = {
   }
 };
 const TabBarContext: React.Context<any> = createContext(initialTabStatus);
-const initialValue = {isCollapsed: false};
+const initialValue = {isCollapsed: true};
 const SidebarContext: React.Context<any> = createContext(initialValue);
 
 const DynamicLayout = ({topNav, sideBar, page}: {
@@ -32,7 +32,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   page: React.ReactNode
 }) => {
   const path = usePathname();
-  const [isCollapsed, setCollapse] = useState(false);
+  const [isCollapsed, setCollapse] = useState(true);
   const initialTab = path !== "/empty" ? [{name: path, context: path}] : []
   const [tabs, setTabs] = React.useState<Tab[]>(initialTab);
   const [selectedTabIdx, setSelectedTabIdx] = React.useState<number>(0);

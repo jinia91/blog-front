@@ -37,7 +37,7 @@ export default function MemoGraph() {
   }, []);
   
   return (
-    <div className="bg-gray-900 overflow-hidden h-80">
+    <div className="bg-gray-900 overflow-hidden">
       <ForceGraph2D
         graphData={graphData}
         nodeId="id"
