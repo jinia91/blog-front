@@ -1,14 +1,15 @@
 import {unstable_noStore as noStore} from 'next/cache';
+import {mainUrl} from "@/api/host";
 
 export async function fetchMemo() {
   try {
   noStore()
-    const response = await fetch('http://localhost:7777/api/v1/memos');
+    const response = await fetch(mainUrl + '/v1/memo');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    return data.memos; // Make sure to return the memos
+    return data.memos;
   } catch (error) {
     console.error('Error fetching data:', error);
     return null;
@@ -18,13 +19,13 @@ export async function fetchMemo() {
 export async function fetchRelatedMemo(keyword: string) {
   noStore()
   try {
-    const response = await fetch(`http://localhost:7777/api/v1/memos2?keyword=${keyword}`);
+    const response = await fetch(mainUrl + `/v1/memo?keyword=${keyword}`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
     console.log(data)
-    return data.memos; // Make sure to return the memos
+    return data.memos;
   } catch (error) {
     console.error('Error fetching data:', error);
     return null;

@@ -2,8 +2,8 @@
 import {useEffect, useState} from 'react'
 import {useTheme} from 'next-themes'
 import Image from 'next/image'
-import moon from '../../public/moon.png'
-import sun from '../../public/sun.png'
+import moon from '../../../public/moon.png'
+import sun from '../../../public/sun.png'
 
 export default function DarkLightToggle() {
   console.log("스위치 렌더링")

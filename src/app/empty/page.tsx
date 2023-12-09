@@ -1,7 +1,5 @@
 
-export default function about() {
-    console.log("about 렌더링")
-    
+export default function Page() {
   return (
     <></>
   )

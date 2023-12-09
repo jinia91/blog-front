@@ -1,11 +1,11 @@
 import type {Metadata} from 'next'
 import '../styles/globals.css'
 import React from "react";
-import TopNav from "@/components/TopNav";
+import TopNav from "@/components/top/TopNav";
 import blogMetaData from "@/static/blogMetaData";
 import UiContext from "@/components/UiContext";
-import {DynamicLayout} from "@/components/DynamicLayout";
-import Sidebar from "@/components/SideBar";
+import {DynamicLayout} from "@/layout/DynamicLayout";
+import Sidebar from "@/components/sidebar/SideBar";
 
 
 export const metadata: Metadata = {

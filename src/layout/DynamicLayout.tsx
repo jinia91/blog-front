@@ -1,5 +1,5 @@
 "use client";
-import React, {createContext, useEffect, useRef, useState} from "react";
+import React, {createContext, Suspense, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useRouter} from 'next/navigation'
@@ -49,7 +49,6 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   }, [selectedTabIdx, tabs, path, router]);
   
   const selectTab = (index: number) => {
-    console.log("탭 변경감지")
     setSelectedTabIdx(index);
   };
   
@@ -111,9 +110,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               
               {
                 tabs.length > 0 && (path !== "/empty") && (
-                  <div className="bg-gray-700 p-4 rounded-b-lg">
-                    {page}
-                  </div>
+                    <div className="bg-gray-700 p-4 rounded-b-lg">
+                      {page}
+                    </div>
                 )
               }
             </div>

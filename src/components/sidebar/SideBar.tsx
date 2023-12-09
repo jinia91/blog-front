@@ -1,44 +1,9 @@
 "use client";
-import {AiFillCodepenCircle, AiOutlineHome, AiTwotoneFolder, AiTwotoneFolderOpen} from "react-icons/ai";
-import {BsPeople} from "react-icons/bs";
-import {TiContacts} from "react-icons/ti";
-import {FiMail} from "react-icons/fi";
-import React, {useContext} from "react";
-import {SidebarContext} from "@/components/DynamicLayout";
-import TabLink from "@/components/TabLink";
 
-const sidebarItems = [
-  {
-    name: "Home",
-    href: "/",
-    icon: AiOutlineHome,
-  },
-  {
-    name: "About",
-    href: "/about",
-    icon: BsPeople,
-  },
-  {
-    name: "Mail",
-    href: "/mail",
-    icon: FiMail,
-  },
-  {
-    name: "Contact",
-    href: "/contact",
-    icon: TiContacts,
-  },
-  {
-    name: "Memo",
-    href: "/memo",
-    icon: AiTwotoneFolderOpen,
-  },
-  {
-    name: "MemoView",
-    href: "/memoview",
-    icon: AiTwotoneFolder,
-  },
-];
+import React, {useContext} from "react";
+import {SidebarContext} from "@/layout/DynamicLayout";
+import TabLink from "@/components/TabLink";
+import {sidebarItems} from "@/components/sidebar/SideBarItems";
 
 export default function Sidebar() {
   const {isCollapsed, toggleSideBarCollapse} = useContext(SidebarContext);
@@ -54,13 +19,12 @@ export default function Sidebar() {
         <div className="pb-4 mb-4 border-b border-gray-300 flex justify-between items-center">
           <div>
             <span
-              className={`cursor-pointer text-3xl ${overlayStyle} transition-all duration-300:ease-in-out`}
+              className={`cursor-pointer text-3xl ${overlayStyle} transition-all duration-300:ease-in-out p-1 border-2`}
               onClick={toggleSideBarCollapse}>
             {'>_'}
             </span>
             <span
               className={`retro-font pl-2 cursor-pointer text-2xl whitespace-nowrap overflow-hidden ${textWidth} transition-all duration-300:ease-in-out`}
-              style={{opacity: isCollapsed ? 0 : 1, maxWidth: isCollapsed ? '0px' : 'auto'}}
               onClick={toggleSideBarCollapse}>
               {'Hello_World'}
           </span>
@@ -82,7 +46,6 @@ export default function Sidebar() {
                   <span className="inline-block text-3xl pl-2 mr-2 "><Icon/></span>
                   <span
                     className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${textWidth}`}
-                    style={{opacity: isCollapsed ? 0 : 1, maxWidth: isCollapsed ? '20px' : 'auto'}}
                   >
                   {name}
                 </span>

@@ -1,5 +1,5 @@
 "use client";
-import MemoEditor from "@/components/MemoWebsocket";
+import MemoEditor from "@/components/memo/MemoWebsocket";
 
 export default function Page({params} : {params: {id: string}}) {
   const id = params.id;

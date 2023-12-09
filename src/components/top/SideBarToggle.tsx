@@ -1,11 +1,9 @@
 import {useContext, useState} from "react";
-import {SidebarContext} from "@/components/DynamicLayout";
+import {SidebarContext} from "@/layout/DynamicLayout";
 import Image from "next/image";
 
 
 export default function SideBarToggle() {
-  console.log("사이드바 토글 렌더링")
-  
   const {isCollapsed, toggleSideBarCollapse} = useContext(SidebarContext);
   
   return (
