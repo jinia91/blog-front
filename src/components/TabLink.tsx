@@ -14,7 +14,7 @@ export default function TabLink({ name, href, children } : { name:string, href: 
     if (existingTabIndex !== -1) {
       setSelectedTabIdx(existingTabIndex);
     } else {
-      const newTab = { name: href, context: href };
+      const newTab = { name: name, context: href };
       const updatedTabs = [...tabs, newTab];
       setTabs(updatedTabs);
       setSelectedTabIdx(updatedTabs.length - 1);
@@ -22,8 +22,8 @@ export default function TabLink({ name, href, children } : { name:string, href: 
   };
   
   return (
-    <Link href={href} onClick={addTab}>
+    <div onClick={addTab}>
       {children}
-    </Link>
+    </div>
   );
 }

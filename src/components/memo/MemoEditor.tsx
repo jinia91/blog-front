@@ -1,6 +1,7 @@
 "use client";
+"use strict";
 
-import React, {useState, useEffect, useRef, useContext} from 'react';
+import React, {useState, useEffect, useRef, useContext, Suspense} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import MDEditor, {
@@ -10,16 +11,18 @@ import MDEditor, {
   divider, executeCommand, ExecuteState, fullscreen,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
-import {fetchMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
+import {fetchMemoById, fetchRelatedMemo} from "@/api/memo";
 import {Memo} from "@/domain/Memo";
 import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
 import {usePathname} from "next/navigation";
 import {TabBarContext} from "@/components/DynamicLayout";
 import MemoTable from "@/components/memo/MemoTable";
+import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
+import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 
 export default function MemoEditor({pageMemoId, memos}: {
   pageMemoId?: string,
-  memos: Memo[]
+  memos: Memo[],
 }) {
   const [stompClient, setStompClient] = useState<Client | null>(null);
   // memo
@@ -45,6 +48,10 @@ export default function MemoEditor({pageMemoId, memos}: {
       setStompClient(client);
     });
     
+    if (pageMemoId && pageMemoId !== "new") { // memoId == pageMemoId인 경우
+      handlePageArgMemoId();
+    }
+    
     return () => {
       if (client) {
         client.disconnect();
@@ -53,20 +60,15 @@ export default function MemoEditor({pageMemoId, memos}: {
   }, []);
   
   useEffect(() => {
-    if (stompClient && !memoId) {
+    if (stompClient && !memoId) { // memoId가 없는 경우
       subscribeMemo();
-    }
-    if (!memoId) {
       initMemo();
     }
-    if (memoId == "pending") {
+    if (memoId == "pending") { // memoId가 pending인 경우
       return;
     }
-    if (pageMemoId && pageMemoId !== "new") {
-      handlePageArgMemoId();
-    }
     
-    if (memoId && memoId !== "pending" && path == "/memo/new") {
+    if (memoId && memoId !== "pending" && path == "/memo/new") { // memoId가 new인 경우
       const updatedTab = {...tabs[selectedTabIdx], context: `/memo/${memoId}`, name: `/memo/${memoId}`};
       const newTabs = [
         ...tabs.slice(0, selectedTabIdx),
@@ -205,10 +207,25 @@ export default function MemoEditor({pageMemoId, memos}: {
     if (resolveSelection) resolveSelection(value);
     setIsModalOpen(false);
   };
+
+  const onLayout = (layout: MixedSizes[]) => {
+    setLocalStorage("react-resizable-panels:layout", layout);
+  };
+  
+  const defaultLayout = getLocalStorage<MixedSizes[] | null>("react-resizable-panels:layout")
   
   return (
-    <div className={"dos-font flex flex-col md:flex-row"}>
-      <div className={"bg-black text-green-400 font-mono p-4 flex flex-grow md:w-80 "}>
+    <PanelGroup
+      direction="horizontal"
+      className={"dos-font flex-col md:flex-row"}
+      style={{ height: '65vh', overflowY: 'auto' }}
+      onLayout={onLayout}
+    >
+      <Panel
+        defaultSizePercentage={defaultLayout ? defaultLayout[0].sizePercentage : 70}
+        className={"bg-black text-green-400 font-mono p-4 flex flex-grow md:w-80"}
+        minSizePercentage={20}
+      >
         <div className="flex-grow">
           {/*title*/}
           <div className="mb-4">
@@ -254,11 +271,20 @@ export default function MemoEditor({pageMemoId, memos}: {
             />
           </div>
         </div>
-      </div>
-      <MemoTable memos={memos}
-                 underwritingId={memoId}
-                 underwritingTitle={title}
-                 className="flex flex-1"/>
-    </div>
+      </Panel>
+      <PanelResizeHandle className="w-2 hover:bg-blue-800" />
+      <Panel
+        defaultSizePercentage={defaultLayout ? defaultLayout[1].sizePercentage : 30}
+        className="flex flex-1 overflow-auto"
+        minSizePercentage={20}
+      >
+      <Suspense>
+        <MemoTable memos={memos}
+                   underwritingId={memoId}
+                   underwritingTitle={title}
+                   className="flex flex-1 min-w-0"/>
+      </Suspense>
+      </Panel>
+    </PanelGroup>
   );
 }

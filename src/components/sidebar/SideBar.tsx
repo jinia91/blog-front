@@ -41,9 +41,9 @@ export default function Sidebar() {
         <ul className={`list-none ${overlayStyle}`}>
           {sidebarItems.map(({name, href, icon: Icon}) => {
             return (
-              <li className="flex items-center mb-2 last:mb-0 " key={name}>
+              <li className="flex items-center mb-2 last:mb-0  cursor-pointer hover:bg-gray-800" key={name}>
                 <TabLink name={name} href={href}>
-                  <span className="inline-block text-3xl pl-2 mr-2 "><Icon/></span>
+                  <span className="inline-block text-2xl pl-2 mr-2"><Icon/></span>
                   <span
                     className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${textWidth}`}
                   >

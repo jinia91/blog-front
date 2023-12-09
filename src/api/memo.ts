@@ -25,7 +25,6 @@ export async function fetchRelatedMemo(keyword: string, thisId: string) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    console.log(data)
     return data.memos;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -41,7 +40,6 @@ export async function fetchMemoById(id: string) : Promise<Memo | null> {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    console.log(data)
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);

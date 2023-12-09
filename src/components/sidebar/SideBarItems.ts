@@ -1,4 +1,4 @@
-import {AiFillBook, AiOutlineHome} from "react-icons/ai";
+import {AiFillBook, AiFillCodepenCircle, AiOutlineFileText, AiOutlineHome} from "react-icons/ai";
 import {BsPeople} from "react-icons/bs";
 
 export const sidebarItems = [
@@ -10,6 +10,6 @@ export const sidebarItems = [
   {
     name: "Memo",
     href: "/memo",
-    icon: AiFillBook,
+    icon: AiOutlineFileText,
   },
 ];

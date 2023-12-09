@@ -101,7 +101,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                         onClick={() => {
                           removeTab(idx);
                         }}
-                        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-4 h-4"
+                        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-3 h-3"
                         style={{transform: 'translate(-50%, 50%)'}}
                       >
                       </button>
