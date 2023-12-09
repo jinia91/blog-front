@@ -1,5 +1,5 @@
 "use client";
-import React, {createContext, Suspense, useEffect, useRef, useState} from "react";
+import React, {createContext, Suspense, useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useRouter} from 'next/navigation'
@@ -12,6 +12,12 @@ interface TabStatus {
 interface Tab {
   name: string;
   context: string;
+}
+
+interface ContextMenuPosition {
+  xPos: string;
+  yPos: string;
+  tabIdx: number;
 }
 
 const initialTabStatus = {
@@ -37,13 +43,46 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   const [tabs, setTabs] = React.useState<Tab[]>(initialTab);
   const [selectedTabIdx, setSelectedTabIdx] = React.useState<number>(0);
   const router = useRouter();
+  const [contextMenu, setContextMenu] = useState<ContextMenuPosition | null>(null);
+  
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+  
+  const closeAllTabs = useCallback(() => {
+    setTabs([]);
+  }, [setTabs]);
+  
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
+    event.preventDefault();
+    setContextMenu({
+      xPos: `${event.pageX}px`,
+      yPos: `${event.pageY}px`,
+      tabIdx: idx,
+    });
+  }, []);
+  
+  const closeOtherTabs = useCallback(() => {
+    if (contextMenu !== null) {
+      setTabs(tabs.filter((_, idx) => idx === contextMenu.tabIdx));
+      setSelectedTabIdx(0);
+    }
+  }, [tabs, contextMenu, setTabs]);
+  
+  
+  useEffect(() => {
+    document.addEventListener('click', closeContextMenu);
+    return () => {
+      document.removeEventListener('click', closeContextMenu);
+    };
+  }, [closeContextMenu]);
+  
   
   useEffect(() => {
     const selectedTab = tabs[selectedTabIdx];
     if (selectedTab && selectedTab.context !== path) {
       router.push(selectedTab.context);
-    }
-    else if(tabs.length === 0){
+    } else if (tabs.length === 0) {
       router.push('/empty');
     }
   }, [selectedTabIdx, tabs, path, router]);
@@ -79,17 +118,36 @@ const DynamicLayout = ({topNav, sideBar, page}: {
         <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
         
         <div className="md:flex overflow-hidden">
-          <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r" style={{ zIndex: 1000 }}>
+          <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r" style={{zIndex: 1000}}>
             {sideBar}
           </aside>
           <main
             className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
+            {contextMenu && (
+              <ul
+                className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden"
+                style={{
+                  position: 'absolute',
+                  left: contextMenu.xPos,
+                  top: contextMenu.yPos,
+                  zIndex: 1000,
+                }}
+              >
+                <li className={"hover:bg-gray-700 p-1"} onClick={closeOtherTabs}>현재탭만 제외하고 모든 탭 닫기</li>
+                <li className={"hover:bg-gray-700 p-1"} onClick={closeAllTabs}>모든 탭 닫기</li>
+              </ul>
+            )}
+            
             <div className="bg-gray-800 p-4">
               {/*탭 컨테이너*/}
-              <div className="flex overflow-hidden space-x-2" style={{ zIndex: 1 }}>
+              <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
                 <div className="flex space-x-1 overflow-x-auto">
                   {tabs.map((tab, idx) => (
-                    <div key={idx} className="flex-shrink-0 w-32 relative">
+                    <div
+                      onContextMenu={(e) => handleContextMenu(e, idx)}
+                      key={idx}
+                      className="flex-shrink-0 w-32 relative"
+                    >
                       <Link href={tab.context} onClick={() => selectTab(idx)}
                             className={`flex items-center justify-center p-2 rounded-t-lg ${selectedTabIdx === idx ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer`}
                       >
@@ -112,9 +170,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               
               {
                 tabs.length > 0 && (path !== "/empty") && (
-                    <div className="bg-gray-700 p-4 rounded-b-lg">
-                      {page}
-                    </div>
+                  <div className="bg-gray-700 p-4 rounded-b-lg">
+                    {page}
+                  </div>
                 )
               }
             </div>
