@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import MDEditor, {
@@ -10,14 +10,20 @@ import MDEditor, {
   divider, executeCommand, ExecuteState, fullscreen,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
-import {fetchMemo, fetchRelatedMemo} from "@/api/memo";
+import {fetchMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
 import {Memo} from "@/domain/Memo";
 import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
+import {usePathname} from "next/navigation";
+import {TabBarContext} from "@/components/DynamicLayout";
+import MemoTable from "@/components/memo/MemoTable";
 
-export default function MemoEditor({pageMemoId, className} : {pageMemoId? : string, className?: string}) {
+export default function MemoEditor({pageMemoId, memos}: {
+  pageMemoId?: string,
+  memos: Memo[]
+}) {
   const [stompClient, setStompClient] = useState<Client | null>(null);
   // memo
-  const [memoId, setMemoId] = useState<string | null>(pageMemoId ? pageMemoId : null);
+  const [memoId, setMemoId] = useState<string | null>(pageMemoId ? pageMemoId !== "new" ? pageMemoId : null : null);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const titleRef = useRef(title);
@@ -26,6 +32,8 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Memo[]>([]);
   const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
+  
+  const path = usePathname();
   
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
   
@@ -45,50 +53,45 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
   }, []);
   
   useEffect(() => {
-    if (stompClient) {
+    if (stompClient && !memoId) {
       subscribeMemo();
     }
-  }, [stompClient]);
-  
-  useEffect(() => {
     if (!memoId) {
       initMemo();
     }
-  }, [title, content]);
-  
-  useEffect(() => {
-    titleRef.current = title;
-    contentRef.current = content;
-  }, [title, content]);
-  
-  useEffect(() => {
-    if (!stompClient || !memoId) {
+    if (memoId == "pending") {
       return;
     }
+    if (pageMemoId && pageMemoId !== "new") {
+      handlePageArgMemoId();
+    }
     
-    const timer = setInterval(() => {
-      updateMemo();
-    }, 5000);
-    
-    return () => clearInterval(timer);
+    if (memoId && memoId !== "pending" && path == "/memo/new") {
+      const updatedTab = {...tabs[selectedTabIdx], context: `/memo/${memoId}`, name: `/memo/${memoId}`};
+      const newTabs = [
+        ...tabs.slice(0, selectedTabIdx),
+        updatedTab,
+        ...tabs.slice(selectedTabIdx + 1)
+      ];
+      setTabs(newTabs);
+    }
   }, [stompClient, memoId]);
   
-  const updateMemo = () => {
-    if (stompClient && memoId) {
-      let command = {
-        type: "UpdateMemo",
-        id: memoId,
-        title: titleRef.current,
-        content: contentRef.current,
-      };
-      console.log("update", command);
-      
-      stompClient.publish({
-        destination: "/app/updateMemo",
-        body: JSON.stringify(command)
+  const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
+  
+  const subscribeMemo = () => {
+    if (stompClient) {
+      stompClient.subscribe(`/topic/memoResponse`, (response) => {
+        handleResponse(JSON.parse(response.body));
       });
     }
-  };
+  }
+  
+  const handleResponse = (response: any) => {
+    if (response.type === "InitMemoInfo") {
+      setMemoId(response.id);
+    }
+  }
   
   const initMemo = () => {
     if (stompClient) {
@@ -107,22 +110,50 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
     }
   };
   
-  const commitMemo = () => {
+  function handlePageArgMemoId() {
+    fetchMemoById(pageMemoId!!).then((memo) => {
+        if (!memo) {
+          return;
+        }
+        setMemoId(pageMemoId!!);
+        setTitle(memo.title);
+        setContent(memo.content);
+      }
+    );
+  }
+  
+  useEffect(() => {
+    titleRef.current = title;
+    contentRef.current = content;
+  }, [title, content]);
+  
+  useEffect(() => {
+    if (!stompClient || !memoId) {
+      return;
+    }
+    
+    const timer = setInterval(() => {
+      updateMemo();
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [stompClient, memoId]);
+  
+  const updateMemo = () => {
     if (stompClient && memoId) {
       let command = {
-        type: "CommitMemo",
+        type: "UpdateMemo",
         id: memoId,
-        title: title,
-        content: content,
+        title: titleRef.current,
+        content: contentRef.current,
       };
-      console.log(command);
       
       stompClient.publish({
-        destination: "/app/commitMemo",
+        destination: "/app/updateMemo",
         body: JSON.stringify(command)
       });
     }
-  }
+  };
   
   const referenceLink: ICommand = {
     name: 'referenceLink',
@@ -146,7 +177,7 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
         suffix: state.command.suffix,
       });
       let selectedWord = api.setSelectionRange(newSelectionRange);
-      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText);
+      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, memoId!!);
       console.log(recommendedArr)
       setRecommendations(recommendedArr);
       
@@ -157,7 +188,7 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
         selectedText: selectedWord.selectedText,
         selection: state.selection,
         prefix: state.command.prefix!,
-        suffix: state.command.suffix + "(http://localhost:7777/memos/" + selectedValue.memoId + ")",
+        suffix: state.command.suffix + "(http://localhost:3000/memo/" + selectedValue.memoId + ")",
       });
       // }
     }
@@ -175,82 +206,59 @@ export default function MemoEditor({pageMemoId, className} : {pageMemoId? : stri
     setIsModalOpen(false);
   };
   
-  const subscribeMemo = () => {
-    if (stompClient) {
-      stompClient.subscribe(`/topic/memoResponse`, (response) => {
-        handleResponse(JSON.parse(response.body));
-      });
-    }
-  }
-  
-  const handleResponse = (response: any) => {
-    if (response.type === "InitMemoInfo") {
-      setMemoId(response.id);
-      console.log("InitMemoInfo", response.id);
-    }
-  }
-  
-  const handleMemoSelect = (memo: Memo) => {
-    
-    setTitle(memo.title);
-    setContent(memo.content);
-  }
-  
   return (
-    <div className={className}>
-      <div className="flex-grow">
-        {/*title*/}
-        <div className="mb-4">
-          <input
-            className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
-            type="text"
-            placeholder="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        
-        {/*editor*/}
-        <div className="mb-4">
-          <RelatedMemoModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            contents={(
-              <ul className="list-none space-y-2">
-                {recommendations.map((recommendation, index) => (
-                  <li
-                    key={index}
-                    className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
-                    onClick={() => handleSelect(recommendation)}
-                  ><span>{"> "}</span>
-                    {recommendation.title}
-                  </li>
-                ))}
-              </ul>
-            )}
-          />
+    <div className={"dos-font flex flex-col md:flex-row"}>
+      <div className={"bg-black text-green-400 font-mono p-4 flex flex-grow md:w-80 "}>
+        <div className="flex-grow">
+          {/*title*/}
+          <div className="mb-4">
+            <input
+              className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
+              type="text"
+              placeholder="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
           
-          <MDEditor
-            value={content}
-            extraCommands={getCustomExtraCommands()}
-            onChange={(value) => {
-              if (typeof value === 'string') {
-                setContent(value);
-              }
-            }}
-            height={400}
-            visibleDragbar={false}
-          />
+          {/*editor*/}
+          <div className="mb-4">
+            <RelatedMemoModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              contents={(
+                <ul className="list-none space-y-2">
+                  {recommendations.map((recommendation, index) => (
+                    <li
+                      key={index}
+                      className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
+                      onClick={() => handleSelect(recommendation)}
+                    ><span>{"> "}</span>
+                      {recommendation.title}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            />
+            
+            <MDEditor
+              value={content}
+              extraCommands={getCustomExtraCommands()}
+              onChange={(value) => {
+                if (typeof value === 'string') {
+                  setContent(value);
+                }
+              }}
+              height={400}
+              visibleDragbar={false}
+            />
+          </div>
         </div>
-        
-        {/*commit*/}
-        <button
-          className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded"
-          onClick={commitMemo}
-        >
-          commit
-        </button>
       </div>
+      <MemoTable memos={memos}
+                 underwritingId={memoId}
+                 underwritingTitle={title}
+                 className="flex flex-1"/>
     </div>
   );
 }

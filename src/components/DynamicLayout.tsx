@@ -44,7 +44,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       router.push(selectedTab.context);
     }
     else if(tabs.length === 0){
-      router.push('empty');
+      router.push('/empty');
     }
   }, [selectedTabIdx, tabs, path, router]);
   

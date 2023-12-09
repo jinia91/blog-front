@@ -1,5 +1,5 @@
 import {useContext, useState} from "react";
-import {SidebarContext} from "@/layout/DynamicLayout";
+import {SidebarContext} from "@/components/DynamicLayout";
 import Image from "next/image";
 
 

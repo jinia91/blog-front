@@ -6,8 +6,6 @@ import moon from '../../../public/moon.png'
 import sun from '../../../public/sun.png'
 
 export default function DarkLightToggle() {
-  console.log("스위치 렌더링")
-  
   const [mounted, setMounted] = useState(false)
   const {theme, setTheme} = useTheme()
   

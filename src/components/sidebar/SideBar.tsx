@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useContext} from "react";
-import {SidebarContext} from "@/layout/DynamicLayout";
+import {SidebarContext} from "@/components/DynamicLayout";
 import TabLink from "@/components/TabLink";
 import {sidebarItems} from "@/components/sidebar/SideBarItems";
 

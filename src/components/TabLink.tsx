@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, {useContext} from "react";
-import {TabBarContext} from "@/layout/DynamicLayout";
+import {TabBarContext} from "@/components/DynamicLayout";
 
 export default function TabLink({ name, href, children } : { name:string, href: string, children: React.ReactNode }) {
   const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);

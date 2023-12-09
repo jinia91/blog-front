@@ -4,7 +4,7 @@ import React from "react";
 import TopNav from "@/components/top/TopNav";
 import blogMetaData from "@/metadata/blogMetaData";
 import UiContext from "@/components/UiContext";
-import {DynamicLayout} from "@/layout/DynamicLayout";
+import {DynamicLayout} from "@/components/DynamicLayout";
 import Sidebar from "@/components/sidebar/SideBar";
 
 
