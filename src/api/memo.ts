@@ -2,7 +2,7 @@ import {unstable_noStore as noStore} from 'next/cache';
 
 export async function fetchMemo() {
   try {
-  // noStore()
+  noStore()
     const response = await fetch('http://localhost:7777/api/v1/memos');
     if (!response.ok) {
       throw new Error('Network response was not ok');

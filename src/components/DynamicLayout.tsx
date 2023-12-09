@@ -38,10 +38,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   const [selectedTabIdx, setSelectedTabIdx] = React.useState<number>(0);
   const router = useRouter();
   
-  console.log("레이아웃 렌더링------")
-  
   useEffect(() => {
-    console.log("탭 변경감지 랜더링")
     const selectedTab = tabs[selectedTabIdx];
     if (selectedTab && selectedTab.context !== path) {
       router.push(selectedTab.context);

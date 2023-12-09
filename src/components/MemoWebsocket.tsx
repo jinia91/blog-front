@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import MDEditor, {
@@ -10,14 +10,22 @@ import MDEditor, {
   getExtraCommands,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
-import {fetchRelatedMemo} from "@/api/memo";
+import {fetchMemo, fetchRelatedMemo} from "@/api/memo";
 import {Modal, SimpleMemo} from "@/components/modal";
+import {useRouter} from "next/navigation";
 
 export default function MemoEditor() {
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const [memoId, setMemoId] = useState<string | null>(null);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
+  const titleRef = useRef(title);
+  const contentRef = useRef(content);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recommendations, setRecommendations] = useState<SimpleMemo[]>([]);
+  const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
+  
+  const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
   
   useEffect(() => {
     const socket = new SockJS('http://localhost:7777/memo');
@@ -47,6 +55,11 @@ export default function MemoEditor() {
   }, [title, content]);
   
   useEffect(() => {
+    titleRef.current = title;
+    contentRef.current = content;
+  }, [title, content]);
+  
+  useEffect(() => {
     if (!stompClient || !memoId) {
       return;
     }
@@ -57,6 +70,23 @@ export default function MemoEditor() {
     
     return () => clearInterval(timer);
   }, [stompClient, memoId]);
+  
+  const updateMemo = () => {
+    if (stompClient && memoId) {
+      let command = {
+        type: "UpdateMemo",
+        id: memoId,
+        title: titleRef.current,
+        content: contentRef.current,
+      };
+      console.log("update", command);
+      
+      stompClient.publish({
+        destination: "/app/updateMemo",
+        body: JSON.stringify(command)
+      });
+    }
+  };
   
   const initMemo = () => {
     if (stompClient) {
@@ -83,6 +113,7 @@ export default function MemoEditor() {
         title: title,
         content: content,
       };
+      console.log(command);
       
       stompClient.publish({
         destination: "/app/commitMemo",
@@ -90,28 +121,6 @@ export default function MemoEditor() {
       });
     }
   }
-  
-  const updateMemo = () => {
-    if (stompClient && memoId) {
-      let command = {
-        type: "UpdateMemo",
-        id: memoId,
-        title: title,
-        content: content,
-      };
-      
-      stompClient.publish({
-        destination: "/app/updateMemo",
-        body: JSON.stringify(command)
-      });
-    }
-  }
-  
-  const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [recommendations, setRecommendations] = useState<SimpleMemo[]>([]);
-  const [selection, setSelection] = useState(null);
-  const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>(null);
   
   const referenceLink: ICommand = {
     name: 'referenceLink',
@@ -139,17 +148,15 @@ export default function MemoEditor() {
       console.log(recommendedArr)
       setRecommendations(recommendedArr);
       
-      const selectedValue = await openModalWithSelection();
-      
-      console.log("-----------",selectedValue);
+      const selectedValue: any = await openModalWithSelection();
       
       executeCommand({
-          api,
-          selectedText: selectedWord.selectedText,
-          selection: state.selection,
-          prefix: state.command.prefix!,
-          suffix: state.command.suffix + "(http://localhost:7777/memos/" + selectedValue.memoId + ")",
-        });
+        api,
+        selectedText: selectedWord.selectedText,
+        selection: state.selection,
+        prefix: state.command.prefix!,
+        suffix: state.command.suffix + "(http://localhost:7777/memos/" + selectedValue.memoId + ")",
+      });
       // }
     }
   };
@@ -166,7 +173,6 @@ export default function MemoEditor() {
     setIsModalOpen(false);
   };
   
-  
   const subscribeMemo = () => {
     if (stompClient) {
       stompClient.subscribe(`/topic/memoResponse`, (response) => {
@@ -182,54 +188,92 @@ export default function MemoEditor() {
     }
   }
   
+  const [memos , setMemos] = useState<SimpleMemo[]>([]);
+  
+  useEffect(() => {
+    const fetchAndSetMemos = () => {
+      fetchMemo().then(fetchedMemos => {
+        if (fetchedMemos) {
+          setMemos(fetchedMemos);
+        }
+      });
+    };
+    
+    fetchAndSetMemos();
+    const intervalId = setInterval(fetchAndSetMemos, 10000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+  
+  const handleMemoSelect = (memo: SimpleMemo) => {
+    
+    setTitle(memo.title);
+    setContent(memo.content);
+  }
+  
   return (
-    <div className="bg-black text-green-400 font-mono p-4">
-      <div className="mb-4">
-        <input
-          className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
-          type="text"
-          placeholder="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+    <div className="bg-black text-green-400 font-mono p-4 flex">
+      <div className="flex-grow">
+        <div className="mb-4">
+          <input
+            className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
+            type="text"
+            placeholder="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            contents={(
+              <ul className="list-none space-y-2">
+                {recommendations.map((recommendation, index) => (
+                  <li
+                    key={index}
+                    className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
+                    onClick={() => handleSelect(recommendation)}
+                  ><span>{"> "}</span>
+                    {recommendation.title}
+                  </li>
+                ))}
+              </ul>
+            )}
+          />
+          
+          <MDEditor
+            value={content}
+            extraCommands={getCustomExtraCommands()}
+            onChange={(value) => {
+              if (typeof value === 'string') {
+                setContent(value);
+              }
+            }}
+            height={400}
+            visibleDragbar={false}
+          />
+        </div>
+        <button
+          className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded"
+          onClick={commitMemo}
+        >
+          commit
+        </button>
       </div>
-      <div className="mb-4">
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          contents={(
-            <ul className="list-none space-y-2">
-              {recommendations.map((recommendation, index) => (
-                <li
-                  key={index}
-                  className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
-                  onClick={() => handleSelect(recommendation)}
-                ><span>{"> "}</span>
-                  {recommendation.title}
-                </li>
-              ))}
-            </ul>
-          )}
-        />
-        
-        <MDEditor
-          value={content}
-          extraCommands={getCustomExtraCommands()}
-          onChange={(value) => {
-            if (typeof value === 'string') {
-              setContent(value);
-            }
-          }}
-          height={400}
-          visibleDragbar={false}
-        />
+      <div className="pl-2 flex-shrink w-64">
+        <ul className="overflow-auto text-white">
+          {memos.map((memo, index) => (
+            <li
+              key={index}
+              className="p-2 hover:bg-gray-700 rounded cursor-pointer border-b"
+              onClick={() => handleMemoSelect(memo)}
+            >
+              {memo.title}
+            </li>
+          ))}
+        </ul>
       </div>
-      <button
-        className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded"
-        onClick={commitMemo}
-      >
-        commit
-      </button>
     </div>
   );
 }

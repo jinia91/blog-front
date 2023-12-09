@@ -9,9 +9,15 @@ interface ModalProps {
 }
 
 export interface SimpleMemo {
-  id: number;
+  memoId: number;
   title: string;
   content: string;
+  references: Reference[];
+}
+
+export interface Reference {
+  rootId: number;
+  referenceId: number;
 }
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, contents }) => {

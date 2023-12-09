@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { ForceGraph2D } from 'react-force-graph';
 import {fetchMemo} from "@/api/memo";
 import dynamic from 'next/dynamic';
+import {SimpleMemo} from "@/components/modal";
+import {LinkObject, NodeObject} from "force-graph";
 
 interface GraphNode {
   id: string;
@@ -13,31 +15,24 @@ interface GraphNode {
   y: number;
 }
 
-export default function MemoGraph() {
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+export default function MemoGraph({ memos }: { memos: SimpleMemo[] }) {
+  const nodes : NodeObject[] = memos.map((memo) => ({
+    id: memo.memoId,
+    name: memo.title,
+    
+  }));
   
-  useEffect(() => {
-    fetchMemo().then(memos => {
-      if (memos) {
-        const nodes = memos.map(function (memo : any) {
-          return {
-            id: memo.memoId,
-            name: memo.title
-          };
-        });
-        const links = memos.flatMap(function (memo : any) {
-            return memo.references.map(function (ref : any) {
-              return {source: memo.memoId, target: ref};
-            });
-          }
-        );
-        setGraphData({ nodes, links });
-      }
-    });
-  }, []);
+  const links : LinkObject[] = memos.flatMap((memo) =>
+    memo.references.map((ref) => ({
+      source: memo.memoId,
+      target: ref.referenceId,
+    }))
+  );
+  
+  const graphData = { nodes, links };
   
   return (
-    <div className="bg-gray-900 overflow-hidden">
+    <div className="bg-gray-900 overflow-hidden flex flex-grow border-2 w-80">
       <ForceGraph2D
         graphData={graphData}
         nodeId="id"

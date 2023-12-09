@@ -41,11 +41,11 @@ const sidebarItems = [
 ];
 
 export default function Sidebar() {
-  console.log("사이드바 렌더링")
   const {isCollapsed, toggleSideBarCollapse} = useContext(SidebarContext);
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72';
   const textWidth = isCollapsed ? 'hidden' : 'w-auto';
   const overlayStyle = isCollapsed ? 'hidden opacity-0 md:opacity-100 md:inline' : 'opacity-100';
+  
   return (
     <div className={`
     transform ${sidebarWidth} transition-width duration-300 ease-in-out
