@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import {fetchRelatedMemo} from "@/api/memo";
+
+import React from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,19 +8,7 @@ interface ModalProps {
   contents: React.ReactNode;
 }
 
-export interface SimpleMemo {
-  memoId: number;
-  title: string;
-  content: string;
-  references: Reference[];
-}
-
-export interface Reference {
-  rootId: number;
-  referenceId: number;
-}
-
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, contents }) => {
+export const RelatedMemoModal: React.FC<ModalProps> = ({ isOpen, onClose, contents }) => {
   if (!isOpen) return null;
   
   return (

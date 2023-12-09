@@ -1,13 +1,11 @@
 "use client";
 import React from "react";
-import {SimpleMemo} from "@/components/modal";
 import TabLink from "@/components/TabLink";
+import {Memo} from "@/domain/Memo";
 
-export default function MemoTable({ memos }: { memos: SimpleMemo[] }) {
-  console.log("메모테이블 렌더링", memos)
-  
+export default function MemoTable({ memos, className }: { memos: Memo[], className?: string }) {
   return (
-    <div className="flex flex-1">
+    <div className={className}>
       <ul className="flex-grow overflow-auto text-white border-2">
         {memos.map((memo, index) => (
           <li

@@ -17,9 +17,6 @@ const blogMetaData = {
     mail: 'mailto:creee77@gmail.com',
   },
   analytics: {
-    // googleAnalytics: {
-    //   googleAnalyticsId: '', // e.g. G-XXXXXXX
-    // },
   },
 }
 

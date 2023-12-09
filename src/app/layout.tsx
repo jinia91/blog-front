@@ -2,7 +2,7 @@ import type {Metadata} from 'next'
 import '../styles/globals.css'
 import React from "react";
 import TopNav from "@/components/top/TopNav";
-import blogMetaData from "@/static/blogMetaData";
+import blogMetaData from "@/metadata/blogMetaData";
 import UiContext from "@/components/UiContext";
 import {DynamicLayout} from "@/layout/DynamicLayout";
 import Sidebar from "@/components/sidebar/SideBar";

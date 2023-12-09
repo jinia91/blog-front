@@ -1,3 +1,5 @@
+"use client";
+
 import React, {useState, useEffect, useRef} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
@@ -5,24 +7,24 @@ import MDEditor, {
   codeEdit,
   codeLive,
   codePreview,
-  commands,
   divider, executeCommand, ExecuteState, fullscreen,
-  getExtraCommands,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
 import {fetchMemo, fetchRelatedMemo} from "@/api/memo";
-import {Modal, SimpleMemo} from "@/components/modal";
-import {useRouter} from "next/navigation";
+import {Memo} from "@/domain/Memo";
+import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
 
-export default function MemoEditor() {
+export default function MemoEditor({pageMemoId, className} : {pageMemoId? : string, className?: string}) {
   const [stompClient, setStompClient] = useState<Client | null>(null);
-  const [memoId, setMemoId] = useState<string | null>(null);
+  // memo
+  const [memoId, setMemoId] = useState<string | null>(pageMemoId ? pageMemoId : null);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const titleRef = useRef(title);
   const contentRef = useRef(content);
+  // component
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [recommendations, setRecommendations] = useState<SimpleMemo[]>([]);
+  const [recommendations, setRecommendations] = useState<Memo[]>([]);
   const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
   
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
@@ -66,7 +68,7 @@ export default function MemoEditor() {
     
     const timer = setInterval(() => {
       updateMemo();
-    }, 10000);
+    }, 5000);
     
     return () => clearInterval(timer);
   }, [stompClient, memoId]);
@@ -168,7 +170,7 @@ export default function MemoEditor() {
     });
   };
   
-  const handleSelect = (value: SimpleMemo) => {
+  const handleSelect = (value: Memo) => {
     if (resolveSelection) resolveSelection(value);
     setIsModalOpen(false);
   };
@@ -188,32 +190,16 @@ export default function MemoEditor() {
     }
   }
   
-  const [memos , setMemos] = useState<SimpleMemo[]>([]);
-  
-  useEffect(() => {
-    const fetchAndSetMemos = () => {
-      fetchMemo().then(fetchedMemos => {
-        if (fetchedMemos) {
-          setMemos(fetchedMemos);
-        }
-      });
-    };
-    
-    fetchAndSetMemos();
-    const intervalId = setInterval(fetchAndSetMemos, 10000);
-    
-    return () => clearInterval(intervalId);
-  }, []);
-  
-  const handleMemoSelect = (memo: SimpleMemo) => {
+  const handleMemoSelect = (memo: Memo) => {
     
     setTitle(memo.title);
     setContent(memo.content);
   }
   
   return (
-    <div className="bg-black text-green-400 font-mono p-4 flex">
+    <div className={className}>
       <div className="flex-grow">
+        {/*title*/}
         <div className="mb-4">
           <input
             className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
@@ -223,8 +209,10 @@ export default function MemoEditor() {
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
+        
+        {/*editor*/}
         <div className="mb-4">
-          <Modal
+          <RelatedMemoModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             contents={(
@@ -254,25 +242,14 @@ export default function MemoEditor() {
             visibleDragbar={false}
           />
         </div>
+        
+        {/*commit*/}
         <button
           className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded"
           onClick={commitMemo}
         >
           commit
         </button>
-      </div>
-      <div className="pl-2 flex-shrink w-64">
-        <ul className="overflow-auto text-white">
-          {memos.map((memo, index) => (
-            <li
-              key={index}
-              className="p-2 hover:bg-gray-700 rounded cursor-pointer border-b"
-              onClick={() => handleMemoSelect(memo)}
-            >
-              {memo.title}
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

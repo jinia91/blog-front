@@ -75,7 +75,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
       <TabBarContext.Provider value={{tabs, selectedTabIdx, setTabs, setSelectedTabIdx}}>
+        
         <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
+        
         <div className="md:flex overflow-hidden">
           <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r" style={{ zIndex: 1000 }}>
             {sideBar}
