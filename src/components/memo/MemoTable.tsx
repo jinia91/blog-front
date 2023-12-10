@@ -50,7 +50,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
           <TabLink key={index} name={memo.title} href={`/memo/${memo.memoId}`}>
             <li
               data-memo-id={memo.memoId.toString()}
-              className={`p-2 rounded cursor-pointer border-b ${
+              className={`p-2 rounded cursor-pointer truncate ${
                 memo.memoId.toString() === underwritingId ? 'bg-gray-600' : 'hover:bg-gray-600'
               }`}
             >
@@ -60,7 +60,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
         ))}
         
         {!hasUnderwritingMemo && underwritingId !== undefined && (
-          <li className="p-2 bg-gray-600 rounded cursor-pointer border-b">
+          <li className="p-2 bg-gray-600 rounded cursor-pointer truncate">
             {newMemoTitle?.length === 0 ? '새로운 메모를 작성해주세요' : newMemoTitle}
           </li>
         )}

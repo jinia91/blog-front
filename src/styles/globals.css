@@ -46,14 +46,8 @@
     font-family: 'DOSIyagiMedium', sans-serif;
 }
 
-.text-hidden {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
-}
-
-.text-visible {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+.truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

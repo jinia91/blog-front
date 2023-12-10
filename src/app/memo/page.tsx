@@ -9,7 +9,7 @@ export default async function Page() {
 
   return (
     <main className="dos-font flex"
-          style={{height: '65vh', overflowY: 'auto'}}>
+          style={{height: '70vh', overflowY: 'auto'}}>
         <Suspense>
           <MemoGraph memos={memos} className={"bg-gray-900 overflow-hidden flex flex-grow border-2 w-80"}/>
         </Suspense>

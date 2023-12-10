@@ -28,6 +28,7 @@ const initialTabStatus = {
   setSelectedTabIdx: () => {
   }
 };
+
 const TabBarContext: React.Context<any> = createContext(initialTabStatus);
 const initialValue = {isCollapsed: true};
 const SidebarContext: React.Context<any> = createContext(initialValue);
@@ -38,45 +39,37 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   page: React.ReactNode
 }) => {
   const path = usePathname();
-  const [isCollapsed, setCollapse] = useState(true);
-  const initialTab = path !== "/empty" ? [{name: path, context: path}] : []
-  const [tabs, setTabs] = React.useState<Tab[]>(initialTab);
-  const [selectedTabIdx, setSelectedTabIdx] = React.useState<number>(0);
   const router = useRouter();
-  const [contextMenu, setContextMenu] = useState<ContextMenuPosition | null>(null);
   
-  const closeContextMenu = useCallback(() => {
-    setContextMenu(null);
-  }, []);
+  const restoreTabs = () => {
+    const savedTabs = localStorage.getItem('tabs');
+    return savedTabs ? JSON.parse(savedTabs) : [];
+  };
   
-  const closeAllTabs = useCallback(() => {
-    setTabs([]);
-  }, [setTabs]);
-  
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
-    event.preventDefault();
-    setContextMenu({
-      xPos: `${event.pageX}px`,
-      yPos: `${event.pageY}px`,
-      tabIdx: idx,
-    });
-  }, []);
-  
-  const closeOtherTabs = useCallback(() => {
-    if (contextMenu !== null) {
-      setTabs(tabs.filter((_, idx) => idx === contextMenu.tabIdx));
-      setSelectedTabIdx(0);
-    }
-  }, [tabs, contextMenu, setTabs]);
-  
+  const [tabs, setTabs] = useState<Tab[]>(restoreTabs);
+  const [selectedTabIdx, setSelectedTabIdx] = useState<number>(() => {
+    const savedTabs = restoreTabs();
+    const savedIndex = savedTabs.findIndex((tab: Tab) => tab.context === path);
+    return savedIndex >= 0 ? savedIndex : savedTabs.length;
+  });
   
   useEffect(() => {
-    document.addEventListener('click', closeContextMenu);
-    return () => {
-      document.removeEventListener('click', closeContextMenu);
-    };
-  }, [closeContextMenu]);
-  
+    const existingTabIndex = tabs.findIndex((tab: Tab) => tab.context === path);
+    
+    if (existingTabIndex === -1) {
+      // 탭이 존재하지 않으면 새 탭 생성
+      const newTab = { name: path, context: path };
+      const newTabs = [...tabs, newTab]; // 새 탭을 오른쪽에 추가
+      setTabs(newTabs);
+      setSelectedTabIdx(newTabs.length - 1); // 새 탭 선택
+    } else {
+      // 탭이 존재하면 해당 탭 선택
+      setSelectedTabIdx(existingTabIndex);
+    }
+    
+    // 변경된 탭 상태를 로컬 스토리지에 저장
+    localStorage.setItem('tabs', JSON.stringify(tabs));
+  }, [path]);
   
   useEffect(() => {
     const selectedTab = tabs[selectedTabIdx];
@@ -85,6 +78,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     } else if (tabs.length === 0) {
       router.push('/empty');
     }
+    
+    localStorage.setItem('tabs', JSON.stringify(tabs));
+    localStorage.setItem('selectedTabIdx', selectedTabIdx.toString());
   }, [selectedTabIdx, tabs, path, router]);
   
   const selectTab = (index: number) => {
@@ -106,6 +102,42 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       return prevIdx > target ? prevIdx - 1 : prevIdx;
     });
   };
+  
+  // contextMenu
+  const [contextMenu, setContextMenu] = useState<ContextMenuPosition | null>(null);
+  
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+  
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
+    event.preventDefault();
+    setContextMenu({
+      xPos: `${event.pageX}px`,
+      yPos: `${event.pageY}px`,
+      tabIdx: idx,
+    });
+  }, []);
+  
+  const closeAllTabs = useCallback(() => {
+    setTabs([]);
+  }, [setTabs]);
+  
+  const closeOtherTabs = useCallback(() => {
+    if (contextMenu !== null) {
+      setTabs(tabs.filter((_, idx) => idx === contextMenu.tabIdx));
+      setSelectedTabIdx(0);
+    }
+  }, [tabs, contextMenu, setTabs]);
+  
+  useEffect(() => {
+    document.addEventListener('click', closeContextMenu);
+    return () => {
+      document.removeEventListener('click', closeContextMenu);
+    };
+  }, [closeContextMenu]);
+  
+  const [isCollapsed, setCollapse] = useState(true);
   
   const toggleSideBarCollapse = () => {
     setCollapse((prevState) => !prevState);

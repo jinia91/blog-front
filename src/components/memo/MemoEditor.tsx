@@ -218,19 +218,19 @@ export default function MemoEditor({pageMemoId, memos}: {
     <PanelGroup
       direction="horizontal"
       className={"dos-font flex-col md:flex-row"}
-      style={{ height: '65vh', overflowY: 'auto' }}
+      style={{ height: '70vh', overflowY: 'auto'}}
       onLayout={onLayout}
     >
       <Panel
         defaultSizePercentage={defaultLayout ? defaultLayout[0].sizePercentage : 70}
-        className={"bg-black text-green-400 font-mono p-4 flex flex-grow md:w-80"}
+        className={"bg-black text-green-400 font-mono p-4 flex flex-grow border-2"}
         minSizePercentage={20}
       >
-        <div className="flex-grow">
+        <div className="flex-grow overflow-scroll">
           {/*title*/}
           <div className="mb-4">
             <input
-              className="bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
+              className="border-2 bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
               type="text"
               placeholder="title"
               value={title}
@@ -239,7 +239,7 @@ export default function MemoEditor({pageMemoId, memos}: {
           </div>
           
           {/*editor*/}
-          <div className="mb-4">
+          <div className="mb-4 flex-grow">
             <RelatedMemoModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
@@ -266,8 +266,9 @@ export default function MemoEditor({pageMemoId, memos}: {
                   setContent(value);
                 }
               }}
-              height={400}
               visibleDragbar={false}
+              className={"border-2 flex-grow"}
+              height={350}
             />
           </div>
         </div>
