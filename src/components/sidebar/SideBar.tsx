@@ -11,7 +11,11 @@ export default function Sidebar() {
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100';
   
   useEffect(() => {
-    document.addEventListener('click', toggleSideBarCollapse);
+    if(isCollapsed) {
+      document.removeEventListener('click', toggleSideBarCollapse);
+    } else {
+      document.addEventListener('click', toggleSideBarCollapse);
+    }
     return () => {
       document.removeEventListener('click', toggleSideBarCollapse);
     };

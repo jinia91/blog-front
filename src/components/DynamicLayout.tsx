@@ -56,19 +56,19 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   useEffect(() => {
     const existingTabIndex = tabs.findIndex((tab: Tab) => tab.context === path);
     
-    if (existingTabIndex === -1) {
-      // 탭이 존재하지 않으면 새 탭 생성
-      const newTab = { name: path, context: path };
-      const newTabs = [...tabs, newTab]; // 새 탭을 오른쪽에 추가
+    if (existingTabIndex === -1 && path == "/empty") {
+      return;
+    } else if (existingTabIndex === -1) {
+      const newTab = {name: path, context: path};
+      const newTabs = [...tabs, newTab];
       setTabs(newTabs);
-      setSelectedTabIdx(newTabs.length - 1); // 새 탭 선택
+      setSelectedTabIdx(newTabs.length - 1);
     } else {
-      // 탭이 존재하면 해당 탭 선택
       setSelectedTabIdx(existingTabIndex);
     }
     
-    // 변경된 탭 상태를 로컬 스토리지에 저장
     localStorage.setItem('tabs', JSON.stringify(tabs));
+    localStorage.setItem('selectedTabIdx', selectedTabIdx.toString());
   }, [path]);
   
   useEffect(() => {
@@ -81,7 +81,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     
     localStorage.setItem('tabs', JSON.stringify(tabs));
     localStorage.setItem('selectedTabIdx', selectedTabIdx.toString());
-  }, [selectedTabIdx, tabs, path, router]);
+  }, [selectedTabIdx, tabs]);
   
   const selectTab = (index: number) => {
     setSelectedTabIdx(index);
@@ -183,9 +183,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                       <Link href={tab.context} onClick={() => selectTab(idx)}
                             className={`flex items-center justify-center p-2 rounded-t-lg ${selectedTabIdx === idx ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer`}
                       >
-            <span className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
-              {tab.name}
-            </span>
+                        <span className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
+                         {tab.name}
+                        </span>
                       </Link>
                       <button
                         onClick={() => {
@@ -200,6 +200,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                 </div>
               </div>
               
+              {/*page 영역*/}
               {
                 tabs.length > 0 && (path !== "/empty") && (
                   <div className="bg-gray-700 p-4 rounded-b-lg">
