@@ -10,6 +10,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   underwritingTitle?: string,
   className?: string
 }) {
+  
   const [newMemoTitle, setNewMemoTitle] = useState<string | null>(underwritingTitle ?? null);
   const listRef = useRef<HTMLUListElement>(null);
   
@@ -50,7 +51,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
           <TabLink key={index} name={memo.title} href={`/memo/${memo.memoId}`}>
             <li
               data-memo-id={memo.memoId.toString()}
-              className={`p-2 rounded cursor-pointer truncate ${
+              className={`p-2 rounded cursor-pointer truncate h-8 ${
                 memo.memoId.toString() === underwritingId ? 'bg-gray-600' : 'hover:bg-gray-600'
               }`}
             >

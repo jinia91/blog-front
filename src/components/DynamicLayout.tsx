@@ -1,8 +1,7 @@
 "use client";
-import React, {createContext, Suspense, useCallback, useEffect, useRef, useState} from "react";
+import React, {createContext, useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
-import {useRouter} from 'next/navigation'
+import {usePathname, useRouter} from "next/navigation";
 
 interface TabStatus {
   tabs: Tab[];
@@ -130,6 +129,23 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     }
   }, [tabs, contextMenu, setTabs]);
   
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const containerWidth = scrollContainerRef.current.offsetWidth;
+      
+      const selectedTabElement : HTMLDivElement = scrollContainerRef.current.children[selectedTabIdx] as HTMLDivElement;;
+      
+      if (selectedTabElement) {
+        const selectedTabOffset = selectedTabElement.offsetLeft;
+        const selectedTabWidth = selectedTabElement.offsetWidth;
+
+        scrollContainerRef.current.scrollLeft = selectedTabOffset - (containerWidth / 2) + (selectedTabWidth / 2);
+      }
+    }
+  }, [selectedTabIdx, tabs]);
+  
+  
   useEffect(() => {
     document.addEventListener('click', closeContextMenu);
     return () => {
@@ -173,7 +189,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
             <div className="bg-gray-800 p-4">
               {/*탭 컨테이너*/}
               <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
-                <div className="flex space-x-1 overflow-x-auto">
+                <div ref={scrollContainerRef} className="flex space-x-1 overflow-x-auto">
                   {tabs.map((tab, idx) => (
                     <div
                       onContextMenu={(e) => handleContextMenu(e, idx)}

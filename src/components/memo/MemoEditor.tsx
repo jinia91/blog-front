@@ -226,7 +226,7 @@ export default function MemoEditor({pageMemoId, memos}: {
         className={"bg-black text-green-400 font-mono p-4 flex flex-grow border-2"}
         minSizePercentage={20}
       >
-        <div className="flex-grow overflow-scroll">
+        <div className="flex-grow overflow-hidden">
           {/*title*/}
           <div className="mb-4">
             <input
