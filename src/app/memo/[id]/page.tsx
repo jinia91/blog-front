@@ -1,14 +1,14 @@
 import MemoEditor from "@/components/memo/MemoEditor";
-import {fetchMemo} from "@/api/memo";
+import {fetchMemo, fetchMemoById} from "@/api/memo";
 import {Memo} from "@/domain/Memo";
 
 export default async function Page({params}: { params: { id: string } }) {
-  const id = params.id;
   const memos: Memo[] = await fetchMemo()
+  const memo = await fetchMemoById(params.id);
   
   return (
     <main>
-      <MemoEditor pageMemoId={id}
+      <MemoEditor pageMemo={memo!!}
                   memos={memos}
       />
     </main>

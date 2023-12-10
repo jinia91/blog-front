@@ -11,24 +11,24 @@ import MDEditor, {
   divider, executeCommand, ExecuteState, fullscreen,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
-import {fetchMemoById, fetchRelatedMemo} from "@/api/memo";
 import {Memo} from "@/domain/Memo";
 import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
 import {usePathname} from "next/navigation";
-import {TabBarContext} from "@/components/DynamicLayout";
 import MemoTable from "@/components/memo/MemoTable";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
+import {fetchRelatedMemo} from "@/api/memo";
 
-export default function MemoEditor({pageMemoId, memos}: {
-  pageMemoId?: string,
+export default function MemoEditor({pageMemo, memos}: {
+  pageMemo: Memo,
   memos: Memo[],
 }) {
+  
   const [stompClient, setStompClient] = useState<Client | null>(null);
   // memo
-  const [memoId, setMemoId] = useState<string | null>(pageMemoId ? pageMemoId !== "new" ? pageMemoId : null : null);
-  const [title, setTitle] = useState<string>('');
-  const [content, setContent] = useState<string>('');
+  const [memoId, setMemoId] = useState<string>(pageMemo.memoId.toString());
+  const [title, setTitle] = useState<string>(pageMemo.title);
+  const [content, setContent] = useState<string>(pageMemo.content);
   const titleRef = useRef(title);
   const contentRef = useRef(content);
   // component
@@ -48,10 +48,6 @@ export default function MemoEditor({pageMemoId, memos}: {
       setStompClient(client);
     });
     
-    if (pageMemoId && pageMemoId !== "new") { // memoId == pageMemoId인 경우
-      handlePageArgMemoId();
-    }
-    
     return () => {
       if (client) {
         client.disconnect();
@@ -60,26 +56,10 @@ export default function MemoEditor({pageMemoId, memos}: {
   }, []);
   
   useEffect(() => {
-    if (stompClient && !memoId) { // memoId가 없는 경우
+    if (stompClient) {
       subscribeMemo();
-      initMemo();
     }
-    if (memoId == "pending") { // memoId가 pending인 경우
-      return;
-    }
-    
-    if (memoId && memoId !== "pending" && path == "/memo/new") { // memoId가 new인 경우
-      const updatedTab = {...tabs[selectedTabIdx], context: `/memo/${memoId}`, name: `/memo/${memoId}`};
-      const newTabs = [
-        ...tabs.slice(0, selectedTabIdx),
-        updatedTab,
-        ...tabs.slice(selectedTabIdx + 1)
-      ];
-      setTabs(newTabs);
-    }
-  }, [stompClient, memoId]);
-  
-  const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
+    }, [stompClient]);
   
   const subscribeMemo = () => {
     if (stompClient) {
@@ -89,40 +69,7 @@ export default function MemoEditor({pageMemoId, memos}: {
     }
   }
   
-  const handleResponse = (response: any) => {
-    if (response.type === "InitMemoInfo") {
-      setMemoId(response.id);
-    }
-  }
-  
-  const initMemo = () => {
-    if (stompClient) {
-      let command = {
-        type: "InitMemo",
-        authorId: 1,
-        title: title,
-        content: content,
-      };
-      
-      stompClient.publish({
-        destination: "/app/initMemo",
-        body: JSON.stringify(command)
-      });
-      setMemoId("pending");
-    }
-  };
-  
-  function handlePageArgMemoId() {
-    fetchMemoById(pageMemoId!!).then((memo) => {
-        if (!memo) {
-          return;
-        }
-        setMemoId(pageMemoId!!);
-        setTitle(memo.title);
-        setContent(memo.content);
-      }
-    );
-  }
+  const handleResponse = (response: any) => {}
   
   useEffect(() => {
     titleRef.current = title;
@@ -130,7 +77,7 @@ export default function MemoEditor({pageMemoId, memos}: {
   }, [title, content]);
   
   useEffect(() => {
-    if (!stompClient || !memoId) {
+    if (!stompClient) {
       return;
     }
     
@@ -226,7 +173,7 @@ export default function MemoEditor({pageMemoId, memos}: {
         className={"bg-black text-green-400 font-mono p-4 flex flex-grow border-2"}
         minSizePercentage={20}
       >
-        <div className="flex-grow overflow-hidden">
+        <div className="flex-grow overflow-auto">
           {/*title*/}
           <div className="mb-4">
             <input
@@ -266,7 +213,7 @@ export default function MemoEditor({pageMemoId, memos}: {
                   setContent(value);
                 }
               }}
-              visibleDragbar={false}
+              visibleDragbar={true}
               className={"border-2 flex-grow"}
               height={350}
             />

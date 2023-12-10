@@ -10,6 +10,7 @@ import Sidebar from "@/components/sidebar/SideBar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(blogMetaData.siteUrl),
+  
   title: {
     default: blogMetaData.title,
     template: `%s | ${blogMetaData.title}`,

@@ -174,7 +174,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
             onClick={closeContextMenu}
           />
           <ul
-            className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden"
+            className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
             style={{
               position: 'absolute',
               left: contextMenu.xPos,
@@ -186,8 +186,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
             <li className={"hover:bg-gray-700 p-1"} onClick={closeAllTabs}>모든 탭 닫기</li>
           </ul>
         </>
-      ))
-  ;
+      ));
   
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
