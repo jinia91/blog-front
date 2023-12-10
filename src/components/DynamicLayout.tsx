@@ -159,6 +159,36 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     setCollapse((prevState) => !prevState);
   };
   
+  const renderOverlay = () => (
+      contextMenu && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 999
+            }}
+            onClick={closeContextMenu}
+          />
+          <ul
+            className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden"
+            style={{
+              position: 'absolute',
+              left: contextMenu.xPos,
+              top: contextMenu.yPos,
+              zIndex: 1000,
+            }}
+          >
+            <li className={"hover:bg-gray-700 p-1"} onClick={closeOtherTabs}>현재탭만 제외하고 모든 탭 닫기</li>
+            <li className={"hover:bg-gray-700 p-1"} onClick={closeAllTabs}>모든 탭 닫기</li>
+          </ul>
+        </>
+      ))
+  ;
+  
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
       <TabBarContext.Provider value={{tabs, selectedTabIdx, setTabs, setSelectedTabIdx}}>
@@ -171,21 +201,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
           </aside>
           <main
             className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
-            {contextMenu && (
-              <ul
-                className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden"
-                style={{
-                  position: 'absolute',
-                  left: contextMenu.xPos,
-                  top: contextMenu.yPos,
-                  zIndex: 1000,
-                }}
-              >
-                <li className={"hover:bg-gray-700 p-1"} onClick={closeOtherTabs}>현재탭만 제외하고 모든 탭 닫기</li>
-                <li className={"hover:bg-gray-700 p-1"} onClick={closeAllTabs}>모든 탭 닫기</li>
-              </ul>
-            )}
-            
+            {renderOverlay()}
             <div className="bg-gray-800 p-4">
               {/*탭 컨테이너*/}
               <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
