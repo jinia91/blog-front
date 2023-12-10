@@ -3,6 +3,8 @@ import React, {useEffect, useRef, useState} from "react";
 import TabLink from "@/components/TabLink";
 import {Memo} from "@/domain/Memo";
 import {setLocalStorage} from "@/utils/LocalStorage";
+import Image from "next/image";
+import newMemo from "../../../public/newMemo.png";
 
 export default function MemoTable({memos, underwritingId, underwritingTitle, className}: {
   memos: Memo[],
@@ -18,35 +20,44 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     setNewMemoTitle(underwritingTitle ?? null);
   }, [underwritingTitle]);
   
-  const saveScrollPosition = () => {
+  const scrollToCenter = () => {
     if (listRef.current) {
-      const scrollPosition = listRef.current.scrollTop;
-      setLocalStorage('scrollPosition', JSON.stringify(scrollPosition));
-    }
-  };
-  
-  const restoreScrollPosition = () => {
-    const savedPosition = localStorage.getItem('scrollPosition');
-    if (listRef.current && savedPosition) {
-      const scrollPosition = JSON.parse(savedPosition);
-      listRef.current.scrollTop = scrollPosition;
+      const selectedMemoElement = listRef.current.querySelector(`[data-memo-id="${underwritingId}"]`) as HTMLDivElement;
+      if (selectedMemoElement) {
+        const listHeight = listRef.current.offsetHeight;
+        const memoPosition = selectedMemoElement.offsetTop;
+        const memoHeight = selectedMemoElement.offsetHeight;
+        const centerPosition = memoPosition - (listHeight / 2) + (memoHeight / 2);
+        
+        listRef.current.scrollTop = centerPosition;
+      }
     }
   };
   
   useEffect(() => {
-    restoreScrollPosition();
-    const listElement = listRef.current;
-    listElement?.addEventListener('scroll', saveScrollPosition);
-    return () => {
-      listElement?.removeEventListener('scroll', saveScrollPosition);
-    };
-  }, []);
+    scrollToCenter();
+  }, [memos, underwritingId]);
+  
   
   const hasUnderwritingMemo = memos.some(memo => memo.memoId.toString() === underwritingId);
   
   return (
     <div className={className}>
-      <ul ref={listRef} className="flex-grow overflow-auto text-white border-2">
+      <div className={"flex pb-3 flex-row-reverse"}>
+        <TabLink name="new" href="/memo/new">
+          <button
+            className="text-white"
+            aria-label='newMemo'
+            type='button'
+          
+          >
+            <Image src={newMemo} alt={"newMemo"}
+                   className={"white-image"}
+                   width={30} height={30}/>
+          </button>
+        </TabLink>
+      </div>
+      <ul ref={listRef} className="flex-grow overflow-auto text-white border-2 bg-gray-900">
         {memos.map((memo, index) => (
           <TabLink key={index} name={memo.title} href={`/memo/${memo.memoId}`}>
             <li
@@ -65,11 +76,6 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
             {newMemoTitle?.length === 0 ? '새로운 메모를 작성해주세요' : newMemoTitle}
           </li>
         )}
-        <button className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
-          <TabLink name="new" href="/memo/new">
-            newMemo
-          </TabLink>
-        </button>
       </ul>
     </div>
   );

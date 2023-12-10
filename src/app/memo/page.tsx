@@ -14,7 +14,7 @@ export default async function Page() {
           <MemoGraph memos={memos} className={"bg-gray-900 overflow-hidden flex flex-grow border-2 w-80"}/>
         </Suspense>
         <Suspense>
-          <MemoTable memos={memos} className={"flex flex-1"}/>
+          <MemoTable memos={memos} className={"flex flex-1 flex-col pl-2"}/>
         </Suspense>
     </main>
   

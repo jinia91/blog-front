@@ -283,7 +283,7 @@ export default function MemoEditor({pageMemoId, memos}: {
         <MemoTable memos={memos}
                    underwritingId={memoId}
                    underwritingTitle={title}
-                   className="flex flex-1 min-w-0"/>
+                   className="flex flex-1 min-w-0 flex-col"/>
       </Suspense>
       </Panel>
     </PanelGroup>
