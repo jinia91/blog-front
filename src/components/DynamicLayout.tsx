@@ -76,6 +76,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       router.push(selectedTab.context);
     } else if (tabs.length === 0) {
       router.push('/empty');
+      localStorage.setItem('tabs', JSON.stringify(tabs));
+      localStorage.setItem('selectedTabIdx', "0");
+      return
     }
     
     localStorage.setItem('tabs', JSON.stringify(tabs));

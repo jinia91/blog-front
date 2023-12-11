@@ -17,20 +17,38 @@ import {usePathname} from "next/navigation";
 import MemoTable from "@/components/memo/MemoTable";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
-import {fetchRelatedMemo} from "@/api/memo";
+import {fetchMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
 
-export default function MemoEditor({pageMemo, memos}: {
-  pageMemo: Memo,
-  memos: Memo[],
-}) {
-  
-  const [stompClient, setStompClient] = useState<Client | null>(null);
-  // memo
-  const [memoId, setMemoId] = useState<string>(pageMemo.memoId.toString());
-  const [title, setTitle] = useState<string>(pageMemo.title);
-  const [content, setContent] = useState<string>(pageMemo.content);
+export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
+  const [memos, setMemos] = useState<Memo[] | null>(null);
+  const [memo, setMemo] = useState<Memo | null>(null);
+  const [memoId, setMemoId] = useState<string>(pageMemoNumber);
+  const [title, setTitle] = useState<string>(memo?.title ?? "");
+  const [content, setContent] = useState<string>(memo?.content ?? "");
   const titleRef = useRef(title);
   const contentRef = useRef(content);
+  
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const fetchedMemos = await fetchMemo();
+        const fetchedMemo = await fetchMemoById(memoId);
+        
+        if (fetchedMemos && fetchedMemo) {
+          setMemos(fetchedMemos);
+          setMemo(fetchedMemo);
+          setTitle(fetchedMemo.title);
+          setContent(fetchedMemo.content);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+    
+    fetchData();
+  }, []);
+  
+  const [stompClient, setStompClient] = useState<Client | null>(null);
   // component
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Memo[]>([]);

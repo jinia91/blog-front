@@ -16,17 +16,18 @@ interface ContextMenuPosition {
 }
 
 export default function MemoTable({memos, underwritingId, underwritingTitle, className}: {
-  memos: Memo[],
+  memos: Memo[] | null,
   underwritingId?: string | null,
   underwritingTitle?: string,
   className?: string
 }) {
-  
   const [newMemoTitle, setNewMemoTitle] = useState<string>(underwritingTitle ?? "");
   
   const listRef = useRef<HTMLUListElement>(null);
   
-  const [memosRef, setMemosRef] = useState<Memo[]>(memos);
+  const [memosRef, setMemosRef] = useState<Memo[] | null>(memos);
+  
+  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
   
   useEffect(() => {
     setNewMemoTitle(underwritingTitle ?? "");
@@ -83,9 +84,29 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   }, [closeContextMenu]);
   
   
-  const hasUnderwritingMemo = memosRef.some(memo => memo.memoId.toString() === underwritingId);
+  if (memos === null || memosRef === null) {
+    return (
+      <div className={className}>
+        <div className={"flex pb-3 flex-row-reverse"}>
+          <NewMemoLink name="new">
+            <button
+              className="text-white"
+              aria-label='newMemo'
+              type='button'
+            >
+              <Image src={newMemo} alt={"newMemo"}
+                     className={"white-image"}
+                     width={30} height={30}/>
+            </button>
+          </NewMemoLink>
+        </div>
+        <ul className="flex-grow overflow-auto text-white border-2 bg-gray-900">
+        </ul>
+      </div>
+    );
+  }
   
-  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  const hasUnderwritingMemo = memosRef.some(memo => memo.memoId.toString() === underwritingId);
   
   const handleDeleteClick = async () => {
     if (contextMenu && contextMenu.memoId) {
