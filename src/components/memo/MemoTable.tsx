@@ -169,7 +169,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
             zIndex: 1000,
           }}
         >
-          <li className={"hover:bg-gray-700 p-1"} onClick={handleDeleteClick}>삭제하기</li>
+          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={handleDeleteClick}>삭제하기</li>
         </ul>
       </>
     ));

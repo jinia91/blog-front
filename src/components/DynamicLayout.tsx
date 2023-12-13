@@ -132,6 +132,12 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     }
   }, [tabs, contextMenu, setTabs]);
   
+  const removeTabCallback = useCallback(() => {
+    if (contextMenu !== null) {
+      removeTab(contextMenu.tabIdx);
+    }
+  }, [contextMenu]);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -185,8 +191,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               zIndex: 1000,
             }}
           >
-            <li className={"hover:bg-gray-700 p-1"} onClick={closeOtherTabs}>현재탭만 제외하고 모든 탭 닫기</li>
-            <li className={"hover:bg-gray-700 p-1"} onClick={closeAllTabs}>모든 탭 닫기</li>
+            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={removeTabCallback}>닫기</li>
+            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeOtherTabs}>다른 탭 닫기</li>
+            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeAllTabs}>모든 탭 닫기</li>
           </ul>
         </>
       ));

@@ -52,3 +52,9 @@
     text-overflow: ellipsis;
 }
 
+@layer base {
+    ul,
+    ol {
+        list-style: revert;
+    }
+}

@@ -1,7 +1,6 @@
 "use client";
-"use strict";
 
-import React, {useState, useEffect, useRef, useContext, Suspense} from 'react';
+import React, {useState, useEffect, useRef, Suspense} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import MDEditor, {
@@ -233,7 +232,7 @@ export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
               }}
               visibleDragbar={true}
               className={"border-2 flex-grow"}
-              height={350}
+              height={750}
             />
           </div>
         </div>
