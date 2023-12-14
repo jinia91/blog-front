@@ -5,7 +5,7 @@ import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import {deleteMemoById} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
-import NewMemoLink from "@/components/NewMemoLink";
+import NewMemoLink from "@/components/link/NewMemoLink";
 import MemoContextMenu, {ContextMenuProps} from "@/components/memo/MemoContextMenu";
 import {deleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";

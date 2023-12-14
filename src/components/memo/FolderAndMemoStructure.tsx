@@ -2,7 +2,7 @@
 import {FolderInfo} from "@/api/models";
 import React, {useEffect, useRef, useState} from "react";
 import FolderItem from "@/components/memo/FolderItem";
-import TabLink from "@/components/TabLink";
+import TabLink from "@/components/link/TabLink";
 import MemoItem from "@/components/memo/MemoItem";
 import {ContextMenuProps} from "@/components/memo/MemoContextMenu";
 

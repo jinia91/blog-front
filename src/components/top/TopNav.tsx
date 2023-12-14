@@ -3,7 +3,7 @@
 import DarkLightToggle from "@/components/top/DarkLightToggle";
 import React from "react";
 import SideBarToggle from "@/components/top/SideBarToggle";
-import TabLink from "@/components/TabLink";
+import TabLink from "@/components/link/TabLink";
 
 export default function TopNav() {
   return (

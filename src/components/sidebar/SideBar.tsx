@@ -1,9 +1,9 @@
 "use client";
 
 import React, {useContext, useEffect} from "react";
-import {SidebarContext} from "@/components/DynamicLayout";
-import TabLink from "@/components/TabLink";
+import TabLink from "@/components/link/TabLink";
 import {sidebarItems} from "@/components/sidebar/SideBarItems";
+import {SidebarContext} from "@/components/sidebar/SiderBarProvider";
 
 export default function Sidebar() {
   const {isCollapsed, toggleSideBarCollapse} = useContext(SidebarContext);

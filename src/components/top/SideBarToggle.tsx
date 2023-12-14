@@ -1,6 +1,6 @@
 import {useContext, useState} from "react";
-import {SidebarContext} from "@/components/DynamicLayout";
 import Image from "next/image";
+import {SidebarContext} from "@/components/sidebar/SiderBarProvider";
 
 
 export default function SideBarToggle() {

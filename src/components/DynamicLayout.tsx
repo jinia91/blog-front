@@ -1,8 +1,9 @@
 "use client";
 import React, {createContext, useCallback, useEffect, useRef, useState} from "react";
-import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
-import MemoEditorContainer from "@/components/memo/MemoEditorContainer";
+import {TabItem} from "@/components/tapbar/TabItem";
+import {renderPage} from "@/components/AppPageRenderer";
+import SideBarProvider from "@/components/sidebar/SiderBarProvider";
 
 interface TabStatus {
   tabs: Tab[];
@@ -30,9 +31,6 @@ const initialTabStatus = {
 };
 
 const TabBarContext: React.Context<any> = createContext(initialTabStatus);
-const initialValue = {isCollapsed: true};
-const SidebarContext: React.Context<any> = createContext(initialValue);
-
 const DynamicLayout = ({topNav, sideBar, page}: {
   topNav: React.ReactNode,
   sideBar: React.ReactNode,
@@ -164,12 +162,6 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     };
   }, [closeContextMenu]);
   
-  const [isCollapsed, setCollapse] = useState(true);
-  
-  const toggleSideBarCollapse = () => {
-    setCollapse((prevState) => !prevState);
-  };
-  
   const renderContextMenu = () => (
     contextMenu && (
       <>
@@ -200,34 +192,11 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       </>
     ));
   
-  function renderPage() {
-    function renderMemoContainer() {
-      return tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
-        <div className="bg-gray-700 p-4 rounded-b-lg">
-          <MemoEditorContainer>
-            {page}
-          </MemoEditorContainer>
-        </div>
-      );
-    }
-    
-    function renderOthers() {
-      return tabs.length > 0 && (path !== "/empty") && (
-        <div className="bg-gray-700 p-4 rounded-b-lg">
-          {page}
-        </div>
-      );
-    }
-    
-    return renderMemoContainer() || renderOthers();
-  }
   
   return (
-    <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
+    <SideBarProvider>
       <TabBarContext.Provider value={{tabs, selectedTabIdx, setTabs, setSelectedTabIdx}}>
-        
         <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
-        
         <div className="md:flex overflow-hidden">
           <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r" style={{zIndex: 1000}}>
             {sideBar}
@@ -240,37 +209,24 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
                 <div ref={scrollContainerRef} className="flex space-x-1 overflow-x-auto">
                   {tabs.map((tab, idx) => (
-                    <div
-                      onContextMenu={(e) => handleContextMenu(e, idx)}
+                    <TabItem
+                      tab={tab}
+                      index={idx}
+                      isSelected={idx === selectedTabIdx}
+                      onSelectTab={selectTab}
+                      onRemoveTab={removeTab}
+                      onContextMenu={handleContextMenu}
                       key={idx}
-                      className="flex-shrink-0 w-32 relative"
-                    >
-                      <Link href={tab.context} onClick={() => selectTab(idx)}
-                            className={`flex items-center justify-center p-2 rounded-t-lg ${selectedTabIdx === idx ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer`}
-                      >
-                        <span
-                          className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
-                         {tab.name}
-                        </span>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          removeTab(idx);
-                        }}
-                        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-3 h-3"
-                        style={{transform: 'translate(-50%, 50%)'}}
-                      >
-                      </button>
-                    </div>
+                    />
                   ))}
                 </div>
               </div>
-              {renderPage()}
+              {renderPage(tabs, path, page)}
             </div>
           </main>
         </div>
       </TabBarContext.Provider>
-    </SidebarContext.Provider>
+    </SideBarProvider>
   );
 };
-export {SidebarContext, TabBarContext, DynamicLayout};
+export {TabBarContext, DynamicLayout};
