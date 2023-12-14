@@ -1,4 +1,4 @@
-import MemoTable from "@/components/memo/MemoTable";
+import MemoSystemNavigator from "@/components/memo/MemoSystemNavigator";
 import React, {useContext, useEffect, useState} from "react";
 import {fetchSimpleMemo, fetchMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
@@ -67,10 +67,10 @@ export default function MemoEditorContainer({children}: { children: React.ReactN
             className="flex flex-1 overflow-auto"
             minSizePercentage={20}
           >
-            {folders && (<MemoTable foldersOrigin={folders}
-                                  underwritingId={isMemoPage ? underwritingId : undefined }
-                                  underwritingTitle={isMemoPage ? underwritingTitle : undefined}
-                                  className="flex flex-1 min-w-0 flex-col"/>)}
+            {folders && (<MemoSystemNavigator foldersOrigin={folders}
+                                              underwritingId={isMemoPage ? underwritingId : undefined }
+                                              underwritingTitle={isMemoPage ? underwritingTitle : undefined}
+                                              className="flex flex-1 min-w-0 flex-col"/>)}
           </Panel>
         </PanelGroup>
       </div>

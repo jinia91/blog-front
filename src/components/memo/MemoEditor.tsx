@@ -13,7 +13,7 @@ import MDEditor, {
 import {Memo} from "@/domain/Memo";
 import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
 import {usePathname} from "next/navigation";
-import MemoTable from "@/components/memo/MemoTable";
+import MemoSystemNavigator from "@/components/memo/MemoSystemNavigator";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 import {fetchSimpleMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";

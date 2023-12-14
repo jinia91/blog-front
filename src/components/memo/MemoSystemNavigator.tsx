@@ -1,23 +1,22 @@
 "use client";
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import TabLink from "@/components/TabLink";
-import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
+import {FolderInfo} from "@/domain/Memo";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import {deleteMemoById} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/NewMemoLink";
-import folderImg from '../../../public/emptyFolder.png'
-import memoImg from '../../../public/memo.png'
-import folderWithContentImg from '../../../public/contentFolder.png'
+import FolderItem from "@/components/memo/FolderItem";
+import MemoItem from "@/components/memo/MemoItem";
 
-interface ContextMenuPosition {
+export interface ContextMenuPosition {
   xPos: string;
   yPos: string;
   memoId: string;
 }
 
-export default function MemoTable({foldersOrigin, underwritingId, underwritingTitle, className}: {
+export default function MemoSystemNavigator({foldersOrigin, underwritingId, underwritingTitle, className}: {
   foldersOrigin: FolderInfo[],
   underwritingId?: string,
   underwritingTitle?: string,
@@ -38,7 +37,6 @@ export default function MemoTable({foldersOrigin, underwritingId, underwritingTi
   
   const [openFolders, setOpenFolders] = useState(getInitialOpenFolders);
   
-  // 타이틀 변경시 동기화
   useEffect(() => {
     setNewMemoTitle(underwritingTitle ?? "");
     const newFolderRef: FolderInfo[] = FolderRef?.map((folder) => {
@@ -144,14 +142,6 @@ export default function MemoTable({foldersOrigin, underwritingId, underwritingTi
     }
   }
   
-  function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
-    if (memo.memoId.toString() === underwritingId) {
-      return newMemoTitle?.length === 0 ? 'Untitled' : newMemoTitle;
-    } else {
-      return memo.title.length === 0 ? 'Untitled' : memo.title;
-    }
-  }
-  
   const renderOverlay = () => (
     contextMenu && (
       <>
@@ -200,40 +190,20 @@ export default function MemoTable({foldersOrigin, underwritingId, underwritingTi
     return folders.map((folder) => (
       <React.Fragment key={folder.id}>
         <>
-          <li
-            className={`flex items-center pl-${depth * 2} pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500`}
-            onClick={() => toggleFolder(folder.id ?? 0)}
-          >
-            <div
-              className={"flex items-center"}
-              style={{marginLeft: `${depth * 20}px`}}
-            >
-              <Image
-                src={(folder.children.length > 0 || folder.memos.length > 0) ? folderWithContentImg : folderImg}
-                alt={"folder"}
-                width={20}
-                height={20}
-              />              <span className="ml-2">{folder.name}</span>
-            </div>
-          </li>
+          <FolderItem folder={folder} toggleFolder={toggleFolder} depth={depth}/>
           {openFolders.has(folder.id ?? 0) && (
             <>
               {folder.memos.map((memo) => (
                 <TabLink key={memo.memoId} href={`/memo/${memo.memoId}`}
                          name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`}>
-                  <li
-                    onContextMenu={(e) => handleContextMenu(e, memo.memoId.toString())}
-                    data-memo-id={memo.memoId.toString()}
-                    className={`p-2 rounded cursor-pointer flex truncate ${memo.memoId.toString() === underwritingId ? 'bg-gray-600' : 'hover:bg-gray-500'}`}
-                  >
-                    <div
-                      className={"flex items-center"}
-                      style={{marginLeft: `${(depth + 1) * 20}px`}}
-                    >
-                      <Image src={memoImg} alt={"memo"} width={20} height={10}/>
-                      <span className="ml-2">{determineMemoText(memo, underwritingId, newMemoTitle)}</span>
-                    </div>
-                  </li>
+                  <MemoItem
+                    memo={memo}
+                    handleContextMenu={handleContextMenu}
+                    contextMenu={contextMenu}
+                    depth={depth}
+                    underwritingId={underwritingId}
+                    newMemoTitle={newMemoTitle}
+                  />
                 </TabLink>
               ))}
               {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
@@ -246,7 +216,7 @@ export default function MemoTable({foldersOrigin, underwritingId, underwritingTi
   
   return (
     <div className={className}>
-      <div className={"flex pb-3 flex-row-reverse"}>
+      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2"}>
         <NewMemoLink name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
           <button
             className="text-white"
