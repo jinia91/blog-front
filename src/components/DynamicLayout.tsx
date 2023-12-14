@@ -170,7 +170,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     setCollapse((prevState) => !prevState);
   };
   
-  const renderOverlay = () => (
+  const renderContextMenu = () => (
     contextMenu && (
       <>
         <div
@@ -200,6 +200,28 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       </>
     ));
   
+  function renderPage() {
+    function renderMemoContainer() {
+      return tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
+        <div className="bg-gray-700 p-4 rounded-b-lg">
+          <MemoEditorContainer>
+            {page}
+          </MemoEditorContainer>
+        </div>
+      );
+    }
+    
+    function renderOthers() {
+      return tabs.length > 0 && (path !== "/empty") && (
+        <div className="bg-gray-700 p-4 rounded-b-lg">
+          {page}
+        </div>
+      );
+    }
+    
+    return renderMemoContainer() || renderOthers();
+  }
+  
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
       <TabBarContext.Provider value={{tabs, selectedTabIdx, setTabs, setSelectedTabIdx}}>
@@ -212,7 +234,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
           </aside>
           <main
             className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
-            {renderOverlay()}
+            {renderContextMenu()}
             <div className="bg-gray-800 p-4">
               {/*탭 컨테이너*/}
               <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
@@ -243,21 +265,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                   ))}
                 </div>
               </div>
-              
-              {/*page 영역*/}
-              {
-                tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
-                  <div className="bg-gray-700 p-4 rounded-b-lg">
-                    <MemoEditorContainer>
-                      {page}
-                    </MemoEditorContainer>
-                  </div>
-                ) || tabs.length > 0 && (path !== "/empty") && (
-                  <div className="bg-gray-700 p-4 rounded-b-lg">
-                    {page}
-                  </div>
-                )
-              }
+              {renderPage()}
             </div>
           </main>
         </div>

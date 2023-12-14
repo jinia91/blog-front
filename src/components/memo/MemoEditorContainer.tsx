@@ -1,7 +1,7 @@
 import MemoTable from "@/components/memo/MemoTable";
 import React, {useContext, useEffect, useState} from "react";
 import {fetchSimpleMemo, fetchMemoById} from "@/api/memo";
-import {Memo, SimpleMemo} from "@/domain/Memo";
+import {Memo, SimpleMemoInfo} from "@/domain/Memo";
 import {usePathname} from "next/navigation";
 import {TabBarContext} from "@/components/DynamicLayout";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
@@ -21,8 +21,9 @@ export const MemoEditContext = React.createContext<any>(initialTitleContextValue
 export default function MemoEditorContainer({children}: { children: React.ReactNode }) {
   const [underwritingTitle, setUnderwritingTitle] = useState("")
   const [underwritingId, setUnderwritingId] = useState("");
-  const [memos, setMemos] = useState<SimpleMemo[] | null>(null);
+  const [memos, setMemos] = useState<SimpleMemoInfo[] | null>(null);
   const path = usePathname();
+  const isMemoPage = path.includes("/memo/");
   
   useEffect(() => {
     async function fetchData() {
@@ -67,8 +68,8 @@ export default function MemoEditorContainer({children}: { children: React.ReactN
             minSizePercentage={20}
           >
             {memos && (<MemoTable memos={memos}
-                                  underwritingId={underwritingId}
-                                  underwritingTitle={underwritingTitle}
+                                  underwritingId={isMemoPage ? underwritingId : undefined }
+                                  underwritingTitle={isMemoPage ? underwritingTitle : undefined}
                                   className="flex flex-1 min-w-0 flex-col"/>)}
           </Panel>
         </PanelGroup>

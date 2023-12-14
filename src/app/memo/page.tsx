@@ -1,15 +1,12 @@
-import MemoTable from "@/components/memo/MemoTable";
 import MemoGraph from "@/components/memo/MemoGraph";
-import {fetchSimpleMemo} from "@/api/memo";
-import {Suspense} from "react";
-import {Memo, SimpleMemo} from "@/domain/Memo";
+import {fetchFolderAndMemo} from "@/api/memo";
 
 export default async function Page() {
-  const memos: SimpleMemo[] = await fetchSimpleMemo()
+  const folders = await fetchFolderAndMemo();
 
   return (
     <main className="mb-4 flex-grow">
-          <MemoGraph memos={memos} className={""}/>
+          <MemoGraph folders={folders} className={""}/>
     </main>
   
   )

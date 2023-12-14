@@ -3,13 +3,12 @@
 import React, {Dispatch, SetStateAction, useContext,} from "react";
 import {TabBarContext} from "@/components/DynamicLayout";
 import {createMemo} from "@/api/memo";
-import {Memo, SimpleMemo} from "@/domain/Memo";
+import {Memo, SimpleMemoInfo} from "@/domain/Memo";
 
-export default function NewMemoLink({name, memoRef, setMemoRef, children}: { name: string, memoRef: SimpleMemo[],setMemoRef: Dispatch<SetStateAction<SimpleMemo[]>>, children: React.ReactNode }) {
+export default function NewMemoLink({name, memoRef, setMemoRef, children}: { name: string, memoRef: SimpleMemoInfo[],setMemoRef: Dispatch<SetStateAction<SimpleMemoInfo[]>>, children: React.ReactNode }) {
   const {tabs, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
   const addTab = async () => {
     const response = await createMemo("1");
-    console.log(response);
     const newHref = `/memo/${response.memoId}`;
     
     const newTab = {name: name, context: newHref};

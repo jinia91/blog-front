@@ -10,7 +10,6 @@ export async function fetchSimpleMemo() {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    console.log("데이터", data.memos)
     return data.memos;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -61,7 +60,6 @@ export async function fetchMemoById(id: string) : Promise<Memo | null> {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    console.log("데이터", data.memo)
     return data;
   } catch (error) {
     console.error('Error fetching memo:', error);
@@ -83,5 +81,20 @@ export async function deleteMemoById(id: string) {
     console.error('Error delete memo:', error);
     return null;
     
+  }
+}
+
+export async function fetchFolderAndMemo() {
+  noStore()
+  try {
+    const response = await fetch(mainUrl + `/v1/folder`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data.folderInfos;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
   }
 }

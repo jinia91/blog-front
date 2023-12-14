@@ -2,16 +2,24 @@ export interface Memo {
   memoId: number;
   title: string;
   content: string;
-  references: Reference[];
+  references: ReferenceInfo[];
 }
 
-export interface SimpleMemo {
+export interface SimpleMemoInfo {
   memoId: number;
   title: string;
-  references: Reference[];
+  references: ReferenceInfo[];
 }
 
-export interface Reference {
+export interface ReferenceInfo {
   rootId: number;
   referenceId: number;
+}
+
+export interface FolderInfo {
+  id: number | null;
+  name: string;
+  parent: FolderInfo | null;
+  children: FolderInfo[];
+  memos: SimpleMemoInfo[];
 }

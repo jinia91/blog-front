@@ -71,23 +71,6 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
   }, []);
   
   useEffect(() => {
-    if (stompClient) {
-      subscribeMemo();
-    }
-  }, [stompClient]);
-  
-  const subscribeMemo = () => {
-    if (stompClient) {
-      stompClient.subscribe(`/topic/memoResponse`, (response) => {
-        handleResponse(JSON.parse(response.body));
-      });
-    }
-  }
-  
-  const handleResponse = (response: any) => {
-  }
-  
-  useEffect(() => {
     titleRef.current = title;
     contentRef.current = content;
   }, [title, content]);

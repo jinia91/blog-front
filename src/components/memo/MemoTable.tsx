@@ -1,7 +1,7 @@
 "use client";
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import TabLink from "@/components/TabLink";
-import {Memo, SimpleMemo} from "@/domain/Memo";
+import {Memo, SimpleMemoInfo} from "@/domain/Memo";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import {createMemo, deleteMemoById} from "@/api/memo";
@@ -16,7 +16,7 @@ interface ContextMenuPosition {
 }
 
 export default function MemoTable({memos, underwritingId, underwritingTitle, className}: {
-  memos: SimpleMemo[],
+  memos: SimpleMemoInfo[],
   underwritingId?: string,
   underwritingTitle?: string,
   className?: string
@@ -25,15 +25,15 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   
   const listRef = useRef<HTMLUListElement>(null);
   
-  const [memosRef, setMemosRef] = useState<SimpleMemo[]>(memos);
+  const [memosRef, setMemosRef] = useState<SimpleMemoInfo[]>(memos);
   
   const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
   
   useEffect(() => {
     setNewMemoTitle(underwritingTitle ?? "");
-    const newMemoRef : SimpleMemo[] = memosRef?.map((memo) => {
+    const newMemoRef : SimpleMemoInfo[] = memosRef?.map((memo) => {
         if (memo.memoId.toString() === underwritingId) {
-          const newMemo: SimpleMemo = {memoId: memo.memoId, title: underwritingTitle ?? "", references: memo.references};
+          const newMemo: SimpleMemoInfo = {memoId: memo.memoId, title: underwritingTitle ?? "", references: memo.references};
           return newMemo;
         } else {
           return memo;
@@ -123,7 +123,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     }
   }
   
-  function determineMemoText(memo: SimpleMemo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
+  function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
     if (memo.memoId.toString() === underwritingId) {
       return newMemoTitle?.length === 0 ? 'Untitled' : newMemoTitle;
     } else {
