@@ -1,25 +1,11 @@
 "use client";
 import React, {createContext, useCallback, useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {TabItem} from "@/components/tapbar/TabItem";
+import {Tab, TabItem} from "@/components/tapbar/TabItem";
 import {renderPage} from "@/components/AppPageRenderer";
 import SideBarProvider from "@/components/sidebar/SiderBarProvider";
-
-interface TabStatus {
-  tabs: Tab[];
-  selectedTabIdx: number;
-}
-
-interface Tab {
-  name: string;
-  context: string;
-}
-
-interface ContextMenuPosition {
-  xPos: string;
-  yPos: string;
-  tabIdx: number;
-}
+import renderContextMenu, {TabContextMenuProps} from "@/components/tapbar/TabContextMenu";
+import {ScrollingTabContainer} from "@/components/tapbar/TabBar";
 
 const initialTabStatus = {
   tabs: [],
@@ -90,9 +76,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   
   const removeTab = (target: number) => {
     const newTabs = tabs.filter((_, idx) => idx !== target);
-    
     setTabs(newTabs);
-    
     setSelectedTabIdx(prevIdx => {
       if (prevIdx === target) {
         if (target === tabs.length - 1) {
@@ -103,9 +87,8 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       return prevIdx > target ? prevIdx - 1 : prevIdx;
     });
   };
-  
   // contextMenu
-  const [contextMenu, setContextMenu] = useState<ContextMenuPosition | null>(null);
+  const [contextMenu, setContextMenu] = useState<TabContextMenuProps | null>(null);
   
   const closeContextMenu = useCallback(() => {
     setContextMenu(null);
@@ -137,61 +120,12 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     }
   }, [contextMenu]);
   
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const containerWidth = scrollContainerRef.current.offsetWidth;
-      
-      const selectedTabElement: HTMLDivElement = scrollContainerRef.current.children[selectedTabIdx] as HTMLDivElement;
-      ;
-      
-      if (selectedTabElement) {
-        const selectedTabOffset = selectedTabElement.offsetLeft;
-        const selectedTabWidth = selectedTabElement.offsetWidth;
-        
-        scrollContainerRef.current.scrollLeft = selectedTabOffset - (containerWidth / 2) + (selectedTabWidth / 2);
-      }
-    }
-  }, [selectedTabIdx, tabs]);
-  
-  
   useEffect(() => {
     document.addEventListener('click', closeContextMenu);
     return () => {
       document.removeEventListener('click', closeContextMenu);
     };
   }, [closeContextMenu]);
-  
-  const renderContextMenu = () => (
-    contextMenu && (
-      <>
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 999
-          }}
-          onClick={closeContextMenu}
-        />
-        <ul
-          className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
-          style={{
-            position: 'absolute',
-            left: contextMenu.xPos,
-            top: contextMenu.yPos,
-            zIndex: 1000,
-          }}
-        >
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={removeTabCallback}>닫기</li>
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeOtherTabs}>다른 탭 닫기</li>
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeAllTabs}>모든 탭 닫기</li>
-        </ul>
-      </>
-    ));
-  
   
   return (
     <SideBarProvider>
@@ -203,30 +137,21 @@ const DynamicLayout = ({topNav, sideBar, page}: {
           </aside>
           <main
             className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
-            {renderContextMenu()}
+            {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
             <div className="bg-gray-800 p-4">
-              {/*탭 컨테이너*/}
-              <div className="flex overflow-hidden space-x-2" style={{zIndex: 1}}>
-                <div ref={scrollContainerRef} className="flex space-x-1 overflow-x-auto">
-                  {tabs.map((tab, idx) => (
-                    <TabItem
-                      tab={tab}
-                      index={idx}
-                      isSelected={idx === selectedTabIdx}
-                      onSelectTab={selectTab}
-                      onRemoveTab={removeTab}
-                      onContextMenu={handleContextMenu}
-                      key={idx}
-                    />
-                  ))}
-                </div>
-              </div>
+              <ScrollingTabContainer
+                tabs={tabs}
+                selectedTabIdx={selectedTabIdx}
+                onSelectTab={selectTab}
+                onRemoveTab={removeTab}
+                onContextMenu={handleContextMenu}
+              />
               {renderPage(tabs, path, page)}
             </div>
           </main>
         </div>
       </TabBarContext.Provider>
     </SideBarProvider>
-  );
+  )
 };
 export {TabBarContext, DynamicLayout};

@@ -1,6 +1,11 @@
 import React from "react";
 import Link from "next/link";
 
+export interface Tab {
+  name: string;
+  context: string;
+}
+
 export const TabItem = ({tab, index, isSelected, onSelectTab, onRemoveTab, onContextMenu}: {
   tab: { name: string, context: string },
   index: number,
