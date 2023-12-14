@@ -5,20 +5,26 @@ import {LinkObject, NodeObject} from "force-graph";
 import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
 
 export default function MemoGraph({ folders, className }: { folders: FolderInfo[], className?: string }) {
+  
+  const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
+    const children = folder.children.flatMap(child => flattenFolder(child));
+    return [folder, ...children];
+  }
+  
+  const flattenFolders = folders.flatMap(folder => flattenFolder(folder));
+  
   const createFolderNodes = (folder: FolderInfo, group: number, nodes: any): void => {
     nodes.push({
       id: folder.id || -1,
       name: folder.name,
       group: group
     });
-    
-    folder.children.forEach(child => createFolderNodes(child, group, nodes));
   };
   
   const folderNodes: NodeObject[] = [];
-  folders.forEach((folder, index) => createFolderNodes(folder, 6, folderNodes));
+  flattenFolders.forEach((folder, index) => createFolderNodes(folder, 6, folderNodes));
   
-  const memoNodes: NodeObject[] = folders.flatMap(folder => folder.memos.map((memo, index) => ({
+  const memoNodes: NodeObject[] = flattenFolders.flatMap(folder => folder.memos.map((memo, index) => ({
     id: memo.memoId,
     name: memo.title,
     group: 109
@@ -26,7 +32,7 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
   
   const nodes: NodeObject[] = [...folderNodes, ...memoNodes];
   
-  const memoLinks: LinkObject[] = folders.flatMap(folder =>
+  const memoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
     folder.memos.flatMap(memo =>
       memo.references.map(ref => ({
         source: memo.memoId,
@@ -35,14 +41,14 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
     )
   );
   
-  const folderLinks: LinkObject[] = folders.flatMap(folder =>
+  const folderLinks: LinkObject[] = flattenFolders.flatMap(folder =>
     folder.children.map(child => ({
       source: folder.id || -1,
       target: child.id || -1
     }))
   );
   
-  const folderMemoLinks: LinkObject[] = folders.flatMap(folder =>
+  const folderMemoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
     folder.memos.map(memo => ({
       source: folder.id || -1,
       target: memo.memoId
@@ -52,8 +58,6 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
   const links: LinkObject[] = [...memoLinks, ...folderLinks, ...folderMemoLinks];
   
   const graphData = {nodes, links};
-  
-  console.log(graphData);
   
   const nodeCanvasObject = (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const label = node.name;

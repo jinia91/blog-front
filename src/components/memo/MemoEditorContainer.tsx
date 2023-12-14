@@ -1,7 +1,7 @@
 import MemoTable from "@/components/memo/MemoTable";
 import React, {useContext, useEffect, useState} from "react";
-import {fetchSimpleMemo, fetchMemoById} from "@/api/memo";
-import {Memo, SimpleMemoInfo} from "@/domain/Memo";
+import {fetchSimpleMemo, fetchMemoById, fetchFolderAndMemo} from "@/api/memo";
+import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
 import {usePathname} from "next/navigation";
 import {TabBarContext} from "@/components/DynamicLayout";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
@@ -21,15 +21,15 @@ export const MemoEditContext = React.createContext<any>(initialTitleContextValue
 export default function MemoEditorContainer({children}: { children: React.ReactNode }) {
   const [underwritingTitle, setUnderwritingTitle] = useState("")
   const [underwritingId, setUnderwritingId] = useState("");
-  const [memos, setMemos] = useState<SimpleMemoInfo[] | null>(null);
+  const [folders, setFolders] = useState<FolderInfo[] | null>(null);
   const path = usePathname();
   const isMemoPage = path.includes("/memo/");
   
   useEffect(() => {
     async function fetchData() {
       try {
-        const fetchedMemos = await fetchSimpleMemo();
-        setMemos(fetchedMemos);
+        const fetchedMemos = await fetchFolderAndMemo();
+        setFolders(fetchedMemos);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -67,7 +67,7 @@ export default function MemoEditorContainer({children}: { children: React.ReactN
             className="flex flex-1 overflow-auto"
             minSizePercentage={20}
           >
-            {memos && (<MemoTable memos={memos}
+            {folders && (<MemoTable foldersOrigin={folders}
                                   underwritingId={isMemoPage ? underwritingId : undefined }
                                   underwritingTitle={isMemoPage ? underwritingTitle : undefined}
                                   className="flex flex-1 min-w-0 flex-col"/>)}

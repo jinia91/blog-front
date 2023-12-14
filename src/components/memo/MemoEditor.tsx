@@ -138,7 +138,6 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
         prefix: state.command.prefix!,
         suffix: state.command.suffix + "(http://localhost:3000/memo/" + selectedValue.memoId + ")",
       });
-      // }
     }
   };
   
