@@ -21,7 +21,7 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
   const memoNodes: NodeObject[] = folders.flatMap(folder => folder.memos.map((memo, index) => ({
     id: memo.memoId,
     name: memo.title,
-    group: 101
+    group: 109
   })));
   
   const nodes: NodeObject[] = [...folderNodes, ...memoNodes];
