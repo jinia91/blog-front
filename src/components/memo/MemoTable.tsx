@@ -27,10 +27,20 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   
   const [memosRef, setMemosRef] = useState<Memo[] | null>(memos);
   
-  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
   
   useEffect(() => {
     setNewMemoTitle(underwritingTitle ?? "");
+    const newMemoRef : Memo[] = memosRef?.map((memo) => {
+        if (memo.memoId.toString() === underwritingId) {
+          const newMemo: Memo = {memoId: memo.memoId, title: underwritingTitle ?? "", content: memo.content, references: memo.references};
+          return newMemo;
+        } else {
+          return memo;
+        }
+      }
+    ) ?? [];
+    setMemosRef(newMemoRef);
   }, [underwritingTitle]);
   
   useEffect(() => {
@@ -55,7 +65,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   
   useEffect(() => {
     scrollToCenter();
-  }, [memosRef, underwritingId]);
+  }, [memosRef, underwritingId, underwritingTitle]);
   
   // contextMenu
   const [contextMenu, setContextMenu] = useState<ContextMenuPosition | null>(null);
@@ -88,7 +98,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     return (
       <div className={className}>
         <div className={"flex pb-3 flex-row-reverse"}>
-          <NewMemoLink name="new">
+          <div>
             <button
               className="text-white"
               aria-label='newMemo'
@@ -98,15 +108,13 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
                      className={"white-image"}
                      width={30} height={30}/>
             </button>
-          </NewMemoLink>
+          </div>
         </div>
         <ul className="flex-grow overflow-auto text-white border-2 bg-gray-900">
         </ul>
       </div>
     );
   }
-  
-  const hasUnderwritingMemo = memosRef.some(memo => memo.memoId.toString() === underwritingId);
   
   const handleDeleteClick = async () => {
     if (contextMenu && contextMenu.memoId) {
@@ -138,7 +146,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     }
   }
   
-  function determineMemoText(memo : Memo, underwritingId : string | null | undefined, newMemoTitle : string | null) {
+  function determineMemoText(memo: Memo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
     if (memo.memoId.toString() === underwritingId) {
       return newMemoTitle?.length === 0 ? '새로운 메모를 작성해주세요' : newMemoTitle;
     } else {
@@ -177,7 +185,7 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   return (
     <div className={className}>
       <div className={"flex pb-3 flex-row-reverse"}>
-        <NewMemoLink name="new" >
+        <NewMemoLink name="new" memoRef={memosRef} setMemoRef={setMemosRef}>
           <button
             className="text-white"
             aria-label='newMemo'
@@ -192,7 +200,8 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
       {renderOverlay()}
       <ul ref={listRef} className="flex-grow overflow-auto text-white border-2 bg-gray-900">
         {memosRef.map((memo, index) => (
-          <TabLink key={index} name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`} href={`/memo/${memo.memoId}`}>
+          <TabLink key={index} name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`}
+                   href={`/memo/${memo.memoId}`}>
             <li
               onContextMenu={(e) => handleContextMenu(e, index, memo.memoId.toString())}
               data-memo-id={memo.memoId.toString()}
@@ -206,12 +215,6 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
             </li>
           </TabLink>
         ))}
-        
-        {!hasUnderwritingMemo && underwritingId !== undefined && (
-          <li className="p-2 bg-gray-600 rounded cursor-pointer truncate">
-            {newMemoTitle?.length === 0 ? '새로운 메모를 작성해주세요' : newMemoTitle}
-          </li>
-        )}
       </ul>
     </div>
   );

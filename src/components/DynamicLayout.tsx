@@ -2,6 +2,7 @@
 import React, {createContext, useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
+import MemoEditorContainer from "@/components/memo/MemoEditorContainer";
 
 interface TabStatus {
   tabs: Tab[];
@@ -143,12 +144,13 @@ const DynamicLayout = ({topNav, sideBar, page}: {
     if (scrollContainerRef.current) {
       const containerWidth = scrollContainerRef.current.offsetWidth;
       
-      const selectedTabElement : HTMLDivElement = scrollContainerRef.current.children[selectedTabIdx] as HTMLDivElement;;
+      const selectedTabElement: HTMLDivElement = scrollContainerRef.current.children[selectedTabIdx] as HTMLDivElement;
+      ;
       
       if (selectedTabElement) {
         const selectedTabOffset = selectedTabElement.offsetLeft;
         const selectedTabWidth = selectedTabElement.offsetWidth;
-
+        
         scrollContainerRef.current.scrollLeft = selectedTabOffset - (containerWidth / 2) + (selectedTabWidth / 2);
       }
     }
@@ -169,34 +171,34 @@ const DynamicLayout = ({topNav, sideBar, page}: {
   };
   
   const renderOverlay = () => (
-      contextMenu && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 999
-            }}
-            onClick={closeContextMenu}
-          />
-          <ul
-            className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
-            style={{
-              position: 'absolute',
-              left: contextMenu.xPos,
-              top: contextMenu.yPos,
-              zIndex: 1000,
-            }}
-          >
-            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={removeTabCallback}>닫기</li>
-            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeOtherTabs}>다른 탭 닫기</li>
-            <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeAllTabs}>모든 탭 닫기</li>
-          </ul>
-        </>
-      ));
+    contextMenu && (
+      <>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 999
+          }}
+          onClick={closeContextMenu}
+        />
+        <ul
+          className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
+          style={{
+            position: 'absolute',
+            left: contextMenu.xPos,
+            top: contextMenu.yPos,
+            zIndex: 1000,
+          }}
+        >
+          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={removeTabCallback}>닫기</li>
+          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeOtherTabs}>다른 탭 닫기</li>
+          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeAllTabs}>모든 탭 닫기</li>
+        </ul>
+      </>
+    ));
   
   return (
     <SidebarContext.Provider value={{isCollapsed, toggleSideBarCollapse}}>
@@ -224,7 +226,8 @@ const DynamicLayout = ({topNav, sideBar, page}: {
                       <Link href={tab.context} onClick={() => selectTab(idx)}
                             className={`flex items-center justify-center p-2 rounded-t-lg ${selectedTabIdx === idx ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer`}
                       >
-                        <span className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
+                        <span
+                          className={`dos-font truncate ${selectedTabIdx === idx ? 'text-white' : 'text-gray-300'}`}>
                          {tab.name}
                         </span>
                       </Link>
@@ -245,7 +248,9 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               {
                 tabs.length > 0 && (path !== "/empty") && (
                   <div className="bg-gray-700 p-4 rounded-b-lg">
-                    {page}
+                    <MemoEditorContainer>
+                      {page}
+                    </MemoEditorContainer>
                   </div>
                 )
               }

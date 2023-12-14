@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, useRef, Suspense} from 'react';
+import React, {useState, useEffect, useRef, Suspense, useContext} from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import MDEditor, {
@@ -17,12 +17,12 @@ import MemoTable from "@/components/memo/MemoTable";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 import {fetchMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
+import {MemoEditContext} from "@/components/memo/MemoEditorContainer";
 
-export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
-  const [memos, setMemos] = useState<Memo[] | null>(null);
+export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
   const [memoId, setMemoId] = useState<string>(pageMemoNumber);
-  const [title, setTitle] = useState<string>(memo?.title ?? "");
+  const {title, setTitle} = useContext(MemoEditContext);
   const [content, setContent] = useState<string>(memo?.content ?? "");
   const titleRef = useRef(title);
   const contentRef = useRef(content);
@@ -30,11 +30,9 @@ export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const fetchedMemos = await fetchMemo();
         const fetchedMemo = await fetchMemoById(memoId);
         
-        if (fetchedMemos && fetchedMemo) {
-          setMemos(fetchedMemos);
+        if (fetchedMemo) {
           setMemo(fetchedMemo);
           setTitle(fetchedMemo.title);
           setContent(fetchedMemo.content);
@@ -76,7 +74,7 @@ export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
     if (stompClient) {
       subscribeMemo();
     }
-    }, [stompClient]);
+  }, [stompClient]);
   
   const subscribeMemo = () => {
     if (stompClient) {
@@ -86,7 +84,8 @@ export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
     }
   }
   
-  const handleResponse = (response: any) => {}
+  const handleResponse = (response: any) => {
+  }
   
   useEffect(() => {
     titleRef.current = title;
@@ -171,85 +170,53 @@ export default function MemoEditor({pageMemoNumber}: {pageMemoNumber: string}) {
     if (resolveSelection) resolveSelection(value);
     setIsModalOpen(false);
   };
-
-  const onLayout = (layout: MixedSizes[]) => {
-    setLocalStorage("react-resizable-panels:layout", layout);
-  };
-  
-  const defaultLayout = getLocalStorage<MixedSizes[] | null>("react-resizable-panels:layout")
   
   return (
-    <PanelGroup
-      direction="horizontal"
-      className={"dos-font flex-col md:flex-row"}
-      style={{ height: '70vh', overflowY: 'auto'}}
-      onLayout={onLayout}
-    >
-      <Panel
-        defaultSizePercentage={defaultLayout ? defaultLayout[0].sizePercentage : 70}
-        className={"bg-black text-green-400 font-mono p-4 flex flex-grow border-2"}
-        minSizePercentage={20}
-      >
-        <div className="flex-grow overflow-auto">
-          {/*title*/}
-          <div className="mb-4">
-            <input
-              className="border-2 bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
-              type="text"
-              placeholder="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          
-          {/*editor*/}
-          <div className="mb-4 flex-grow">
-            <RelatedMemoModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              contents={(
-                <ul className="list-none space-y-2">
-                  {recommendations.map((recommendation, index) => (
-                    <li
-                      key={index}
-                      className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
-                      onClick={() => handleSelect(recommendation)}
-                    ><span>{"> "}</span>
-                      {recommendation.title}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            />
-            
-            <MDEditor
-              value={content}
-              extraCommands={getCustomExtraCommands()}
-              onChange={(value) => {
-                if (typeof value === 'string') {
-                  setContent(value);
-                }
-              }}
-              visibleDragbar={true}
-              className={"border-2 flex-grow"}
-              height={750}
-            />
-          </div>
-        </div>
-      </Panel>
-      <PanelResizeHandle className="w-2 hover:bg-blue-800" />
-      <Panel
-        defaultSizePercentage={defaultLayout ? defaultLayout[1].sizePercentage : 30}
-        className="flex flex-1 overflow-auto"
-        minSizePercentage={20}
-      >
-      <Suspense>
-        <MemoTable memos={memos}
-                   underwritingId={memoId}
-                   underwritingTitle={title}
-                   className="flex flex-1 min-w-0 flex-col"/>
-      </Suspense>
-      </Panel>
-    </PanelGroup>
+    <>
+      {/*title*/}
+      <div className="">
+        <input
+          className="border-2 bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
+          type="text"
+          placeholder="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
+      
+      {/*editor*/}
+      <div className="mb-4 flex-grow">
+        <RelatedMemoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          contents={(
+            <ul className="list-none space-y-2">
+              {recommendations.map((recommendation, index) => (
+                <li
+                  key={index}
+                  className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
+                  onClick={() => handleSelect(recommendation)}
+                ><span>{"> "}</span>
+                  {recommendation.title}
+                </li>
+              ))}
+            </ul>
+          )}
+        />
+        
+        <MDEditor
+          value={content}
+          extraCommands={getCustomExtraCommands()}
+          onChange={(value) => {
+            if (typeof value === 'string') {
+              setContent(value);
+            }
+          }}
+          visibleDragbar={true}
+          className={"border-2 flex-grow"}
+          height={750}
+        />
+      </div>
+    </>
   );
 }
