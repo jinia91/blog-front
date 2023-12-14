@@ -1,7 +1,7 @@
 import MemoSystemNavigator from "@/components/memo/MemoSystemNavigator";
 import React, {useContext, useEffect, useState} from "react";
 import {fetchSimpleMemo, fetchMemoById, fetchFolderAndMemo} from "@/api/memo";
-import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
+import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
 import {usePathname} from "next/navigation";
 import {TabBarContext} from "@/components/DynamicLayout";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";

@@ -1,4 +1,10 @@
 
+export interface ContextMenuProps {
+  xPos: string;
+  yPos: string;
+  memoId: string;
+}
+
 export default function MemoContextMenu({ contextMenu, closeContextMenu, handleDeleteClick } : {
   contextMenu: any,
   closeContextMenu: any,

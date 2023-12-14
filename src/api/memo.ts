@@ -1,6 +1,6 @@
 import {revalidatePath, revalidateTag, unstable_noStore as noStore} from 'next/cache';
 import {mainUrl} from "@/api/host";
-import {Memo} from "@/domain/Memo";
+import {Memo} from "@/api/models";
 
 export async function fetchSimpleMemo() {
   noStore()

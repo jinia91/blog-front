@@ -2,7 +2,7 @@
 
 import { ForceGraph2D } from 'react-force-graph';
 import {LinkObject, NodeObject} from "force-graph";
-import {FolderInfo, Memo, SimpleMemoInfo} from "@/domain/Memo";
+import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
 
 export default function MemoGraph({ folders, className }: { folders: FolderInfo[], className?: string }) {
   

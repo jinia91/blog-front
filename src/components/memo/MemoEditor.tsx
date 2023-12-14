@@ -1,8 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, useRef, Suspense, useContext} from 'react';
-import SockJS from 'sockjs-client';
-import {Client, Stomp} from '@stomp/stompjs';
+import React, {useState, useContext} from 'react';
 import MDEditor, {
   codeEdit,
   codeLive,
@@ -10,98 +8,26 @@ import MDEditor, {
   divider, executeCommand, ExecuteState, fullscreen,
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
-import {Memo} from "@/domain/Memo";
+import {Memo} from "@/api/models";
 import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
-import {usePathname} from "next/navigation";
-import MemoSystemNavigator from "@/components/memo/MemoSystemNavigator";
-import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
-import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
-import {fetchSimpleMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
+import {fetchRelatedMemo} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoEditorContainer";
+import {TitleInput} from "@/components/memo/MemoTitleEditInput";
+import useFetchMemoHook from "@/components/memo/useFetchMemoHook";
+import useStompClient from "@/api/MemoEditWebsocket";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
   const {title, memoId, setTitle, setMemoId} = useContext(MemoEditContext);
   const [content, setContent] = useState<string>(memo?.content ?? "");
-  const titleRef = useRef(title);
-  const contentRef = useRef(content);
-  
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const fetchedMemo = await fetchMemoById(pageMemoNumber);
-        
-        if (fetchedMemo) {
-          setMemo(fetchedMemo);
-          setTitle(fetchedMemo.title);
-          setMemoId(fetchedMemo.memoId.toString());
-          setContent(fetchedMemo.content);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-    
-    fetchData();
-  }, []);
-  
-  const [stompClient, setStompClient] = useState<Client | null>(null);
-  // component
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Memo[]>([]);
   const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
-  
-  const path = usePathname();
+
+  useStompClient(memoId, title, content);
+  useFetchMemoHook(pageMemoNumber, setMemo, setTitle, setMemoId, setContent)
   
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
-  
-  useEffect(() => {
-    const socket = new SockJS('http://localhost:7777/memo');
-    const client = Stomp.over(socket);
-    
-    client.connect({}, () => {
-      setStompClient(client);
-    });
-    
-    return () => {
-      if (client) {
-        client.disconnect();
-      }
-    };
-  }, []);
-  
-  useEffect(() => {
-    titleRef.current = title;
-    contentRef.current = content;
-  }, [title, content]);
-  
-  useEffect(() => {
-    if (!stompClient) {
-      return;
-    }
-    
-    const timer = setInterval(() => {
-      updateMemo();
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [stompClient, memoId]);
-  
-  const updateMemo = () => {
-    if (stompClient && memoId) {
-      let command = {
-        type: "UpdateMemo",
-        id: memoId,
-        title: titleRef.current,
-        content: contentRef.current,
-      };
-      
-      stompClient.publish({
-        destination: "/app/updateMemo",
-        body: JSON.stringify(command)
-      });
-    }
-  };
   
   const referenceLink: ICommand = {
     name: 'referenceLink',
@@ -155,17 +81,7 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
   
   return (
     <>
-      {/*title*/}
-      <div className="">
-        <input
-          className="border-2 bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
-          type="text"
-          placeholder="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-      
+      <TitleInput title={title} setTitle={setTitle}/>
       {/*editor*/}
       <div className="mb-4 flex-grow">
         <RelatedMemoModal

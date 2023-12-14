@@ -1,8 +1,8 @@
-import {SimpleMemoInfo} from "@/domain/Memo";
+import {SimpleMemoInfo} from "@/api/models";
 import React from "react";
 import Image from "next/image";
 import memoImg from "../../../public/memo.png";
-import {ContextMenuPosition} from "@/components/memo/MemoSystemNavigator";
+import {ContextMenuProps} from "@/components/memo/MemoContextMenu";
 
 export default function MemoItem({ memo, handleContextMenu, depth, underwritingId, newMemoTitle, contextMenu } :{
   memo: SimpleMemoInfo,
@@ -10,7 +10,7 @@ export default function MemoItem({ memo, handleContextMenu, depth, underwritingI
   depth: number,
   underwritingId: string | null | undefined,
   newMemoTitle: string,
-  contextMenu: ContextMenuPosition | null
+  contextMenu: ContextMenuProps | null
 }) {
   function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
     if (memo.memoId.toString() === underwritingId) {
