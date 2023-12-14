@@ -1,7 +1,7 @@
 "use client";
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import TabLink from "@/components/TabLink";
-import {Memo} from "@/domain/Memo";
+import {Memo, SimpleMemo} from "@/domain/Memo";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import {createMemo, deleteMemoById} from "@/api/memo";
@@ -16,8 +16,8 @@ interface ContextMenuPosition {
 }
 
 export default function MemoTable({memos, underwritingId, underwritingTitle, className}: {
-  memos: Memo[] | null,
-  underwritingId?: string | null,
+  memos: SimpleMemo[],
+  underwritingId?: string,
   underwritingTitle?: string,
   className?: string
 }) {
@@ -25,15 +25,15 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
   
   const listRef = useRef<HTMLUListElement>(null);
   
-  const [memosRef, setMemosRef] = useState<Memo[] | null>(memos);
+  const [memosRef, setMemosRef] = useState<SimpleMemo[]>(memos);
   
   const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
   
   useEffect(() => {
     setNewMemoTitle(underwritingTitle ?? "");
-    const newMemoRef : Memo[] = memosRef?.map((memo) => {
+    const newMemoRef : SimpleMemo[] = memosRef?.map((memo) => {
         if (memo.memoId.toString() === underwritingId) {
-          const newMemo: Memo = {memoId: memo.memoId, title: underwritingTitle ?? "", content: memo.content, references: memo.references};
+          const newMemo: SimpleMemo = {memoId: memo.memoId, title: underwritingTitle ?? "", references: memo.references};
           return newMemo;
         } else {
           return memo;
@@ -93,29 +93,6 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     };
   }, [closeContextMenu]);
   
-  
-  if (memos === null || memosRef === null) {
-    return (
-      <div className={className}>
-        <div className={"flex pb-3 flex-row-reverse"}>
-          <div>
-            <button
-              className="text-white"
-              aria-label='newMemo'
-              type='button'
-            >
-              <Image src={newMemo} alt={"newMemo"}
-                     className={"white-image"}
-                     width={30} height={30}/>
-            </button>
-          </div>
-        </div>
-        <ul className="flex-grow overflow-auto text-white border-2 bg-gray-900">
-        </ul>
-      </div>
-    );
-  }
-  
   const handleDeleteClick = async () => {
     if (contextMenu && contextMenu.memoId) {
       const result = await deleteMemoById(contextMenu.memoId);
@@ -146,11 +123,11 @@ export default function MemoTable({memos, underwritingId, underwritingTitle, cla
     }
   }
   
-  function determineMemoText(memo: Memo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
+  function determineMemoText(memo: SimpleMemo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
     if (memo.memoId.toString() === underwritingId) {
-      return newMemoTitle?.length === 0 ? '새로운 메모를 작성해주세요' : newMemoTitle;
+      return newMemoTitle?.length === 0 ? 'Untitled' : newMemoTitle;
     } else {
-      return memo.title.length === 0 ? '새로운 메모를 작성해주세요' : memo.title;
+      return memo.title.length === 0 ? 'Untitled' : memo.title;
     }
   }
   

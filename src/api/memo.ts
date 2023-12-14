@@ -2,7 +2,7 @@ import {revalidatePath, revalidateTag, unstable_noStore as noStore} from 'next/c
 import {mainUrl} from "@/api/host";
 import {Memo} from "@/domain/Memo";
 
-export async function fetchMemo() {
+export async function fetchSimpleMemo() {
   noStore()
   try {
     const response = await fetch(mainUrl + '/v1/memo', {cache: 'no-store'});

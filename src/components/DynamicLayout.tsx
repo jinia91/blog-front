@@ -246,14 +246,13 @@ const DynamicLayout = ({topNav, sideBar, page}: {
               
               {/*page 영역*/}
               {
-                // path가 /memo/** 인경우만
-                tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo/') && (
+                tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
                   <div className="bg-gray-700 p-4 rounded-b-lg">
                     <MemoEditorContainer>
                       {page}
                     </MemoEditorContainer>
                   </div>
-                ) || (
+                ) || tabs.length > 0 && (path !== "/empty") && (
                   <div className="bg-gray-700 p-4 rounded-b-lg">
                     {page}
                   </div>

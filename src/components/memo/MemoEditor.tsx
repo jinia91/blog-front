@@ -16,13 +16,12 @@ import {usePathname} from "next/navigation";
 import MemoTable from "@/components/memo/MemoTable";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
-import {fetchMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
+import {fetchSimpleMemo, fetchMemoById, fetchRelatedMemo} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoEditorContainer";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
-  const [memoId, setMemoId] = useState<string>(pageMemoNumber);
-  const {title, setTitle} = useContext(MemoEditContext);
+  const {title, memoId, setTitle, setMemoId} = useContext(MemoEditContext);
   const [content, setContent] = useState<string>(memo?.content ?? "");
   const titleRef = useRef(title);
   const contentRef = useRef(content);
@@ -30,11 +29,12 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
   useEffect(() => {
     async function fetchData() {
       try {
-        const fetchedMemo = await fetchMemoById(memoId);
+        const fetchedMemo = await fetchMemoById(pageMemoNumber);
         
         if (fetchedMemo) {
           setMemo(fetchedMemo);
           setTitle(fetchedMemo.title);
+          setMemoId(fetchedMemo.memoId.toString());
           setContent(fetchedMemo.content);
         }
       } catch (error) {

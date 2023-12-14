@@ -2,9 +2,9 @@
 
 import { ForceGraph2D } from 'react-force-graph';
 import {LinkObject, NodeObject} from "force-graph";
-import {Memo} from "@/domain/Memo";
+import {Memo, SimpleMemo} from "@/domain/Memo";
 
-export default function MemoGraph({ memos, className }: { memos: Memo[], className?: string }) {
+export default function MemoGraph({ memos, className }: { memos: SimpleMemo[], className?: string }) {
   const nodes : NodeObject[] = memos.map((memo) => ({
     id: memo.memoId,
     name: memo.title,

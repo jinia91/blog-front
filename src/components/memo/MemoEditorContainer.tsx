@@ -1,7 +1,7 @@
 import MemoTable from "@/components/memo/MemoTable";
 import React, {useContext, useEffect, useState} from "react";
-import {fetchMemo, fetchMemoById} from "@/api/memo";
-import {Memo} from "@/domain/Memo";
+import {fetchSimpleMemo, fetchMemoById} from "@/api/memo";
+import {Memo, SimpleMemo} from "@/domain/Memo";
 import {usePathname} from "next/navigation";
 import {TabBarContext} from "@/components/DynamicLayout";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
@@ -9,24 +9,25 @@ import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 
 const initialTitleContextValue = {
   title: "",
+  id: "",
   setTitle: () => {
+  },
+  setId: () => {
   }
 };
 
 export const MemoEditContext = React.createContext<any>(initialTitleContextValue)
 
-export default function MemoEditorContainer({children}: {
-  children: React.ReactNode
-}) {
-  const [title, setTitle] = useState("")
-  const [memos, setMemos] = useState<Memo[] | null>(null);
+export default function MemoEditorContainer({children}: { children: React.ReactNode }) {
+  const [underwritingTitle, setUnderwritingTitle] = useState("")
+  const [underwritingId, setUnderwritingId] = useState("");
+  const [memos, setMemos] = useState<SimpleMemo[] | null>(null);
   const path = usePathname();
-  const underwritingId = path.split("/")[2];
   
   useEffect(() => {
     async function fetchData() {
       try {
-        const fetchedMemos = await fetchMemo();
+        const fetchedMemos = await fetchSimpleMemo();
         setMemos(fetchedMemos);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -42,10 +43,9 @@ export default function MemoEditorContainer({children}: {
   
   const defaultLayout = getLocalStorage<MixedSizes[] | null>("react-resizable-panels:layout")
   
-  
   return (
     
-    <MemoEditContext.Provider value={{title, setTitle}}>
+    <MemoEditContext.Provider value={{title: underwritingTitle, memoId: underwritingId, setTitle: setUnderwritingTitle, setMemoId: setUnderwritingId}}>
       <div className="flex-grow overflow-auto">
         <PanelGroup
           direction="horizontal"
@@ -66,10 +66,10 @@ export default function MemoEditorContainer({children}: {
             className="flex flex-1 overflow-auto"
             minSizePercentage={20}
           >
-            <MemoTable memos={memos}
-                       underwritingId={underwritingId}
-                       underwritingTitle={title}
-                       className="flex flex-1 min-w-0 flex-col"/>
+            {memos && (<MemoTable memos={memos}
+                                  underwritingId={underwritingId}
+                                  underwritingTitle={underwritingTitle}
+                                  className="flex flex-1 min-w-0 flex-col"/>)}
           </Panel>
         </PanelGroup>
       </div>
