@@ -11,7 +11,7 @@ export default function FolderItem({ folder, toggleFolder, depth }: {
 }) {
   return (
     <li
-      className={`flex items-center pl-${depth * 2} pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500`}
+      className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500`}
       onClick={() => toggleFolder(folder.id ?? 0)}
     >
       <div

@@ -6,7 +6,7 @@ import newMemo from "../../../public/newMemo.png";
 import {deleteMemoById} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/link/NewMemoLink";
-import MemoContextMenu, {ContextMenuProps} from "@/components/memo/MemoContextMenu";
+import MemoContextMenu, {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
 import {deleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";
 
@@ -29,7 +29,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     setFolderRef(newFolderRef);
   }, [underwritingTitle]);
   
-  const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
+  const [contextMenu, setContextMenu] = useState<MemoContextMenuProps | null>(null);
   const closeContextMenu = useCallback(() => {
     setContextMenu(null);
   }, []);

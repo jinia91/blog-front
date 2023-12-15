@@ -1,9 +1,8 @@
 import MemoSystemNavigator from "@/components/memo/MemoSystemNavigator";
-import React, {useContext, useEffect, useState} from "react";
-import {fetchSimpleMemo, fetchMemoById, fetchFolderAndMemo} from "@/api/memo";
-import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
+import React, {useEffect, useState} from "react";
+import {fetchFolderAndMemo} from "@/api/memo";
+import {FolderInfo} from "@/api/models";
 import {usePathname} from "next/navigation";
-import {TabBarContext} from "@/components/DynamicLayout";
 import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
 import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 
@@ -41,17 +40,31 @@ export default function MemoEditorContainer({children}: { children: React.ReactN
   const onLayout = (layout: MixedSizes[]) => {
     setLocalStorage("react-resizable-panels:layout", layout);
   };
-  
+  type Direction = "horizontal" | "vertical";
   const defaultLayout = getLocalStorage<MixedSizes[] | null>("react-resizable-panels:layout")
   
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setDirection('vertical');
+      } else {
+        setDirection('horizontal');
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const [direction, setDirection] = useState<Direction>('horizontal');
+  
   return (
-    
     <MemoEditContext.Provider value={{title: underwritingTitle, memoId: underwritingId, setTitle: setUnderwritingTitle, setMemoId: setUnderwritingId}}>
       <div className="flex-grow overflow-auto">
         <PanelGroup
-          direction="horizontal"
+          direction={direction}
           className={"dos-font flex-col md:flex-row"}
-          style={{height: '70vh', overflowY: 'auto'}}
+          style={{height: '75vh', overflowY: 'auto'}}
           onLayout={onLayout}
         >
           <Panel

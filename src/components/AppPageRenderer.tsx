@@ -8,7 +8,7 @@ export function renderPage(
 ) {
   function renderMemoContainer() {
     return tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
-      <div className="bg-gray-700 p-4 rounded-b-lg">
+      <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
         <MemoEditorContainer>
           {page}
         </MemoEditorContainer>

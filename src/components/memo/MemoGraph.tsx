@@ -90,8 +90,8 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
         nodeLabel="name"
         nodeAutoColorBy="group"
         linkColor={() => 'red'}
-        linkWidth={3}
-        linkCurvature={1}
+        linkWidth={1}
+        linkCurvature={0}
         linkDirectionalParticles={2}
         linkDirectionalArrowLength={3}
         nodeCanvasObject={nodeCanvasObject}

@@ -4,12 +4,12 @@ import React, {useEffect, useRef, useState} from "react";
 import FolderItem from "@/components/memo/FolderItem";
 import TabLink from "@/components/link/TabLink";
 import MemoItem from "@/components/memo/MemoItem";
-import {ContextMenuProps} from "@/components/memo/MemoContextMenu";
+import {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
 
 export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwritingId, newMemoTitle}: {
   folders: FolderInfo[],
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement, MouseEvent>, memoId: string) => void,
-  contextMenu: ContextMenuProps | null,
+  contextMenu: MemoContextMenuProps | null,
   underwritingId: string | null | undefined,
   newMemoTitle: string
 }) {
@@ -60,34 +60,32 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
   const renderItems = (folders: FolderInfo[], depth: number) => {
     return folders.map((folder) => (
       <React.Fragment key={folder.id}>
-        <>
-          <FolderItem folder={folder} toggleFolder={toggleFolder} depth={depth}/>
-          {openFolders.has(folder.id ?? 0) && (
-            <>
-              {folder.memos.map((memo) => (
-                <TabLink key={memo.memoId} href={`/memo/${memo.memoId}`}
-                         name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`}>
-                  <MemoItem
-                    memo={memo}
-                    handleContextMenu={handleContextMenu}
-                    contextMenu={contextMenu}
-                    depth={depth}
-                    underwritingId={underwritingId}
-                    newMemoTitle={newMemoTitle}
-                  />
-                </TabLink>
-              ))}
-              {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
-            </>
-          )}
-        </>
+        <FolderItem folder={folder} toggleFolder={toggleFolder} depth={depth}/>
+        {openFolders.has(folder.id ?? 0) && (
+          <>
+            {folder.memos.map((memo) => (
+              <TabLink key={memo.memoId} href={`/memo/${memo.memoId}`}
+                       name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`}>
+                <MemoItem
+                  memo={memo}
+                  handleMemoContextMenu={handleContextMenu}
+                  memoContextMenu={contextMenu}
+                  depth={depth}
+                  underwritingId={underwritingId}
+                  newMemoTitle={newMemoTitle}
+                />
+              </TabLink>
+            ))}
+            {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
+          </>
+        )}
       </React.Fragment>
     ));
   }
   
   return (
     <ul ref={listRef}
-        className="flex-grow overflow-auto text-white border-2 bg-gray-900">
+        className="flex-grow overflow-auto text-white border-2 bg-gray-900 pt-1">
       {renderItems(folders, 0)}
     </ul>
   )

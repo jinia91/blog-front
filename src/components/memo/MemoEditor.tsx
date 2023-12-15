@@ -13,8 +13,8 @@ import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
 import {fetchRelatedMemo} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoEditorContainer";
 import {TitleInput} from "@/components/memo/MemoTitleEditInput";
-import useFetchMemoHook from "@/components/memo/useFetchMemoHook";
 import useStompClient from "@/api/MemoEditWebsocket";
+import useFetchMemoHook from "@/components/memo/useFetchMemoHook";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
@@ -112,7 +112,7 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
           }}
           visibleDragbar={true}
           className={"border-2 flex-grow"}
-          height={750}
+          height={500}
         />
       </div>
     </>

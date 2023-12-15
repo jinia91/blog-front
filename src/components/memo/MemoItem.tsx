@@ -2,15 +2,15 @@ import {SimpleMemoInfo} from "@/api/models";
 import React from "react";
 import Image from "next/image";
 import memoImg from "../../../public/memo.png";
-import {ContextMenuProps} from "@/components/memo/MemoContextMenu";
+import {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
 
-export default function MemoItem({ memo, handleContextMenu, depth, underwritingId, newMemoTitle, contextMenu } :{
+export default function MemoItem({ memo, handleMemoContextMenu, depth, underwritingId, newMemoTitle, memoContextMenu } :{
   memo: SimpleMemoInfo,
-  handleContextMenu: (e: React.MouseEvent<HTMLLIElement, MouseEvent>, memoId: string) => void
+  handleMemoContextMenu: (e: React.MouseEvent<HTMLLIElement, MouseEvent>, memoId: string) => void
   depth: number,
   underwritingId: string | null | undefined,
   newMemoTitle: string,
-  contextMenu: ContextMenuProps | null
+  memoContextMenu: MemoContextMenuProps | null
 }) {
   function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
     if (memo.memoId.toString() === underwritingId) {
@@ -22,10 +22,10 @@ export default function MemoItem({ memo, handleContextMenu, depth, underwritingI
   
   return (
     <li
-      onContextMenu={(e) => handleContextMenu(e, memo.memoId.toString())}
+      onContextMenu={(e) => handleMemoContextMenu(e, memo.memoId.toString())}
       data-memo-id={memo.memoId.toString()}
-      className={`p-2 rounded cursor-pointer flex truncate ${memo.memoId.toString() === underwritingId
-        ? 'bg-gray-600' : 'hover:bg-gray-500'} ${contextMenu && contextMenu.memoId === memo.memoId.toString()
+      className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500 ${memo.memoId.toString() === underwritingId
+        ? 'bg-gray-600' : 'hover:bg-gray-500'} ${memoContextMenu && memoContextMenu.memoId === memo.memoId.toString()
         ? 'bg-gray-600' : ''}`}
     >
       <div

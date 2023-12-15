@@ -1,7 +1,7 @@
 "use client";
-import React, {createContext, useCallback, useEffect, useRef, useState} from "react";
+import React, {createContext, useCallback, useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {Tab, TabItem} from "@/components/tapbar/TabItem";
+import {Tab} from "@/components/tapbar/TabItem";
 import {renderPage} from "@/components/AppPageRenderer";
 import SideBarProvider from "@/components/sidebar/SiderBarProvider";
 import renderContextMenu, {TabContextMenuProps} from "@/components/tapbar/TabContextMenu";
@@ -87,6 +87,7 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       return prevIdx > target ? prevIdx - 1 : prevIdx;
     });
   };
+  
   // contextMenu
   const [contextMenu, setContextMenu] = useState<TabContextMenuProps | null>(null);
   

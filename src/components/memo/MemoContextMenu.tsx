@@ -1,5 +1,5 @@
 
-export interface ContextMenuProps {
+export interface MemoContextMenuProps {
   xPos: string;
   yPos: string;
   memoId: string;
