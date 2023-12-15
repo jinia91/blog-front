@@ -141,8 +141,6 @@ const DynamicLayout = ({topNav, sideBar, page}: {
             {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
             <div className="bg-gray-800 p-4">
               <ScrollingTabContainer
-                tabs={tabs}
-                selectedTabIdx={selectedTabIdx}
                 onSelectTab={selectTab}
                 onRemoveTab={removeTab}
                 onContextMenu={handleContextMenu}

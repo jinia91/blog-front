@@ -10,6 +10,7 @@ import NewMemoLink from "@/components/link/NewMemoLink";
 import MemoContextMenu, {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
 import {deleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";
+import NewFolder from "@/components/memo/NewFolder";
 
 
 export default function MemoSystemNavigator({foldersOrigin, underwritingId, underwritingTitle, className}: {
@@ -97,7 +98,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
           </button>
         </NewMemoLink>
         
-        <NewMemoLink name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
+        <NewFolder name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
           <button
             className="text-white ml-3 mr-3"
             aria-label='newMemo'
@@ -107,7 +108,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
                    className={"white-image"}
                    width={30} height={30}/>
           </button>
-        </NewMemoLink>
+        </NewFolder>
       </div>
       {MemoContextMenu({contextMenu, closeContextMenu, handleDeleteClick})}
       <FolderAndMemo

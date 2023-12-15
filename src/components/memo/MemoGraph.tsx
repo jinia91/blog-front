@@ -22,7 +22,9 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
   };
   
   const folderNodes: NodeObject[] = [];
-  flattenFolders.forEach((folder, index) => createFolderNodes(folder, 6, folderNodes));
+  flattenFolders.filter(
+    folder => folder.id !== null
+  ).forEach((folder, index) => createFolderNodes(folder, 6, folderNodes));
   
   const memoNodes: NodeObject[] = flattenFolders.flatMap(folder => folder.memos.map((memo, index) => ({
     id: memo.id,
@@ -41,14 +43,18 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
     )
   );
   
-  const folderLinks: LinkObject[] = flattenFolders.flatMap(folder =>
+  const folderLinks: LinkObject[] = flattenFolders.filter(
+    folder => folder.id !== null
+  ).flatMap(folder =>
     folder.children.map(child => ({
       source: child.id || -1,
       target: folder.id || -1
     }))
   );
   
-  const folderMemoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
+  const folderMemoLinks: LinkObject[] = flattenFolders.filter(
+    folder => folder.id !== null
+  ).flatMap(folder =>
     folder.memos.map(memo => ({
       source: memo.id,
       target: folder.id || -1

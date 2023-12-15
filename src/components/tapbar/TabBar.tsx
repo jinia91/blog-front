@@ -1,15 +1,20 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, {useRef, useEffect, useContext} from 'react';
 import {Tab, TabItem} from "@/components/tapbar/TabItem";
+import {TabBarContext} from "@/components/DynamicLayout";
 
-export function ScrollingTabContainer({ tabs, selectedTabIdx, onSelectTab, onRemoveTab, onContextMenu } : {
-  tabs: Tab[],
-  selectedTabIdx: number,
+export function ScrollingTabContainer({ onSelectTab, onRemoveTab, onContextMenu } : {
   onSelectTab: (index: number) => void,
   onRemoveTab: (index: number) => void,
   onContextMenu: (event: React.MouseEvent<HTMLDivElement>, index: number) => void,
 }){
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const {tabs, selectedTabIdx, setTabs, setSelectedTabsIdx} : {
+    tabs: Tab[],
+    selectedTabIdx: number,
+    setTabs: (tabs: Tab[]) => void,
+    setSelectedTabsIdx: (index: number) => void,
+  } = useContext(TabBarContext)
   
   useEffect(() => {
     if (scrollContainerRef.current) {

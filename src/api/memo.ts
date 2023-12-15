@@ -98,3 +98,26 @@ export async function fetchFolderAndMemo() {
     return null;
   }
 }
+
+export async function createFolder(authorId: string) {
+  noStore()
+  try {
+    const response = await fetch(mainUrl + `/v1/folder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({authorId}),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log("debug!!!",data)
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
+  
+}
