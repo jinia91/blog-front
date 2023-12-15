@@ -16,7 +16,7 @@ export default function NewMemoLink({name, foldersRef, setFoldersRef, children}:
     const updatedTabs = [...tabs, newTab];
     setTabs(updatedTabs);
     setSelectedTabIdx(updatedTabs.length - 1);
-   const newMemo : SimpleMemoInfo = {memoId: response.memoId, title: '',  references: []};
+   const newMemo : SimpleMemoInfo = {id: response.memoId, title: '',  references: []};
    const unCategoryFolder = foldersRef.find((folder) => folder.id === null);
    const newUnCategoryFolder : FolderInfo = unCategoryFolder ? {...unCategoryFolder, memos: [...unCategoryFolder.memos, newMemo]} : {id: null, name: 'unCategory', parent: null, memos: [newMemo], children: []};
    const newFolders = [...foldersRef.filter((folder) => folder.id !== null), newUnCategoryFolder];

@@ -64,8 +64,8 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
         {openFolders.has(folder.id ?? 0) && (
           <>
             {folder.memos.map((memo) => (
-              <TabLink key={memo.memoId} href={`/memo/${memo.memoId}`}
-                       name={memo.title !== '' ? memo.title : `/memo/${memo.memoId}`}>
+              <TabLink key={memo.id} href={`/memo/${memo.id}`}
+                       name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}>
                 <MemoItem
                   memo={memo}
                   handleMemoContextMenu={handleContextMenu}

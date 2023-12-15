@@ -6,7 +6,7 @@ export interface Memo {
 }
 
 export interface SimpleMemoInfo {
-  memoId: number;
+  id: number;
   title: string;
   references: ReferenceInfo[];
 }

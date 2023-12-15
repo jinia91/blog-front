@@ -3,7 +3,7 @@ import {FolderInfo} from "@/api/models";
 // folderRef update utils
 export const deleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
-    const filteredMemos = folder.memos.filter(memo => memo.memoId.toString() !== deletedMemoId);
+    const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId);
     const updatedChildren = deleteMemoInFolders(folder.children, deletedMemoId);
     const updatedFolder = {
       ...folder,
@@ -18,7 +18,7 @@ export const deleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: string
 export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | undefined, newTitle: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const updatedMemos = folder.memos.map(memo => {
-      if (memo.memoId.toString() === memoId) {
+      if (memo.id.toString() === memoId) {
         return {...memo, title: newTitle};
       } else {
         return memo;

@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useEffect, useRef, useState} from "react
 import {FolderInfo} from "@/api/models";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
+import newFolder from "../../../public/newFolder.png";
 import {deleteMemoById} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/link/NewMemoLink";
@@ -83,6 +84,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
   return (
     <div className={className}>
       <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2"}>
+        {/*폴더 생성으로 변경*/}
         <NewMemoLink name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
           <button
             className="text-white"
@@ -90,6 +92,18 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
             type='button'
           >
             <Image src={newMemo} alt={"newMemo"}
+                   className={"white-image"}
+                   width={30} height={30}/>
+          </button>
+        </NewMemoLink>
+        
+        <NewMemoLink name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
+          <button
+            className="text-white ml-3 mr-3"
+            aria-label='newMemo'
+            type='button'
+          >
+            <Image src={newFolder} alt={"newMemo"}
                    className={"white-image"}
                    width={30} height={30}/>
           </button>
