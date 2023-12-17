@@ -4,11 +4,15 @@ import {FolderInfo} from "@/api/models";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import newFolder from "../../../public/newFolder.png";
-import {deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
+import {changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/link/NewMemoLink";
 import MemoAndFolderContextMenu, {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
-import {afterDeleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
+import {
+  afterDeleteMemoInFolders,
+  updateFoldersStateWithNewName,
+  updateTitleInFolders
+} from "@/components/memo/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";
 import NewFolder from "@/components/memo/NewFolder";
 
@@ -36,15 +40,15 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     setMemoContextMenu(null);
   }, []);
   
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => {
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?: string) => {
     event.preventDefault();
     setMemoContextMenu({
       xPos: `${event.pageX}px`,
       yPos: `${event.pageY}px`,
       memoId: memoId,
-      folderId: folderId
+      folderId: folderId,
+      folderName: folderName,
     });
-    console.log("debug point", memoId, folderId)
   }, []);
   
   useEffect(() => {
@@ -61,6 +65,29 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
       await deleteFolder();
     }
   }
+  
+  // 폴더명 변경 todo 적절한 컴포넌트로 이동
+  const [renamingFolderId, setRenamingFolderId] = useState<string>('');
+  const [newFolderName, setNewFolderName] = useState<string>('');
+  
+  const handleRenameClick = (folderId : string, currentName : string) => {
+    setRenamingFolderId(folderId);
+    setNewFolderName(currentName);
+  };
+  
+  const handleSubmitRename = async () => {
+    if(newFolderName === '') {
+      setRenamingFolderId('');
+    } else if(renamingFolderId) {
+      const result = await changeFolderName(renamingFolderId, newFolderName);
+      if (result) {
+        const newFolderRef = updateFoldersStateWithNewName(FolderRef, renamingFolderId, newFolderName);
+        setRenamingFolderId('');
+        setFolderRef(newFolderRef)
+      }
+    }
+  };
+  
   
   async function deleteFolder() {
     if (!memoContextMenu || !memoContextMenu.folderId) return;
@@ -148,13 +175,17 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
           </button>
         </NewFolder>
       </div>
-      {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick})}
+      {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick})}
       <FolderAndMemo
         folders={FolderRef}
         handleContextMenu={handleContextMenu}
         contextMenu={memoContextMenu}
         underwritingId={underwritingId}
         newMemoTitle={newMemoTitle}
+        renamingFolderId={renamingFolderId}
+        newFolderName={newFolderName}
+        setNewFolderName={setNewFolderName}
+        handleSubmitRename={handleSubmitRename}
       />
     </div>
   );

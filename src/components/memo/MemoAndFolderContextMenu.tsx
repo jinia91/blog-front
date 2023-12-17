@@ -4,14 +4,23 @@ export interface ContextMenuProps {
   yPos: string;
   memoId?: string;
   folderId?: string;
+  folderName?: string;
 }
 
-export default function MemoAndFolderContextMenu({ contextMenu, closeContextMenu, handleDeleteClick } : {
+export default function MemoAndFolderContextMenu({ contextMenu, closeContextMenu, handleDeleteClick, handleRenameClick } : {
   contextMenu: ContextMenuProps | null,
   closeContextMenu: any,
-  handleDeleteClick: any
+  handleDeleteClick: any,
+  handleRenameClick: any,
 }) {
   if (!contextMenu) return null;
+  
+  const onRenameClick = () => {
+    if (contextMenu.folderId) {
+      handleRenameClick(contextMenu.folderId, contextMenu.folderName);
+      closeContextMenu();
+    }
+  };
   
   if (contextMenu.memoId) {
     return (
@@ -63,7 +72,7 @@ export default function MemoAndFolderContextMenu({ contextMenu, closeContextMenu
             zIndex: 1000,
           }}
         >
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={handleDeleteClick}>이름변경하기</li>
+          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={onRenameClick}>이름변경하기</li>
           <li className={"hover:bg-gray-700 p-1 list-none"} onClick={handleDeleteClick}>삭제하기</li>
         </ul>
       </>

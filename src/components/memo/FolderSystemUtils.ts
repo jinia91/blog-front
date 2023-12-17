@@ -14,7 +14,6 @@ export const afterDeleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: s
   }, []);
 };
 
-
 export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | undefined, newTitle: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const updatedMemos = folder.memos.map(memo => {
@@ -31,5 +30,20 @@ export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | und
       children: updatedChildren
     };
     return [...acc, updatedFolder];
+  }, []);
+}
+
+export const updateFoldersStateWithNewName = (folders: FolderInfo[], folderId: string, newName: string): FolderInfo[] => {
+  return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
+    if (folder.id?.toString() === folderId) {
+      return [...acc, {...folder, name: newName}];
+    } else {
+      const updatedChildren = updateFoldersStateWithNewName(folder.children, folderId, newName);
+      const updatedFolder = {
+        ...folder,
+        children: updatedChildren
+      };
+      return [...acc, updatedFolder];
+    }
   }, []);
 }
