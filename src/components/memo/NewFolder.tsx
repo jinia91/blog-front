@@ -4,8 +4,7 @@ import React, {Dispatch, SetStateAction} from "react";
 import {FolderInfo, SimpleMemoInfo} from "@/api/models";
 import {createFolder} from "@/api/memo";
 
-export default function NewFolder({name, foldersRef, setFoldersRef, children}: {
-  name: string,
+export default function NewFolder({foldersRef, setFoldersRef, children}: {
   foldersRef: FolderInfo[],
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>,
   children: React.ReactNode

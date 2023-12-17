@@ -5,8 +5,13 @@ import {LinkObject, NodeObject} from "force-graph";
 import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
 import {useContext} from "react";
 import {TabBarContext} from "@/components/DynamicLayout";
+import {FolderContext} from "@/components/memo/MemoFolderContainer";
 
-export default function MemoGraph({ folders, className }: { folders: FolderInfo[], className?: string }) {
+export default function MemoGraph({className }: { className?: string }) {
+  const {folders} : {folders: FolderInfo[]} = useContext(FolderContext)
+  const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  
+  if (!folders) {return ;}
   
   const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
     const children = folder.children.flatMap(child => flattenFolder(child));
@@ -94,7 +99,6 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
     }
   };
   
-  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
   const handleNodeClick = (node: any) => {
     if (isFolder(node)) return
     

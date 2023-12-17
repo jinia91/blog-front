@@ -1,4 +1,4 @@
-import MemoEditor from "@/components/memo/MemoEditor";
+import MemoEditor from "@/components/memo/memo_editor/MemoEditor";
 
 export default async function Page({params}: { params: { id: string } }) {
   

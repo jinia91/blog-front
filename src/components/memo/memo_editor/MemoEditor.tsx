@@ -9,12 +9,12 @@ import MDEditor, {
   ICommand, selectWord, TextAreaTextApi
 } from '@uiw/react-md-editor';
 import {Memo} from "@/api/models";
-import {RelatedMemoModal} from "@/components/memo/RelatedMemoModal";
+import {RelatedMemoModal} from "@/components/memo/memo_editor/RelatedMemoModal";
 import {fetchRelatedMemo} from "@/api/memo";
-import {MemoEditContext} from "@/components/memo/MemoEditorContainer";
+import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 import {TitleInput} from "@/components/memo/MemoTitleEditInput";
 import useStompClient from "@/api/MemoEditWebsocket";
-import useFetchMemoHook from "@/components/memo/useFetchMemoHook";
+import useFetchMemoHook from "@/components/memo/memo_editor/useFetchMemoHook";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);

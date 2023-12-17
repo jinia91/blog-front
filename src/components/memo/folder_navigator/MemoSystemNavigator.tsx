@@ -2,8 +2,8 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {FolderInfo} from "@/api/models";
 import Image from "next/image";
-import newMemo from "../../../public/newMemo.png";
-import newFolder from "../../../public/newFolder.png";
+import newMemo from "../../../../public/newMemo.png";
+import newFolder from "../../../../public/newFolder.png";
 import {changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/link/NewMemoLink";
@@ -168,7 +168,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
           </button>
         </NewMemoLink>
         
-        <NewFolder name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
+        <NewFolder foldersRef={FolderRef} setFoldersRef={setFolderRef}>
           <button
             className="text-white ml-3 mr-3"
             aria-label='newMemo'

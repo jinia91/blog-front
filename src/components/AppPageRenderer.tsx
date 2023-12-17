@@ -1,4 +1,4 @@
-import MemoEditorContainer from "@/components/memo/MemoEditorContainer";
+import MemoFolderContainer from "@/components/memo/MemoFolderContainer";
 import React from "react";
 
 export function renderPage(
@@ -9,9 +9,9 @@ export function renderPage(
   function renderMemoContainer() {
     return tabs.length > 0 && (path !== "/empty") && path.startsWith('/memo') && (
       <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
-        <MemoEditorContainer>
+        <MemoFolderContainer>
           {page}
-        </MemoEditorContainer>
+        </MemoFolderContainer>
       </div>
     );
   }

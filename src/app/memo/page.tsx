@@ -1,12 +1,10 @@
-import MemoGraph from "@/components/memo/MemoGraph";
+import MemoGraph from "@/components/memo/memo_graph/MemoGraph";
 import {fetchFolderAndMemo} from "@/api/memo";
 
 export default async function Page() {
-  const folders = await fetchFolderAndMemo();
-
   return (
     <main className="mb-4 flex-grow">
-          <MemoGraph folders={folders} className={""}/>
+          <MemoGraph className={""}/>
     </main>
   
   )
