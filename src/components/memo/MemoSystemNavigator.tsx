@@ -4,11 +4,11 @@ import {FolderInfo} from "@/api/models";
 import Image from "next/image";
 import newMemo from "../../../public/newMemo.png";
 import newFolder from "../../../public/newFolder.png";
-import {deleteMemoById} from "@/api/memo";
+import {deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
 import NewMemoLink from "@/components/link/NewMemoLink";
-import MemoContextMenu, {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
-import {deleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
+import MemoAndFolderContextMenu, {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import {afterDeleteMemoInFolders, updateTitleInFolders} from "@/components/memo/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";
 import NewFolder from "@/components/memo/NewFolder";
 
@@ -31,18 +31,20 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     setFolderRef(newFolderRef);
   }, [underwritingTitle]);
   
-  const [contextMenu, setContextMenu] = useState<MemoContextMenuProps | null>(null);
+  const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null);
   const closeContextMenu = useCallback(() => {
-    setContextMenu(null);
+    setMemoContextMenu(null);
   }, []);
   
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLLIElement>, memoId: string) => {
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => {
     event.preventDefault();
-    setContextMenu({
+    setMemoContextMenu({
       xPos: `${event.pageX}px`,
       yPos: `${event.pageY}px`,
       memoId: memoId,
+      folderId: folderId
     });
+    console.log("debug point", memoId, folderId)
   }, []);
   
   useEffect(() => {
@@ -53,32 +55,68 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
   }, [closeContextMenu]);
   
   const handleDeleteClick = async () => {
-    if (contextMenu && contextMenu.memoId) {
-      const result = await deleteMemoById(contextMenu.memoId);
-      if (result) {
-        const newFolderStructure = deleteMemoInFolders(FolderRef, contextMenu.memoId);
-        setFolderRef(newFolderStructure);
-        const deletedTabIndex = tabs.findIndex(function (tab: any) {
-          if (tab.context.startsWith("/memo/")) {
-            const memoId = tab.context.split("/")[2];
-            return memoId === contextMenu.memoId;
-          }
-        });
-        if (deletedTabIndex !== -1) {
-          const newTabs = tabs.filter(function (_: any, idx: number) {
-            return idx !== deletedTabIndex;
-          });
-          setTabs(newTabs);
-          
-          if (selectedTabIdx === deletedTabIndex) {
-            const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null;
-            setSelectedTabIdx(newSelectedTabIdx);
-          } else if (selectedTabIdx > deletedTabIndex) {
-            setSelectedTabIdx(selectedTabIdx - 1);
-          }
-        }
-        closeContextMenu();
+    if (memoContextMenu && memoContextMenu.memoId) {
+      await deleteMemo();
+    } else if (memoContextMenu && memoContextMenu.folderId) {
+      await deleteFolder();
+    }
+  }
+  
+  async function deleteFolder() {
+    if (!memoContextMenu || !memoContextMenu.folderId) return;
+   
+    const result = await deleteFolderById(memoContextMenu.folderId);
+    if (result) {
+      const newFetchedFolders = await fetchFolderAndMemo()
+      setFolderRef(newFetchedFolders);
+      
+      const newTabs = tabs.filter((tab : any) => {
+        const memoId = tab.context.startsWith("/memo/") ? tab.context.split("/")[2] : null;
+        
+        return !memoId ||
+        newFetchedFolders.some((folder : FolderInfo) => folderContainsMemo(folder, memoId));
+      });
+      setTabs(newTabs);
+
+      if (selectedTabIdx !== null && !newTabs[selectedTabIdx]) {
+        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null;
+        setSelectedTabIdx(newSelectedTabIdx);
       }
+      closeContextMenu();
+    }
+  }
+  
+  function folderContainsMemo(folder : FolderInfo, memoId : string): boolean {
+    if (folder.memos.some(memo => memo.id.toString() === memoId)) return true;
+    return folder.children && folder.children.some(childFolder => folderContainsMemo(childFolder, memoId));
+  }
+  
+  async function deleteMemo() {
+    if (!memoContextMenu || !memoContextMenu.memoId) return;
+    const result = await deleteMemoById(memoContextMenu.memoId);
+    if (result) {
+      const newFolderStructure = afterDeleteMemoInFolders(FolderRef, memoContextMenu.memoId);
+      setFolderRef(newFolderStructure);
+      const deletedTabIndex = tabs.findIndex(function (tab: any) {
+        if (tab.context.startsWith("/memo/")) {
+          const memoId = tab.context.split("/")[2];
+          return memoId === memoContextMenu.memoId;
+        }
+      });
+      if (deletedTabIndex !== -1) {
+        const newTabs = tabs.filter(function (_: any, idx: number) {
+          return idx !== deletedTabIndex;
+        });
+        setTabs(newTabs);
+        
+        if (selectedTabIdx === deletedTabIndex) {
+          const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null;
+          setSelectedTabIdx(newSelectedTabIdx);
+        } else if (selectedTabIdx > deletedTabIndex) {
+          setSelectedTabIdx(selectedTabIdx - 1);
+        }
+      }
+      closeContextMenu();
     }
   }
   
@@ -110,11 +148,11 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
           </button>
         </NewFolder>
       </div>
-      {MemoContextMenu({contextMenu, closeContextMenu, handleDeleteClick})}
+      {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick})}
       <FolderAndMemo
         folders={FolderRef}
         handleContextMenu={handleContextMenu}
-        contextMenu={contextMenu}
+        contextMenu={memoContextMenu}
         underwritingId={underwritingId}
         newMemoTitle={newMemoTitle}
       />

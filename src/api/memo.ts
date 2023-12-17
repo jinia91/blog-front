@@ -2,21 +2,6 @@ import {revalidatePath, revalidateTag, unstable_noStore as noStore} from 'next/c
 import {mainUrl} from "@/api/host";
 import {Memo} from "@/api/models";
 
-export async function fetchSimpleMemo() {
-  noStore()
-  try {
-    const response = await fetch(mainUrl + '/v1/memo', {cache: 'no-store'});
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    return data.memos;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return null;
-  }
-}
-
 export async function createMemo(authorId: string) {
   try {
     const response = await fetch(mainUrl + '/v1/memo', {
@@ -113,11 +98,45 @@ export async function createFolder(authorId: string) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    console.log("debug!!!",data)
     return data;
   } catch (error) {
     console.error('Error fetching memo:', error);
     return null;
   }
-  
+}
+
+export async function changeFolderName(folderId: string, toBeName: string) {
+  try {
+    const response = await fetch(mainUrl + `/v1/folder/${folderId}/name`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({folderId: folderId, name: toBeName}),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
+}
+
+export async function deleteFolderById(folderId: string) {
+  try {
+    const response = await fetch(mainUrl + `/v1/folder/${folderId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
 }

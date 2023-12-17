@@ -1,10 +1,10 @@
 import {FolderInfo} from "@/api/models";
 
 // folderRef update utils
-export const deleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
+export const afterDeleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId);
-    const updatedChildren = deleteMemoInFolders(folder.children, deletedMemoId);
+    const updatedChildren = afterDeleteMemoInFolders(folder.children, deletedMemoId);
     const updatedFolder = {
       ...folder,
       memos: filteredMemos,

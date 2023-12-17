@@ -4,12 +4,12 @@ import React, {useEffect, useRef, useState} from "react";
 import FolderItem from "@/components/memo/FolderItem";
 import TabLink from "@/components/link/TabLink";
 import MemoItem from "@/components/memo/MemoItem";
-import {MemoContextMenuProps} from "@/components/memo/MemoContextMenu";
+import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
 
 export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwritingId, newMemoTitle}: {
   folders: FolderInfo[],
-  handleContextMenu: (e: React.MouseEvent<HTMLLIElement, MouseEvent>, memoId: string) => void,
-  contextMenu: MemoContextMenuProps | null,
+  handleContextMenu: (e : React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => void,
+  contextMenu: ContextMenuProps | null,
   underwritingId: string | null | undefined,
   newMemoTitle: string
 }) {
@@ -60,7 +60,13 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
   const renderItems = (folders: FolderInfo[], depth: number) => {
     return folders.map((folder) => (
       <React.Fragment key={folder.id}>
-        <FolderItem folder={folder} toggleFolder={toggleFolder} depth={depth}/>
+        <FolderItem
+          folder={folder}
+          toggleFolder={toggleFolder}
+          depth={depth}
+          handleContextMenu={handleContextMenu}
+          contextMenu={contextMenu}
+        />
         {openFolders.has(folder.id ?? 0) && (
           <>
             {folder.memos.map((memo) => (
@@ -68,8 +74,8 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
                        name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}>
                 <MemoItem
                   memo={memo}
-                  handleMemoContextMenu={handleContextMenu}
-                  memoContextMenu={contextMenu}
+                  handleContextMenu={handleContextMenu}
+                  contextMenu={contextMenu}
                   depth={depth}
                   underwritingId={underwritingId}
                   newMemoTitle={newMemoTitle}
