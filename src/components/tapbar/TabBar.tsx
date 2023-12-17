@@ -9,12 +9,28 @@ export function ScrollingTabContainer({ onSelectTab, onRemoveTab, onContextMenu 
   onContextMenu: (event: React.MouseEvent<HTMLDivElement>, index: number) => void,
 }){
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const {tabs, selectedTabIdx, setTabs, setSelectedTabsIdx} : {
+  const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} : {
     tabs: Tab[],
     selectedTabIdx: number,
     setTabs: (tabs: Tab[]) => void,
-    setSelectedTabsIdx: (index: number) => void,
+    setSelectedTabIdx: (index: number) => void,
   } = useContext(TabBarContext)
+  
+  const handleDragStart = (index : number) => {
+    if (index !== selectedTabIdx) {
+      onSelectTab(index);
+    }
+  };
+  
+  const handleDrop = (droppedIndex : number) => {
+    const newTabs = [...tabs];
+    const draggedTab = newTabs[selectedTabIdx];
+    newTabs.splice(selectedTabIdx, 1);
+    newTabs.splice(droppedIndex, 0, draggedTab);
+    
+    setTabs(newTabs);
+    setSelectedTabIdx(droppedIndex);
+  };
   
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -40,6 +56,8 @@ export function ScrollingTabContainer({ onSelectTab, onRemoveTab, onContextMenu 
             onSelectTab={onSelectTab}
             onRemoveTab={onRemoveTab}
             onContextMenu={onContextMenu}
+            onDragStart={() => handleDragStart(idx)}
+            onDrop={() => handleDrop(idx)}
             key={idx}
           />
         ))}

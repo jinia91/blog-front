@@ -3,6 +3,8 @@
 import { ForceGraph2D } from 'react-force-graph';
 import {LinkObject, NodeObject} from "force-graph";
 import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
+import {useContext} from "react";
+import {TabBarContext} from "@/components/DynamicLayout";
 
 export default function MemoGraph({ folders, className }: { folders: FolderInfo[], className?: string }) {
   
@@ -65,6 +67,10 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
   
   const graphData = {nodes, links};
   
+  function isFolder(node: any) {
+    return node.group < 100;
+  }
+  
   const nodeCanvasObject = (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const label = node.name;
     const fontSize = 12 / globalScale;
@@ -73,7 +79,7 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white';
     
-    if (node.group < 100) {
+    if (isFolder(node)) {
       const size = 10;
       ctx.fillStyle = node.color;
       ctx.fillRect(node.x as number - size / 2, node.y as number - size / 2, size, size);
@@ -85,6 +91,24 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
       ctx.fillStyle = node.color;
       ctx.fill();
       ctx.fillText(label, node.x as number, (node.y as number) + radius + fontSize);
+    }
+  };
+  
+  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  const handleNodeClick = (node: any) => {
+    if (isFolder(node)) return
+    
+    const existingTabIndex = tabs.findIndex(function (tab : any) {
+      return tab.context === `/memo/${node.id}`;
+    });
+    
+    if (existingTabIndex !== -1) {
+      setSelectedTabIdx(existingTabIndex);
+    } else {
+      const newTab = { name: node.name || "untitled", context: `/memo/${node.id}` };
+      const updatedTabs = [...tabs, newTab];
+      setTabs(updatedTabs);
+      setSelectedTabIdx(updatedTabs.length - 1);
     }
   };
   
@@ -101,6 +125,7 @@ export default function MemoGraph({ folders, className }: { folders: FolderInfo[
         linkDirectionalParticles={2}
         linkDirectionalArrowLength={3}
         nodeCanvasObject={nodeCanvasObject}
+        onNodeClick={handleNodeClick}
       />
     </div>
   );

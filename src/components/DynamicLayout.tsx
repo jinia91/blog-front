@@ -10,10 +10,8 @@ import {ScrollingTabContainer} from "@/components/tapbar/TabBar";
 const initialTabStatus = {
   tabs: [],
   selectedTabIdx: 0,
-  setTabs: () => {
-  },
-  setSelectedTabIdx: () => {
-  }
+  setTabs: () => {},
+  setSelectedTabIdx: () => {}
 };
 
 const TabBarContext: React.Context<any> = createContext(initialTabStatus);
