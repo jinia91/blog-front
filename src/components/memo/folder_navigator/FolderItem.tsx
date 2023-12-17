@@ -1,10 +1,11 @@
 import {FolderInfo} from "@/api/models";
-import folderImg from '../../../public/emptyFolder.png'
-import folderWithContentImg from '../../../public/contentFolder.png'
+import folderImg from '../../../../public/emptyFolder.png'
+import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from "next/image";
-import React, {useEffect, useRef, useState} from "react";
-import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {ContextMenuProps} from "@/components/memo/folder_navigator/MemoAndFolderContextMenu";
 import {makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders} from "@/api/memo";
+import {FolderContext, MemoEditContext} from "@/components/memo/MemoFolderContainer";
 
 export default function FolderItem({
                                      folder,
@@ -15,8 +16,7 @@ export default function FolderItem({
                                      renamingFolderId,
                                      newFolderName,
                                      setNewFolderName,
-                                     handleSubmitRename,
-                                     refreshFunction
+                                     handleSubmitRename
                                    }: {
   folder: FolderInfo;
   toggleFolder: (folderId: number) => void;
@@ -27,8 +27,8 @@ export default function FolderItem({
   newFolderName: string;
   setNewFolderName: (newFolderName: string) => void;
   handleSubmitRename: () => void;
-  refreshFunction: () => void;
 }) {
+  const {refreshFolders} = useContext(FolderContext);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   
@@ -49,7 +49,7 @@ export default function FolderItem({
     if (draggedItem.type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null);
       if (result) {
-        refreshFunction();
+        refreshFolders();
       } else {
         console.log('fail');
       }
@@ -57,7 +57,7 @@ export default function FolderItem({
     } else if (draggedItem.type === 'folder') {
       const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null);
       if (result) {
-        refreshFunction();
+        refreshFolders();
       } else {
         console.log('fail');
       }

@@ -1,10 +1,10 @@
 import {FolderInfo} from "@/api/models";
 
 // folderRef update utils
-export const afterDeleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
+export const rebuildMemoDeleted = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId);
-    const updatedChildren = afterDeleteMemoInFolders(folder.children, deletedMemoId);
+    const updatedChildren = rebuildMemoDeleted(folder.children, deletedMemoId);
     const updatedFolder = {
       ...folder,
       memos: filteredMemos,
@@ -14,7 +14,7 @@ export const afterDeleteMemoInFolders = (folders: FolderInfo[], deletedMemoId: s
   }, []);
 };
 
-export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | undefined, newTitle: string): FolderInfo[] => {
+export const rebuildMemoTitle = (folders: FolderInfo[], memoId: string | undefined, newTitle: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const updatedMemos = folder.memos.map(memo => {
       if (memo.id.toString() === memoId) {
@@ -23,7 +23,7 @@ export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | und
         return memo;
       }
     });
-    const updatedChildren = updateTitleInFolders(folder.children, memoId, newTitle);
+    const updatedChildren = rebuildMemoTitle(folder.children, memoId, newTitle);
     const updatedFolder = {
       ...folder,
       memos: updatedMemos,
@@ -33,12 +33,12 @@ export const updateTitleInFolders = (folders: FolderInfo[], memoId: string | und
   }, []);
 }
 
-export const updateFoldersStateWithNewName = (folders: FolderInfo[], folderId: string, newName: string): FolderInfo[] => {
+export const rebuildNewNameFolder = (folders: FolderInfo[], folderId: string, newName: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     if (folder.id?.toString() === folderId) {
       return [...acc, {...folder, name: newName}];
     } else {
-      const updatedChildren = updateFoldersStateWithNewName(folder.children, folderId, newName);
+      const updatedChildren = rebuildNewNameFolder(folder.children, folderId, newName);
       const updatedFolder = {
         ...folder,
         children: updatedChildren
@@ -46,4 +46,9 @@ export const updateFoldersStateWithNewName = (folders: FolderInfo[], folderId: s
       return [...acc, updatedFolder];
     }
   }, []);
+}
+
+export function folderContainsMemo(folder : FolderInfo, memoId : string): boolean {
+  if (folder.memos.some(memo => memo.id.toString() === memoId)) return true;
+  return folder.children && folder.children.some(childFolder => folderContainsMemo(childFolder, memoId));
 }

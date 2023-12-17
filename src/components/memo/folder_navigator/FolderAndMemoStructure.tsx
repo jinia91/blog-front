@@ -1,24 +1,28 @@
 "use client";
 import {FolderInfo} from "@/api/models";
-import React, {useEffect, useRef, useState} from "react";
-import FolderItem from "@/components/memo/FolderItem";
-import TabLink from "@/components/link/TabLink";
-import MemoItem from "@/components/memo/MemoItem";
-import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import FolderItem from "@/components/memo/folder_navigator/FolderItem";
+import TabLink from "@/components/tapbar/TabLink";
+import MemoItem from "@/components/memo/folder_navigator/MemoItem";
+import {ContextMenuProps} from "@/components/memo/folder_navigator/MemoAndFolderContextMenu";
+import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 
-export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwritingId, newMemoTitle, renamingFolderId, newFolderName, setNewFolderName, handleSubmitRename, refreshFunction}: {
+export function FolderAndMemo({folders, handleContextMenu, contextMenu, renamingFolderId, newFolderName, setNewFolderName, handleSubmitRename}: {
   folders: FolderInfo[],
   handleContextMenu: (e : React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?:string) => void,
   contextMenu: ContextMenuProps | null,
-  underwritingId: string | null | undefined,
-  newMemoTitle: string,
   renamingFolderId: string | null;
   newFolderName: string;
   setNewFolderName: (newFolderName: string) => void;
   handleSubmitRename: () => void;
-  refreshFunction: () => void;
 }) {
+  const {underwritingTitle, underwritingId} = useContext(MemoEditContext);
   const listRef = useRef<HTMLUListElement>(null);
+  const getInitialOpenFolders = () => {
+    const storedOpenFolders = localStorage.getItem('openFolders');
+    return storedOpenFolders ? new Set(JSON.parse(storedOpenFolders)) : new Set();
+  };
+  const [openFolders, setOpenFolders] = useState(getInitialOpenFolders);
   
   const scrollToCenter = () => {
     if (listRef.current) {
@@ -38,13 +42,7 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
   
   useEffect(() => {
     scrollToCenter();
-  }, [folders, underwritingId, newMemoTitle]);
-  
-  const getInitialOpenFolders = () => {
-    const storedOpenFolders = localStorage.getItem('openFolders');
-    return storedOpenFolders ? new Set(JSON.parse(storedOpenFolders)) : new Set();
-  };
-  const [openFolders, setOpenFolders] = useState(getInitialOpenFolders);
+  }, [folders, underwritingId, underwritingTitle]);
   
   useEffect(() => {
     localStorage.setItem('openFolders', JSON.stringify(Array.from(openFolders)));
@@ -75,7 +73,6 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
           newFolderName={newFolderName}
           setNewFolderName={setNewFolderName}
           handleSubmitRename={handleSubmitRename}
-          refreshFunction={refreshFunction}
         />
         {openFolders.has(folder.id ?? 0) && (
           <>
@@ -87,8 +84,6 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
                   handleContextMenu={handleContextMenu}
                   contextMenu={contextMenu}
                   depth={depth}
-                  underwritingId={underwritingId}
-                  newMemoTitle={newMemoTitle}
                 />
               </TabLink>
             ))}

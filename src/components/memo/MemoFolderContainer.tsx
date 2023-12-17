@@ -9,17 +9,19 @@ import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
 const initialFolderContextValue = {
   folders: [],
   setFolders: () => {
+  },
+  refreshFolders: () => {
   }
 }
 
 export const FolderContext = React.createContext<any>(initialFolderContextValue)
 
 const initialTitleContextValue = {
-  title: "",
-  id: "",
-  setTitle: () => {
+  underwritingTitle: "",
+  underwritingId: "",
+  setUnderwritingTitle: () => {
   },
-  setId: () => {
+  setUnderwritingId: () => {
   }
 };
 
@@ -45,6 +47,11 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
     fetchData();
   }, []);
   
+  async function refreshFolders() {
+    const newFetchedFolders = await fetchFolderAndMemo()
+    setFolders(newFetchedFolders);
+  }
+  
   const onLayout = (layout: MixedSizes[]) => {
     setLocalStorage("react-resizable-panels:layout", layout);
   };
@@ -67,12 +74,12 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
   const [direction, setDirection] = useState<Direction>('horizontal');
   
   return (
-    <FolderContext.Provider value={{folders, setFolders}}>
+    <FolderContext.Provider value={{folders, setFolders, refreshFolders}}>
       <MemoEditContext.Provider value={{
-        title: underwritingTitle,
-        memoId: underwritingId,
-        setTitle: setUnderwritingTitle,
-        setMemoId: setUnderwritingId
+        underwritingTitle,
+        underwritingId,
+        setUnderwritingTitle,
+        setUnderwritingId
       }}>
         <div className="flex-grow overflow-auto">
           <PanelGroup
@@ -94,10 +101,8 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
               className="flex flex-1 overflow-auto"
               minSizePercentage={20}
             >
-              {folders && (<MemoSystemNavigator foldersOrigin={folders}
-                                                underwritingId={isMemoPage ? underwritingId : undefined}
-                                                underwritingTitle={isMemoPage ? underwritingTitle : undefined}
-                                                className="flex flex-1 min-w-0 flex-col"/>)}
+              {folders && (<MemoSystemNavigator
+                className="flex flex-1 min-w-0 flex-col"/>)}
             </Panel>
           </PanelGroup>
         </div>

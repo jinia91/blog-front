@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useContext, useEffect} from "react";
-import TabLink from "@/components/link/TabLink";
+import TabLink from "@/components/tapbar/TabLink";
 import {sidebarItems} from "@/components/sidebar/SideBarItems";
 import {SidebarContext} from "@/components/sidebar/SiderBarProvider";
 

@@ -6,12 +6,13 @@ import {createMemo} from "@/api/memo";
 import {FolderInfo, Memo, SimpleMemoInfo} from "@/api/models";
 
 // @ts-ignore
-export default function NewMemoLink({name, foldersRef, setFoldersRef, children}: { name: string, foldersRef: FolderInfo[],setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>, children: React.ReactNode }) {
+export default function NewMemoLink({name, foldersRef, setFoldersRef, children}: {
+  name: string, foldersRef: FolderInfo[],setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>, children: React.ReactNode
+}) {
   const {tabs, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
   const addTab = async () => {
     const response = await createMemo("1");
     const newHref = `/memo/${response.memoId}`;
-    
     const newTab = {name: name, context: newHref};
     const updatedTabs = [...tabs, newTab];
     setTabs(updatedTabs);

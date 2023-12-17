@@ -12,20 +12,20 @@ import {Memo} from "@/api/models";
 import {RelatedMemoModal} from "@/components/memo/memo_editor/RelatedMemoModal";
 import {fetchRelatedMemo} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
-import {TitleInput} from "@/components/memo/MemoTitleEditInput";
+import {TitleInput} from "@/components/memo/folder_navigator/MemoTitleEditInput";
 import useStompClient from "@/api/MemoEditWebsocket";
 import useFetchMemoHook from "@/components/memo/memo_editor/useFetchMemoHook";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
-  const {title, memoId, setTitle, setMemoId} = useContext(MemoEditContext);
+  const {underwritingTitle, underwritingId, setUnderwritingTitle, setUnderwritingId} = useContext(MemoEditContext);
   const [content, setContent] = useState<string>(memo?.content ?? "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Memo[]>([]);
   const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
 
-  useStompClient(memoId, title, content);
-  useFetchMemoHook(pageMemoNumber, setMemo, setTitle, setMemoId, setContent)
+  useStompClient(underwritingId, underwritingTitle, content);
+  useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent)
   
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
   
@@ -51,7 +51,7 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
         suffix: state.command.suffix,
       });
       let selectedWord = api.setSelectionRange(newSelectionRange);
-      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, memoId!!);
+      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, underwritingId!!);
       console.log(recommendedArr)
       setRecommendations(recommendedArr);
       
@@ -81,7 +81,7 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
   
   return (
     <>
-      <TitleInput title={title} setTitle={setTitle}/>
+      <TitleInput title={underwritingTitle} setTitle={setUnderwritingTitle}/>
       {/*editor*/}
       <div className="mb-4 flex-grow">
         <RelatedMemoModal

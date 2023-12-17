@@ -6,33 +6,26 @@ import newMemo from "../../../../public/newMemo.png";
 import newFolder from "../../../../public/newFolder.png";
 import {changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
-import NewMemoLink from "@/components/link/NewMemoLink";
-import MemoAndFolderContextMenu, {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import NewMemoLink from "@/components/memo/folder_navigator/NewMemoLink";
+import MemoAndFolderContextMenu, {ContextMenuProps} from "@/components/memo/folder_navigator/MemoAndFolderContextMenu";
 import {
-  afterDeleteMemoInFolders,
-  updateFoldersStateWithNewName,
-  updateTitleInFolders
-} from "@/components/memo/FolderSystemUtils";
-import {FolderAndMemo} from "@/components/memo/FolderAndMemoStructure";
-import NewFolder from "@/components/memo/NewFolder";
+  rebuildMemoDeleted, folderContainsMemo,
+  rebuildNewNameFolder,
+  rebuildMemoTitle
+} from "@/components/memo/folder_navigator/FolderSystemUtils";
+import {FolderAndMemo} from "@/components/memo/folder_navigator/FolderAndMemoStructure";
+import NewFolder from "@/components/memo/folder_navigator/NewFolder";
+import {FolderContext, MemoEditContext} from "@/components/memo/MemoFolderContainer";
 
 
-export default function MemoSystemNavigator({foldersOrigin, underwritingId, underwritingTitle, className}: {
-  foldersOrigin: FolderInfo[],
-  underwritingId?: string,
-  underwritingTitle?: string,
-  className?: string
-}) {
-  const [FolderRef, setFolderRef] = useState<FolderInfo[]>(foldersOrigin);
-  
+export default function MemoSystemNavigator({className}: { className?: string }) {
+  const {folders, setFolders} = useContext(FolderContext)
   const {tabs, selectedTabIdx, setTabs, setSelectedTabIdx} = useContext(TabBarContext);
-  
-  const [newMemoTitle, setNewMemoTitle] = useState<string>(underwritingTitle ?? "");
+  const {underwritingTitle, underwritingId} = useContext(MemoEditContext);
   
   useEffect(() => {
-    setNewMemoTitle(underwritingTitle ?? "");
-    const newFolderRef = updateTitleInFolders(FolderRef, underwritingId, underwritingTitle ?? "");
-    setFolderRef(newFolderRef);
+    const newFolderRef = rebuildMemoTitle(folders, underwritingId, underwritingTitle ?? "");
+    setFolders(newFolderRef);
   }, [underwritingTitle]);
   
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null);
@@ -75,24 +68,18 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     setNewFolderName(currentName);
   };
   
-  async function refreshFolderRef() {
-    const newFetchedFolders = await fetchFolderAndMemo()
-    setFolderRef(newFetchedFolders);
-  }
-  
   const handleSubmitRename = async () => {
     if(newFolderName === '') {
       setRenamingFolderId('');
     } else if(renamingFolderId) {
       const result = await changeFolderName(renamingFolderId, newFolderName);
       if (result) {
-        const newFolderRef = updateFoldersStateWithNewName(FolderRef, renamingFolderId, newFolderName);
+        const newFolderRef = rebuildNewNameFolder(folders, renamingFolderId, newFolderName);
         setRenamingFolderId('');
-        setFolderRef(newFolderRef)
+        setFolders(newFolderRef)
       }
     }
   };
-  
   
   async function deleteFolder() {
     if (!memoContextMenu || !memoContextMenu.folderId) return;
@@ -100,7 +87,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     const result = await deleteFolderById(memoContextMenu.folderId);
     if (result) {
       const newFetchedFolders = await fetchFolderAndMemo()
-      setFolderRef(newFetchedFolders);
+      setFolders(newFetchedFolders);
       
       const newTabs = tabs.filter((tab : any) => {
         const memoId = tab.context.startsWith("/memo/") ? tab.context.split("/")[2] : null;
@@ -118,17 +105,12 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     }
   }
   
-  function folderContainsMemo(folder : FolderInfo, memoId : string): boolean {
-    if (folder.memos.some(memo => memo.id.toString() === memoId)) return true;
-    return folder.children && folder.children.some(childFolder => folderContainsMemo(childFolder, memoId));
-  }
-  
   async function deleteMemo() {
     if (!memoContextMenu || !memoContextMenu.memoId) return;
     const result = await deleteMemoById(memoContextMenu.memoId);
     if (result) {
-      const newFolderStructure = afterDeleteMemoInFolders(FolderRef, memoContextMenu.memoId);
-      setFolderRef(newFolderStructure);
+      const newFolderStructure = rebuildMemoDeleted(folders, memoContextMenu.memoId);
+      setFolders(newFolderStructure);
       const deletedTabIndex = tabs.findIndex(function (tab: any) {
         if (tab.context.startsWith("/memo/")) {
           const memoId = tab.context.split("/")[2];
@@ -156,7 +138,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     <div className={className}>
       <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2"}>
         {/*폴더 생성으로 변경*/}
-        <NewMemoLink name="new" foldersRef={FolderRef} setFoldersRef={setFolderRef}>
+        <NewMemoLink name="new" foldersRef={folders} setFoldersRef={setFolders}>
           <button
             className="text-white"
             aria-label='newMemo'
@@ -168,7 +150,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
           </button>
         </NewMemoLink>
         
-        <NewFolder foldersRef={FolderRef} setFoldersRef={setFolderRef}>
+        <NewFolder foldersRef={folders} setFoldersRef={setFolders}>
           <button
             className="text-white ml-3 mr-3"
             aria-label='newMemo'
@@ -182,16 +164,13 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
       </div>
       {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick})}
       <FolderAndMemo
-        folders={FolderRef}
+        folders={folders}
         handleContextMenu={handleContextMenu}
         contextMenu={memoContextMenu}
-        underwritingId={underwritingId}
-        newMemoTitle={newMemoTitle}
         renamingFolderId={renamingFolderId}
         newFolderName={newFolderName}
         setNewFolderName={setNewFolderName}
         handleSubmitRename={handleSubmitRename}
-        refreshFunction={refreshFolderRef}
       />
     </div>
   );

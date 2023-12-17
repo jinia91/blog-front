@@ -1,26 +1,18 @@
 import {SimpleMemoInfo} from "@/api/models";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import Image from "next/image";
-import memoImg from "../../../public/memo.png";
-import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import memoImg from "../../../../public/memo.png";
+import {ContextMenuProps} from "@/components/memo/folder_navigator/MemoAndFolderContextMenu";
 import {makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders} from "@/api/memo";
+import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 
-export default function   MemoItem({memo, handleContextMenu, depth, underwritingId, newMemoTitle, contextMenu}: {
+export default function MemoItem({memo, handleContextMenu, depth, contextMenu}: {
   memo: SimpleMemoInfo,
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => void
   depth: number,
-  underwritingId: string | null | undefined,
-  newMemoTitle: string,
   contextMenu: ContextMenuProps | null
 }) {
-  function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
-    if (memo.id.toString() === underwritingId) {
-      return newMemoTitle?.length === 0 ? 'Untitled' : newMemoTitle;
-    } else {
-      return memo.title.length === 0 ? 'Untitled' : memo.title;
-    }
-  }
-  
+  const {underwritingId, underwritingTitle} = useContext(MemoEditContext);
   const [isDragOver, setIsDragOver] = useState(false);
   
   const handleDragStart = (e: React.DragEvent, draggedItem: any) => {
@@ -43,6 +35,13 @@ export default function   MemoItem({memo, handleContextMenu, depth, underwriting
     setIsDragOver(false);
   };
   
+  function determineMemoText(memo: SimpleMemoInfo, underwritingId: string | null | undefined, newMemoTitle: string | null) {
+    if (memo.id.toString() === underwritingId) {
+      return newMemoTitle?.length === 0 ? 'Untitled' : newMemoTitle;
+    } else {
+      return memo.title.length === 0 ? 'Untitled' : memo.title;
+    }
+  }
   
   return (
     <li
@@ -64,7 +63,7 @@ export default function   MemoItem({memo, handleContextMenu, depth, underwriting
         style={{marginLeft: `${(depth + 1) * 20}px`}}
       >
         <Image src={memoImg} alt={"memo"} width={20} height={10}/>
-        <span className="ml-2">{determineMemoText(memo, underwritingId, newMemoTitle)}</span>
+        <span className="ml-2">{determineMemoText(memo, underwritingId, underwritingTitle)}</span>
       </div>
     </li>
   );

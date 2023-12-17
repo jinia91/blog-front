@@ -162,7 +162,7 @@ export async function makeRelationshipWithFolders(childFolderId:string, parentFo
 
 export async function makeRelationshipWithMemoAndFolders(memoId:string, folderId:string | null) {
   try {
-    const response = await fetch(mainUrl + `/v1/memo/${memoId}/folder/${folderId}`, {
+    const response = await fetch(mainUrl + `/v1/memo/${memoId}/folder/${folderId ?? -1}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
