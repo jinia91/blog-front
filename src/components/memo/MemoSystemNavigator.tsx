@@ -75,6 +75,11 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
     setNewFolderName(currentName);
   };
   
+  async function refreshFolderRef() {
+    const newFetchedFolders = await fetchFolderAndMemo()
+    setFolderRef(newFetchedFolders);
+  }
+  
   const handleSubmitRename = async () => {
     if(newFolderName === '') {
       setRenamingFolderId('');
@@ -186,6 +191,7 @@ export default function MemoSystemNavigator({foldersOrigin, underwritingId, unde
         newFolderName={newFolderName}
         setNewFolderName={setNewFolderName}
         handleSubmitRename={handleSubmitRename}
+        refreshFunction={refreshFolderRef}
       />
     </div>
   );

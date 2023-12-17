@@ -6,7 +6,7 @@ import TabLink from "@/components/link/TabLink";
 import MemoItem from "@/components/memo/MemoItem";
 import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
 
-export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwritingId, newMemoTitle, renamingFolderId, newFolderName, setNewFolderName, handleSubmitRename}: {
+export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwritingId, newMemoTitle, renamingFolderId, newFolderName, setNewFolderName, handleSubmitRename, refreshFunction}: {
   folders: FolderInfo[],
   handleContextMenu: (e : React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?:string) => void,
   contextMenu: ContextMenuProps | null,
@@ -16,6 +16,7 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
   newFolderName: string;
   setNewFolderName: (newFolderName: string) => void;
   handleSubmitRename: () => void;
+  refreshFunction: () => void;
 }) {
   const listRef = useRef<HTMLUListElement>(null);
   
@@ -74,6 +75,7 @@ export function FolderAndMemo({folders, handleContextMenu, contextMenu, underwri
           newFolderName={newFolderName}
           setNewFolderName={setNewFolderName}
           handleSubmitRename={handleSubmitRename}
+          refreshFunction={refreshFunction}
         />
         {openFolders.has(folder.id ?? 0) && (
           <>

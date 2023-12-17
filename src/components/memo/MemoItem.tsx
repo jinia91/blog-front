@@ -1,10 +1,11 @@
 import {SimpleMemoInfo} from "@/api/models";
-import React from "react";
+import React, {useState} from "react";
 import Image from "next/image";
 import memoImg from "../../../public/memo.png";
 import {ContextMenuProps} from "@/components/memo/MemoAndFolderContextMenu";
+import {makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders} from "@/api/memo";
 
-export default function MemoItem({memo, handleContextMenu, depth, underwritingId, newMemoTitle, contextMenu}: {
+export default function   MemoItem({memo, handleContextMenu, depth, underwritingId, newMemoTitle, contextMenu}: {
   memo: SimpleMemoInfo,
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => void
   depth: number,
@@ -20,8 +21,36 @@ export default function MemoItem({memo, handleContextMenu, depth, underwritingId
     }
   }
   
+  const [isDragOver, setIsDragOver] = useState(false);
+  
+  const handleDragStart = (e: React.DragEvent, draggedItem: any) => {
+    e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  
+  const handleDrop = async (e: React.DragEvent, targetFolderId: number | null) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+  
+  
   return (
     <li
+      draggable={true}
+      onDragStart={(e) => handleDragStart(e, {id: memo.id, type: 'memo'})}
+      onDrop={(e) => handleDrop(e, memo.id)}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       onContextMenu={(e) => handleContextMenu(e, memo.id.toString())}
       data-memo-id={memo.id.toString()}
       className={`

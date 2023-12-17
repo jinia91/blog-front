@@ -140,3 +140,41 @@ export async function deleteFolderById(folderId: string) {
     return null;
   }
 }
+
+export async function makeRelationshipWithFolders(childFolderId:string, parentFolderId:string | null) {
+  try {
+    const response = await fetch(mainUrl + `/v1/folder/${childFolderId}/parent/${parentFolderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
+}
+
+export async function makeRelationshipWithMemoAndFolders(memoId:string, folderId:string | null) {
+  try {
+    const response = await fetch(mainUrl + `/v1/memo/${memoId}/folder/${folderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
+}
