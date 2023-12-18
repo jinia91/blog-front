@@ -31,7 +31,8 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
   const [underwritingTitle, setUnderwritingTitle] = useState("")
   const [underwritingId, setUnderwritingId] = useState("");
   const [folders, setFolders] = useState<FolderInfo[] | null>(null);
-  console.log("debug point",underwritingId)
+  const pathname = usePathname();
+  const isMemoTab = pathname.startsWith("/memo/");
   
   useEffect(() => {
     async function fetchData() {
@@ -45,6 +46,12 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
     
     fetchData();
   }, []);
+  
+  useEffect(() => {
+    if (!isMemoTab) {
+      setUnderwritingId("");
+    }
+  }, [pathname]);
   
   async function refreshFolders() {
     const newFetchedFolders = await fetchFolderAndMemo()

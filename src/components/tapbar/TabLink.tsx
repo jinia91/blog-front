@@ -2,11 +2,18 @@
 
 import React, {useContext} from "react";
 import {TabBarContext} from "@/components/DynamicLayout";
+import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 
 export default function TabLink({ name, href, children } : { name:string, href: string, children: React.ReactNode }) {
   const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx } = useContext(TabBarContext);
+  const { underwritingId, setUnderwritingId } = useContext(MemoEditContext);
+  const isMemoTab = href.startsWith("/memo/");
   
   const addTab = () => {
+    if(!isMemoTab) {
+      setUnderwritingId("");
+    }
+    
     const existingTabIndex = tabs.findIndex(function (tab : any) {
       return tab.context === href;
     });

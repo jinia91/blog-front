@@ -136,7 +136,7 @@ export default function MemoSystemNavigator({className}: { className?: string })
   
   return (
     <div className={className}>
-      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2"}>
+      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2 bg-gray-900"}>
         {/*폴더 생성으로 변경*/}
         <NewMemoLink name="new" foldersRef={folders} setFoldersRef={setFolders}>
           <button
