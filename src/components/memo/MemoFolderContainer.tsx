@@ -31,8 +31,7 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
   const [underwritingTitle, setUnderwritingTitle] = useState("")
   const [underwritingId, setUnderwritingId] = useState("");
   const [folders, setFolders] = useState<FolderInfo[] | null>(null);
-  const path = usePathname();
-  const isMemoPage = path.includes("/memo/");
+  console.log("debug point",underwritingId)
   
   useEffect(() => {
     async function fetchData() {

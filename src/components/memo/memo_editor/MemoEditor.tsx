@@ -15,6 +15,7 @@ import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 import {TitleInput} from "@/components/memo/folder_navigator/MemoTitleEditInput";
 import useStompClient from "@/api/MemoEditWebsocket";
 import useFetchMemoHook from "@/components/memo/memo_editor/useFetchMemoHook";
+import {Code} from "@/components/memo/memo_editor/MermaidPlugin";
 
 export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
@@ -23,8 +24,9 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Memo[]>([]);
   const [resolveSelection, setResolveSelection] = useState<(value: any) => void | null>();
-
-  useStompClient(underwritingId, underwritingTitle, content);
+  console.log("debug point in memoEditor", underwritingId)
+  
+  useStompClient(pageMemoNumber, underwritingTitle, content);
   useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent)
   
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen];
@@ -51,7 +53,7 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
         suffix: state.command.suffix,
       });
       let selectedWord = api.setSelectionRange(newSelectionRange);
-      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, underwritingId!!);
+      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, pageMemoNumber);
       console.log(recommendedArr)
       setRecommendations(recommendedArr);
       
@@ -105,14 +107,15 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
         <MDEditor
           value={content}
           extraCommands={getCustomExtraCommands()}
-          onChange={(value) => {
-            if (typeof value === 'string') {
-              setContent(value);
-            }
-          }}
+          onChange={(newValue = "") => setContent(newValue)}
           visibleDragbar={true}
           className={"border-2 flex-grow"}
           height={500}
+          previewOptions={{
+            components: {
+              code: Code
+            }
+          }}
         />
       </div>
     </>
