@@ -131,11 +131,11 @@ const DynamicLayout = ({topNav, sideBar, page}: {
       <TabBarContext.Provider value={{tabs, selectedTabIdx, setTabs, setSelectedTabIdx}}>
         <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
         <div className="md:flex overflow-hidden">
-          <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 border-r" style={{zIndex: 1000}}>
+          <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r" style={{zIndex: 1000}}>
             {sideBar}
           </aside>
           <main
-            className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen h-screen overflow-auto">
+            className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
             {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
             <div className="bg-gray-800 p-4">
               <ScrollingTabContainer

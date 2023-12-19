@@ -158,8 +158,8 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
           extraCommands={getCustomExtraCommands()}
           onChange={(newValue = "") => setContent(newValue)}
           visibleDragbar={true}
+          height="65vh"
           className={"border-2 flex-grow"}
-          height={500}
           previewOptions={{
             components: {
               code: Code

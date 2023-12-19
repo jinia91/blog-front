@@ -87,21 +87,21 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
         setUnderwritingTitle,
         setUnderwritingId
       }}>
-        <div className="flex-grow overflow-auto">
+        <div className="flex-grow">
           <PanelGroup
             direction={direction}
-            className={"dos-font flex-col md:flex-row"}
+            className="dos-font"
             style={{height: '75vh', overflowY: 'auto'}}
             onLayout={onLayout}
           >
             <Panel
               defaultSizePercentage={defaultLayout ? defaultLayout[0].sizePercentage : 70}
-              className={"bg-black text-green-400 font-mono p-4 flex flex-grow border-2"}
+              className={"bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto"}
               minSizePercentage={20}
             >
               {children}
             </Panel>
-            <PanelResizeHandle className="w-2 hover:bg-blue-800"/>
+            <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
             <Panel
               defaultSizePercentage={defaultLayout ? defaultLayout[1].sizePercentage : 30}
               className="flex flex-1 overflow-auto"

@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      height: theme => ({
+        "50vh": "50vh",
+        "75vh": "75vh",
+      }),
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
