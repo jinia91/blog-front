@@ -136,31 +136,37 @@ export default function MemoSystemNavigator({className}: { className?: string })
   
   return (
     <div className={className}>
-      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2 bg-gray-900"}>
-        {/*폴더 생성으로 변경*/}
+      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2 bg-gray-900 "}>
+          <div className="tooltip">
         <NewMemoLink name="new" foldersRef={folders} setFoldersRef={setFolders}>
-          <button
-            className="text-white"
-            aria-label='newMemo'
-            type='button'
-          >
-            <Image src={newMemo} alt={"newMemo"}
-                   className={"white-image"}
-                   width={30} height={30}/>
-          </button>
+            <button
+              className="text-white hover:text-gray-300"
+              aria-label='newMemo'
+              type='button'
+            >
+              <Image src={newMemo} alt={"newMemo"}
+                     className={"white-image"}
+                     width={30} height={30}/>
+            </button>
+            <span className="tooltip-message">새 메모</span>
         </NewMemoLink>
+          </div>
         
+          <div className="tooltip">
         <NewFolder foldersRef={folders} setFoldersRef={setFolders}>
-          <button
-            className="text-white ml-3 mr-3"
-            aria-label='newMemo'
-            type='button'
-          >
-            <Image src={newFolder} alt={"newMemo"}
-                   className={"white-image"}
-                   width={30} height={30}/>
-          </button>
+            <button
+              className="text-white hover:text-gray-300 ml-3 mr-3"
+              aria-label='newMemo'
+              type='button'
+            >
+              <Image src={newFolder} alt={"newMemo"}
+                     className={"white-image"}
+                     width={30} height={30}/>
+            </button>
+            <span className="tooltip-message">새 폴더</span>
         </NewFolder>
+          </div>
+        
       </div>
       {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick})}
       <FolderAndMemo

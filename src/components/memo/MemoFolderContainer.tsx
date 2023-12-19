@@ -106,8 +106,7 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
               defaultSizePercentage={defaultLayout ? defaultLayout[1].sizePercentage : 30}
               className="flex flex-1 overflow-auto"
               minSizePercentage={20}
-            >
-              {folders && (<MemoSystemNavigator
+            >{folders && (<MemoSystemNavigator
                 className="flex flex-1 min-w-0 flex-col"/>)}
             </Panel>
           </PanelGroup>
