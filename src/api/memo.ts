@@ -37,7 +37,7 @@ export async function fetchRelatedMemo(keyword: string, thisId: string) {
   }
 }
 
-export async function fetchMemoById(id: string) : Promise<Memo | null> {
+export async function fetchMemoById(id: string): Promise<Memo | null> {
   noStore()
   try {
     const response = await fetch(mainUrl + `/v1/memo/${id}`);
@@ -141,7 +141,7 @@ export async function deleteFolderById(folderId: string) {
   }
 }
 
-export async function makeRelationshipWithFolders(childFolderId:string, parentFolderId:string | null) {
+export async function makeRelationshipWithFolders(childFolderId: string, parentFolderId: string | null) {
   try {
     const response = await fetch(mainUrl + `/v1/folder/${childFolderId}/parent/${parentFolderId}`, {
       method: 'PUT',
@@ -160,7 +160,7 @@ export async function makeRelationshipWithFolders(childFolderId:string, parentFo
   }
 }
 
-export async function makeRelationshipWithMemoAndFolders(memoId:string, folderId:string | null) {
+export async function makeRelationshipWithMemoAndFolders(memoId: string, folderId: string | null) {
   try {
     const response = await fetch(mainUrl + `/v1/memo/${memoId}/folder/${folderId ?? -1}`, {
       method: 'PUT',
@@ -178,3 +178,25 @@ export async function makeRelationshipWithMemoAndFolders(memoId:string, folderId
     return null;
   }
 }
+
+export async function uploadImage(imageFile: File, authorId: string) {
+  try {
+    console.log(imageFile)
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    
+    const response = await fetch(mainUrl + '/v1/media/image', {
+      method: 'POST',
+      body: formData
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching memo:', error);
+    return null;
+  }
+};

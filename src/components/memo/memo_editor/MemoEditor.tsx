@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect, useCallback} from 'react';
 import MDEditor, {
   codeEdit,
   codeLive,
@@ -10,7 +10,7 @@ import MDEditor, {
 } from '@uiw/react-md-editor';
 import {Memo} from "@/api/models";
 import {RelatedMemoModal} from "@/components/memo/memo_editor/RelatedMemoModal";
-import {fetchRelatedMemo} from "@/api/memo";
+import {fetchRelatedMemo, uploadImage} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 import {TitleInput} from "@/components/memo/folder_navigator/MemoTitleEditInput";
 import useStompClient from "@/api/MemoEditWebsocket";
@@ -81,11 +81,60 @@ export default function MemoEditor({pageMemoNumber}: { pageMemoNumber: string })
     setIsModalOpen(false);
   };
   
+  const handleImageUpload = useCallback(async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const file = event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) {
+      console.error('Not an image file');
+      return;
+    }
+    
+    try {
+      const response = await uploadImage(file, "1");
+      if (!response.ok) {
+        throw new Error('Image upload failed');
+      }
+      const data = await response.json();
+      const imageUrl = data.imgUrl;
+      const markdownImageLink = `![uploaded image](${imageUrl})\n`;
+      setContent(prevContent => prevContent + markdownImageLink);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  }, []);
+  
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  }, []);
+  
+  const handlePaste = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = event.clipboardData.items;
+    try {
+      for (const item of items) {
+        if (item.type.indexOf('image') === 0) {
+          const file = item.getAsFile();
+          if (file) {
+            const data = await uploadImage(file, "1");
+            const imageUrl = data.url;
+            const markdownImageLink = `![uploaded image](${imageUrl})\n`;
+            setContent(prevContent => prevContent + markdownImageLink);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  }, []);
+  
   return (
     <>
       <TitleInput title={underwritingTitle} setTitle={setUnderwritingTitle}/>
       {/*editor*/}
-      <div className="mb-4 flex-grow">
+      <div className="mb-4 flex-grow"
+           onPaste={handlePaste}
+      >
         <RelatedMemoModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
