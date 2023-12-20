@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
 import {useDebouncedCallback} from "use-debounce";

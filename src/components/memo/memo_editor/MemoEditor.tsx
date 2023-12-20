@@ -13,7 +13,7 @@ import {RelatedMemoModal} from "@/components/memo/memo_editor/RelatedMemoModal";
 import {fetchRelatedMemo, uploadImage} from "@/api/memo";
 import {MemoEditContext} from "@/components/memo/MemoFolderContainer";
 import {TitleInput} from "@/components/memo/folder_navigator/MemoTitleEditInput";
-import useStompClient from "@/api/MemoEditWebsocket";
+import useStompClient from "@/components/memo/memo_editor/MemoEditWebsocket";
 import useFetchMemoHook from "@/components/memo/memo_editor/useFetchMemoHook";
 import {Code} from "@/components/memo/memo_editor/MermaidPlugin";
 

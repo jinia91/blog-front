@@ -1,12 +1,8 @@
 "use client";
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {FolderInfo} from "@/api/models";
-import Image from "next/image";
-import newMemo from "../../../../public/newMemo.png";
-import newFolder from "../../../../public/newFolder.png";
 import {changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo} from "@/api/memo";
 import {TabBarContext} from "@/components/DynamicLayout";
-import NewMemoLink from "@/components/memo/folder_navigator/NewMemoLink";
 import MemoAndFolderContextMenu, {ContextMenuProps} from "@/components/memo/folder_navigator/MemoAndFolderContextMenu";
 import {
   rebuildMemoDeleted, folderContainsMemo,
@@ -14,8 +10,8 @@ import {
   rebuildMemoTitle
 } from "@/components/memo/folder_navigator/FolderSystemUtils";
 import {FolderAndMemo} from "@/components/memo/folder_navigator/FolderAndMemoStructure";
-import NewFolder from "@/components/memo/folder_navigator/NewFolder";
 import {FolderContext, MemoEditContext} from "@/components/memo/MemoFolderContainer";
+import NavigatorHeader from "@/components/memo/folder_navigator/NavigatorHeader";
 
 
 export default function MemoSystemNavigator({className}: { className?: string }) {
@@ -63,15 +59,15 @@ export default function MemoSystemNavigator({className}: { className?: string })
   const [renamingFolderId, setRenamingFolderId] = useState<string>('');
   const [newFolderName, setNewFolderName] = useState<string>('');
   
-  const handleRenameClick = (folderId : string, currentName : string) => {
+  const handleRenameClick = (folderId: string, currentName: string) => {
     setRenamingFolderId(folderId);
     setNewFolderName(currentName);
   };
   
   const handleSubmitRename = async () => {
-    if(newFolderName === '') {
+    if (newFolderName === '') {
       setRenamingFolderId('');
-    } else if(renamingFolderId) {
+    } else if (renamingFolderId) {
       const result = await changeFolderName(renamingFolderId, newFolderName);
       if (result) {
         const newFolderRef = rebuildNewNameFolder(folders, renamingFolderId, newFolderName);
@@ -83,20 +79,20 @@ export default function MemoSystemNavigator({className}: { className?: string })
   
   async function deleteFolder() {
     if (!memoContextMenu || !memoContextMenu.folderId) return;
-   
+    
     const result = await deleteFolderById(memoContextMenu.folderId);
     if (result) {
       const newFetchedFolders = await fetchFolderAndMemo()
       setFolders(newFetchedFolders);
       
-      const newTabs = tabs.filter((tab : any) => {
+      const newTabs = tabs.filter((tab: any) => {
         const memoId = tab.context.startsWith("/memo/") ? tab.context.split("/")[2] : null;
         
         return !memoId ||
-        newFetchedFolders.some((folder : FolderInfo) => folderContainsMemo(folder, memoId));
+          newFetchedFolders.some((folder: FolderInfo) => folderContainsMemo(folder, memoId));
       });
       setTabs(newTabs);
-
+      
       if (selectedTabIdx !== null && !newTabs[selectedTabIdx]) {
         const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null;
         setSelectedTabIdx(newSelectedTabIdx);
@@ -136,38 +132,7 @@ export default function MemoSystemNavigator({className}: { className?: string })
   
   return (
     <div className={className}>
-      <div className={"flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2 bg-gray-900 "}>
-          <div className="tooltip">
-        <NewMemoLink name="new" foldersRef={folders} setFoldersRef={setFolders}>
-            <button
-              className="text-white hover:text-gray-300"
-              aria-label='newMemo'
-              type='button'
-            >
-              <Image src={newMemo} alt={"newMemo"}
-                     className={"white-image"}
-                     width={30} height={30}/>
-            </button>
-            <span className="tooltip-message">새 메모</span>
-        </NewMemoLink>
-          </div>
-        
-          <div className="tooltip">
-        <NewFolder foldersRef={folders} setFoldersRef={setFolders}>
-            <button
-              className="text-white hover:text-gray-300 ml-3 mr-3"
-              aria-label='newMemo'
-              type='button'
-            >
-              <Image src={newFolder} alt={"newMemo"}
-                     className={"white-image"}
-                     width={30} height={30}/>
-            </button>
-            <span className="tooltip-message">새 폴더</span>
-        </NewFolder>
-          </div>
-        
-      </div>
+      <NavigatorHeader folders={folders} setFolders={setFolders} />
       {MemoAndFolderContextMenu({contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick})}
       <FolderAndMemo
         folders={folders}
