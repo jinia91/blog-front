@@ -2,11 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import {Client, Stomp} from '@stomp/stompjs';
+import {useDebouncedCallback} from "use-debounce";
 
 const useStompClient = (memoId: string, title: string, content: string) => {
   const [stompClient, setStompClient] = useState<Client | null>(null);
-  const titleRef = useRef(title);
-  const contentRef = useRef(content);
   
   useEffect(() => {
     const socket = new SockJS('http://localhost:7777/memo');
@@ -24,29 +23,16 @@ const useStompClient = (memoId: string, title: string, content: string) => {
   }, []);
   
   useEffect(() => {
-    titleRef.current = title;
-    contentRef.current = content;
+    debouncedUpdateMemo();
   }, [title, content]);
   
-  useEffect(() => {
-    if (!stompClient) {
-      return;
-    }
-    
-    const timer = setInterval(() => {
-      updateMemo();
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [stompClient, memoId]);
-  
-  const updateMemo = () => {
+  const debouncedUpdateMemo = useDebouncedCallback(() => {
     if (stompClient && memoId) {
       let command = {
         type: "UpdateMemo",
         id: memoId,
-        title: titleRef.current,
-        content: contentRef.current,
+        title: title,
+        content: content
       };
       
       stompClient.publish({
@@ -54,7 +40,7 @@ const useStompClient = (memoId: string, title: string, content: string) => {
         body: JSON.stringify(command)
       });
     }
-  };
+  }, 300);
 };
 
 export default useStompClient;
