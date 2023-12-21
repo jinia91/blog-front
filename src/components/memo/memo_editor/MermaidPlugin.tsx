@@ -11,7 +11,7 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
   const [container, setContainer] = useState<HTMLLIElement | null>(null)
   const [copied, setCopied] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const isMermaid = (Boolean(className)) && /^language-mermaid/.test(className.toLocaleLowerCase())
+  const isMermaid = className != null && /^language-mermaid/.test(className.toLocaleLowerCase())
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const code = children != null ? getCodeString(props.node.children) : ''
 
@@ -48,7 +48,7 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
     })
   }
 
-  const language = className.split('-')[1] === 'highlight' ? '' : className.split('-')[1]
+  const language = className?.split('-')[1] !== 'highlight' ? className == null ? '' : className.split('-')[1] : ''
 
   const refElement = useCallback((node: any) => {
     if (node !== null) {

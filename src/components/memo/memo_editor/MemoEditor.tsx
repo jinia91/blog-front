@@ -24,15 +24,17 @@ import { getToday } from '@/utils/TimesUtils'
 
 export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string }): React.ReactElement {
   const [memo, setMemo] = useState<Memo | null>(null)
-  const { underwritingTitle, setUnderwritingTitle, setUnderwritingId } = useContext(MemoEditContext)
+  const { underwritingTitle, setUnderwritingTitle, setUnderwritingId }: {
+    underwritingTitle: string
+    setUnderwritingTitle: React.Dispatch<React.SetStateAction<string>>
+    setUnderwritingId: React.Dispatch<React.SetStateAction<string>>
+  } = useContext(MemoEditContext)
   const [content, setContent] = useState<string>(memo?.content ?? '')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recommendations, setRecommendations] = useState<Memo[]>([])
   const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   useStompClient(pageMemoNumber, underwritingTitle, content)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent)
 
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen]
@@ -61,6 +63,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
         suffix: state.command.suffix
       })
       const selectedWord = api.setSelectionRange(newSelectionRange)
+      if (selectedWord.selectedText.length === 0) return
       const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, pageMemoNumber)
       console.log(recommendedArr)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

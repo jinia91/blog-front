@@ -36,8 +36,11 @@ export default function NewFolder ({ foldersRef, setFoldersRef }: {
 
   return (
     <div className="tooltip">
-      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-      <div onClick={createNewFolder}>
+      <div onClick={() => {
+        createNewFolder().catch((error) => {
+          console.log(error)
+        })
+      }}>
         <button
           className="text-white hover:text-gray-300 ml-3 mr-3"
           aria-label='newMemo'
