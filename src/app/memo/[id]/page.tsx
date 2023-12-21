@@ -1,9 +1,9 @@
-import MemoEditor from "@/components/memo/memo_editor/MemoEditor";
+import MemoEditor from '@/components/memo/memo_editor/MemoEditor'
+import React from 'react'
 
-export default async function Page({params}: { params: { id: string } }) {
-  
+export default async function Page ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
   return (
-    <main className={"flex-grow"}>
+    <main className={'flex-grow'}>
       <MemoEditor pageMemoNumber={params.id}/>
     </main>
   )

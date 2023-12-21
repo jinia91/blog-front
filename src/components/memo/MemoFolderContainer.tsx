@@ -1,10 +1,10 @@
-import MemoSystemNavigator from "@/components/memo/folder_navigator/MemoSystemNavigator";
-import React, {useEffect, useState} from "react";
-import {fetchFolderAndMemo} from "@/api/memo";
-import {FolderInfo} from "@/api/models";
-import {usePathname} from "next/navigation";
-import {MixedSizes, Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels";
-import {getLocalStorage, setLocalStorage} from "@/utils/LocalStorage";
+import MemoSystemNavigator from '@/components/memo/folder_navigator/MemoSystemNavigator'
+import React, { useEffect, useState } from 'react'
+import { fetchFolderAndMemo } from '@/api/memo'
+import { type FolderInfo } from '@/api/models'
+import { usePathname } from 'next/navigation'
+import { type MixedSizes, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import { getLocalStorage, setLocalStorage } from '@/utils/LocalStorage'
 
 const initialFolderContextValue = {
   folders: [],
@@ -17,70 +17,72 @@ const initialFolderContextValue = {
 export const FolderContext = React.createContext<any>(initialFolderContextValue)
 
 const initialTitleContextValue = {
-  underwritingTitle: "",
-  underwritingId: "",
+  underwritingTitle: '',
+  underwritingId: '',
   setUnderwritingTitle: () => {
   },
   setUnderwritingId: () => {
   }
-};
+}
 
 export const MemoEditContext = React.createContext<any>(initialTitleContextValue)
 
-export default function MemoFolderContainer({children}: { children: React.ReactNode }) {
-  const [underwritingTitle, setUnderwritingTitle] = useState("")
-  const [underwritingId, setUnderwritingId] = useState("");
-  const [folders, setFolders] = useState<FolderInfo[] | null>(null);
-  const pathname = usePathname();
-  const isMemoTab = pathname.startsWith("/memo/");
-  
+export default function MemoFolderContainer ({ children }: { children: React.ReactNode }): React.ReactElement {
+  const [underwritingTitle, setUnderwritingTitle] = useState('')
+  const [underwritingId, setUnderwritingId] = useState('')
+  const [folders, setFolders] = useState<FolderInfo[] | null>(null)
+  const pathname = usePathname()
+  const isMemoTab = pathname.startsWith('/memo/')
+
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData (): Promise<void> {
       try {
-        const fetchedMemos = await fetchFolderAndMemo();
-        setFolders(fetchedMemos);
+        const fetchedFolders = await fetchFolderAndMemo()
+        setFolders(fetchedFolders)
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error)
       }
     }
-    
-    fetchData();
-  }, []);
-  
+
+    void fetchData()
+  }, [])
+
   useEffect(() => {
     if (!isMemoTab) {
-      setUnderwritingId("");
+      setUnderwritingId('')
     }
-  }, [pathname]);
-  
-  async function refreshFolders() {
+  }, [pathname])
+
+  async function refreshFolders (): Promise<void> {
     const newFetchedFolders = await fetchFolderAndMemo()
-    setFolders(newFetchedFolders);
+    setFolders(newFetchedFolders)
   }
-  
-  const onLayout = (layout: MixedSizes[]) => {
-    setLocalStorage("react-resizable-panels:layout", layout);
-  };
-  type Direction = "horizontal" | "vertical";
-  const defaultLayout = getLocalStorage<MixedSizes[] | null>("react-resizable-panels:layout")
-  
+
+  const onLayout = (layout: MixedSizes[]): void => {
+    setLocalStorage('react-resizable-panels:layout', layout)
+  }
+  type Direction = 'horizontal' | 'vertical'
+  const defaultLayout = getLocalStorage<MixedSizes[] | null>('react-resizable-panels:layout')
+
   useEffect(() => {
-    const handleResize = () => {
+    const handleResize = (): void => {
       if (window.innerWidth <= 768) {
-        setDirection('vertical');
+        setDirection('vertical')
       } else {
-        setDirection('horizontal');
+        setDirection('horizontal')
       }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  
-  const [direction, setDirection] = useState<Direction>('horizontal');
-  
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  const [direction, setDirection] = useState<Direction>('horizontal')
+
   return (
-    <FolderContext.Provider value={{folders, setFolders, refreshFolders}}>
+    <FolderContext.Provider value={{ folders, setFolders, refreshFolders }}>
       <MemoEditContext.Provider value={{
         underwritingTitle,
         underwritingId,
@@ -91,23 +93,23 @@ export default function MemoFolderContainer({children}: { children: React.ReactN
           <PanelGroup
             direction={direction}
             className="dos-font"
-            style={{height: '75vh', overflowY: 'auto'}}
+            style={{ height: '75vh', overflowY: 'auto' }}
             onLayout={onLayout}
           >
             <Panel
-              defaultSizePercentage={defaultLayout ? defaultLayout[0].sizePercentage : 70}
-              className={"bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto"}
+              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
+              className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
               minSizePercentage={20}
             >
               {children}
             </Panel>
             <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
             <Panel
-              defaultSizePercentage={defaultLayout ? defaultLayout[1].sizePercentage : 30}
+              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[1].sizePercentage : 30}
               className="flex flex-1 overflow-auto"
               minSizePercentage={20}
-            >{folders && (<MemoSystemNavigator
-                className="flex flex-1 min-w-0 flex-col"/>)}
+            >{(folders != null) && (<MemoSystemNavigator
+              className="flex flex-1 min-w-0 flex-col"/>)}
             </Panel>
           </PanelGroup>
         </div>

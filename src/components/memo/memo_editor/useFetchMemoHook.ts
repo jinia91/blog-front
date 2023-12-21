@@ -1,6 +1,6 @@
-import {useEffect} from "react";
-import {fetchMemoById} from "@/api/memo";
-import {Memo} from "@/api/models";
+import { useEffect } from 'react'
+import { fetchMemoById } from '@/api/memo'
+import { type Memo } from '@/api/models'
 
 export const useFetchMemo = (
   pageMemoNumber: string,
@@ -8,25 +8,25 @@ export const useFetchMemo = (
   setTitle: (title: string) => void,
   setMemoId: (memoId: string) => void,
   setContent: (content: string) => void
-) => {
+): void => {
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData (): Promise<void> {
       try {
-        const fetchedMemo = await fetchMemoById(pageMemoNumber);
-        
-        if (fetchedMemo) {
-          setMemo(fetchedMemo);
-          setTitle(fetchedMemo.title);
-          setMemoId(fetchedMemo.memoId.toString());
-          setContent(fetchedMemo.content);
+        const fetchedMemo = await fetchMemoById(pageMemoNumber)
+
+        if (fetchedMemo != null) {
+          setMemo(fetchedMemo)
+          setTitle(fetchedMemo.title)
+          setMemoId(fetchedMemo.memoId.toString())
+          setContent(fetchedMemo.content)
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error)
       }
     }
-    
-    fetchData();
-  }, [pageMemoNumber, setMemo, setTitle, setMemoId, setContent]);
-};
 
-export default useFetchMemo;
+    void fetchData()
+  }, [pageMemoNumber, setMemo, setTitle, setMemoId, setContent])
+}
+
+export default useFetchMemo

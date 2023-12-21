@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react'
 
 export interface TitleInputProps {
-  title: string;
-  setTitle: (title: string) => void;
+  title: string
+  setTitle: (title: string) => void
 }
 
 export const TitleInput: React.FC<TitleInputProps> = ({ title, setTitle }) => {
@@ -13,8 +13,10 @@ export const TitleInput: React.FC<TitleInputProps> = ({ title, setTitle }) => {
         type="text"
         placeholder="title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => {
+          setTitle(e.target.value)
+        }}
       />
     </div>
-  );
-};
+  )
+}

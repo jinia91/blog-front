@@ -1,6 +1,6 @@
-export function getLocalStorage<T>(key: string): T | null {
+export function getLocalStorage<T> (key: string): T | null {
   const item = localStorage.getItem(key)
-  if (item) {
+  if (item != null) {
     try {
       return JSON.parse(item)
     } catch {
@@ -12,5 +12,6 @@ export function getLocalStorage<T>(key: string): T | null {
   }
 }
 
-export const setLocalStorage = <T>(key: string, newValue: T): void =>
+export const setLocalStorage = <T>(key: string, newValue: T): void => {
   localStorage.setItem(key, JSON.stringify(newValue))
+}

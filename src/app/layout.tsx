@@ -1,19 +1,19 @@
-import type {Metadata} from 'next'
+import type { Metadata } from 'next'
 import '../styles/globals.css'
-import React from "react";
-import TopNav from "@/components/top/TopNav";
-import blogMetaData from "@/metadata/blogMetaData";
-import UiContext from "@/components/UiContext";
-import {DynamicLayout} from "@/components/DynamicLayout";
-import Sidebar from "@/components/sidebar/SideBar";
-
+import React from 'react'
+import TopNav from '@/components/top/TopNav'
+import blogMetaData from '@/metadata/blogMetaData'
+import UiContext from '@/components/UiContext'
+import { DynamicLayout } from '@/components/DynamicLayout'
+import Sidebar from '@/components/sidebar/SideBar'
 
 export const metadata: Metadata = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   metadataBase: new URL(blogMetaData.siteUrl),
-  
+
   title: {
     default: blogMetaData.title,
-    template: `%s | ${blogMetaData.title}`,
+    template: `%s | ${blogMetaData.title}`
   },
   description: blogMetaData.description,
   openGraph: {
@@ -23,13 +23,13 @@ export const metadata: Metadata = {
     siteName: blogMetaData.title,
     images: [blogMetaData.socialBanner],
     locale: 'ko_KR',
-    type: 'website',
+    type: 'website'
   },
   alternates: {
     canonical: './',
     types: {
-      'application/rss+xml': `${blogMetaData.siteUrl}/feed.xml`,
-    },
+      'application/rss+xml': `${blogMetaData.siteUrl}/feed.xml`
+    }
   },
   robots: {
     index: true,
@@ -39,22 +39,21 @@ export const metadata: Metadata = {
       follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+      'max-snippet': -1
+    }
   },
   twitter: {
     title: blogMetaData.title,
     card: 'summary_large_image',
-    images: [blogMetaData.socialBanner],
-  },
+    images: [blogMetaData.socialBanner]
+  }
 }
 
-export default function RootLayout({children}: { children: React.ReactNode }) {
+export default function RootLayout ({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
     <html lang="ko">
     <head></head>
     <body className="overflow-hidden">
-    {/*실제 마크업 시작*/}
     <UiContext>
       <DynamicLayout
         topNav={<TopNav/>}

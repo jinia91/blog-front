@@ -14,10 +14,9 @@ const blogMetaData = {
   locale: 'ko-KR',
   socialLinks: {
     github: 'https://www.github.com/jinia91',
-    mail: 'mailto:creee77@gmail.com',
+    mail: 'mailto:creee77@gmail.com'
   },
-  analytics: {
-  },
+  analytics: {}
 }
 
 module.exports = blogMetaData

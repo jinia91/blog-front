@@ -1,15 +1,19 @@
 'use client'
-import {ThemeProvider} from 'next-themes'
-import React, {useEffect} from "react"
+import { ThemeProvider } from 'next-themes'
+import React, { useEffect } from 'react'
 
-export default function UiContext({children}: { children: React.ReactNode }) {
+export default function UiContext ({ children }: { children: React.ReactNode }): React.ReactElement | null {
   const [mounted, setMounted] = React.useState(false)
-  
-  useEffect(() => setMounted(true), [])
-  
-  return mounted ? (
-    <ThemeProvider attribute='class'>
-      {children}
-    </ThemeProvider>
-  ) : null
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  return mounted
+    ? (
+      <ThemeProvider attribute='class'>
+        {children}
+      </ThemeProvider>
+      )
+    : null
 }

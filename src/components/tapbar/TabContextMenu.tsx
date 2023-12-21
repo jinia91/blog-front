@@ -1,21 +1,20 @@
-import React from "react";
+import React from 'react'
 
 export interface TabContextMenuProps {
-  xPos: string;
-  yPos: string;
-  tabIdx: number;
+  xPos: string
+  yPos: string
+  tabIdx: number
 }
 
-export default function renderContextMenu(
+export default function renderContextMenu (
   contextMenu: any,
   closeContextMenu: any,
   removeTabCallback: any,
   closeOtherTabs: any,
   closeAllTabs: any
-) {
-  
+): React.ReactNode {
   return (
-    contextMenu && (
+    (contextMenu != null) && (
       <>
         <div
           style={{
@@ -34,14 +33,13 @@ export default function renderContextMenu(
             position: 'absolute',
             left: contextMenu.xPos,
             top: contextMenu.yPos,
-            zIndex: 1000,
+            zIndex: 1000
           }}
         >
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={removeTabCallback}>닫기</li>
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeOtherTabs}>다른 탭 닫기</li>
-          <li className={"hover:bg-gray-700 p-1 list-none"} onClick={closeAllTabs}>모든 탭 닫기</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={removeTabCallback}>닫기</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={closeOtherTabs}>다른 탭 닫기</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={closeAllTabs}>모든 탭 닫기</li>
         </ul>
       </>
-    )
-  )
+    ))
 }

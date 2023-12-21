@@ -1,67 +1,69 @@
-import React, {Fragment, useCallback, useEffect, useRef, useState} from "react";
-import {getCodeString} from "rehype-rewrite";
-import mermaid from "mermaid";
-import {padding} from "polished";
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { getCodeString } from 'rehype-rewrite'
+import mermaid from 'mermaid'
 
-const randomid = () => parseInt(String(Math.random() * 1e15), 10).toString(36);
-export const Code = ({inline, children = [], className, ...props}: any) => {
-  const demoid = useRef(`dome${randomid()}`);
-  const [container, setContainer] = useState<HTMLLIElement | null>(null);
-  const [copied, setCopied] = useState(false);
-  const isMermaid =
-    className && /^language-mermaid/.test(className.toLocaleLowerCase());
-  const code = children
-    ? getCodeString(props.node.children)
-    : children[0] || "";
-  
+function randomId (): string {
+  return parseInt(String(Math.random() * 1e15), 10).toString(36)
+}
+
+export const Code = ({ inline, children = [], className, ...props }: any): React.JSX.Element => {
+  const id = useRef(`dome${randomId()}`)
+  const [container, setContainer] = useState<HTMLLIElement | null>(null)
+  const [copied, setCopied] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const isMermaid = (Boolean(className)) && /^language-mermaid/.test(className.toLocaleLowerCase())
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const code = children != null ? getCodeString(props.node.children) : ''
+
   // Mermaid 초기화 및 다크 모드 스타일 설정
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
-      theme: "dark",
-    });
-  }, []);
-  
+      theme: 'dark'
+    })
+  }, [])
+
   useEffect(() => {
-    if (container && isMermaid && demoid.current && code) {
+    if ((container != null) && isMermaid && (id.current !== '') && (code !== '')) {
       mermaid
-        .render(demoid.current, code)
-        .then(({svg, bindFunctions}) => {
-          console.log("svg:", svg);
-          container.innerHTML = svg;
-          if (bindFunctions) {
-            bindFunctions(container);
+        .render(id.current, code)
+        .then(({ svg, bindFunctions }) => {
+          console.log('svg:', svg)
+          container.innerHTML = svg
+          if (bindFunctions != null) {
+            bindFunctions(container)
           }
         })
         .catch((error) => {
-          console.log("error:", error);
-        });
+          console.log('error:', error)
+        })
     }
-  }, [container, isMermaid, code, demoid]);
-  
-  const handleCopyClick = () => {
+  }, [container, isMermaid, code, id])
+
+  const handleCopyClick = (): void => {
     navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
+      setCopied(true)
     }).catch((err) => {
-      console.error('Error copying text: ', err);
-    });
-  };
-  
-  const language = className.split("-")[1] == "highlight" ? "" : className.split("-")[1]
-  
+      console.error('Error copying text: ', err)
+    })
+  }
+
+  const language = className.split('-')[1] === 'highlight' ? '' : className.split('-')[1]
+
   const refElement = useCallback((node: any) => {
     if (node !== null) {
-      setContainer(node);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      setContainer(node)
     }
-  }, []);
-  
+  }, [])
+
   if (isMermaid) {
     return (
       <Fragment>
-        <code id={demoid.current} style={{display: "none"}}/>
+        <code id={id.current} style={{ display: 'none' }}/>
         <code className={className} ref={refElement} data-name="mermaid"/>
       </Fragment>
-    );
+    )
   }
   return <Fragment>
     <div className="code-block relative my-4">
@@ -74,11 +76,11 @@ export const Code = ({inline, children = [], className, ...props}: any) => {
           {copied ? '복사됨' : '코드 복사'}
         </button>
       </div>
-      <div className={"p-4"}>
+      <div className={'p-4'}>
         <code className={`${className}`}>
-        {children}
+          {children}
         </code>
       </div>
     </div>
-  </Fragment>;
-};
+  </Fragment>
+}
