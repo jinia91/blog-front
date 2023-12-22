@@ -4,7 +4,7 @@ import { fetchFolderAndMemo } from '@/api/memo'
 import { type FolderInfo } from '@/api/models'
 import { usePathname } from 'next/navigation'
 import { type MixedSizes, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
-import { getLocalStorage, setLocalStorage } from '@/utils/LocalStorage'
+import { getLocalStorage, setLocalStorage } from '@/utils/localStorage'
 
 const initialFolderContextValue = {
   folders: [],

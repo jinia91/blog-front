@@ -11,7 +11,7 @@ import {
   rebuildMemoDeleted,
   rebuildMemoTitle,
   rebuildNewNameFolder
-} from '@/components/memo/folder_navigator/FolderSystemUtils'
+} from '@/components/memo/folder_navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import { FolderContext, MemoEditContext } from '@/components/memo/MemoFolderContainer'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'

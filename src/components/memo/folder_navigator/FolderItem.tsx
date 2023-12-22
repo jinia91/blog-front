@@ -49,7 +49,6 @@ export default function FolderItem ({
     e.preventDefault()
     setIsDragOver(false)
     const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
-    // API 호출 로직
     if (draggedItem.type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {

@@ -1,6 +1,5 @@
 import { type FolderInfo } from '@/api/models'
 
-// folderRef update utils
 export const rebuildMemoDeleted = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
     const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)

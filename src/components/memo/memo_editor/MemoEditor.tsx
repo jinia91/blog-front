@@ -20,7 +20,7 @@ import { TitleInput } from '@/components/memo/folder_navigator/MemoTitleEditInpu
 import useStompClient from '@/components/memo/memo_editor/MemoEditWebsocket'
 import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
 import { Code } from '@/components/memo/memo_editor/MermaidPlugin'
-import { getToday } from '@/utils/TimesUtils'
+import { getToday } from '@/utils/timesUtils'
 
 export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string }): React.ReactElement {
   const [memo, setMemo] = useState<Memo | null>(null)

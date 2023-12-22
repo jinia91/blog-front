@@ -2,14 +2,13 @@
 
 import React, { useContext, useEffect } from 'react'
 import TabLink from '@/components/tapbar/TabLink'
-import { sidebarItems } from '@/components/sidebar/SideBarItems'
+import { sideBarItems } from '@/components/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/sidebar/SiderBarProvider'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
     isCollapsed: boolean
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    toggleSideBarCollapse: () => {}
+    toggleSideBarCollapse: () => void
   } = useContext(SidebarContext)
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
@@ -56,7 +55,7 @@ export default function Sidebar (): React.ReactElement {
           )}
         </div>
         <ul className={`list-none ${overlayStyle}`}>
-          {sidebarItems.map(({ name, href, icon: Icon }) => {
+          {sideBarItems.map(({ name, href, icon: Icon }) => {
             return (
               <TabLink name={name} href={href} key={name}>
                 <li

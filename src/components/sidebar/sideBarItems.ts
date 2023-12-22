@@ -1,7 +1,7 @@
 import { AiOutlineFileText } from 'react-icons/ai'
 import { BsPeople } from 'react-icons/bs'
 
-export const sidebarItems = [
+export const sideBarItems = [
   {
     name: 'About',
     href: '/about',

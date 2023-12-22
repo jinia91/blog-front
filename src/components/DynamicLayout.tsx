@@ -87,7 +87,6 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
     })
   }
 
-  // contextMenu
   const [contextMenu, setContextMenu] = useState<TabContextMenuProps | null>(null)
 
   const closeContextMenu = useCallback(() => {

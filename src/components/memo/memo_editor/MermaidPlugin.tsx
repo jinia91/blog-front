@@ -15,7 +15,6 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const code = children != null ? getCodeString(props.node.children) : ''
 
-  // Mermaid 초기화 및 다크 모드 스타일 설정
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
