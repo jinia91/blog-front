@@ -3,7 +3,7 @@ import React from 'react'
 
 export default async function Page ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
   return (
-    <main className={'flex-grow'}>
+    <main>
       <MemoEditor pageMemoNumber={params.id}/>
     </main>
   )

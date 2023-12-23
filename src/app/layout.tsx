@@ -6,6 +6,7 @@ import blogMetaData from '@/metadata/blogMetaData'
 import UiContext from '@/components/UiContext'
 import { DynamicLayout } from '@/components/DynamicLayout'
 import Sidebar from '@/components/sidebar/SideBar'
+import '@mdxeditor/editor/style.css'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

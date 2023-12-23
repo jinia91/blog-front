@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mdxeditor/editor": "^1.14.2",
     "@stomp/stompjs": "^7.0.0",
     "@uiw/react-md-editor": "^4.0.1",
     "mermaid": "^10.6.1",
@@ -20,7 +21,8 @@
     "react-icons": "^4.12.0",
     "react-resizable": "^3.0.5",
     "react-resizable-panels": "^0.0.63",
-    "use-debounce": "^10.0.0"
+    "use-debounce": "^10.0.0",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@types/node": "^20",
