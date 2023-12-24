@@ -26,6 +26,15 @@ const initialTitleContextValue = {
 }
 
 export const MemoEditContext = React.createContext<any>(initialTitleContextValue)
+const initialReferenceModeContextValue = {
+  isReferenceMode: false,
+  setReferenceMode: () => {
+  },
+  refreshCount: 0,
+  setRefreshCount: () => {
+  }
+}
+export const ReferenceModeContext = React.createContext<any>(initialReferenceModeContextValue)
 
 export default function MemoFolderContainer ({ children }: { children: React.ReactNode }): React.ReactElement {
   const [underwritingTitle, setUnderwritingTitle] = useState('')
@@ -33,7 +42,8 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
   const [folders, setFolders] = useState<FolderInfo[] | null>(null)
   const pathname = usePathname()
   const isMemoTab = pathname.startsWith('/memo/')
-
+  const [isReferenceMode, setReferenceMode] = useState(false)
+  const [refreshCount, setRefreshCount] = useState(0)
   useEffect(() => {
     async function fetchData (): Promise<void> {
       try {
@@ -50,6 +60,8 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
   useEffect(() => {
     if (!isMemoTab) {
       setUnderwritingId('')
+      setUnderwritingTitle('')
+      setReferenceMode(false)
     }
   }, [pathname])
 
@@ -89,30 +101,32 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
         setUnderwritingTitle,
         setUnderwritingId
       }}>
-        <div className="flex-grow">
-          <PanelGroup
-            direction={direction}
-            className="dos-font"
-            style={{ height: '75vh', overflowY: 'auto' }}
-            onLayout={onLayout}
-          >
-            <Panel
-              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
-              className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
-              minSizePercentage={20}
+        <ReferenceModeContext.Provider value={{ isReferenceMode, setReferenceMode, refreshCount, setRefreshCount }}>
+          <div className="flex-grow">
+            <PanelGroup
+              direction={direction}
+              className="dos-font"
+              style={{ height: '75vh', overflowY: 'auto' }}
+              onLayout={onLayout}
             >
-              {children}
-            </Panel>
-            <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
-            <Panel
-              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[1].sizePercentage : 30}
-              className="flex flex-1 overflow-auto"
-              minSizePercentage={20}
-            >{(folders != null) && (<MemoSystemNavigator
-              className="flex flex-1 min-w-0 flex-col"/>)}
-            </Panel>
-          </PanelGroup>
-        </div>
+              <Panel
+                defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
+                className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
+                minSizePercentage={20}
+              >
+                {children}
+              </Panel>
+              <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
+              <Panel
+                defaultSizePercentage={(defaultLayout != null) ? defaultLayout[1].sizePercentage : 30}
+                className="flex flex-1 overflow-auto"
+                minSizePercentage={20}
+              >{(folders != null) && (<MemoSystemNavigator
+                className="flex flex-1 min-w-0 flex-col"/>)}
+              </Panel>
+            </PanelGroup>
+          </div>
+        </ReferenceModeContext.Provider>
       </MemoEditContext.Provider>
     </FolderContext.Provider>
   )

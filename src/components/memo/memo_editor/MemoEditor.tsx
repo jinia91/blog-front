@@ -12,7 +12,7 @@ import MDEditor, {
   selectWord,
   type TextAreaTextApi
 } from '@uiw/react-md-editor'
-import { type Memo } from '@/api/models'
+import { type Memo, type ReferenceInfo } from '@/api/models'
 import { RelatedMemoModal } from '@/components/memo/memo_editor/RelatedMemoModal'
 import { fetchRelatedMemo, uploadImage } from '@/api/memo'
 import { MemoEditContext } from '@/components/memo/MemoFolderContainer'
@@ -33,9 +33,9 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recommendations, setRecommendations] = useState<Memo[]>([])
   const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
-
-  useStompClient(pageMemoNumber, underwritingTitle, content)
-  useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent)
+  const [references, setReferences] = useState<ReferenceInfo[]>([])
+  useStompClient(pageMemoNumber, underwritingTitle, content, references, setReferences)
+  useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent, setReferences)
 
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen]
 
@@ -43,8 +43,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
     name: 'referenceLink',
     keyCommand: 'referenceLink',
     shortcuts: 'ctrlcmd+r',
-    prefix: '<details>\n' +
-      '  <summary>',
+    prefix: '',
     suffix: '',
     buttonProps: { 'aria-label': 'Add reference (ctrl + r)', title: 'Add reference (ctrl + r)' },
     icon: (
@@ -71,7 +70,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
       setRecommendations(recommendedArr)
 
       const selectedValue: any = await openModalWithSelection()
-      const finalText = `<details>\n\t<summary>${'Reference: ' + selectedWord.selectedText} <a href="http://localhost:3000/memo/${selectedValue.memoId}">[${selectedValue.title}]</a></summary> \n<p>캡쳐날짜 ${getToday()}</p>\n ${selectedValue.content} \n</details>`
+      const finalText = `<!-- reference: ${selectedValue.memoId} -->\n <details>\n\t<summary>${'Reference: ' + selectedWord.selectedText} <a href="http://localhost:3000/memo/${selectedValue.memoId}">[${selectedValue.title}]</a></summary> \n<p>캡쳐날짜 ${getToday()}</p>\n ${selectedValue.content} \n</details>`
       api.replaceSelection(finalText)
     }
   }

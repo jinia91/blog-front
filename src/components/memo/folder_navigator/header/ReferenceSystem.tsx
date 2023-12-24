@@ -7,11 +7,12 @@ import ref from '../../../../../public/ref.png'
 import { MemoEditContext } from '@/components/memo/MemoFolderContainer'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/api/memo'
 
-export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode }: {
+export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode, refreshCount }: {
   foldersRef: FolderInfo[]
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
   isReferenceMode: boolean
   setReferenceMode: Dispatch<SetStateAction<boolean>>
+  refreshCount: number
 }): React.ReactElement {
   const { underwritingId }: { underwritingId: string } = useContext(MemoEditContext)
 
@@ -47,7 +48,7 @@ export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenc
     if (isReferenceMode) {
       void fetchData()
     }
-  }, [underwritingId, isReferenceMode])
+  }, [underwritingId, isReferenceMode, refreshCount])
 
   return (
     <div className="tooltip">
