@@ -45,11 +45,13 @@ export default function MemoGraph ({ className }: { className?: string }): React
 
   const nodes: NodeObject[] = [...folderNodes, ...memoNodes]
 
+  console.log('링크source undifined', flattenFolders)
+
   const memoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
     folder.memos.flatMap(memo =>
       memo.references.map(ref => ({
-        source: ref.referenceId,
-        target: memo.id
+        source: memo.id,
+        target: ref.id
       }))
     )
   )

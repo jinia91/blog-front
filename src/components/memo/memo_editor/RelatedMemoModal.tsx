@@ -56,39 +56,35 @@ export const RelatedMemoModal: React.FC<ModalProps> = ({ isOpen, onClose, recomm
       <div className="bg-gray-900 text-green-400 rounded-lg p-4 max-w-xl w-full shadow-xl">
         <div className="flex flex-col">
           <ul className="list-none space-y-2">
-            {recommendations.map((recommendation, index) => (
-              <li
-                key={index}
-                className={`overflow-y-hidden whitespace-nowrap cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-100 ease-in-out font-mono ${
-                  index === selectedItem ? 'bg-gray-700' : ''
-                }`}
-                onClick={() => {
-                  onSelect(recommendation)
-                }}
-                onMouseOver={() => {
-                  handleMouseEnter(index)
-                }}
-              >
-                <span className="text-white">{index === selectedItem ? '-> ' : '  '}</span>
-                {recommendation.title}
-                {selectedItem === index && (selectedContent !== '') && (
-                  <div
-                    className="absolute p-5 ml-5 bg-gray-800 text-xs rounded shadow-lg transition-transform translate-x-48 w-96 h-80 whitespace-nowrap overflow-scroll">
-                    <p>{'<Preview>'}</p>
-                    <Markdown>{selectedContent}</Markdown>
-                  </div>
-                )}
-              </li>
-            ))}
+            {recommendations.length === 0 && (
+              <li className="text-white text-center">결과 없음</li>
+            )}
+            {
+              recommendations.map((recommendation, index) => (
+                <li
+                  key={index}
+                  className={`overflow-y-hidden whitespace-nowrap cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-100 ease-in-out font-mono ${
+                    index === selectedItem ? 'bg-gray-700' : ''
+                  }`}
+                  onClick={() => {
+                    onSelect(recommendation)
+                  }}
+                  onMouseOver={() => {
+                    handleMouseEnter(index)
+                  }}
+                >
+                  <span className="text-white">{index === selectedItem ? '-> ' : '  '}</span>
+                  {recommendation.title}
+                  {selectedItem === index && (selectedContent !== '') && (
+                    <div
+                      className="absolute border-2 p-5 ml-5 bg-gray-800 text-xs text-white rounded shadow-lg transition-transform translate-x-48 w-96 h-72 whitespace-nowrap overflow-scroll">
+                      <p className={'text-xl'}>{'<<Preview>>'}</p>
+                      <Markdown>{selectedContent}</Markdown>
+                    </div>
+                  )}
+                </li>
+              ))}
           </ul>
-        </div>
-        <div className="text-right mt-4">
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 rounded px-4 py-2 focus:outline-none font-mono text-green-500"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

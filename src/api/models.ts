@@ -12,7 +12,7 @@ export interface SimpleMemoInfo {
 }
 
 export interface ReferenceInfo {
-  rootId: number
+  id: number
   referenceId: number
 }
 

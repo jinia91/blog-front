@@ -48,6 +48,21 @@ const useStompClient = (memoId: string, title: string, content: string): void =>
       })
     }
   }, 300)
+  
+  const debouncedUpdateReferences = useDebouncedCallback((references) => {
+    if ((stompClient != null) && (memoId !== '')) {
+      const command = {
+        type: 'UpdateReferences',
+        id: memoId,
+        references
+      }
+
+      stompClient.publish({
+        destination: '/app/updateReferences',
+        body: JSON.stringify(command)
+      })
+    }
+  }
 }
 
 export default useStompClient

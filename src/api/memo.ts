@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import { mainUrl } from '@/api/host'
-import { type FolderInfo, type Memo } from '@/api/models'
+import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/api/models'
 
 export async function createMemo (authorId: string): Promise<{ memoId: number } | null> {
   try {
@@ -202,6 +202,36 @@ export async function fetchSearchResults (query: string): Promise<FolderInfo[] |
     }
     const data = await response.json()
     return data.folderInfos
+  } catch (error) {
+    console.error('Error fetching memo:', error)
+    return null
+  }
+}
+
+export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
+  try {
+    const response = await fetch(mainUrl + `/v1/memos/${memoId}/references`, { cache: 'no-store' })
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const data = await response.json()
+    console.log(data)
+    console.log(data.references)
+    return data[0].references
+  } catch (error) {
+    console.error('Error fetching memo:', error)
+    return null
+  }
+}
+
+export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
+  try {
+    const response = await fetch(mainUrl + `/v1/memos/${memoId}/referenced`, { cache: 'no-store' })
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const data = await response.json()
+    return data[0].referenceds
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
