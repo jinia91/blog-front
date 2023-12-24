@@ -20,7 +20,6 @@
     transform: translate(-80%, -45px);
     opacity: 0;
     transition: opacity 0.3s, visibility 0.3s;
-
     &:after {
         content: '';
         position: absolute;
@@ -61,24 +60,14 @@
 
 
 @keyframes typing {
-    0% {
-        width: 0;
-    }
-    50% {
-        width: 100%;
-    }
-    100% {
-        width: 0;
-    }
+    0% { width: 0; }
+    50% { width: 100%; }
+    100% { width: 0; }
 }
 
 @keyframes blink-caret {
-    from, to {
-        border-color: transparent;
-    }
-    50% {
-        border-color: orange;
-    }
+    from, to { border-color: transparent; }
+    50% { border-color: orange; }
 }
 
 @font-face {
@@ -102,27 +91,5 @@
     ul,
     ol {
         list-style: revert;
-    }
-}
-
-.prose {
-    h1 {
-        @apply text-4xl font-bold;
-    }
-
-    h2 {
-        @apply text-3xl font-bold;
-    }
-
-    h3 {
-        @apply text-2xl font-bold;
-    }
-
-    h4 {
-        @apply text-xl font-bold;
-    }
-
-    h5 {
-        @apply text-lg font-bold;
     }
 }

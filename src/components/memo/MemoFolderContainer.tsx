@@ -98,7 +98,7 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
           >
             <Panel
               defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
-              className={'bg-black text-green-400 font-mono p-2 border-4 overflow-y-auto'}
+              className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
               minSizePercentage={20}
             >
               {children}
