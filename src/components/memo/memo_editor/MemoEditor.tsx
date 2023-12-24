@@ -125,21 +125,8 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
           onClose={() => {
             setIsModalOpen(false)
           }}
-          contents={(
-            <ul className="list-none space-y-2">
-              {recommendations.map((recommendation, index) => (
-                <li
-                  key={index}
-                  className="cursor-pointer p-2 hover:bg-gray-700 rounded transition duration-150 ease-in-out"
-                  onClick={() => {
-                    handleSelect(recommendation)
-                  }}
-                ><span>{'> '}</span>
-                  {recommendation.title}
-                </li>
-              ))}
-            </ul>
-          )}
+          recommendations={recommendations}
+          onSelect={handleSelect}
         />
 
         <MDEditor
