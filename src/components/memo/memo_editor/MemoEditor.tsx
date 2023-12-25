@@ -2,14 +2,19 @@
 
 import React, { useCallback, useContext, useState } from 'react'
 import MDEditor, {
+  bold,
   codeEdit,
   codeLive,
   codePreview,
+  comment,
   divider,
   type ExecuteState,
   fullscreen,
+  hr,
   type ICommand,
+  italic,
   selectWord,
+  table,
   type TextAreaTextApi
 } from '@uiw/react-md-editor'
 import { type Memo, type ReferenceInfo } from '@/api/models'
@@ -130,6 +135,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
 
         <MDEditor
           value={content}
+          commands={[bold, italic, hr, table, comment]}
           extraCommands={getCustomExtraCommands()}
           onChange={(newValue = '') => {
             setContent(newValue)
