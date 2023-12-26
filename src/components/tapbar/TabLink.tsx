@@ -2,7 +2,7 @@
 
 import React, { useContext } from 'react'
 import { TabBarContext } from '@/components/DynamicLayout'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function TabLink ({ name, href, children }: {
   name: string

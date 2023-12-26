@@ -5,8 +5,8 @@ import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
 import { TabBarContext } from '@/components/DynamicLayout'
-import { FolderContext } from '@/components/memo/folder_navigator/FolderContextProvider'
-import { ReferenceModeContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { FolderContext } from '@/components/memo/FolderContextProvider'
+import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function MemoGraph ({ className }: { className?: string }): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)

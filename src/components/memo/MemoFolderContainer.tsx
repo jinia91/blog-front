@@ -2,12 +2,11 @@ import MemoSystemNavigator from '@/components/memo/folder_navigator/MemoSystemNa
 import React, { useContext, useEffect, useState } from 'react'
 import { type MixedSizes, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { getLocalStorage, setLocalStorage } from '@/utils/localStorage'
-import { FolderContext, FolderContextProvider } from '@/components/memo/folder_navigator/FolderContextProvider'
-import { MemoEditContextProvider } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { FolderContext, FolderContextProvider } from '@/components/memo/FolderContextProvider'
+import { MemoEditContextProvider } from '@/components/memo/MemoEditContextProvider'
 
 export default function MemoFolderContainer ({ children }: { children: React.ReactNode }): React.ReactElement {
   const { folders } = useContext(FolderContext)
-
   const onLayout = (layout: MixedSizes[]): void => {
     setLocalStorage('react-resizable-panels:layout', layout)
   }

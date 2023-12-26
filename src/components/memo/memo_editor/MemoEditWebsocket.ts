@@ -3,7 +3,7 @@ import SockJS from 'sockjs-client'
 import { type Client, type CompatClient, Stomp } from '@stomp/stompjs'
 import { useDebouncedCallback } from 'use-debounce'
 import { type ReferenceInfo } from '@/api/models'
-import { ReferenceModeContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 
 const useStompClient = (
   memoId: string,

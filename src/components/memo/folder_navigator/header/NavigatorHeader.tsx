@@ -5,7 +5,7 @@ import React, { useContext, useState } from 'react'
 import { type FolderInfo } from '@/api/models'
 import ReferenceSystem from '@/components/memo/folder_navigator/header/ReferenceSystem'
 import { usePathname } from 'next/navigation'
-import { ReferenceModeContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function NavigatorHeader ({ folders, setFolders }: {
   folders: FolderInfo[]

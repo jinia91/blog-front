@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react'
 import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function MemoItem ({ memo, handleContextMenu, depth, contextMenu }: {
   memo: SimpleMemoInfo

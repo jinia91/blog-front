@@ -15,8 +15,8 @@ import {
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
 import { type Tab } from '@/components/tapbar/TabItem'
-import { FolderContext } from '@/components/memo/folder_navigator/FolderContextProvider'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { FolderContext } from '@/components/memo/FolderContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders }: {

@@ -25,7 +25,7 @@ import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
 import { Code } from '@/components/memo/memo_editor/MermaidPlugin'
 import { getToday } from '@/utils/timesUtils'
 import useStompClient from '@/components/memo/memo_editor/MemoEditWebsocket'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string }): React.ReactElement {
   const [memo, setMemo] = useState<Memo | null>(null)

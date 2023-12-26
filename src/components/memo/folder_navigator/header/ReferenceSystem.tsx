@@ -5,7 +5,7 @@ import { type FolderInfo } from '@/api/models'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/api/memo'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode, refreshCount }: {
   foldersRef: FolderInfo[]

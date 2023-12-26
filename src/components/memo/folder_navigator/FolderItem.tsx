@@ -5,7 +5,7 @@ import Image from 'next/image'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/api/memo'
-import { FolderContext } from '@/components/memo/folder_navigator/FolderContextProvider'
+import { FolderContext } from '@/components/memo/FolderContextProvider'
 
 export default function FolderItem ({
   folder,

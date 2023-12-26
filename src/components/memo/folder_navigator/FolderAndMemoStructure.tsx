@@ -5,7 +5,7 @@ import FolderItem from '@/components/memo/folder_navigator/FolderItem'
 import TabLink from '@/components/tapbar/TabLink'
 import MemoItem from '@/components/memo/folder_navigator/MemoItem'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
-import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
+import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export function FolderAndMemo ({
   folders,
