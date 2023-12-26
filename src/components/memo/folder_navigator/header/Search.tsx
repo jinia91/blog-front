@@ -1,9 +1,19 @@
 import { type FolderInfo } from '@/api/models'
-import React, { type Dispatch, type SetStateAction, useEffect } from 'react'
+import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
 import { fetchSearchResults } from '@/api/memo'
+
+function usePrevious (value: boolean): boolean | undefined {
+  const ref = useRef<boolean>()
+
+  useEffect(() => {
+    ref.current = value
+  }, [value])
+
+  return ref.current
+}
 
 export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVisible }: {
   foldersRef: FolderInfo[]
@@ -11,6 +21,8 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
   isInputVisible: boolean
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {
+  const prevIsInputVisible = usePrevious(isInputVisible)
+
   const searchData = useDebouncedCallback(async (value: string) => {
     try {
       const folders = await fetchSearchResults(value)
@@ -39,7 +51,7 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
       }
     }
 
-    if (!isInputVisible) {
+    if (prevIsInputVisible === true && !isInputVisible) {
       void fetchData()
     }
   }, [isInputVisible])

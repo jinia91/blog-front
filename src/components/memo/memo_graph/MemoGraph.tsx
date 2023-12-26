@@ -5,7 +5,8 @@ import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
 import { TabBarContext } from '@/components/DynamicLayout'
-import { FolderContext, ReferenceModeContext } from '@/components/memo/MemoFolderContainer'
+import { FolderContext } from '@/components/memo/folder_navigator/FolderContextProvider'
+import { ReferenceModeContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
 
 export default function MemoGraph ({ className }: { className?: string }): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
@@ -45,8 +46,6 @@ export default function MemoGraph ({ className }: { className?: string }): React
   })))
 
   const nodes: NodeObject[] = [...folderNodes, ...memoNodes]
-
-  console.log('Check!!!!!', flattenFolders)
 
   const memoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
     folder.memos.flatMap(memo =>

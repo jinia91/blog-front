@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from 'react'
 import SockJS from 'sockjs-client'
 import { type Client, type CompatClient, Stomp } from '@stomp/stompjs'
 import { useDebouncedCallback } from 'use-debounce'
-import { ReferenceModeContext } from '@/components/memo/MemoFolderContainer'
 import { type ReferenceInfo } from '@/api/models'
+import { ReferenceModeContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
 
 const useStompClient = (
   memoId: string,

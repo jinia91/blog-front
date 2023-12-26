@@ -20,12 +20,12 @@ import MDEditor, {
 import { type Memo, type ReferenceInfo } from '@/api/models'
 import { RelatedMemoModal } from '@/components/memo/memo_editor/RelatedMemoModal'
 import { fetchRelatedMemo, uploadImage } from '@/api/memo'
-import { MemoEditContext } from '@/components/memo/MemoFolderContainer'
 import { TitleInput } from '@/components/memo/folder_navigator/MemoTitleEditInput'
 import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
 import { Code } from '@/components/memo/memo_editor/MermaidPlugin'
 import { getToday } from '@/utils/timesUtils'
 import useStompClient from '@/components/memo/memo_editor/MemoEditWebsocket'
+import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
 
 export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string }): React.ReactElement {
   const [memo, setMemo] = useState<Memo | null>(null)

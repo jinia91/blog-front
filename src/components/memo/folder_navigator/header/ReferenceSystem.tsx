@@ -4,8 +4,8 @@ import React, { type Dispatch, type SetStateAction, useContext, useEffect } from
 import { type FolderInfo } from '@/api/models'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
-import { MemoEditContext } from '@/components/memo/MemoFolderContainer'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/api/memo'
+import { MemoEditContext } from '@/components/memo/folder_navigator/MemoEditContextProvider'
 
 export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode, refreshCount }: {
   foldersRef: FolderInfo[]
