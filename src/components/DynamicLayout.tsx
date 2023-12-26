@@ -5,7 +5,7 @@ import { type Tab } from '@/components/tapbar/TabItem'
 import { renderPage } from '@/components/AppPageRenderer'
 import SideBarProvider from '@/components/sidebar/SiderBarProvider'
 import renderContextMenu, { type TabContextMenuProps } from '@/components/tapbar/TabContextMenu'
-import { ScrollingTabContainer } from '@/components/tapbar/TabBar'
+import { TabContainer } from '@/components/tapbar/TabBarContainer'
 
 const initialTabStatus = {
   tabs: [],
@@ -139,7 +139,7 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
             className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
             {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
             <div className="bg-gray-800 p-4">
-              <ScrollingTabContainer
+              <TabContainer
                 onSelectTab={selectTab}
                 onRemoveTab={removeTab}
                 onContextMenu={handleContextMenu}

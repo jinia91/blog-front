@@ -20,9 +20,9 @@ import MDEditor, {
 import { type Memo, type ReferenceInfo } from '@/api/models'
 import { RelatedMemoModal } from '@/components/memo/memo_editor/RelatedMemoModal'
 import { fetchRelatedMemo, uploadImage } from '@/api/memo'
-import { TitleInput } from '@/components/memo/folder_navigator/MemoTitleEditInput'
+import { TitleInput } from '@/components/memo/memo_editor/MemoTitleEditInput'
 import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
-import { Code } from '@/components/memo/memo_editor/MermaidPlugin'
+import { Code } from '@/components/memo/memo_editor/MermaidAndCodeHighlightPlugin'
 import { getToday } from '@/utils/timesUtils'
 import useStompClient from '@/components/memo/memo_editor/MemoEditWebsocket'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
@@ -44,6 +44,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
 
   const getCustomExtraCommands: () => ICommand[] = () => [referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen]
 
+  // todo: 레퍼런스 커맨드 컴포넌트 분리
   const referenceLink: ICommand = {
     name: 'referenceLink',
     keyCommand: 'referenceLink',

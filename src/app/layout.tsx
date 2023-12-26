@@ -3,7 +3,7 @@ import '../styles/globals.css'
 import React from 'react'
 import TopNav from '@/components/top/TopNav'
 import blogMetaData from '@/metadata/blogMetaData'
-import UiContext from '@/components/UiContext'
+import UiContextProvider from '@/components/UiContextProvider'
 import { DynamicLayout } from '@/components/DynamicLayout'
 import Sidebar from '@/components/sidebar/SideBar'
 
@@ -54,14 +54,14 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <html lang="ko">
     <head></head>
     <body className="overflow-hidden">
-    <UiContext>
+    <UiContextProvider>
       <DynamicLayout
         topNav={<TopNav/>}
         sideBar={<Sidebar/>}
         page={children}
       >
       </DynamicLayout>
-    </UiContext>
+    </UiContextProvider>
     </body>
     </html>
   )

@@ -2,7 +2,7 @@
 import { ThemeProvider } from 'next-themes'
 import React, { useEffect } from 'react'
 
-export default function UiContext ({ children }: { children: React.ReactNode }): React.ReactElement | null {
+export default function UiContextProvider ({ children }: { children: React.ReactNode }): React.ReactElement | null {
   const [mounted, setMounted] = React.useState(false)
 
   useEffect(() => {

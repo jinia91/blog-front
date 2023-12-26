@@ -33,7 +33,7 @@ export function FolderContextProvider ({ children }: { children: React.ReactNode
   }
 
   if (folders == null) {
-    return <div>Loading...</div>
+    return <></>
   }
   return (
     <FolderContext.Provider value={{ folders, setFolders, refreshFolders }}>
