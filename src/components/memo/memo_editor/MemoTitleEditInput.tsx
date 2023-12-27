@@ -11,7 +11,7 @@ export const TitleInput: React.FC<TitleInputProps> = ({ title, setTitle }) => {
       <input
         className="border-2 bg-gray-900 text-green-400 p-2 mb-2 w-full outline-none caret-green-400 focus:outline-none"
         type="text"
-        placeholder="title"
+        placeholder="untitled"
         value={title}
         onChange={(e) => {
           setTitle(e.target.value)

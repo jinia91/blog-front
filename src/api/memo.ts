@@ -215,9 +215,7 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
-    console.log(data)
-    console.log(data.references)
-    return data[0].references
+    return data.references
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
@@ -231,7 +229,7 @@ export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMe
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
-    return data[0].referenceds
+    return data.referenceds
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null

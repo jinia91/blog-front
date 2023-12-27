@@ -119,32 +119,30 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
   async function deleteMemo (): Promise<void> {
     if ((memoContextMenu?.memoId) == null) return
-    const result = await deleteMemoById(memoContextMenu.memoId)
-    if (result != null) {
-      const newFolderStructure = rebuildMemoDeleted(folders, memoContextMenu.memoId)
-      setFolders(newFolderStructure)
-      // eslint-disable-next-line array-callback-return
-      const deletedTabIndex = tabs.findIndex(function (tab: Tab) {
-        if (tab.context.startsWith('/memo/')) {
-          const memoId = tab.context.split('/')[2]
-          return memoId === memoContextMenu.memoId
-        }
-      })
-      if (deletedTabIndex !== -1) {
-        const newTabs = tabs.filter(function (_: any, idx: number) {
-          return idx !== deletedTabIndex
-        })
-        setTabs(newTabs)
-
-        if (selectedTabIdx === deletedTabIndex) {
-          const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null
-          setSelectedTabIdx(newSelectedTabIdx)
-        } else if (selectedTabIdx !== null && selectedTabIdx > deletedTabIndex) {
-          setSelectedTabIdx(selectedTabIdx - 1)
-        }
+    await deleteMemoById(memoContextMenu.memoId)
+    const newFolderStructure = rebuildMemoDeleted(folders, memoContextMenu.memoId)
+    setFolders(newFolderStructure)
+    // eslint-disable-next-line array-callback-return
+    const deletedTabIndex = tabs.findIndex(function (tab: Tab) {
+      if (tab.context.startsWith('/memo/')) {
+        const memoId = tab.context.split('/')[2]
+        return memoId === memoContextMenu.memoId
       }
-      closeContextMenu()
+    })
+    if (deletedTabIndex !== -1) {
+      const newTabs = tabs.filter(function (_: any, idx: number) {
+        return idx !== deletedTabIndex
+      })
+      setTabs(newTabs)
+
+      if (selectedTabIdx === deletedTabIndex) {
+        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null
+        setSelectedTabIdx(newSelectedTabIdx)
+      } else if (selectedTabIdx !== null && selectedTabIdx > deletedTabIndex) {
+        setSelectedTabIdx(selectedTabIdx - 1)
+      }
     }
+    closeContextMenu()
   }
 
   return (
