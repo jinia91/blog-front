@@ -46,12 +46,12 @@ export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
 
   useEffect(() => {
     const moveTab = async (event: KeyboardEvent): Promise<void> => {
-      if (event.ctrlKey && (event.key === 'ArrowLeft')) {
+      if (event.metaKey && (event.key === 'ArrowLeft')) {
         event.preventDefault()
         const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
         setSelectedTabIdx(newSelectedIdx)
       }
-      if (event.ctrlKey && (event.key === 'ArrowRight')) {
+      if (event.metaKey && (event.key === 'ArrowRight')) {
         event.preventDefault()
         const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
         setSelectedTabIdx(newSelectedIdx)
@@ -65,7 +65,7 @@ export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       window.removeEventListener('keydown', moveTab)
     }
-  }, [selectedTabIdx])
+  }, [selectedTabIdx, tabs])
 
   return (
     <div className="flex overflow-hidden space-x-2" style={{ zIndex: 1 }}>

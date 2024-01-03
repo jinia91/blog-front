@@ -1,5 +1,5 @@
 import { type FolderInfo } from '@/api/models'
-import React, { type Dispatch, type SetStateAction, useEffect } from 'react'
+import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
@@ -11,6 +11,14 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
   isInputVisible: boolean
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isInputVisible && (inputRef.current != null)) {
+      inputRef.current.focus()
+    }
+  }, [isInputVisible])
+
   const searchData = useDebouncedCallback(async (value: string) => {
     try {
       const folders = await fetchSearchResults(value)
@@ -25,6 +33,22 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
   },
   300
   )
+  useEffect(() => {
+    const moveTab = async (event: KeyboardEvent): Promise<void> => {
+      if (event.ctrlKey && (event.key === 'f' || event.key === 'ㄹ')) {
+        event.preventDefault()
+        setInputVisible(!isInputVisible)
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    window.addEventListener('keydown', moveTab)
+
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      window.removeEventListener('keydown', moveTab)
+    }
+  }, [isInputVisible])
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -63,6 +87,7 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
       </div>
       {isInputVisible && (
         <input
+          ref={inputRef}
           type="text"
           className="flex w-10/12 bg-gray-800 border border-gray-700 text-white p-1 transition-all duration-500"
           placeholder="검색..."
