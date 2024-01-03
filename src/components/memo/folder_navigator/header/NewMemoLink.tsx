@@ -1,6 +1,6 @@
 'use client'
 
-import React, { type Dispatch, type SetStateAction, useContext } from 'react'
+import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
 import { TabBarContext } from '@/components/DynamicLayout'
 import { createMemo } from '@/api/memo'
 import { type FolderInfo, type SimpleMemoInfo } from '@/api/models'
@@ -13,18 +13,18 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
   const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
-  const addTab = async (): Promise<void> => {
-    const response = await createMemo('1')
-    if (response == null) {
+  const createNewMemo = async (): Promise<void> => {
+    const memo = await createMemo('1')
+    if (memo == null) {
       console.log('createMemo error')
       return
     }
-    const newHref = `/memo/${response.memoId}`
+    const newHref = `/memo/${memo.memoId}`
     const newTab = { name, context: newHref }
     const updatedTabs = [...tabs, newTab]
     setTabs(updatedTabs)
     setSelectedTabIdx(updatedTabs.length - 1)
-    const newMemo: SimpleMemoInfo = { id: response.memoId, title: '', references: [] }
+    const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
     const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
     const newUnCategoryFolder: FolderInfo = (unCategoryFolder != null)
       ? {
@@ -36,10 +36,24 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
     setFoldersRef(newFolders)
   }
 
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent): void => {
+      if (event.ctrlKey && event.key === 'n') {
+        event.preventDefault()
+        await createNewMemo().catch(console.error)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [createNewMemo])
+
   return (
     <div className="tooltip">
       <div onClick={() => {
-        addTab().catch(console.error)
+        createNewMemo().catch(console.error)
       }}>
         <button
           className="text-white hover:text-gray-300"
@@ -50,7 +64,7 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
                  className={'white-image'}
                  width={30} height={30}/>
         </button>
-        <span className="tooltip-message">새 메모</span>
+        <span className="tooltip-message">Ctrl+N</span>
       </div>
     </div>
   )

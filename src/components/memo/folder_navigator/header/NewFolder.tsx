@@ -11,13 +11,13 @@ export default function NewFolder ({ foldersRef, setFoldersRef }: {
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
   const createNewFolder = async (): Promise<void> => {
-    const response = await createFolder('1')
-    if (response == null) {
+    const folder = await createFolder('1')
+    if (folder == null) {
       console.log('createFolder error')
       return
     }
-    const newFolderId = response.folderId
-    const newFolderName = response.folderName
+    const newFolderId = folder.folderId
+    const newFolderName = folder.folderName
 
     const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
     const newFolder: FolderInfo = {
