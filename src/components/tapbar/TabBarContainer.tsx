@@ -44,6 +44,29 @@ export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
     }
   }, [selectedTabIdx, tabs])
 
+  useEffect(() => {
+    const moveTab = async (event: KeyboardEvent): Promise<void> => {
+      if (event.ctrlKey && (event.key === 'ArrowLeft')) {
+        event.preventDefault()
+        const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
+        setSelectedTabIdx(newSelectedIdx)
+      }
+      if (event.ctrlKey && (event.key === 'ArrowRight')) {
+        event.preventDefault()
+        const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
+        setSelectedTabIdx(newSelectedIdx)
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    window.addEventListener('keydown', moveTab)
+
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      window.removeEventListener('keydown', moveTab)
+    }
+  }, [selectedTabIdx])
+
   return (
     <div className="flex overflow-hidden space-x-2" style={{ zIndex: 1 }}>
       <div ref={scrollContainerRef} className="flex space-x-1 overflow-x-auto">

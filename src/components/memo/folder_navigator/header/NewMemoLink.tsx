@@ -37,15 +37,17 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
   }
 
   useEffect(() => {
-    const handleKeyDown = async (event: KeyboardEvent): void => {
-      if (event.ctrlKey && event.key === 'n') {
+    const handleKeyDown = async (event: KeyboardEvent): Promise<void> => {
+      if ((event.ctrlKey && event.key === 'n') || (event.ctrlKey && event.key === 'ㅜ')) {
         event.preventDefault()
         await createNewMemo().catch(console.error)
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     window.addEventListener('keydown', handleKeyDown)
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [createNewMemo])
@@ -64,7 +66,7 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
                  className={'white-image'}
                  width={30} height={30}/>
         </button>
-        <span className="tooltip-message">Ctrl+N</span>
+        <span className="tooltip-message">새 메모</span>
       </div>
     </div>
   )
