@@ -4,6 +4,8 @@ import React, { useContext, useEffect } from 'react'
 import TabLink from '@/components/tapbar/TabLink'
 import { sideBarItems } from '@/components/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/sidebar/SiderBarProvider'
+import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
+import { Auth } from '@/api/session'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
@@ -12,6 +14,7 @@ export default function Sidebar (): React.ReactElement {
   } = useContext(SidebarContext)
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
+  const { session } = useContext(AuthSessionContext)
 
   useEffect(() => {
     if (isCollapsed) {
@@ -55,19 +58,24 @@ export default function Sidebar (): React.ReactElement {
           )}
         </div>
         <ul className={`list-none ${overlayStyle}`}>
-          {sideBarItems.map(({ name, href, icon: Icon }) => {
-            return (
-              <TabLink name={name} href={href} key={name}>
-                <li
-                  className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
-                  <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
-                  <span
-                    className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
+          {sideBarItems.map(({ name, href, icon: Icon, auth }) => {
+            if (auth === Auth.Guest ||
+              (auth === Auth.User && session !== null) ||
+              (auth === Auth.Admin && session !== null && session.role === 'ADMIN')) {
+              return (
+                <TabLink name={name} href={href} key={name}>
+                  <li
+                    className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
+                    <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                    <span
+                      className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
                   {name}
-                  </span>
-                </li>
-              </TabLink>
-            )
+                </span>
+                  </li>
+                </TabLink>
+              )
+            }
+            return null
           })}
         </ul>
       </aside>

@@ -6,6 +6,7 @@ import { renderPage } from '@/components/AppPageRenderer'
 import SideBarProvider from '@/components/sidebar/SiderBarProvider'
 import renderContextMenu, { type TabContextMenuProps } from '@/components/tapbar/TabContextMenu'
 import { TabContainer } from '@/components/tapbar/TabBarContainer'
+import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider'
 
 const initialTabStatus = {
   tabs: [],
@@ -41,7 +42,7 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
 
     if (existingTabIndex === -1 && path === '/empty') {
       return
-    } else if (existingTabIndex === -1) {
+    } else if (existingTabIndex === -1 && path !== '/empty' && !path.startsWith('/login/oauth2')) { // 탭 렌더링 안할 항목들, todo 함수로 따로 빼자
       const newTab = { name: path, context: path }
       const newTabs = [...tabs, newTab]
       setTabs(newTabs)
@@ -127,29 +128,31 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
   }, [closeContextMenu])
 
   return (
-    <SideBarProvider>
-      <TabBarContext.Provider value={{ tabs, selectedTabIdx, setTabs, setSelectedTabIdx }}>
-        <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
-        <div className="md:flex overflow-hidden">
-          <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
-                 style={{ zIndex: 1000 }}>
-            {sideBar}
-          </aside>
-          <main
-            className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
-            {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
-            <div className="bg-gray-800 p-4">
-              <TabContainer
-                onSelectTab={selectTab}
-                onRemoveTab={removeTab}
-                onContextMenu={handleContextMenu}
-              />
-              {renderPage(tabs, path, page)}
-            </div>
-          </main>
-        </div>
-      </TabBarContext.Provider>
-    </SideBarProvider>
+    <AuthSessionProvider>
+      <SideBarProvider>
+        <TabBarContext.Provider value={{ tabs, selectedTabIdx, setTabs, setSelectedTabIdx }}>
+          <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
+          <div className="md:flex overflow-hidden">
+            <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
+                   style={{ zIndex: 1000 }}>
+              {sideBar}
+            </aside>
+            <main
+              className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
+              {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
+              <div className="bg-gray-800 p-4">
+                <TabContainer
+                  onSelectTab={selectTab}
+                  onRemoveTab={removeTab}
+                  onContextMenu={handleContextMenu}
+                />
+                {renderPage(tabs, path, page)}
+              </div>
+            </main>
+          </div>
+        </TabBarContext.Provider>
+      </SideBarProvider>
+    </AuthSessionProvider>
   )
 }
 export { TabBarContext, DynamicLayout }

@@ -4,6 +4,7 @@ import DarkLightToggle from '@/components/top/DarkLightToggle'
 import React from 'react'
 import SideBarToggle from '@/components/top/SideBarToggle'
 import TabLink from '@/components/tapbar/TabLink'
+import SignInAndOutBox from '@/components/top/SigninAndOutBox'
 
 export default function TopNav (): React.ReactElement {
   return (
@@ -15,6 +16,7 @@ export default function TopNav (): React.ReactElement {
           {"__JINIA'S_LOG__!!"}
           </span>
         </TabLink>
+        <SignInAndOutBox/>
         <DarkLightToggle/>
       </div>
     </div>

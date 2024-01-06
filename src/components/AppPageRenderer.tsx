@@ -6,10 +6,6 @@ export function renderPage (
   path: string,
   page: React.ReactNode
 ): React.ReactNode {
-  console.log('renderPage', tabs)
-  console.log('renderPage', path)
-  console.log('renderPage', page)
-
   function renderMemoContainer (): React.ReactNode {
     return (
       <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">

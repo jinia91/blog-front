@@ -5,7 +5,6 @@ import menu from '../../../public/menu.png'
 
 export default function SideBarToggle (): React.ReactElement {
   const { toggleSideBarCollapse } = useContext(SidebarContext)
-
   return (
     <div className="md:hidden">
       <button
