@@ -9,5 +9,5 @@ export interface Session {
   refreshToken: string
   nickName: string
   email: string
-  role: string
+  roles: Set<string>
 }

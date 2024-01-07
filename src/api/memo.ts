@@ -1,13 +1,22 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import { mainUrl } from '@/api/host'
 import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/api/models'
+import { type Session } from '@/api/session'
+
+function getAuth (): string {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const session: Session | null = localStorage.getItem('session') == null ? null : JSON.parse(localStorage.getItem('session')!)
+  const authorization = session == null ? '' : 'Bearer ' + session.accessToken
+  return authorization
+}
 
 export async function createMemo (authorId: string): Promise<{ memoId: number } | null> {
   try {
     const response = await fetch(mainUrl + '/v1/memos', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
       },
       body: JSON.stringify({ authorId })
     })
@@ -23,7 +32,14 @@ export async function createMemo (authorId: string): Promise<{ memoId: number } 
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/memos?keyword=${keyword}&thisId=${thisId}`, { cache: 'no-store' })
+    const response = await fetch(mainUrl + `/v1/memos?keyword=${keyword}&thisId=${thisId}`,
+      {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: getAuth()
+        }
+      })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -39,7 +55,12 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
 export async function fetchMemoById (id: string): Promise<Memo | null> {
   noStore()
   try {
-    const response = await fetch(mainUrl + `/v1/memos/${id}`)
+    const response = await fetch(mainUrl + `/v1/memos/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      }
+    })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -53,7 +74,11 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 export async function deleteMemoById (id: string): Promise<any> {
   try {
     const response = await fetch(mainUrl + `/v1/memos/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      }
     })
     if (!response.ok) {
       throw new Error('Network response was not ok')
@@ -68,7 +93,12 @@ export async function deleteMemoById (id: string): Promise<any> {
 export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   noStore()
   try {
-    const response = await fetch(mainUrl + '/v1/folders')
+    const response = await fetch(mainUrl + '/v1/folders', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      }
+    })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -86,7 +116,8 @@ export async function createFolder (authorId: string): Promise<{ folderId: numbe
     const response = await fetch(mainUrl + '/v1/folders', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
       },
       body: JSON.stringify({ authorId })
     })
@@ -106,7 +137,8 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
     const response = await fetch(mainUrl + `/v1/folders/${folderId}/name`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
       },
       body: JSON.stringify({ folderId, name: toBeName })
     })
@@ -124,7 +156,11 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
 export async function deleteFolderById (folderId: string): Promise<any> {
   try {
     const response = await fetch(mainUrl + `/v1/folders/${folderId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      }
     })
     if (!response.ok) {
       throw new Error('Network response was not ok')
@@ -142,7 +178,8 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
     const response = await fetch(mainUrl + `/v1/folders/${childFolderId}/parent/${parentFolderId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
       }
     })
     if (!response.ok) {
@@ -160,7 +197,8 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
     const response = await fetch(mainUrl + `/v1/memos/${memoId}/folders/${folderId ?? -1}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
       }
     })
     if (!response.ok) {
@@ -181,6 +219,10 @@ export async function uploadImage (imageFile: File, authorId: string): Promise<{
 
     const response = await fetch(mainUrl + '/v1/media/image', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      },
       body: formData
     })
     if (!response.ok) {
@@ -196,7 +238,14 @@ export async function uploadImage (imageFile: File, authorId: string): Promise<{
 
 export async function fetchSearchResults (query: string): Promise<FolderInfo[] | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/folders?query=${query}`, { cache: 'no-store' })
+    const response = await fetch(mainUrl + `/v1/folders?query=${query}`,
+      {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: getAuth()
+        }
+      })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -210,7 +259,14 @@ export async function fetchSearchResults (query: string): Promise<FolderInfo[] |
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/memos/${memoId}/references`, { cache: 'no-store' })
+    const response = await fetch(mainUrl + `/v1/memos/${memoId}/references`,
+      {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: getAuth()
+        }
+      })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -224,7 +280,14 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/memos/${memoId}/referenced`, { cache: 'no-store' })
+    const response = await fetch(mainUrl + `/v1/memos/${memoId}/referenced`,
+      {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: getAuth()
+        }
+      })
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }

@@ -5,7 +5,7 @@ import TabLink from '@/components/tapbar/TabLink'
 import { sideBarItems } from '@/components/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/sidebar/SiderBarProvider'
 import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
-import { Auth } from '@/api/session'
+import { Auth, type Session } from '@/api/session'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
@@ -14,7 +14,7 @@ export default function Sidebar (): React.ReactElement {
   } = useContext(SidebarContext)
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
-  const { session } = useContext(AuthSessionContext)
+  const { session }: { session: Session } = useContext(AuthSessionContext)
 
   useEffect(() => {
     if (isCollapsed) {
@@ -61,7 +61,8 @@ export default function Sidebar (): React.ReactElement {
           {sideBarItems.map(({ name, href, icon: Icon, auth }) => {
             if (auth === Auth.Guest ||
               (auth === Auth.User && session !== null) ||
-              (auth === Auth.Admin && session !== null && session.role === 'ADMIN')) {
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+              (auth === Auth.Admin && session?.roles.values().next().value === 'ADMIN')) {
               return (
                 <TabLink name={name} href={href} key={name}>
                   <li

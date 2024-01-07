@@ -27,7 +27,17 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
   const router = useRouter()
   const restoreTabs = (): any => {
     const savedTabs = localStorage.getItem('tabs')
-    return (savedTabs != null) ? JSON.parse(savedTabs) : []
+    const parsedTabs = (savedTabs != null) ? JSON.parse(savedTabs) : null
+
+    if (parsedTabs == null || (parsedTabs.length === 0 && path !== '/empty')) {
+      return path === '/empty' ? [] : [{ name: path, context: path }]
+    }
+
+    if ((parsedTabs.length === 0 && path === '/empty') || (parsedTabs.length !== 0 && path === '/empty')) {
+      return []
+    }
+
+    return parsedTabs
   }
 
   const [tabs, setTabs] = useState<Tab[]>(restoreTabs)
