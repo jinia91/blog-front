@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
 import '../styles/globals.css'
 import React from 'react'
-import TopNav from '@/components/top/TopNav'
 import blogMetaData from '@/metadata/blogMetaData'
 import UiContextProvider from '@/components/UiContextProvider'
 import { DynamicLayout } from '@/components/DynamicLayout'
-import Sidebar from '@/components/sidebar/SideBar'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -56,8 +54,6 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <body className="overflow-hidden">
     <UiContextProvider>
       <DynamicLayout
-        topNav={<TopNav/>}
-        sideBar={<Sidebar/>}
         page={children}
       >
       </DynamicLayout>

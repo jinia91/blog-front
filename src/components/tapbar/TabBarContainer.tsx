@@ -68,7 +68,7 @@ export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
   }, [selectedTabIdx, tabs])
 
   return (
-    <div className="flex overflow-hidden space-x-2" style={{ zIndex: 1 }}>
+    <div className="flex overflow-hidden space-x-2">
       <div ref={scrollContainerRef} className="flex space-x-1 overflow-x-auto">
         {tabs.map((tab, idx) => (
           <TabItem

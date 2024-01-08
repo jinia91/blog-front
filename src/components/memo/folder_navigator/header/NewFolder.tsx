@@ -11,7 +11,7 @@ export default function NewFolder ({ foldersRef, setFoldersRef }: {
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
   const createNewFolder = async (): Promise<void> => {
-    const folder = await createFolder('1')
+    const folder = await createFolder()
     if (folder == null) {
       console.log('createFolder error')
       return

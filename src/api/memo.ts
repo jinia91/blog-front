@@ -6,11 +6,10 @@ import { type Session } from '@/api/session'
 function getAuth (): string {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const session: Session | null = localStorage.getItem('session') == null ? null : JSON.parse(localStorage.getItem('session')!)
-  const authorization = session == null ? '' : 'Bearer ' + session.accessToken
-  return authorization
+  return session == null ? '' : 'Bearer ' + session.accessToken
 }
 
-export async function createMemo (authorId: string): Promise<{ memoId: number } | null> {
+export async function createMemo (): Promise<{ memoId: number } | null> {
   try {
     const response = await fetch(mainUrl + '/v1/memos', {
       method: 'POST',
@@ -18,7 +17,7 @@ export async function createMemo (authorId: string): Promise<{ memoId: number } 
         'Content-Type': 'application/json',
         Authorization: getAuth()
       },
-      body: JSON.stringify({ authorId })
+      body: JSON.stringify({})
     })
     if (!response.ok) {
       throw new Error('Network response was not ok')
@@ -110,7 +109,7 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   }
 }
 
-export async function createFolder (authorId: string): Promise<{ folderId: number, folderName: string } | null> {
+export async function createFolder (): Promise<{ folderId: number, folderName: string } | null> {
   noStore()
   try {
     const response = await fetch(mainUrl + '/v1/folders', {
@@ -118,8 +117,7 @@ export async function createFolder (authorId: string): Promise<{ folderId: numbe
       headers: {
         'Content-Type': 'application/json',
         Authorization: getAuth()
-      },
-      body: JSON.stringify({ authorId })
+      }
     })
     if (!response.ok) {
       throw new Error('Network response was not ok')

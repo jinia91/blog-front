@@ -13,6 +13,6 @@ export const sideBarItems = [
     name: 'Memo',
     href: '/memo',
     icon: AiOutlineFileText,
-    auth: Auth.Admin
+    auth: Auth.Guest
   }
 ]

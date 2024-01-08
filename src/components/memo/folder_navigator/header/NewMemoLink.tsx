@@ -15,7 +15,7 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
   const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
   // const { session }: { session: Session } = useContext(AuthSessionContext)
   const createNewMemo = async (): Promise<void> => {
-    const memo = await createMemo('1')
+    const memo = await createMemo()
     if (memo == null) {
       console.log('createMemo error')
       return

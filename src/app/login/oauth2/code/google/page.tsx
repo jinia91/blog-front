@@ -15,8 +15,9 @@ export default function Page (): React.ReactElement {
       if (code == null) {
         throw new Error('No code in url')
       }
-      const loginInfo = await oAuthLogin('GOOGLE', code)
-      setSession(loginInfo)
+      const session = await oAuthLogin('GOOGLE', code)
+      console.log('loginInfo:', session)
+      setSession(session)
       router.push('/')
     }
   }

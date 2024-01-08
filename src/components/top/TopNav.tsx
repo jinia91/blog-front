@@ -16,8 +16,10 @@ export default function TopNav (): React.ReactElement {
           {"__JINIA'S_LOG__!!"}
           </span>
         </TabLink>
-        <SignInAndOutBox/>
-        <DarkLightToggle/>
+        <div className="flex items-center">
+          <SignInAndOutBox/>
+          <DarkLightToggle/>
+        </div>
       </div>
     </div>
   )

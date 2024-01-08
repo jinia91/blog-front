@@ -2,11 +2,13 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { type Tab } from '@/components/tapbar/TabItem'
-import { renderPage } from '@/components/AppPageRenderer'
 import SideBarProvider from '@/components/sidebar/SiderBarProvider'
 import renderContextMenu, { type TabContextMenuProps } from '@/components/tapbar/TabContextMenu'
 import { TabContainer } from '@/components/tapbar/TabBarContainer'
 import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider'
+import { RenderPage } from '@/components/AppPageRenderer'
+import TopNav from '@/components/top/TopNav'
+import Sidebar from '@/components/sidebar/SideBar'
 
 const initialTabStatus = {
   tabs: [],
@@ -18,16 +20,20 @@ const initialTabStatus = {
 }
 
 const TabBarContext: React.Context<any> = createContext(initialTabStatus)
-const DynamicLayout = ({ topNav, sideBar, page }: {
-  topNav: React.ReactNode
-  sideBar: React.ReactNode
-  page: React.ReactNode
-}): React.ReactNode => {
+const DynamicLayout = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   const path = usePathname()
   const router = useRouter()
   const restoreTabs = (): any => {
     const savedTabs = localStorage.getItem('tabs')
     const parsedTabs = (savedTabs != null) ? JSON.parse(savedTabs) : null
+
+    if (path.startsWith('/login/oauth2')) {
+      if (parsedTabs == null || parsedTabs.length === 0) {
+        return [{ name: '/', context: '/' }]
+      } else {
+        return parsedTabs
+      }
+    }
 
     if (parsedTabs == null || (parsedTabs.length === 0 && path !== '/empty')) {
       return path === '/empty' ? [] : [{ name: path, context: path }]
@@ -141,11 +147,10 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
     <AuthSessionProvider>
       <SideBarProvider>
         <TabBarContext.Provider value={{ tabs, selectedTabIdx, setTabs, setSelectedTabIdx }}>
-          <header className="sticky top-0 w-full dark:bg-gray-900 border-b">{topNav}</header>
+          <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
           <div className="md:flex overflow-hidden">
-            <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
-                   style={{ zIndex: 1000 }}>
-              {sideBar}
+            <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r">
+              <Sidebar/>
             </aside>
             <main
               className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
@@ -156,7 +161,7 @@ const DynamicLayout = ({ topNav, sideBar, page }: {
                   onRemoveTab={removeTab}
                   onContextMenu={handleContextMenu}
                 />
-                {renderPage(tabs, path, page)}
+                <RenderPage tabs={tabs} path={path} page={page}/>
               </div>
             </main>
           </div>
