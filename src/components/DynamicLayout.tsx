@@ -149,7 +149,9 @@ const DynamicLayout = ({ page }: { page: React.ReactNode }): React.ReactNode => 
         <TabBarContext.Provider value={{ tabs, selectedTabIdx, setTabs, setSelectedTabIdx }}>
           <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
           <div className="md:flex overflow-hidden">
-            <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r">
+            <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
+                   style={{ zIndex: 100 }}
+            >
               <Sidebar/>
             </aside>
             <main

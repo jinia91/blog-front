@@ -14,7 +14,6 @@ export const useFetchMemo = (
     async function fetchData (): Promise<void> {
       try {
         const fetchedMemo = await fetchMemoById(pageMemoNumber)
-
         if (fetchedMemo != null) {
           setMemo(fetchedMemo)
           setTitle(fetchedMemo.title)

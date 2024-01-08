@@ -5,8 +5,6 @@ export enum Auth {
 }
 
 export interface Session {
-  accessToken: string
-  refreshToken: string
   nickName: string
   email: string
   roles: Set<string>

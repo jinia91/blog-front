@@ -1,24 +1,22 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import { mainUrl } from '@/api/host'
 import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/api/models'
-import { type Session } from '@/api/session'
-
-function getAuth (): string {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const session: Session | null = localStorage.getItem('session') == null ? null : JSON.parse(localStorage.getItem('session')!)
-  return session == null ? '' : 'Bearer ' + session.accessToken
-}
+import { withAuthRetry } from '@/api/auth'
 
 export async function createMemo (): Promise<{ memoId: number } | null> {
-  try {
-    const response = await fetch(mainUrl + '/v1/memos', {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + '/v1/memos', {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({})
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -30,20 +28,23 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
 }
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
-  try {
-    const response = await fetch(mainUrl + `/v1/memos?keyword=${keyword}&thisId=${thisId}`,
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/memos?keyword=${keyword}&thisId=${thisId}`,
       {
         cache: 'no-store',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: getAuth()
+          'Content-Type': 'application/json'
         }
       })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
-    console.log(data.memos)
     return data.memos
   } catch (error) {
     console.error('Error fetching memo:', error)
@@ -53,17 +54,25 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
 
 export async function fetchMemoById (id: string): Promise<Memo | null> {
   noStore()
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/memos/${id}`,
+      {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+  }
+
   try {
-    const response = await fetch(mainUrl + `/v1/memos/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
-      }
-    })
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    return await response.json()
+    const data = await response.json()
+    console.log('fetchedMemo:', data)
+    return data
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
@@ -71,14 +80,18 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 }
 
 export async function deleteMemoById (id: string): Promise<any> {
-  try {
-    const response = await fetch(mainUrl + `/v1/memos/${id}`, {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/memos/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       }
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -91,13 +104,19 @@ export async function deleteMemoById (id: string): Promise<any> {
 
 export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   noStore()
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + '/v1/folders',
+      {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+  }
+
   try {
-    const response = await fetch(mainUrl + '/v1/folders', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
-      }
-    })
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -111,14 +130,18 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
 
 export async function createFolder (): Promise<{ folderId: number, folderName: string } | null> {
   noStore()
-  try {
-    const response = await fetch(mainUrl + '/v1/folders', {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + '/v1/folders', {
+      credentials: 'include',
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       }
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -131,15 +154,19 @@ export async function createFolder (): Promise<{ folderId: number, folderName: s
 }
 
 export async function changeFolderName (folderId: string, toBeName: string): Promise<any> {
-  try {
-    const response = await fetch(mainUrl + `/v1/folders/${folderId}/name`, {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/folders/${folderId}/name`, {
+      credentials: 'include',
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ folderId, name: toBeName })
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -152,14 +179,18 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
 }
 
 export async function deleteFolderById (folderId: string): Promise<any> {
-  try {
-    const response = await fetch(mainUrl + `/v1/folders/${folderId}`, {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/folders/${folderId}`, {
+      credentials: 'include',
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       }
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -172,14 +203,18 @@ export async function deleteFolderById (folderId: string): Promise<any> {
 }
 
 export async function makeRelationshipWithFolders (childFolderId: string, parentFolderId: string | null): Promise<any> {
-  try {
-    const response = await fetch(mainUrl + `/v1/folders/${childFolderId}/parent/${parentFolderId}`, {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/folders/${childFolderId}/parent/${parentFolderId}`, {
       method: 'PUT',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       }
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -194,9 +229,9 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
   try {
     const response = await fetch(mainUrl + `/v1/memos/${memoId}/folders/${folderId ?? -1}`, {
       method: 'PUT',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       }
     })
     if (!response.ok) {
@@ -210,23 +245,25 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
 }
 
 export async function uploadImage (imageFile: File, authorId: string): Promise<{ url: string } | null> {
-  try {
-    console.log(imageFile)
+  const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)
 
-    const response = await fetch(mainUrl + '/v1/media/image', {
+    return await fetch(mainUrl + '/v1/media/image', {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: getAuth()
+        'Content-Type': 'application/json'
       },
       body: formData
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-
     return await response.json()
   } catch (error) {
     console.error('Error fetching memo:', error)
@@ -235,15 +272,19 @@ export async function uploadImage (imageFile: File, authorId: string): Promise<{
 }
 
 export async function fetchSearchResults (query: string): Promise<FolderInfo[] | null> {
-  try {
-    const response = await fetch(mainUrl + `/v1/folders?query=${query}`,
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/folders?query=${query}`,
       {
         cache: 'no-store',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: getAuth()
+          'Content-Type': 'application/json'
         }
       })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -260,9 +301,9 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
     const response = await fetch(mainUrl + `/v1/memos/${memoId}/references`,
       {
         cache: 'no-store',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: getAuth()
+          'Content-Type': 'application/json'
         }
       })
     if (!response.ok) {
@@ -277,15 +318,19 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
 }
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
-  try {
-    const response = await fetch(mainUrl + `/v1/memos/${memoId}/referenced`,
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/memos/${memoId}/referenced`,
       {
         cache: 'no-store',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: getAuth()
+          'Content-Type': 'application/json'
         }
       })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
