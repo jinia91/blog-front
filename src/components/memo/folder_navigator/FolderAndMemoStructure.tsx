@@ -84,6 +84,7 @@ export function FolderAndMemo ({
                        name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}>
                 <MemoItem
                   memo={memo}
+                  parentFolderId={folder.id}
                   handleContextMenu={handleContextMenu}
                   contextMenu={contextMenu}
                   depth={depth}

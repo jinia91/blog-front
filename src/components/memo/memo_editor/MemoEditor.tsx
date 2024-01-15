@@ -102,7 +102,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
         if (item.type.indexOf('image') === 0) {
           const file = item.getAsFile()
           if (file != null) {
-            const data = await uploadImage(file, '1')
+            const data = await uploadImage(file)
             if (data == null) {
               throw new Error('Error uploading image')
             }

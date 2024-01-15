@@ -226,14 +226,18 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
 }
 
 export async function makeRelationshipWithMemoAndFolders (memoId: string, folderId: string | null): Promise<any> {
-  try {
-    const response = await fetch(mainUrl + `/v1/memos/${memoId}/folders/${folderId ?? -1}`, {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(mainUrl + `/v1/memos/${memoId}/folders/${folderId ?? -1}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       }
     })
+  }
+
+  try {
+    const response = await withAuthRetry(apiCall)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -244,17 +248,14 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
   }
 }
 
-export async function uploadImage (imageFile: File, authorId: string): Promise<{ url: string } | null> {
+export async function uploadImage (imageFile: File): Promise<{ url: string } | null> {
   const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)
-
+    console.log(imageFile)
     return await fetch(mainUrl + '/v1/media/image', {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: formData
     })
   }

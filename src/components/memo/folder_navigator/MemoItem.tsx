@@ -4,23 +4,35 @@ import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { makeRelationshipWithMemoAndFolders } from '@/api/memo'
+import { FolderContext } from '@/components/memo/FolderContextProvider'
 
-export default function MemoItem ({ memo, handleContextMenu, depth, contextMenu }: {
+export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {
   memo: SimpleMemoInfo
+  parentFolderId: number | null
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string) => void
   depth: number
   contextMenu: ContextMenuProps | null
 }): React.ReactElement {
   const { underwritingId, underwritingTitle } = useContext(MemoEditContext)
-  const [, setIsDragOver] = useState(false)
-
+  const [isDragOver, setIsDragOver] = useState(false)
+  const { refreshFolders } = useContext(FolderContext)
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
     e.dataTransfer.effectAllowed = 'move'
   }
-  const handleDrop = async (e: React.DragEvent): Promise<void> => {
+  const handleDrop = async (e: React.DragEvent, targetFolderId: number | null): Promise<void> => {
     e.preventDefault()
     setIsDragOver(false)
+    const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
+    if (draggedItem.type === 'memo') {
+      const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
+      if (result != null) {
+        refreshFolders()
+      } else {
+        console.log('fail')
+      }
+    }
   }
 
   const handleDragOver = (e: React.DragEvent): void => {
@@ -48,7 +60,7 @@ export default function MemoItem ({ memo, handleContextMenu, depth, contextMenu 
         handleDragStart(e, { id: memo.id, type: 'memo' })
       }}
       onDrop={(e) => {
-        handleDrop(e).catch(error => {
+        handleDrop(e, parentFolderId).catch(error => {
           console.error(error)
         })
       }}
@@ -60,6 +72,7 @@ export default function MemoItem ({ memo, handleContextMenu, depth, contextMenu 
       data-memo-id={memo.id.toString()}
       className={`
       pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500
+      ${isDragOver ? 'bg-gray-500' : ''}
       ${memo.id.toString() === underwritingId ? 'bg-gray-600' : 'hover:bg-gray-500'}
       ${(contextMenu != null) && contextMenu.memoId === memo.id.toString() ? 'bg-gray-600' : ''}
       `}
