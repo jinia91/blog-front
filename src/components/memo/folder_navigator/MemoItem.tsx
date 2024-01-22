@@ -4,7 +4,7 @@ import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
-import { makeRelationshipWithMemoAndFolders } from '@/api/memo'
+import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/api/memo'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 
 export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {
@@ -27,6 +27,13 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
     const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
     if (draggedItem.type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
+      if (result != null) {
+        refreshFolders()
+      } else {
+        console.log('fail')
+      }
+    } else if (draggedItem.type === 'folder') {
+      const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
         refreshFolders()
       } else {

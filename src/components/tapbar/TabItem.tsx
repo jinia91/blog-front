@@ -37,7 +37,7 @@ export function TabItem ({ tab, index, isSelected, onSelectTab, onRemoveTab, onC
       onContextMenu={(e) => {
         onContextMenu(e, index)
       }}
-      className={'flex-shrink-0 w-32 relative'}
+      className={'flex-shrink-0 w-48 relative'}
     >
       <Link
         draggable={true}
