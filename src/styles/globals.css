@@ -20,6 +20,7 @@
     transform: translate(-80%, -45px);
     opacity: 0;
     transition: opacity 0.3s, visibility 0.3s;
+
     &:after {
         content: '';
         position: absolute;
@@ -60,14 +61,24 @@
 
 
 @keyframes typing {
-    0% { width: 0; }
-    50% { width: 100%; }
-    100% { width: 0; }
+    0% {
+        width: 0;
+    }
+    50% {
+        width: 100%;
+    }
+    100% {
+        width: 0;
+    }
 }
 
 @keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: orange; }
+    from, to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: orange;
+    }
 }
 
 @font-face {
@@ -92,4 +103,13 @@
     ol {
         list-style: revert;
     }
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
