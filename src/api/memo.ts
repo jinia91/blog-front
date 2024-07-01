@@ -29,7 +29,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos?keyword=${keyword}&thisId=${thisId}`,
+    return await fetch(mainUrl + `/v1/memos/${thisId}/?keyword=${keyword}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -227,12 +227,13 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
 
 export async function makeRelationshipWithMemoAndFolders (memoId: string, folderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${memoId}/folders/${folderId ?? -1}`, {
+    return await fetch(mainUrl + `/v1/memos/${memoId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ folderId })
     })
   }
 
