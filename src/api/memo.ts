@@ -145,8 +145,7 @@ export async function createFolder (): Promise<{ folderId: number, folderName: s
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    const data = await response.json()
-    return data
+    return await response.json()
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
@@ -170,8 +169,7 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    const data = await response.json()
-    return data
+    return await response.json()
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
@@ -192,12 +190,11 @@ export async function deleteFolderById (folderId: string): Promise<any> {
   try {
     const response = await withAuthRetry(apiCall)
     if (!response.ok) {
-      throw new Error('Network response was not ok')
+      console.error('폴더 삭제 api 호출시 에러, 정상 삭제가 되지 않았습니다')
     }
-    const data = await response.json()
-    return data
+    return await response.json()
   } catch (error) {
-    console.error('Error fetching memo:', error)
+    console.error('폴더 삭제 api 호출시 에러', error)
     return null
   }
 }
