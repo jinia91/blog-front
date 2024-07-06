@@ -12,7 +12,7 @@ export default function TopNav (): React.ReactElement {
       <div className="flex justify-between items-center py-4">
         <SideBarToggle/>
         <TabLink name={'Home'} href="/">
-          <span className="retro-font-animation text-2xl font-semibold">
+          <span className="retro-font-animation text-2xl font-semibold hover:cursor-pointer">
           {"__JINIA'S_LOG__!!"}
           </span>
         </TabLink>

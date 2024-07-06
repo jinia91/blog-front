@@ -12,6 +12,9 @@ export function RenderPage ({ tabs, path, page }: {
 }): React.ReactElement | null {
   const { session }: { session: Session } = React.useContext(AuthSessionContext)
 
+  console.log('렌더링 횟수 테스트 중입니다.')
+  console.log(tabs, path, page)
+
   function renderMemoContainer (): React.ReactElement {
     if (session == null) {
       return (

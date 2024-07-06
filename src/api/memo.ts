@@ -29,7 +29,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${thisId}/?keyword=${keyword}`,
+    return await fetch(mainUrl + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
       {
         cache: 'no-store',
         credentials: 'include',

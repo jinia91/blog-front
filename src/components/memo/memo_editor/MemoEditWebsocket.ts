@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import SockJS from 'sockjs-client'
-import { type Client, type CompatClient, Stomp } from '@stomp/stompjs'
+import { type Client, type CompatClient, type IMessage, Stomp } from '@stomp/stompjs'
 import { useDebouncedCallback } from 'use-debounce'
 import { type ReferenceInfo } from '@/api/models'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
@@ -27,6 +27,9 @@ const useStompClient = (
         if (client == null) {
           return
         }
+        client.subscribe('/topic/memoResponse', (message: IMessage) => {
+          //   consume
+        })
         client.subscribe('/topic/memoResponse/updateReferences', (message) => {
           setRefreshCount((currentCount) => currentCount + 1)
         })
