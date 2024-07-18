@@ -19,7 +19,7 @@ const useStompClient = (
   useEffect(() => {
     let client: CompatClient | null = null
     const connectStompClient = (): void => {
-      const socket = new SockJS('http://localhost:7777/memo')
+      const socket = new SockJS('http://localhost:7777/ws')
       client = Stomp.over(socket)
 
       client.connect({}, () => {
@@ -63,7 +63,7 @@ const useStompClient = (
       }
 
       stompClient.publish({
-        destination: '/app/updateMemo',
+        destination: '/memo/updateMemo',
         body: JSON.stringify(command)
       })
     }
@@ -89,7 +89,7 @@ const useStompClient = (
         references: ids
       }
       stompClient.publish({
-        destination: '/app/updateReferences',
+        destination: '/memo/updateReferences',
         body: JSON.stringify(command)
       })
     }
