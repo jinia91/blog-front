@@ -34,7 +34,7 @@ export default function DarkLightToggle (): React.ReactElement | null {
         </button>
         {isModalOpen && (
           <CommonModal onClose={handleClose}>
-            <div className="text-white text-center">
+            <div className="dos-font text-center">
               <p>아직 다크모드만 지원합니다.</p>
             </div>
           </CommonModal>

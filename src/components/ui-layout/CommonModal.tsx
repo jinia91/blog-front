@@ -11,7 +11,7 @@ export default function CommonModal ({ onClose, children, width = '400px' }: Mod
   return (
     <div
       className="fixed inset-0 flex justify-center items-center backdrop-hue-rotate-60"
-      style={{ zIndex: 1000 }}
+      style={{ zIndex: 10000 }}
     >
       <div className={'relative bg-gray-800 p-6 rounded shadow-lg border-4 border-gray-900'}
            style={{ width }}>
