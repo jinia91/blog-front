@@ -1,14 +1,14 @@
 'use client'
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { type Tab } from '@/components/tapbar/TabItem'
-import SideBarProvider from '@/components/sidebar/SiderBarProvider'
-import renderContextMenu, { type TabContextMenuProps } from '@/components/tapbar/TabContextMenu'
-import { TabContainer } from '@/components/tapbar/TabBarContainer'
+import { type Tab } from '@/components/ui-layout/tapbar/TabItem'
+import SideBarProvider from '@/components/ui-layout/sidebar/SiderBarProvider'
+import renderContextMenu, { type TabContextMenuProps } from '@/components/ui-layout/tapbar/TabContextMenu'
+import { TabContainer } from '@/components/ui-layout/tapbar/TabBarContainer'
 import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider'
-import { RenderPage } from '@/components/AppPageRenderer'
-import TopNav from '@/components/top/TopNav'
-import Sidebar from '@/components/sidebar/SideBar'
+import { RenderPage } from '@/components/ui-layout/AppPageRenderer'
+import TopNav from '@/components/ui-layout/top/TopNav'
+import Sidebar from '@/components/ui-layout/sidebar/SideBar'
 
 const initialTabStatus = {
   tabs: [],

@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react'
 import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
 import SignInModal from '@/components/auth/SignInModal'
 import Image from 'next/image'
-import signIn from '../../../public/signin.png'
-import logout from '../../../public/logout.png'
+import signIn from '../../../../public/signin.png'
+import logout from '../../../../public/logout.png'
 
 export default function SignInAndOutBox (): React.ReactElement {
   const { session, setSession } = useContext(AuthSessionContext)

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { type Tab, TabItem } from '@/components/tapbar/TabItem'
-import { TabBarContext } from '@/components/DynamicLayout'
+import { type Tab, TabItem } from '@/components/ui-layout/tapbar/TabItem'
+import { TabBarContext } from '@/components/ui-layout/DynamicLayout'
 
 export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
   onSelectTab: (index: number) => void

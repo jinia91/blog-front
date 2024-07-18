@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useContext, useEffect } from 'react'
-import TabLink from '@/components/tapbar/TabLink'
-import { sideBarItems } from '@/components/sidebar/sideBarItems'
-import { SidebarContext } from '@/components/sidebar/SiderBarProvider'
+import TabLink from '@/components/ui-layout/tapbar/TabLink'
+import { sideBarItems } from '@/components/ui-layout/sidebar/sideBarItems'
+import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
 import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
 import { Auth, type Session } from '@/api/session'
 

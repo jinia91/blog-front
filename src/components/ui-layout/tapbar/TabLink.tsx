@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/DynamicLayout'
+import { TabBarContext } from '@/components/ui-layout/DynamicLayout'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function TabLink ({ name, href, children }: {

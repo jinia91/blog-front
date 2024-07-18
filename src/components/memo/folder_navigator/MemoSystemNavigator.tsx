@@ -2,7 +2,7 @@
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
 import { type FolderInfo } from '@/api/models'
 import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/api/memo'
-import { TabBarContext } from '@/components/DynamicLayout'
+import { TabBarContext } from '@/components/ui-layout/DynamicLayout'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
@@ -14,7 +14,7 @@ import {
 } from '@/components/memo/folder_navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
-import { type Tab } from '@/components/tapbar/TabItem'
+import { type Tab } from '@/components/ui-layout/tapbar/TabItem'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 

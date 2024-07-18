@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import '../styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import UiContextProvider from '@/components/UiContextProvider'
-import { DynamicLayout } from '@/components/DynamicLayout'
+import UiContextProvider from '@/components/ui-layout/UiContextProvider'
+import { DynamicLayout } from '@/components/ui-layout/DynamicLayout'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
