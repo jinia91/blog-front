@@ -2,7 +2,7 @@
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
 import { type FolderInfo } from '@/api/models'
 import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/api/memo'
-import { TabBarContext } from '@/components/ui-layout/DynamicLayout'
+import { TabBarContext } from '@/components/ui-layout/main/DynamicLayout'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
