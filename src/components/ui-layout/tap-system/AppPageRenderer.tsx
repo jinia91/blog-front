@@ -3,6 +3,7 @@ import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
 import SignInAndOutContainer from '@/components/auth/SignInAndOutContainer'
 import { type Session } from '@/api/session'
 import AdminAccessDenied from '@/components/auth/AccessDenied'
+import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
 
 export function RenderPage ({ tabs, path, page }: {
   tabs: any
@@ -14,20 +15,22 @@ export function RenderPage ({ tabs, path, page }: {
   function renderMemoContainer (): React.ReactElement {
     if (session == null) {
       return (
-        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto min-h-full">
+        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
           <SignInAndOutContainer/>
         </div>
       )
     } else if (session?.roles.values().next().value !== 'ADMIN') {
       return (
-        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto min-h-full">
+        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
           <AdminAccessDenied/>
         </div>
       )
     } else {
       return (
-        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto min-h-full">
-          {page}
+        <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
+          <MemoFolderContainer>
+            {page}
+          </MemoFolderContainer>
         </div>
       )
     }
@@ -35,7 +38,7 @@ export function RenderPage ({ tabs, path, page }: {
 
   function renderOthers (): React.ReactElement | null {
     return (
-      <div className="bg-gray-700 p-4 rounded-b-lg">
+      <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
         {page}
       </div>
     )
