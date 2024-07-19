@@ -3,7 +3,7 @@ import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
 import { getOAuthLoginUrl } from '@/api/auth'
 import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
-import CommonModal from '@/components/ui-layout/CommonModal'
+import CommonModal from '@/components/ui-layout/common/CommonModal'
 
 export default function SignInModal ({ onClose }: { onClose: () => void }): React.ReactElement | null {
   const { session } = useContext(AuthSessionContext)

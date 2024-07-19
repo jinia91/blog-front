@@ -1,3 +1,4 @@
+'use client'
 import MemoSystemNavigator from '@/components/memo/folder_navigator/MemoSystemNavigator'
 import React, { useContext, useEffect, useState } from 'react'
 import { type MixedSizes, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'

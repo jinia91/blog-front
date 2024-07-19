@@ -2,7 +2,7 @@
 import { type FolderInfo } from '@/api/models'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import FolderItem from '@/components/memo/folder_navigator/FolderItem'
-import TabLink from '@/components/ui-layout/tapbar/TabLink'
+import TabLink from '@/components/ui-layout/tap-system/TabLink'
 import MemoItem from '@/components/memo/folder_navigator/MemoItem'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'

@@ -1,13 +1,13 @@
 'use client'
 import React, { createContext, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import renderContextMenu from '@/components/ui-layout/tapbar/TabContextMenu'
-import { TabContainer } from '@/components/ui-layout/tapbar/TabBarContainer'
-import { RenderPage } from '@/components/ui-layout/AppPageRenderer'
+import renderContextMenu from '@/components/ui-layout/tap-system/TabContextMenu'
+import { TabBar } from '@/components/ui-layout/tap-system/TabBar'
+import { RenderPage } from '@/components/ui-layout/tap-system/AppPageRenderer'
 import TopNav from '@/components/ui-layout/top/TopNav'
-import Sidebar from '@/components/ui-layout/sidebar/SideBar'
-import { useTabs } from '@/components/ui-layout/main/hook/useTabs'
-import { useContextMenu } from '@/components/ui-layout/main/hook/useContextMenu'
+import SideAppBar from '@/components/ui-layout/sidebar/SideBar'
+import { useTabs } from '@/components/ui-layout/tap-system/hook/useTabs'
+import { useContextMenu } from '@/components/ui-layout/tap-system/hook/useContextMenu'
 
 const initialTabStatus = {
   tabs: [],
@@ -19,7 +19,7 @@ const initialTabStatus = {
 }
 
 const TabBarContext: React.Context<any> = createContext(initialTabStatus)
-const DynamicLayout = ({ page }: { page: React.ReactNode }): React.ReactNode => {
+const TapRouteMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   const path = usePathname()
   const router = useRouter()
   const {
@@ -59,13 +59,14 @@ const DynamicLayout = ({ page }: { page: React.ReactNode }): React.ReactNode => 
         <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
         >
-          <Sidebar/>
+          <SideAppBar/>
         </aside>
         <main
-          className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen md:h-screen min-h-screen overflow-auto">
+          className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-auto pb-4"
+          style={{ height: 'calc(100vh - 60px)' }}>
           {renderContextMenu(contextMenu, closeContextMenu, removeTabCallback, closeOtherTabs, closeAllTabs)}
           <div className="bg-gray-800 p-4">
-            <TabContainer
+            <TabBar
               onSelectTab={selectTab}
               onRemoveTab={removeTab}
               onContextMenu={handleContextMenu}
@@ -77,4 +78,4 @@ const DynamicLayout = ({ page }: { page: React.ReactNode }): React.ReactNode => 
     </TabBarContext.Provider>
   )
 }
-export { TabBarContext, DynamicLayout }
+export { TabBarContext, TapRouteMain }

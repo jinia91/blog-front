@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect } from 'react'
-import TabLink from '@/components/ui-layout/tapbar/TabLink'
+import TabLink from '@/components/ui-layout/tap-system/TabLink'
 import { sideBarItems } from '@/components/ui-layout/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
 import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'

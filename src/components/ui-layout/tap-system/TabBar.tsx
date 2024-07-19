@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { type Tab, TabItem } from '@/components/ui-layout/tapbar/TabItem'
-import { TabBarContext } from '@/components/ui-layout/main/DynamicLayout'
+import { type Tab, TabItem } from '@/components/ui-layout/tap-system/TabItem'
+import { TabBarContext } from '@/components/ui-layout/tap-system/TapRouteMain'
 
-export function TabContainer ({ onSelectTab, onRemoveTab, onContextMenu }: {
+export function TabBar ({ onSelectTab, onRemoveTab, onContextMenu }: {
   onSelectTab: (index: number) => void
   onRemoveTab: (index: number) => void
   onContextMenu: (event: React.MouseEvent<HTMLDivElement>, index: number) => void

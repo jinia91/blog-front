@@ -4,7 +4,7 @@ import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/ui-layout/main/DynamicLayout'
+import { TabBarContext } from '@/components/ui-layout/tap-system/TapRouteMain'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 

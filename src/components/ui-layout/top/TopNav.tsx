@@ -3,7 +3,7 @@
 import DarkLightToggle from '@/components/ui-layout/top/DarkLightToggle'
 import React from 'react'
 import SideBarToggle from '@/components/ui-layout/top/SideBarToggle'
-import TabLink from '@/components/ui-layout/tapbar/TabLink'
+import TabLink from '@/components/ui-layout/tap-system/TabLink'
 import SignInAndOutBox from '@/components/ui-layout/top/SigninAndOutBox'
 
 export default function TopNav (): React.ReactElement {

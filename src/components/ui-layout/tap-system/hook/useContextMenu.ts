@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { type TabContextMenuProps } from '@/components/ui-layout/tapbar/TabContextMenu'
-import { type Tab } from '@/components/ui-layout/tapbar/TabItem'
+import { type TabContextMenuProps } from '@/components/ui-layout/tap-system/TabContextMenu'
+import { type Tab } from '@/components/ui-layout/tap-system/TabItem'
 
 export function useContextMenu ({ setTabs, setSelectedTabIdx, removeTab }: {
   setTabs: (React.Dispatch<React.SetStateAction<Tab[]>>)
