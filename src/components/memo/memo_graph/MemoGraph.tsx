@@ -4,24 +4,21 @@ import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/DynamicLayout'
+import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 
-export default function MemoGraph ({ className }: { className?: string }): React.ReactElement | null {
+export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
   const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
-
   if (folders == null || isReferenceMode || folders[0].id === 1) {
     return null
   }
-
   const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
   }
-
   const flattenFolders = folders.flatMap(folder => flattenFolder(folder))
 
   const createFolderNodes = (folder: FolderInfo, group: number, nodes: any): void => {
@@ -125,7 +122,7 @@ export default function MemoGraph ({ className }: { className?: string }): React
   }
 
   return (
-    <div className={className}>
+    <div>
       <ForceGraph2D
         graphData={graphData}
         nodeId="id"

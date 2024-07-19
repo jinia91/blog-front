@@ -1,3 +1,4 @@
+'use client'
 import React, { createContext, useState } from 'react'
 
 export const SidebarContext: React.Context<any> = createContext({ isCollapsed: true })

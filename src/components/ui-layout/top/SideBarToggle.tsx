@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import Image from 'next/image'
-import { SidebarContext } from '@/components/sidebar/SiderBarProvider'
-import menu from '../../../public/menu.png'
+import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
+import menu from '../../../../public/menu.png'
 
 export default function SideBarToggle (): React.ReactElement {
   const { toggleSideBarCollapse } = useContext(SidebarContext)
