@@ -1,13 +1,13 @@
 'use client'
 import React, { createContext, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import renderContextMenu from '@/components/ui-layout/tap-system/TabContextMenu'
-import { TabBar } from '@/components/ui-layout/tap-system/TabBar'
-import { RenderPage } from '@/components/ui-layout/tap-system/AppPageRenderer'
+import renderContextMenu from '@/components/ui-layout/tap_system/TabContextMenu'
+import { TabBar } from '@/components/ui-layout/tap_system/TabBar'
+import { RenderPage } from '@/components/ui-layout/tap_system/AppPageRenderer'
 import TopNav from '@/components/ui-layout/top/TopNav'
 import SideAppBar from '@/components/ui-layout/sidebar/SideBar'
-import { useTabs } from '@/components/ui-layout/tap-system/hook/useTabs'
-import { useContextMenu } from '@/components/ui-layout/tap-system/hook/useContextMenu'
+import { useTabs } from '@/components/ui-layout/tap_system/hook/useTabs'
+import { useContextMenu } from '@/components/ui-layout/tap_system/hook/useContextMenu'
 
 const initialTabStatus = {
   tabs: [],
@@ -50,7 +50,7 @@ const TapRouteMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
       }
     }
     routePage()
-  }, [path, selectedTabIdx, tabs, router])
+  }, [path, selectedTabIdx, tabs])
 
   return (
     <TabBarContext.Provider value={{ tabs, selectedTabIdx, setTabs, setSelectedTabIdx }}>

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { type Tab, TabItem } from '@/components/ui-layout/tap-system/TabItem'
-import { TabBarContext } from '@/components/ui-layout/tap-system/TapRouteMain'
+import { type Tab, TabItem } from '@/components/ui-layout/tap_system/TabItem'
+import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 
 export function TabBar ({ onSelectTab, onRemoveTab, onContextMenu }: {
   onSelectTab: (index: number) => void

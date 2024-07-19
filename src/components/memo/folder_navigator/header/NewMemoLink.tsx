@@ -1,7 +1,7 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
-import { TabBarContext } from '@/components/ui-layout/tap-system/TapRouteMain'
+import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { createMemo } from '@/api/memo'
 import { type FolderInfo, type SimpleMemoInfo } from '@/api/models'
 import Image from 'next/image'

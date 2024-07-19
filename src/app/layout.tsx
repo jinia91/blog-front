@@ -3,7 +3,7 @@ import '../styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
 import UiContextProvider from '@/components/ui-layout/UiContextProvider'
-import { TapRouteMain } from '@/components/ui-layout/tap-system/TapRouteMain'
+import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider'
 import SideBarProvider from '@/components/ui-layout/sidebar/SiderBarProvider'
 

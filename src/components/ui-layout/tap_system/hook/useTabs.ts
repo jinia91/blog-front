@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { type Tab } from '@/components/ui-layout/tap-system/TabItem'
+import { type Tab } from '@/components/ui-layout/tap_system/TabItem'
 
 const restoreTabsFromLocalStorage = (path: string): any => {
   const savedTabs = localStorage.getItem('tabs')
