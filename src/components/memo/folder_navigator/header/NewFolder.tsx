@@ -11,22 +11,8 @@ export default function NewFolder ({ foldersRef, setFoldersRef }: {
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
   const createNewFolder = async (): Promise<void> => {
-    const folder = await createFolder()
-    if (folder == null) {
-      console.log('createFolder error')
-      return
-    }
-    const newFolderId = folder.folderId
-    const newFolderName = folder.folderName
-
+    const newFolder = await createFolder()
     const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
-    const newFolder: FolderInfo = {
-      id: newFolderId,
-      name: newFolderName,
-      children: [],
-      memos: [],
-      parent: null
-    }
     const newFolders = [...foldersRef.filter((folder) => folder.id !== null), newFolder]
     if (unCategoryFolder != null) {
       newFolders.push(unCategoryFolder)

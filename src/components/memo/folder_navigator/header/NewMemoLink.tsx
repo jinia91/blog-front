@@ -13,11 +13,9 @@ export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
   const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
-  // const { session }: { session: Session } = useContext(AuthSessionContext)
   const createNewMemo = async (): Promise<void> => {
     const memo = await createMemo()
     if (memo == null) {
-      console.log('createMemo error')
       return
     }
     const newHref = `/memo/${memo.memoId}`

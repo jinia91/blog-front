@@ -14,17 +14,12 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
       body: JSON.stringify({})
     })
   }
-
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error creating memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('메모생성에 실패했습니다', response.statusText)
     return null
   }
+  return await response.json()
 }
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
@@ -128,7 +123,7 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   }
 }
 
-export async function createFolder (): Promise<{ folderId: number, folderName: string } | null> {
+export async function createFolder (): Promise<FolderInfo> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(mainUrl + '/v1/folders', {
@@ -139,17 +134,11 @@ export async function createFolder (): Promise<{ folderId: number, folderName: s
       }
     })
   }
-
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
-    return null
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    throw new Error('Network response was not ok')
   }
+  return await response.json().then((data) => data.folder)
 }
 
 export async function changeFolderName (folderId: string, toBeName: string): Promise<any> {
@@ -201,12 +190,13 @@ export async function deleteFolderById (folderId: string): Promise<any> {
 
 export async function makeRelationshipWithFolders (childFolderId: string, parentFolderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/folders/${childFolderId}/parent/${parentFolderId}`, {
+    return await fetch(mainUrl + `/v1/folders/${childFolderId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ parentId: parentFolderId })
     })
   }
 
