@@ -1,16 +1,16 @@
-import React, { useContext, useState } from 'react'
-import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
+import React, { useState } from 'react'
 import SignInModal from '@/auth/components/SignInModal'
 import Image from 'next/image'
 import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export default function SignInAndOutBox (): React.ReactElement {
-  const { session, setSession } = useContext(AuthSessionContext)
+  const { session, updateSession } = useSession()
   const [showLoginModal, setShowLoginModal] = useState(false)
   const handleLogout = async (): Promise<void> => {
     try {
-      setSession(null)
+      updateSession(null)
     } catch (error) {
       console.error('Failed to logout:', error)
     }

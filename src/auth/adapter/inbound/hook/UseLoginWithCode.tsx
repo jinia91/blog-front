@@ -1,12 +1,12 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { executeLoginWithCode } from '@/auth/application/usecase/LoginWithCodeUseCase'
-import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
 import { Provider } from '@/auth/application/domain/Provider'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
-export function useLoginWithCodeOfProvider (): void {
-  const { session, setSession } = useContext(AuthSessionContext)
+export function useLoginWithCode (): void {
   const router = useRouter()
+  const { session, updateSession } = useSession()
   useEffect(() => {
     async function handleLogin (): Promise<void> {
       const isAlreadyLogin = session !== null
@@ -23,7 +23,8 @@ export function useLoginWithCodeOfProvider (): void {
           throw new Error('프로바이더가 없습니다')
         }
         const provider = Provider[providerStr.toUpperCase() as keyof typeof Provider]
-        await executeLoginWithCode({ provider, code, setSession })
+        const session = await executeLoginWithCode({ provider, code })
+        updateSession(session)
         router.push('/')
       }
     }

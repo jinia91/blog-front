@@ -4,8 +4,8 @@ import React, { useContext, useEffect } from 'react'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
 import { sideBarItems } from '@/components/ui-layout/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
-import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
-import { Auth, type Session } from '@/auth/application/domain/Session'
+import { Auth } from '@/auth/application/domain/Session'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
@@ -14,7 +14,7 @@ export default function Sidebar (): React.ReactElement {
   } = useContext(SidebarContext)
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
-  const { session }: { session: Session } = useContext(AuthSessionContext)
+  const { session } = useSession()
 
   useEffect(() => {
     if (isCollapsed) {

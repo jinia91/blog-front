@@ -3,9 +3,10 @@ import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
 import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
-import { AuthSessionProvider } from '@/auth/adapter/provider/AuthSessionProvider'
 import SideBarProvider from '@/components/ui-layout/sidebar/SiderBarProvider'
 import UiContextProvider from '@/components/ui-layout/UiContextProvider'
+import { Provider } from 'jotai'
+import { SessionProvider } from '@/auth/adapter/inbound/hook/SessionProvider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -54,17 +55,19 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <html lang="ko">
     <head></head>
     <body className="overflow-hidden">
-    <UiContextProvider>
-      <AuthSessionProvider>
-        <SideBarProvider>
+    <Provider>
+      <SessionProvider>
+        <UiContextProvider>
+          <SideBarProvider>
 
-          <TapRouteMain
-            page={children}
-          >
-          </TapRouteMain>
-        </SideBarProvider>
-      </AuthSessionProvider>
-    </UiContextProvider>
+            <TapRouteMain
+              page={children}
+            >
+            </TapRouteMain>
+          </SideBarProvider>
+        </UiContextProvider>
+      </SessionProvider>
+    </Provider>
     </body>
     </html>
   )

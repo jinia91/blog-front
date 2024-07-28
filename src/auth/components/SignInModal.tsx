@@ -1,13 +1,13 @@
-import React, { useContext } from 'react'
-import { AuthSessionContext } from '../adapter/provider/AuthSessionProvider'
+import React from 'react'
 import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
 import CommonModal from '@/components/ui-layout/common/CommonModal'
 import { LoginButton } from '@/auth/components/LoginButton'
 import { Provider } from '@/auth/application/domain/Provider'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export default function SignInModal ({ onClose }: { onClose: () => void }): React.ReactElement | null {
-  const { session } = useContext(AuthSessionContext)
+  const { session } = useSession()
   if (session !== null) {
     return null
   }

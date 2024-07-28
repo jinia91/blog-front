@@ -1,16 +1,15 @@
 import React from 'react'
-import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
 import SignInPage from '@/auth/components/SignInPage'
-import { type Session } from '@/auth/application/domain/Session'
 import AdminAccessDenied from '@/auth/components/AccessDeniedPage'
 import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export function RenderPage ({ tabs, path, page }: {
   tabs: any
   path: string
   page: React.ReactNode
 }): React.ReactElement | null {
-  const { session }: { session: Session } = React.useContext(AuthSessionContext)
+  const { session } = useSession()
 
   function renderMemoContainer (): React.ReactElement {
     if (session == null) {
