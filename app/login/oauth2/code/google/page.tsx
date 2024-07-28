@@ -2,10 +2,10 @@
 'use strict'
 
 import React from 'react'
-import { useLogin } from '@/auth/adapter/hook/OAtuhLoginProviderRouter'
+import { useLoginWithCodeOfProvider } from '@/auth/adapter/inbound/hook/UseLoginWithCodeOfProvider'
 
 export default function Page (): React.ReactElement {
-  useLogin()
+  useLoginWithCodeOfProvider()
   return (
     <></>
   )

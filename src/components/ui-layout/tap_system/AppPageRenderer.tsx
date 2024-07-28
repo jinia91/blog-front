@@ -1,7 +1,7 @@
 import React from 'react'
-import { AuthSessionContext } from '@/auth/application/AuthSessionProvider'
+import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
 import SignInPage from '@/auth/components/SignInPage'
-import { type Session } from '@/outbound/api/session'
+import { type Session } from '@/auth/application/domain/Session'
 import AdminAccessDenied from '@/auth/components/AccessDeniedPage'
 import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
 

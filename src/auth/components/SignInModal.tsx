@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { AuthSessionContext } from '../application/AuthSessionProvider'
+import { AuthSessionContext } from '../adapter/provider/AuthSessionProvider'
 import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
 import CommonModal from '@/components/ui-layout/common/CommonModal'

@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { type Session } from '@/outbound/api/session'
+import { type Session } from '@/auth/application/domain/Session'
 
 const initialStatus = {
   session: null,
