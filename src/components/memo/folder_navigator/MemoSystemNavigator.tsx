@@ -1,7 +1,7 @@
 'use client'
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
-import { type FolderInfo } from '@/api/models'
-import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/api/memo'
+import { type FolderInfo } from '@/outbound/api/models'
+import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/outbound/api/memo'
 import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps

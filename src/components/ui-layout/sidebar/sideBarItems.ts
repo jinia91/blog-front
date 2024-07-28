@@ -1,6 +1,6 @@
 import { AiOutlineFileText } from 'react-icons/ai'
 import { BsPeople } from 'react-icons/bs'
-import { Auth } from '@/api/session'
+import { Auth } from '@/auth/application/domain/Session'
 
 export const sideBarItems = [
   {

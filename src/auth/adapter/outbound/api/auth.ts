@@ -1,19 +1,15 @@
-import { mainUrl } from '@/api/host'
+import { mainUrl } from '@/outbound/api/host'
 
 export async function getOAuthLoginUrl (provider: string): Promise<{ url: string } | null> {
-  try {
-    const response = await fetch(mainUrl + `/v1/auth/${provider}/url`, {
-      method: 'GET',
-      credentials: 'include'
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await fetch(mainUrl + `/v1/auth/${provider}/url`, {
+    method: 'GET',
+    credentials: 'include'
+  })
+  if (!response.ok) {
+    console.error(response.statusText)
     return null
   }
+  return await response.json()
 }
 
 export async function oAuthLogin (provider: string, code: string):

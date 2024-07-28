@@ -1,10 +1,10 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
-import { type FolderInfo } from '@/api/models'
+import { type FolderInfo } from '@/outbound/api/models'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
-import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/api/memo'
+import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/outbound/api/memo'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 
 export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode, refreshCount }: {

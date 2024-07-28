@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { type Memo } from '@/api/models'
+import { type Memo } from '@/outbound/api/models'
 import Markdown from 'react-markdown'
 
 interface ModalProps {

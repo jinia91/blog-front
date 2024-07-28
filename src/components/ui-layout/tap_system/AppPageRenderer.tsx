@@ -1,8 +1,8 @@
 import React from 'react'
-import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
-import SignInAndOutContainer from '@/components/auth/SignInAndOutContainer'
-import { type Session } from '@/api/session'
-import AdminAccessDenied from '@/components/auth/AccessDenied'
+import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
+import SignInPage from '@/auth/components/SignInPage'
+import { type Session } from '@/auth/application/domain/Session'
+import AdminAccessDenied from '@/auth/components/AccessDeniedPage'
 import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
 
 export function RenderPage ({ tabs, path, page }: {
@@ -16,7 +16,7 @@ export function RenderPage ({ tabs, path, page }: {
     if (session == null) {
       return (
         <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
-          <SignInAndOutContainer/>
+          <SignInPage/>
         </div>
       )
     } else if (session?.roles.values().next().value !== 'ADMIN') {

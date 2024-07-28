@@ -1,8 +1,8 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction } from 'react'
-import { type FolderInfo } from '@/api/models'
-import { createFolder } from '@/api/memo'
+import { type FolderInfo } from '@/outbound/api/models'
+import { createFolder } from '@/outbound/api/memo'
 import Image from 'next/image'
 import newFolder from '../../../../../public/newFolder.png'
 

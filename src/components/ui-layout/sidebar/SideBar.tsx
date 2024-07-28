@@ -4,8 +4,8 @@ import React, { useContext, useEffect } from 'react'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
 import { sideBarItems } from '@/components/ui-layout/sidebar/sideBarItems'
 import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
-import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
-import { Auth, type Session } from '@/api/session'
+import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
+import { Auth, type Session } from '@/auth/application/domain/Session'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
