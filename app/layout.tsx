@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import '../styles/globals.css'
+import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import UiContextProvider from '@/components/ui-layout/UiContextProvider'
 import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
-import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider'
+import { AuthSessionProvider } from '@/auth/application/AuthSessionProvider'
 import SideBarProvider from '@/components/ui-layout/sidebar/SiderBarProvider'
+import UiContextProvider from '@/components/ui-layout/UiContextProvider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

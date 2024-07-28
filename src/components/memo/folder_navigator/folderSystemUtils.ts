@@ -1,4 +1,4 @@
-import { type FolderInfo } from '@/api/models'
+import { type FolderInfo } from '@/outbound/api/models'
 
 export const rebuildMemoDeleted = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
   return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {

@@ -1,10 +1,10 @@
-import { type SimpleMemoInfo } from '@/api/models'
+import { type SimpleMemoInfo } from '@/outbound/api/models'
 import React, { useContext, useState } from 'react'
 import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
-import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/api/memo'
+import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/outbound/api/memo'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 
 export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {

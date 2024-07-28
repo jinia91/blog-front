@@ -2,7 +2,7 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type FolderInfo } from '@/api/models'
+import { type FolderInfo } from '@/outbound/api/models'
 import React, { useContext } from 'react'
 import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { FolderContext } from '@/components/memo/FolderContextProvider'

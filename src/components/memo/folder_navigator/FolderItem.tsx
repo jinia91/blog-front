@@ -1,10 +1,10 @@
-import { type FolderInfo } from '@/api/models'
+import { type FolderInfo } from '@/outbound/api/models'
 import folderImg from '../../../../public/emptyFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
-import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/api/memo'
+import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/outbound/api/memo'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 
 export default function FolderItem ({

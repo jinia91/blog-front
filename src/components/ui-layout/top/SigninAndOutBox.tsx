@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
-import { AuthSessionContext } from '@/components/auth/AuthSessionProvider'
-import SignInModal from '@/components/auth/SignInModal'
+import { AuthSessionContext } from '@/auth/application/AuthSessionProvider'
+import SignInModal from '@/auth/components/SignInModal'
 import Image from 'next/image'
 import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
