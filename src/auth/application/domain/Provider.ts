@@ -4,7 +4,7 @@ export enum Provider {
 
 export function findProvider (value: string): Provider {
   const key = Object.keys(Provider).find(
-    key => Provider[key as keyof typeof Provider].toLowerCase() === value.toLowerCase()
+    key => Provider[key as keyof typeof Provider]
   )
   if (key == null) {
     throw new Error('정의된 Provider가 아닙니다')

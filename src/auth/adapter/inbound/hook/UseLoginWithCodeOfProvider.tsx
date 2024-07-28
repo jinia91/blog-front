@@ -22,7 +22,7 @@ export function useLoginWithCodeOfProvider (): void {
         if (providerStr == null) {
           throw new Error('프로바이더가 없습니다')
         }
-        const provider = findProvider(providerStr)
+        const provider = findProvider(providerStr.toUpperCase())
         await executeLoginWithCode({ provider, code, setSession })
         router.push('/')
       }
