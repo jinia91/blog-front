@@ -23,9 +23,6 @@ export function useLoginWithCodeOfProvider (): void {
           throw new Error('프로바이더가 없습니다')
         }
         const provider = findProvider(providerStr)
-        if (provider == null) {
-          throw new Error('잘못된 프로바이더 입니다')
-        }
         await executeLoginWithCode({ provider, code, setSession })
         router.push('/')
       }
