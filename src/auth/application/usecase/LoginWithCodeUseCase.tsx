@@ -1,13 +1,15 @@
 import { oAuthLogin } from '@/auth/adapter/outbound/api/auth'
 import type { Session } from '@/auth/application/domain/Session'
+import { type Provider } from '@/auth/application/domain/Provider'
 
-interface UteLoginWithCode {
+interface LoginCommand {
+  provider: Provider
   code: string
   setSession: (session: Session) => void
 }
 
-export async function executeLoginWithCode ({ code, setSession }: UteLoginWithCode): Promise<void> {
-  const loginInfo = await oAuthLogin('GOOGLE', code)
+export async function executeLoginWithCode ({ provider, code, setSession }: LoginCommand): Promise<void> {
+  const loginInfo = await oAuthLogin(provider, code)
   if (loginInfo == null) {
     throw new Error('loginInfo 가 없습니다')
   }

@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { executeLoginWithCode } from '@/auth/application/usecase/LoginWithCodeUseCase'
 import { AuthSessionContext } from '@/auth/adapter/provider/AuthSessionProvider'
+import { findProvider } from '@/auth/application/domain/Provider'
 
 export function useLoginWithCodeOfProvider (): void {
   const { session, setSession } = useContext(AuthSessionContext)
@@ -12,12 +13,20 @@ export function useLoginWithCodeOfProvider (): void {
       if (isAlreadyLogin) {
         router.push('/')
       } else {
-        const code = new URL(window.location.href).searchParams.get('code')
-        console.log(code)
+        const url = new URL(window.location.href)
+        const code = url.searchParams.get('code')
+        const providerStr = url.pathname.split('/').pop()
         if (code == null) {
           throw new Error('잘못된 코드 url')
         }
-        await executeLoginWithCode({ code, setSession })
+        if (providerStr == null) {
+          throw new Error('프로바이더가 없습니다')
+        }
+        const provider = findProvider(providerStr)
+        if (provider == null) {
+          throw new Error('잘못된 프로바이더 입니다')
+        }
+        await executeLoginWithCode({ provider, code, setSession })
         router.push('/')
       }
     }
