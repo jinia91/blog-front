@@ -6,16 +6,19 @@ import {
   saveSessionToStorage
 } from '@/auth/infra/localstorage/AuthLocalstorage'
 import { sessionAtom } from '@/auth/infra/atom/Session'
+import { oAuthLogin } from '@/auth/infra/api/Auth'
+import type { Provider } from '@/auth/application/domain/Provider'
 
 export const useSession = (): {
   session: Session | null
-  initializeSession: () => void
+  initializeSession: () => Promise<void>
   updateSession: (newSession: Session | null) => void
   handleLogout: () => Promise<void>
+  executeLoginWithCode: (provider: Provider, code: string) => Promise<void>
 } => {
   const [session, setSession] = useAtom(sessionAtom)
 
-  const initializeSession = (): void => {
+  const initializeSession = async (): Promise<void> => {
     const storedSession = getSessionFromStorage()
     if (storedSession != null) {
       setSession(storedSession)
@@ -39,5 +42,18 @@ export const useSession = (): {
     }
   }
 
-  return { session, initializeSession, updateSession, handleLogout }
+  const executeLoginWithCode = async (provider: Provider, code: string): Promise<void> => {
+    const loginInfo = await oAuthLogin(provider, code)
+    if (loginInfo == null) {
+      throw new Error('loginInfo 가 없습니다')
+    }
+    updateSession({
+      nickName: loginInfo.nickName,
+      email: loginInfo.email,
+      roles: loginInfo.roles,
+      picUrl: loginInfo.picUrl
+    })
+  }
+
+  return { session, initializeSession, updateSession, handleLogout, executeLoginWithCode }
 }

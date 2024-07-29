@@ -5,7 +5,7 @@ import blogMetaData from '@/metadata/blogMetaData'
 import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
 import UiContextProvider from '@/system/adapter/inbound/hook/UiContextProvider'
 import { Provider } from 'jotai'
-import { SessionProvider } from '@/auth/controller/event/SessionProvider'
+import { SessionProvider } from '@/components/auth/SessionProvider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
