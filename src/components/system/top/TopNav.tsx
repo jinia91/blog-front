@@ -4,7 +4,7 @@ import DarkLightToggle from '@/components/system/top/DarkLightToggle'
 import React from 'react'
 import SideBarToggle from '@/components/system/top/SideBarToggle'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
-import SignInAndOutBox from '@/components/system/top/SigninAndOutBox'
+import SigninAndOutButton from '@/components/system/top/SigninAndOutButton'
 
 export default function TopNav (): React.ReactElement {
   return (
@@ -17,7 +17,7 @@ export default function TopNav (): React.ReactElement {
           </span>
         </TabLink>
         <div className="flex items-center">
-          <SignInAndOutBox/>
+          <SigninAndOutButton/>
           <DarkLightToggle/>
         </div>
       </div>

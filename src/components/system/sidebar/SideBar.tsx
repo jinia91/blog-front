@@ -61,8 +61,7 @@ export default function Sidebar (): React.ReactElement {
           {sideBarItems.map(({ name, href, icon: Icon, auth }) => {
             if (auth === Auth.Guest ||
               (auth === Auth.User && session !== null) ||
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-              (auth === Auth.Admin && session?.roles.values().next().value === 'ADMIN')) {
+              (auth === Auth.Admin && session?.roles.values().next().value === Auth.Admin)) {
               return (
                 <TabLink name={name} href={href} key={name}>
                   <li

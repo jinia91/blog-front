@@ -5,7 +5,7 @@ import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
-export default function SignInAndOutBox (): React.ReactElement {
+export default function SigninAndOutButton (): React.ReactElement {
   const { session, handleLogout } = useSession()
   const [showLoginModal, setShowLoginModal] = useState(false)
 
