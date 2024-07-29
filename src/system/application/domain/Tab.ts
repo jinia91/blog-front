@@ -1,9 +1,10 @@
+export enum ApplicationType {
+  MEMO = 'MEMO',
+  COMMON = 'COMMON',
+}
+
 export interface Tab {
   name: string
   urlPath: string
-}
-
-export interface TabsManager {
-  tabs: Tab[]
-  selectedTabIdx: number
+  type?: ApplicationType
 }

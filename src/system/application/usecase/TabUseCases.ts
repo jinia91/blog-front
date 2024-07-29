@@ -10,6 +10,8 @@ export function useTabs (): {
   selectTab: (index: number) => void
   removeTab: (target: number) => void
   setTabs: (newTabs: Tab[]) => void
+  moveTabTo: (from: number, to: number) => void
+  addAndSelectTab: (newTab: Tab) => void
 } {
   const [tabs, setTabs] = useAtom(TabsAtom)
   const [selectedTabIdx, setSelectedTabIdx] = useAtom(SelectedTabIdxAtom)
@@ -39,13 +41,6 @@ export function useTabs (): {
     return tabsList
   }
 
-  function setTabsAtom (newTabs: Tab[], newSelected: number): void {
-    setTabs(newTabs)
-    setSelectedTabIdx(newSelected)
-    localStorage.setItem('tabs', JSON.stringify(newTabs))
-    localStorage.setItem('selectedTabIdx', String(newSelected))
-  }
-
   const selectTab = (index: number): void => {
     setSelectedTabIdx(index)
     localStorage.setItem('selectedTabIdx', String(index))
@@ -68,5 +63,42 @@ export function useTabs (): {
     localStorage.setItem('tabs', JSON.stringify(newTabs))
   }
 
-  return { initializeTabs, tabs, selectTab, selectedTabIdx, removeTab, setTabs: setTabsWithLocalStorage }
+  const moveTabTo = (from: number, to: number): void => {
+    const newTabs = [...tabs]
+    const draggedTab = newTabs[from]
+    newTabs.splice(from, 1)
+    newTabs.splice(to, 0, draggedTab)
+    setTabsAtom(newTabs, to)
+  }
+
+  const addTab = (newTab: Tab): void => {
+    const existingTabIndex = tabs.findIndex(function (tab: Tab) {
+      return tab.urlPath === newTab.urlPath
+    })
+
+    if (existingTabIndex !== -1) {
+      selectTab(existingTabIndex)
+    } else {
+      const updatedTabs = [...tabs, newTab]
+      setTabsAtom(updatedTabs, updatedTabs.length - 1)
+    }
+  }
+
+  function setTabsAtom (newTabs: Tab[], newSelected: number): void {
+    setTabs(newTabs)
+    setSelectedTabIdx(newSelected)
+    localStorage.setItem('tabs', JSON.stringify(newTabs))
+    localStorage.setItem('selectedTabIdx', String(newSelected))
+  }
+
+  return {
+    initializeTabs,
+    tabs,
+    selectTab,
+    selectedTabIdx,
+    removeTab,
+    setTabs: setTabsWithLocalStorage,
+    moveTabTo,
+    addAndSelectTab: addTab
+  }
 }

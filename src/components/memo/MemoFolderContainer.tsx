@@ -5,8 +5,14 @@ import { type MixedSizes, Panel, PanelGroup, PanelResizeHandle } from 'react-res
 import { getLocalStorage, setLocalStorage } from '@/utils/localStorage'
 import { FolderContext, FolderContextProvider } from '@/components/memo/FolderContextProvider'
 import { MemoEditContextProvider } from '@/components/memo/MemoEditContextProvider'
+import SignInPage from '@/components/auth/SignInPage'
+import AdminAccessDenied from '@/components/auth/AccessDeniedPage'
+import { useSession } from '@/auth/application/usecase/SessionUseCases'
+import { Auth } from '@/auth/application/domain/Session'
 
 export default function MemoFolderContainer ({ children }: { children: React.ReactNode }): React.ReactElement {
+  const { session } = useSession()
+
   const { folders } = useContext(FolderContext)
   const onLayout = (layout: MixedSizes[]): void => {
     setLocalStorage('react-resizable-panels:layout', layout)
@@ -31,34 +37,38 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
 
   const [direction, setDirection] = useState<Direction>('horizontal')
 
-  return (
-    <FolderContextProvider>
-      <MemoEditContextProvider>
-        <div className="flex-grow">
-          <PanelGroup
-            direction={direction}
-            className="dos-font"
-            style={{ height: '75vh', overflowY: 'auto' }}
-            onLayout={onLayout}
-          >
-            <Panel
-              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
-              className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
-              minSizePercentage={20}
-            >
-              {children}
-            </Panel>
-            <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
-            <Panel
-              defaultSizePercentage={(defaultLayout != null) ? defaultLayout[1].sizePercentage : 30}
-              className="flex flex-1 overflow-auto"
-              minSizePercentage={20}
-            >{(folders != null) && (<MemoSystemNavigator
-              className="flex flex-1 min-w-0 flex-col"/>)}
-            </Panel>
-          </PanelGroup>
-        </div>
-      </MemoEditContextProvider>
-    </FolderContextProvider>
-  )
+  return (session == null)
+    ? <SignInPage/>
+    : (session.roles.values().next().value === Auth.Admin)
+        ? (
+        <FolderContextProvider>
+          <MemoEditContextProvider>
+            <div className="flex-grow">
+              <PanelGroup
+                direction={direction}
+                className="dos-font"
+                style={{ height: '75vh', overflowY: 'auto' }}
+                onLayout={onLayout}
+              >
+                <Panel
+                  defaultSizePercentage={(defaultLayout != null) ? defaultLayout[0].sizePercentage : 70}
+                  className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
+                  minSizePercentage={20}
+                >
+                  {children}
+                </Panel>
+                <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
+                <Panel
+                  defaultSizePercentage={(defaultLayout != null) ? defaultLayout[1].sizePercentage : 30}
+                  className="flex flex-1 overflow-auto"
+                  minSizePercentage={20}
+                >{(folders != null) && (<MemoSystemNavigator
+                  className="flex flex-1 min-w-0 flex-col"/>)}
+                </Panel>
+              </PanelGroup>
+            </div>
+          </MemoEditContextProvider>
+        </FolderContextProvider>
+          )
+        : <AdminAccessDenied/>
 }

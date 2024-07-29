@@ -1,5 +1,5 @@
 import React from 'react'
-import { useContextMenu } from '@/system/application/usecase/useContextMenu'
+import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
 
 export interface TabContextMenuProps {
   xPos: string
@@ -7,7 +7,7 @@ export interface TabContextMenuProps {
   tabIdx: number
 }
 
-export default function ContextMenu (): React.ReactNode {
+export default function TabContextMenu (): React.ReactNode {
   const { contextMenu, closeOtherTabs, closeContextMenu, removeThisTab, closeAllTabs } = useContextMenu()
   return (
     (contextMenu != null) && (

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import TabLink from '@/components/ui-layout/tap_system/TabLink'
+import TabOpen from '@/components/ui-layout/tap_system/TabOpen'
 import { sideBarItems } from '@/components/system/sidebar/sideBarItems'
 import { Auth } from '@/auth/application/domain/Session'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
@@ -69,7 +69,7 @@ export default function Sidebar (): React.ReactElement {
                        setCollapsed(true)
                      }}
                 >
-                  <TabLink name={name} href={href} key={name}>
+                  <TabOpen name={name} href={href} key={name}>
                     <li
                       className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2"
                     >
@@ -79,7 +79,7 @@ export default function Sidebar (): React.ReactElement {
                   {name}
                     </span>
                     </li>
-                  </TabLink>
+                  </TabOpen>
                 </div>
               )
             }

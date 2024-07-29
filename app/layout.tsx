@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
+import { TapMain } from '@/components/ui-layout/tap_system/TapMain'
 import UiContextProvider from '@/components/system/UiContextProvider'
 import { Provider } from 'jotai'
 import { ContextInitializer } from '@/components/ContextInitializer'
@@ -57,10 +57,10 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <Provider>
       <UiContextProvider>
         <ContextInitializer>
-          <TapRouteMain
+          <TapMain
             page={children}
           >
-          </TapRouteMain>
+          </TapMain>
         </ContextInitializer>
       </UiContextProvider>
     </Provider>

@@ -7,6 +7,7 @@ import React, { useContext } from 'react'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { type Tab } from '@/system/application/domain/Tab'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
@@ -107,8 +108,8 @@ export default function MemoGraph (): React.ReactElement | null {
   const handleNodeClick = (node: any): void => {
     if (isFolder(node)) return
 
-    const existingTabIndex = tabs.findIndex(function (tab: any) {
-      return tab.context === `/memo/${node.id}`
+    const existingTabIndex = tabs.findIndex(function (tab: Tab) {
+      return tab.urlPath === `/memo/${node.id}`
     })
 
     if (existingTabIndex !== -1) {

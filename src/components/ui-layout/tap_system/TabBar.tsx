@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { TabItem } from '@/components/ui-layout/tap_system/TabItem'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
-import { useContextMenu } from '@/system/application/usecase/useContextMenu'
+import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
 
-export function TabBar ({ onSelectTab, onRemoveTab }: {
-  onSelectTab: (index: number) => void
-  onRemoveTab: (index: number) => void
-}): React.ReactElement {
+export function TabBar (): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const { tabs, selectedTabIdx, setTabs, selectTab } = useTabs()
+  const { tabs, selectedTabIdx, selectTab, moveTabTo } = useTabs()
   const { closeContextMenu, setContextMenu } = useContextMenu()
 
   const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
@@ -29,31 +26,39 @@ export function TabBar ({ onSelectTab, onRemoveTab }: {
 
   const handleDragStart = (index: number): void => {
     if (index !== selectedTabIdx) {
-      onSelectTab(index)
+      selectTab(index)
     }
   }
 
   const handleDrop = (droppedIndex: number): void => {
-    const newTabs = [...tabs]
-    const draggedTab = newTabs[selectedTabIdx]
-    newTabs.splice(selectedTabIdx, 1)
-    newTabs.splice(droppedIndex, 0, draggedTab)
-
-    setTabs(newTabs)
-    selectTab(droppedIndex)
+    moveTabTo(selectedTabIdx, droppedIndex)
   }
 
   useEffect(() => {
-    if (scrollContainerRef.current != null) {
-      const containerWidth = scrollContainerRef.current.offsetWidth
-      const selectedTabElement = scrollContainerRef.current.children[selectedTabIdx] as HTMLDivElement
+    function ensureTabInView (): void {
+      if (scrollContainerRef.current != null) {
+        const container = scrollContainerRef.current
+        const selectedTabElement = container.children[selectedTabIdx] as HTMLDivElement
 
-      if (selectedTabElement != null) {
-        const selectedTabOffset = selectedTabElement.offsetLeft
-        const selectedTabWidth = selectedTabElement.offsetWidth
-        scrollContainerRef.current.scrollLeft = selectedTabOffset - (containerWidth / 2) + (selectedTabWidth / 2)
+        if (selectedTabElement != null) {
+          const containerWidth = container.offsetWidth
+          const containerScrollLeft = container.scrollLeft
+          const selectedTabOffset = selectedTabElement.offsetLeft
+          const selectedTabWidth = selectedTabElement.offsetWidth
+
+          const selectedTabEnd = selectedTabOffset + selectedTabWidth
+          const containerEnd = containerScrollLeft + containerWidth
+
+          if (selectedTabOffset < containerScrollLeft) {
+            container.scrollLeft = selectedTabOffset
+          } else if (selectedTabEnd > containerEnd) {
+            container.scrollLeft = selectedTabEnd - containerWidth
+          }
+        }
       }
     }
+
+    ensureTabInView()
   }, [selectedTabIdx, tabs])
 
   useEffect(() => {
@@ -87,8 +92,6 @@ export function TabBar ({ onSelectTab, onRemoveTab }: {
             tab={tab}
             index={idx}
             isSelected={idx === selectedTabIdx}
-            onSelectTab={onSelectTab}
-            onRemoveTab={onRemoveTab}
             onContextMenu={onContextMenu}
             onDragStart={() => {
               handleDragStart(idx)
