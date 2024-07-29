@@ -2,8 +2,8 @@
 
 import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
 import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
-import { createMemo } from '@/outbound/api/memo'
-import { type FolderInfo, type SimpleMemoInfo } from '@/outbound/api/models'
+import { createMemo } from '@/api/memo'
+import { type FolderInfo, type SimpleMemoInfo } from '@/api/models'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
 

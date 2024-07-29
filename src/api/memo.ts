@@ -1,11 +1,11 @@
 import { unstable_noStore as noStore } from 'next/cache'
-import { mainUrl } from '@/outbound/api/host'
-import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/outbound/api/models'
+import { LocalHost } from '@/utils/host'
+import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/api/models'
 import { withAuthRetry } from '@/auth/infra/api/Auth'
 
 export async function createMemo (): Promise<{ memoId: number } | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + '/v1/memos', {
+    return await fetch(LocalHost + '/v1/memos', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -24,7 +24,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
+    return await fetch(LocalHost + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -50,7 +50,7 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
 export async function fetchMemoById (id: string): Promise<Memo | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${id}`,
+    return await fetch(LocalHost + `/v1/memos/${id}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -76,7 +76,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 
 export async function deleteMemoById (id: string): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${id}`, {
+    return await fetch(LocalHost + `/v1/memos/${id}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -100,7 +100,7 @@ export async function deleteMemoById (id: string): Promise<any> {
 export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + '/v1/folders',
+    return await fetch(LocalHost + '/v1/folders',
       {
         cache: 'no-store',
         credentials: 'include',
@@ -126,7 +126,7 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
 export async function createFolder (): Promise<FolderInfo> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + '/v1/folders', {
+    return await fetch(LocalHost + '/v1/folders', {
       credentials: 'include',
       method: 'POST',
       headers: {
@@ -143,7 +143,7 @@ export async function createFolder (): Promise<FolderInfo> {
 
 export async function changeFolderName (folderId: string, toBeName: string): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/folders/${folderId}/name`, {
+    return await fetch(LocalHost + `/v1/folders/${folderId}/name`, {
       credentials: 'include',
       method: 'PUT',
       headers: {
@@ -167,7 +167,7 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
 
 export async function deleteFolderById (folderId: string): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/folders/${folderId}`, {
+    return await fetch(LocalHost + `/v1/folders/${folderId}`, {
       credentials: 'include',
       method: 'DELETE',
       headers: {
@@ -190,7 +190,7 @@ export async function deleteFolderById (folderId: string): Promise<any> {
 
 export async function makeRelationshipWithFolders (childFolderId: string, parentFolderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/folders/${childFolderId}/parent`, {
+    return await fetch(LocalHost + `/v1/folders/${childFolderId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -214,7 +214,7 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
 
 export async function makeRelationshipWithMemoAndFolders (memoId: string, folderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${memoId}/parent`, {
+    return await fetch(LocalHost + `/v1/memos/${memoId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -241,7 +241,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
     const formData = new FormData()
     formData.append('image', imageFile)
     console.log(imageFile)
-    return await fetch(mainUrl + '/v1/media/image', {
+    return await fetch(LocalHost + '/v1/media/image', {
       method: 'POST',
       credentials: 'include',
       body: formData
@@ -262,7 +262,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
 
 export async function fetchSearchResults (query: string): Promise<FolderInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/folders?query=${query}`,
+    return await fetch(LocalHost + `/v1/folders?query=${query}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -287,7 +287,7 @@ export async function fetchSearchResults (query: string): Promise<FolderInfo[] |
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/memos/${memoId}/references`,
+    const response = await fetch(LocalHost + `/v1/memos/${memoId}/references`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -308,7 +308,7 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(mainUrl + `/v1/memos/${memoId}/referenced`,
+    return await fetch(LocalHost + `/v1/memos/${memoId}/referenced`,
       {
         cache: 'no-store',
         credentials: 'include',

@@ -17,9 +17,9 @@ import MDEditor, {
   table,
   type TextAreaTextApi
 } from '@uiw/react-md-editor'
-import { type Memo, type ReferenceInfo } from '@/outbound/api/models'
+import { type Memo, type ReferenceInfo } from '@/api/models'
 import { RelatedMemoModal } from '@/components/memo/memo_editor/RelatedMemoModal'
-import { fetchRelatedMemo, uploadImage } from '@/outbound/api/memo'
+import { fetchRelatedMemo, uploadImage } from '@/api/memo'
 import { TitleInput } from '@/components/memo/memo_editor/MemoTitleEditInput'
 import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
 import { Code } from '@/components/memo/memo_editor/MermaidAndCodeHighlightPlugin'

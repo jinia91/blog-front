@@ -1,13 +1,9 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
-
-export interface Tab {
-  name: string
-  context: string
-}
+import { type Tab } from '@/system/application/domain/Tab'
 
 export function TabItem ({ tab, index, isSelected, onSelectTab, onRemoveTab, onContextMenu, onDragStart, onDrop }: {
-  tab: { name: string, context: string }
+  tab: Tab
   index: number
   isSelected: boolean
   onSelectTab: (index: number) => void

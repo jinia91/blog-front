@@ -1,7 +1,7 @@
-import { mainUrl } from '@/outbound/api/host'
+import { LocalHost } from '@/utils/host'
 
 export async function getOAuthLoginUrl (provider: string): Promise<{ url: string } | null> {
-  const response = await fetch(mainUrl + `/v1/auth/${provider}/url`, {
+  const response = await fetch(LocalHost + `/v1/auth/${provider}/url`, {
     method: 'GET',
     credentials: 'include'
   })
@@ -20,7 +20,7 @@ Promise<{
   picUrl: string
 } | null> {
   try {
-    const response = await fetch(mainUrl + `/v1/auth/${provider}/login`, {
+    const response = await fetch(LocalHost + `/v1/auth/${provider}/login`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ code }),
@@ -40,7 +40,7 @@ Promise<{
 
 export async function refreshTokens (): Promise<boolean> {
   try {
-    const response = await fetch(mainUrl + '/v1/auth/refresh', {
+    const response = await fetch(LocalHost + '/v1/auth/refresh', {
       method: 'POST',
       credentials: 'include'
     })

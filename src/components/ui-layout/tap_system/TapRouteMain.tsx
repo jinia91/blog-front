@@ -6,8 +6,8 @@ import { TabBar } from '@/components/ui-layout/tap_system/TabBar'
 import { RenderPage } from '@/components/ui-layout/tap_system/AppPageRenderer'
 import TopNav from '@/components/system/top/TopNav'
 import SideAppBar from '@/components/system/sidebar/SideBar'
-import { useTabs } from '@/components/ui-layout/tap_system/hook/useTabs'
-import { useContextMenu } from '@/components/ui-layout/tap_system/hook/useContextMenu'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useContextMenu } from '@/system/application/usecase/useContextMenu'
 
 const initialTabStatus = {
   tabs: [],

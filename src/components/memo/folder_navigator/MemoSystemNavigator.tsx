@@ -1,7 +1,7 @@
 'use client'
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
-import { type FolderInfo } from '@/outbound/api/models'
-import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/outbound/api/memo'
+import { type FolderInfo } from '@/api/models'
+import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/api/memo'
 import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
@@ -14,9 +14,9 @@ import {
 } from '@/components/memo/folder_navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
-import { type Tab } from '@/components/ui-layout/tap_system/TabItem'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { type Tab } from '@/system/application/domain/Tab'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders }: {

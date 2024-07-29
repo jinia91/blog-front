@@ -4,7 +4,7 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import moon from '../../../../public/moon.png'
 import sun from '../../../../public/sun.png'
-import CommonModal from '@/components/ui-layout/common/CommonModal'
+import CommonModal from '@/components/system/common/CommonModal'
 
 export default function DarkLightToggle (): React.ReactElement | null {
   const [mounted, setMounted] = useState(false)

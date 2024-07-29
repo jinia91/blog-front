@@ -1,9 +1,9 @@
-import { type FolderInfo } from '@/outbound/api/models'
+import { type FolderInfo } from '@/api/models'
 import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
-import { fetchSearchResults } from '@/outbound/api/memo'
+import { fetchSearchResults } from '@/api/memo'
 
 export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVisible }: {
   foldersRef: FolderInfo[]

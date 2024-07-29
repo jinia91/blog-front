@@ -17,14 +17,6 @@ export const useSession = (): {
   executeLoginWithCode: (provider: Provider, code: string) => Promise<void>
 } => {
   const [session, setSession] = useAtom(sessionAtom)
-
-  const initializeSession = async (): Promise<void> => {
-    const storedSession = getSessionFromStorage()
-    if (storedSession != null) {
-      setSession(storedSession)
-    }
-  }
-
   const updateSession = (newSession: Session | null): void => {
     if (newSession !== null) {
       saveSessionToStorage(newSession)
@@ -39,6 +31,13 @@ export const useSession = (): {
       updateSession(null)
     } catch (error) {
       console.error('Failed to logout:', error)
+    }
+  }
+
+  const initializeSession = async (): Promise<void> => {
+    const storedSession = getSessionFromStorage()
+    if (storedSession != null) {
+      setSession(storedSession)
     }
   }
 

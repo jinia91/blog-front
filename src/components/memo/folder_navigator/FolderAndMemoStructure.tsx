@@ -1,5 +1,5 @@
 'use client'
-import { type FolderInfo } from '@/outbound/api/models'
+import { type FolderInfo } from '@/api/models'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import FolderItem from '@/components/memo/folder_navigator/FolderItem'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
