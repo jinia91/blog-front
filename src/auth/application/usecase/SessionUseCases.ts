@@ -1,12 +1,7 @@
 import { useAtom } from 'jotai'
 import { type Session } from '@/auth/application/domain/Session'
-import {
-  getSessionFromStorage,
-  removeSessionFromStorage,
-  saveSessionToStorage
-} from '@/auth/infra/localstorage/AuthLocalstorage'
 import { sessionAtom } from '@/auth/infra/atom/Session'
-import { oAuthLogin } from '@/auth/infra/api/Auth'
+import { oAuthLogin, refreshTokens } from '@/auth/infra/api/Auth'
 import type { Provider } from '@/auth/application/domain/Provider'
 
 export const useSession = (): {
@@ -17,12 +12,13 @@ export const useSession = (): {
   executeLoginWithCode: (provider: Provider, code: string) => Promise<void>
 } => {
   const [session, setSession] = useAtom(sessionAtom)
+  const initializeSession = async (): Promise<void> => {
+    const refreshedSession = await refreshTokens()
+    console.log('세션:', refreshedSession)
+    setSession(refreshedSession)
+  }
+
   const updateSession = (newSession: Session | null): void => {
-    if (newSession !== null) {
-      saveSessionToStorage(newSession)
-    } else {
-      removeSessionFromStorage()
-    }
     setSession(newSession)
   }
 
@@ -31,13 +27,6 @@ export const useSession = (): {
       updateSession(null)
     } catch (error) {
       console.error('Failed to logout:', error)
-    }
-  }
-
-  const initializeSession = async (): Promise<void> => {
-    const storedSession = getSessionFromStorage()
-    if (storedSession != null) {
-      setSession(storedSession)
     }
   }
 

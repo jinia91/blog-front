@@ -19,56 +19,46 @@ Promise<{
   roles: Set<string>
   picUrl: string
 } | null> {
-  try {
-    const response = await fetch(LocalHost + `/v1/auth/${provider}/login`, {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify({ code }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
+  const response = await fetch(LocalHost + `/v1/auth/${provider}/login`, {
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify({ code }),
+    headers: {
+      'Content-Type': 'application/json'
     }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  })
+  if (!response.ok) {
+    console.error(response.statusText)
     return null
   }
+  return await response.json()
 }
 
-export async function refreshTokens (): Promise<boolean> {
-  try {
-    const response = await fetch(LocalHost + '/v1/auth/refresh', {
-      method: 'POST',
-      credentials: 'include'
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    await response.json()
-    return true
-  } catch (error) {
-    console.error('Error fetching memo:', error)
-    return false
+export async function refreshTokens (): Promise<{
+  nickName: string
+  email: string
+  roles: Set<string>
+  picUrl: string
+} | null> {
+  const response = await fetch(LocalHost + '/v1/auth/refresh', {
+    method: 'POST',
+    credentials: 'include'
+  })
+  if (!response.ok) {
+    console.error(response.statusText)
+    return null
   }
+  return await response.json()
 }
 
 export async function withAuthRetry (apiFunction: () => Promise<Response>): Promise<Response> {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const response = await apiFunction()
-    if (response.status === 401) {
-      const refreshResult = await refreshTokens()
-      console.log('refreshResult', refreshResult)
-      if (!refreshResult) {
-        throw new Error('Unable to refresh tokens')
-      }
-      return await apiFunction()
+  const response = await apiFunction()
+  if (response.status === 401) {
+    const refreshResult = await refreshTokens()
+    if (refreshResult == null) {
+      throw new Error('리프레시 토큰이 만료되었습니다')
     }
-    return response
-  } catch (error) {
-    throw error
+    return await apiFunction()
   }
+  return response
 }
