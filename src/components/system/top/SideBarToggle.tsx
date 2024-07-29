@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import Image from 'next/image'
-import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
+import { SidebarContext } from '@/components/system/sidebar/SiderBarProvider'
 import menu from '../../../../public/menu.png'
 
 export default function SideBarToggle (): React.ReactElement {

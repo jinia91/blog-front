@@ -2,7 +2,7 @@ import React from 'react'
 import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
 import CommonModal from '@/components/ui-layout/common/CommonModal'
-import { LoginButton } from '@/auth/components/LoginButton'
+import { LoginButton } from '@/components/auth/LoginButton'
 import { Provider } from '@/auth/application/domain/Provider'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 

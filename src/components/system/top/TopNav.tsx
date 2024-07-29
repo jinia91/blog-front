@@ -1,10 +1,10 @@
 'use client'
 
-import DarkLightToggle from '@/components/ui-layout/top/DarkLightToggle'
+import DarkLightToggle from '@/components/system/top/DarkLightToggle'
 import React from 'react'
-import SideBarToggle from '@/components/ui-layout/top/SideBarToggle'
+import SideBarToggle from '@/components/system/top/SideBarToggle'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
-import SignInAndOutBox from '@/components/ui-layout/top/SigninAndOutBox'
+import SignInAndOutBox from '@/components/system/top/SigninAndOutBox'
 
 export default function TopNav (): React.ReactElement {
   return (

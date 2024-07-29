@@ -2,8 +2,8 @@
 
 import React, { useContext, useEffect } from 'react'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
-import { sideBarItems } from '@/components/ui-layout/sidebar/sideBarItems'
-import { SidebarContext } from '@/components/ui-layout/sidebar/SiderBarProvider'
+import { sideBarItems } from '@/components/system/sidebar/sideBarItems'
+import { SidebarContext } from '@/components/system/sidebar/SiderBarProvider'
 import { Auth } from '@/auth/application/domain/Session'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 

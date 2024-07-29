@@ -1,6 +1,6 @@
 import React from 'react'
-import SignInPage from '@/auth/components/SignInPage'
-import AdminAccessDenied from '@/auth/components/AccessDeniedPage'
+import SignInPage from '@/components/auth/SignInPage'
+import AdminAccessDenied from '@/components/auth/AccessDeniedPage'
 import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 

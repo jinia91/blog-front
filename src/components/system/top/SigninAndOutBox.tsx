@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import SignInModal from '@/auth/components/SignInModal'
+import SignInModal from '@/components/auth/SignInModal'
 import Image from 'next/image'
 import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
