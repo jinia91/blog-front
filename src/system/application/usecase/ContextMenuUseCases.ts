@@ -1,4 +1,4 @@
-import { type TabContextMenuProps } from '@/components/ui-layout/tap_system/TabContextMenu'
+import { type TabContextMenuProps } from '@/components/system/tap_system/TabContextMenu'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 import { useAtom } from 'jotai'
 import { TabContextManagerAtom } from '@/system/infra/atom/TabContextManagerAtom'

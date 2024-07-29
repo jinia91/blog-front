@@ -13,11 +13,8 @@ export const ContextInitializer = ({ children }: { children: React.ReactNode }):
   const { isGlobalPending } = useGlobalPending()
   useEffect(() => {
     initializeSession().then(() => {
-      initializeTabs(path).then(() => {
-        setMounted(true)
-      }).catch(error => {
-        console.error('탭 초기화 실패:', error)
-      })
+      initializeTabs(path)
+      setMounted(true)
     }).catch(error => {
       console.error('세션 초기화 실패:', error)
     })

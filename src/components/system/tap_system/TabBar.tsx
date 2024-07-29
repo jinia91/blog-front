@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { TabItem } from '@/components/ui-layout/tap_system/TabItem'
+import { TabItem } from '@/components/system/tap_system/TabItem'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
 

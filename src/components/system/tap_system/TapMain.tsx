@@ -1,34 +1,24 @@
 'use client'
 import React, { useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import TabContextMenu from '@/components/ui-layout/tap_system/TabContextMenu'
-import { TabBar } from '@/components/ui-layout/tap_system/TabBar'
-import { RenderApp } from '@/components/ui-layout/tap_system/AppPageRenderer'
+import { useRouter } from 'next/navigation'
+import TabContextMenu from '@/components/system/tap_system/TabContextMenu'
+import { TabBar } from '@/components/system/tap_system/TabBar'
+import { RenderApp } from '@/components/system/tap_system/AppPageRenderer'
 import TopNav from '@/components/system/top/TopNav'
 import SideAppBar from '@/components/system/sidebar/SideBar'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 
 const TapMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
-  const path = usePathname()
   const router = useRouter()
-  const {
-    tabs,
-    selectedTabIdx
-  } = useTabs()
+  const { tabs } = useTabs()
+  console.log('TapMain 렌더링 횟수 체크')
+  console.log('탭 메인의 tabs:', tabs)
 
   useEffect(() => {
-    const routePage = (): void => {
-      if (tabs.length === 0) {
-        router.push('/empty')
-        return
-      }
-      const selectedTab = tabs[selectedTabIdx]
-      if (selectedTab?.urlPath !== path) {
-        router.push(selectedTab.urlPath)
-      }
+    if (tabs.length === 0) {
+      router.push('/empty')
     }
-    routePage()
-  }, [path, selectedTabIdx, tabs])
+  }, [tabs])
 
   return (
     <>

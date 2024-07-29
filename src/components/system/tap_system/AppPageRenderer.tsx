@@ -8,6 +8,7 @@ export function RenderApp ({ page }: {
 }): React.ReactElement | null {
   const { tabs } = useTabs()
   const path = usePathname()
+  console.log('RenderApp 렌더링 횟수 체크')
 
   function isEmpty (): boolean {
     return tabs.length === 0 || (path === '/empty')

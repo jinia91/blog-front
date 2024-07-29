@@ -4,7 +4,7 @@ import { useAtom } from 'jotai'
 import { SelectedTabIdxAtom, TabsAtom } from '@/system/infra/atom/TabManagerAtom'
 
 export function useTabs (): {
-  initializeTabs: (path: string) => Promise<void>
+  initializeTabs: (path: string) => void
   tabs: Tab[]
   selectedTabIdx: number
   selectTab: (index: number) => void
@@ -16,7 +16,7 @@ export function useTabs (): {
   const [tabs, setTabs] = useAtom(TabsAtom)
   const [selectedTabIdx, setSelectedTabIdx] = useAtom(SelectedTabIdxAtom)
 
-  const initializeTabs = async (path: string): Promise<void> => {
+  const initializeTabs = (path: string): void => {
     const tabsList = restoreTabsFromLocalStorage()
     const newTabs = rebuildTabs(path, tabsList)
     const tabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === path)

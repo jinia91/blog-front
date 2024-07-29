@@ -13,9 +13,11 @@ export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
   const { tabs, setTabs, selectTab } = useTabs()
+  console.log('MemoGraph 렌더링 체크 1')
   if (folders == null || isReferenceMode || folders[0].id === 1) {
     return null
   }
+  console.log('MemoGraph 렌더링 체크 2')
   const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
@@ -121,6 +123,7 @@ export default function MemoGraph (): React.ReactElement | null {
       selectTab(updatedTabs.length - 1)
     }
   }
+  console.log('MemoGraph 렌더링 체크 3')
 
   return (
     <div>
