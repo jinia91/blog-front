@@ -3,7 +3,7 @@ import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
 import { TapRouteMain } from '@/components/ui-layout/tap_system/TapRouteMain'
-import UiContextProvider from '@/system/adapter/inbound/hook/UiContextProvider'
+import UiContextProvider from '@/components/system/UiContextProvider'
 import { Provider } from 'jotai'
 import { SessionProvider } from '@/components/auth/SessionProvider'
 
