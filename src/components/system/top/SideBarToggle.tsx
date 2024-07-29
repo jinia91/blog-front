@@ -1,10 +1,10 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import Image from 'next/image'
-import { SidebarContext } from '@/components/system/sidebar/SiderBarProvider'
 import menu from '../../../../public/menu.png'
+import { useSideBar } from '@/system/application/usecase/SideBarUseCases'
 
 export default function SideBarToggle (): React.ReactElement {
-  const { toggleSideBarCollapse } = useContext(SidebarContext)
+  const { toggleSideBarCollapse } = useSideBar()
   return (
     <div className="md:hidden">
       <button

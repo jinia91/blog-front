@@ -1,17 +1,17 @@
 'use client'
 
-import React, { useContext, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import TabLink from '@/components/ui-layout/tap_system/TabLink'
 import { sideBarItems } from '@/components/system/sidebar/sideBarItems'
-import { SidebarContext } from '@/components/system/sidebar/SiderBarProvider'
 import { Auth } from '@/auth/application/domain/Session'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
+import { useSideBar } from '@/system/application/usecase/SideBarUseCases'
 
 export default function Sidebar (): React.ReactElement {
   const { isCollapsed, toggleSideBarCollapse }: {
     isCollapsed: boolean
     toggleSideBarCollapse: () => void
-  } = useContext(SidebarContext)
+  } = useSideBar()
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
   const { session } = useSession()

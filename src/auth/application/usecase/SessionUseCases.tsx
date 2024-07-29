@@ -1,19 +1,19 @@
-import { atom, useAtom } from 'jotai'
+import { useAtom } from 'jotai'
 import { type Session } from '@/auth/application/domain/Session'
 import {
   getSessionFromStorage,
   removeSessionFromStorage,
   saveSessionToStorage
-} from '@/auth/adapter/outbound/localstorage/auth-localstorage'
-
-const sessionUseCases = atom<Session | null>(null)
+} from '@/auth/infra/localstorage/AuthLocalstorage'
+import { sessionAtom } from '@/auth/infra/atom/Session'
 
 export const useSession = (): {
   session: Session | null
   initializeSession: () => void
   updateSession: (newSession: Session | null) => void
+  handleLogout: () => Promise<void>
 } => {
-  const [session, setSession] = useAtom(sessionUseCases)
+  const [session, setSession] = useAtom(sessionAtom)
 
   const initializeSession = (): void => {
     const storedSession = getSessionFromStorage()
@@ -31,5 +31,13 @@ export const useSession = (): {
     setSession(newSession)
   }
 
-  return { session, initializeSession, updateSession }
+  const handleLogout = async (): Promise<void> => {
+    try {
+      updateSession(null)
+    } catch (error) {
+      console.error('Failed to logout:', error)
+    }
+  }
+
+  return { session, initializeSession, updateSession, handleLogout }
 }

@@ -1,4 +1,4 @@
-import { oAuthLogin } from '@/auth/adapter/outbound/api/auth'
+import { oAuthLogin } from '@/auth/infra/api/Auth'
 import type { Session } from '@/auth/application/domain/Session'
 import { type Provider } from '@/auth/application/domain/Provider'
 

@@ -6,15 +6,8 @@ import logout from '../../../../public/logout.png'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export default function SignInAndOutBox (): React.ReactElement {
-  const { session, updateSession } = useSession()
+  const { session, handleLogout } = useSession()
   const [showLoginModal, setShowLoginModal] = useState(false)
-  const handleLogout = async (): Promise<void> => {
-    try {
-      updateSession(null)
-    } catch (error) {
-      console.error('Failed to logout:', error)
-    }
-  }
 
   const toggleLoginModal = (): void => {
     setShowLoginModal(!showLoginModal)

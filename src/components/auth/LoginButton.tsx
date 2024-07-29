@@ -1,6 +1,6 @@
 import React from 'react'
 import { type Provider } from '@/auth/application/domain/Provider'
-import { handleAuthLoginRequest } from '@/auth/adapter/inbound/controller/AuthLoginRequestHandler'
+import { handleAuthLoginRequest } from '@/auth/controller/handler/AuthLoginRequestHandler'
 
 interface LoginButtonProps {
   className?: string
