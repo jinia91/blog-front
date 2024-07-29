@@ -1,66 +1,53 @@
-import type React from 'react'
-import { useCallback, useEffect, useState } from 'react'
 import { type TabContextMenuProps } from '@/components/ui-layout/tap_system/TabContextMenu'
-import { type Tab } from '@/system/application/domain/Tab'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useAtom } from 'jotai'
+import { TabContextManagerAtom } from '@/system/infra/atom/TabContextManagerAtom'
 
-export function useContextMenu ({ setTabs, setSelectedTabIdx, removeTab }: {
-  setTabs: (React.Dispatch<React.SetStateAction<Tab[]>>)
-  setSelectedTabIdx: React.Dispatch<React.SetStateAction<number>>
-  removeTab: (target: number) => void
-}): {
-    contextMenu: TabContextMenuProps | null
-    closeContextMenu: () => void
-    handleContextMenu: (event: React.MouseEvent<HTMLDivElement>, idx: number) => void
-    closeAllTabs: () => void
-    closeOtherTabs: () => void
-    removeTabCallback: () => void
-  } {
-  const [contextMenu, setContextMenu] = useState<TabContextMenuProps | null>(null)
+export function useContextMenu (): {
+  contextMenu: TabContextMenuProps | null
+  closeContextMenu: () => void
+  closeAllTabs: () => void
+  closeOtherTabs: () => void
+  removeThisTab: () => void
+  setContextMenu: (contextMenu: TabContextMenuProps | null) => void
+} {
+  const {
+    tabs,
+    selectedTabIdx,
+    selectTab,
+    removeTab,
+    setTabs
+  } = useTabs()
 
-  const closeContextMenu = useCallback(() => {
+  const [contextMenu, setContextMenu] = useAtom(TabContextManagerAtom)
+
+  const closeContextMenu = (): void => {
     setContextMenu(null)
-  }, [])
+  }
 
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
-    event.preventDefault()
-    setContextMenu({
-      xPos: `${event.pageX}px`,
-      yPos: `${event.pageY}px`,
-      tabIdx: idx
-    })
-  }, [])
+  const closeOtherTabs = (): void => {
+    const newTabs = [tabs[selectedTabIdx]]
+    setTabs(newTabs)
+    selectTab(0)
+  }
 
-  const closeAllTabs = useCallback(() => {
+  const closeAllTabs = (): void => {
     setTabs([])
-    setSelectedTabIdx(0)
-  }, [setTabs, setSelectedTabIdx])
+    selectTab(0)
+  }
 
-  const closeOtherTabs = useCallback(() => {
-    if (contextMenu !== null) {
-      setTabs(tabs => tabs.filter((_, idx) => idx === contextMenu.tabIdx))
-      setSelectedTabIdx(0)
-    }
-  }, [setTabs, setSelectedTabIdx, contextMenu])
-
-  const removeTabCallback = useCallback(() => {
-    if (contextMenu !== null) {
+  const removeThisTab = (): void => {
+    if (contextMenu != null) {
       removeTab(contextMenu.tabIdx)
     }
-  }, [removeTab, contextMenu])
-
-  useEffect(() => {
-    document.addEventListener('click', closeContextMenu)
-    return () => {
-      document.removeEventListener('click', closeContextMenu)
-    }
-  }, [closeContextMenu])
+  }
 
   return {
     contextMenu,
     closeContextMenu,
-    handleContextMenu,
     closeAllTabs,
     closeOtherTabs,
-    removeTabCallback
+    removeThisTab,
+    setContextMenu
   }
 }

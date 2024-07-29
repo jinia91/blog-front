@@ -1,20 +1,31 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { TabItem } from '@/components/ui-layout/tap_system/TabItem'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
-import { type Tab } from '@/system/application/domain/Tab'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useContextMenu } from '@/system/application/usecase/useContextMenu'
 
-export function TabBar ({ onSelectTab, onRemoveTab, onContextMenu }: {
+export function TabBar ({ onSelectTab, onRemoveTab }: {
   onSelectTab: (index: number) => void
   onRemoveTab: (index: number) => void
-  onContextMenu: (event: React.MouseEvent<HTMLDivElement>, index: number) => void
 }): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx }: {
-    tabs: Tab[]
-    selectedTabIdx: number
-    setTabs: (tabs: Tab[]) => void
-    setSelectedTabIdx: (index: number) => void
-  } = useContext(TabBarContext)
+  const { tabs, selectedTabIdx, setTabs, selectTab } = useTabs()
+  const { closeContextMenu, setContextMenu } = useContextMenu()
+
+  const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
+    event.preventDefault()
+    setContextMenu({
+      xPos: `${event.pageX}px`,
+      yPos: `${event.pageY}px`,
+      tabIdx: idx
+    })
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('click', closeContextMenu)
+    return () => {
+      document.removeEventListener('click', closeContextMenu)
+    }
+  }, [closeContextMenu])
 
   const handleDragStart = (index: number): void => {
     if (index !== selectedTabIdx) {
@@ -29,7 +40,7 @@ export function TabBar ({ onSelectTab, onRemoveTab, onContextMenu }: {
     newTabs.splice(droppedIndex, 0, draggedTab)
 
     setTabs(newTabs)
-    setSelectedTabIdx(droppedIndex)
+    selectTab(droppedIndex)
   }
 
   useEffect(() => {
@@ -50,12 +61,12 @@ export function TabBar ({ onSelectTab, onRemoveTab, onContextMenu }: {
       if (event.metaKey && (event.key === 'ArrowLeft')) {
         event.preventDefault()
         const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
-        setSelectedTabIdx(newSelectedIdx)
+        selectTab(newSelectedIdx)
       }
       if (event.metaKey && (event.key === 'ArrowRight')) {
         event.preventDefault()
         const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
-        setSelectedTabIdx(newSelectedIdx)
+        selectTab(newSelectedIdx)
       }
     }
 

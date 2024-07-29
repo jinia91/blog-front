@@ -4,14 +4,14 @@ import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
-  const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
+  const { tabs, setTabs, selectTab } = useTabs()
   if (folders == null || isReferenceMode || folders[0].id === 1) {
     return null
   }
@@ -112,12 +112,12 @@ export default function MemoGraph (): React.ReactElement | null {
     })
 
     if (existingTabIndex !== -1) {
-      setSelectedTabIdx(existingTabIndex)
+      selectTab(existingTabIndex)
     } else {
-      const newTab = { name: node.name ?? 'untitled', context: `/memo/${node.id}` }
+      const newTab = { name: node.name ?? 'untitled', urlPath: `/memo/${node.id}` }
       const updatedTabs = [...tabs, newTab]
       setTabs(updatedTabs)
-      setSelectedTabIdx(updatedTabs.length - 1)
+      selectTab(updatedTabs.length - 1)
     }
   }
 

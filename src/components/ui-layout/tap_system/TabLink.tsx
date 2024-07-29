@@ -1,15 +1,15 @@
 'use client'
 
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
 
 export default function TabLink ({ name, href, children }: {
   name: string
   href: string
   children: React.ReactNode
 }): React.ReactElement {
-  const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
+  const { tabs, setTabs, selectTab } = useTabs()
   const { setUnderwritingId } = useContext(MemoEditContext)
   const isMemoTab = href.startsWith('/memo/')
 
@@ -23,12 +23,12 @@ export default function TabLink ({ name, href, children }: {
     })
 
     if (existingTabIndex !== -1) {
-      setSelectedTabIdx(existingTabIndex)
+      selectTab(existingTabIndex)
     } else {
-      const newTab = { name, context: href }
+      const newTab = { name, urlPath: href }
       const updatedTabs = [...tabs, newTab]
       setTabs(updatedTabs)
-      setSelectedTabIdx(updatedTabs.length - 1)
+      selectTab(updatedTabs.length - 1)
     }
   }
 

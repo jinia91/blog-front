@@ -43,7 +43,7 @@ export function TabItem ({ tab, index, isSelected, onSelectTab, onRemoveTab, onC
         onDrop={(e) => {
           handleDrop(e, index)
         }}
-        href={tab.context}
+        href={tab.urlPath}
         onClick={() => {
           onSelectTab(index)
         }}

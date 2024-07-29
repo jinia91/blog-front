@@ -1,4 +1,5 @@
 import React from 'react'
+import { useContextMenu } from '@/system/application/usecase/useContextMenu'
 
 export interface TabContextMenuProps {
   xPos: string
@@ -6,13 +7,8 @@ export interface TabContextMenuProps {
   tabIdx: number
 }
 
-export default function renderContextMenu (
-  contextMenu: any,
-  closeContextMenu: any,
-  removeTabCallback: any,
-  closeOtherTabs: any,
-  closeAllTabs: any
-): React.ReactNode {
+export default function ContextMenu (): React.ReactNode {
+  const { contextMenu, closeOtherTabs, closeContextMenu, removeThisTab, closeAllTabs } = useContextMenu()
   return (
     (contextMenu != null) && (
       <>
@@ -36,9 +32,21 @@ export default function renderContextMenu (
             zIndex: 1000
           }}
         >
-          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={removeTabCallback}>닫기</li>
-          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={closeOtherTabs}>다른 탭 닫기</li>
-          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={closeAllTabs}>모든 탭 닫기</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
+            removeThisTab()
+            closeContextMenu()
+          }}>닫기
+          </li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
+            closeOtherTabs()
+            closeContextMenu()
+          }}>다른 탭 닫기
+          </li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
+            closeAllTabs()
+            closeContextMenu()
+          }}>모든 탭 닫기
+          </li>
         </ul>
       </>
     ))

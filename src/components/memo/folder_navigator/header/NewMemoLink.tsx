@@ -1,28 +1,28 @@
 'use client'
 
-import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
+import React, { type Dispatch, type SetStateAction, useEffect } from 'react'
 import { createMemo } from '@/api/memo'
 import { type FolderInfo, type SimpleMemoInfo } from '@/api/models'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
 
 export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
   name: string
   foldersRef: FolderInfo[]
   setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
 }): React.ReactElement {
-  const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
+  const { tabs, setTabs, selectTab } = useTabs()
   const createNewMemo = async (): Promise<void> => {
     const memo = await createMemo()
     if (memo == null) {
       return
     }
     const newHref = `/memo/${memo.memoId}`
-    const newTab = { name, context: newHref }
+    const newTab = { name, urlPath: newHref }
     const updatedTabs = [...tabs, newTab]
     setTabs(updatedTabs)
-    setSelectedTabIdx(updatedTabs.length - 1)
+    selectTab(updatedTabs.length - 1)
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
     const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
     const newUnCategoryFolder: FolderInfo = (unCategoryFolder != null)

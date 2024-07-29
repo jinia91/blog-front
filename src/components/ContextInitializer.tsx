@@ -2,14 +2,22 @@
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 import React, { useEffect } from 'react'
 import { useGlobalPending } from '@/system/application/usecase/GlobalPendingUseCases'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { usePathname } from 'next/navigation'
 
-export const SessionProvider = ({ children }: { children: React.ReactNode }): React.ReactElement | null => {
+export const ContextInitializer = ({ children }: { children: React.ReactNode }): React.ReactElement | null => {
+  const path = usePathname()
   const { initializeSession } = useSession()
+  const { initializeTabs } = useTabs()
   const [mounted, setMounted] = React.useState(false)
   const { isGlobalPending } = useGlobalPending()
   useEffect(() => {
     initializeSession().then(() => {
-      setMounted(true)
+      initializeTabs(path).then(() => {
+        setMounted(true)
+      }).catch(error => {
+        console.error('탭 초기화 실패:', error)
+      })
     }).catch(error => {
       console.error('세션 초기화 실패:', error)
     })

@@ -1,4 +1,9 @@
 export interface Tab {
   name: string
-  context: string
+  urlPath: string
+}
+
+export interface TabsManager {
+  tabs: Tab[]
+  selectedTabIdx: number
 }
