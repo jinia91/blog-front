@@ -8,8 +8,9 @@ import { useSession } from '@/auth/application/usecase/SessionUseCases'
 import { useSideBar } from '@/system/application/usecase/SideBarUseCases'
 
 export default function Sidebar (): React.ReactElement {
-  const { isCollapsed, toggleSideBarCollapse }: {
+  const { isCollapsed, setCollapsed, toggleSideBarCollapse }: {
     isCollapsed: boolean
+    setCollapsed: (isCollapsed: boolean) => void
     toggleSideBarCollapse: () => void
   } = useSideBar()
   const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
@@ -34,11 +35,11 @@ export default function Sidebar (): React.ReactElement {
       <aside className="p-4 h-full">
         <div className={'pt-2 pb-4 mb-4 border-b border-gray-300 flex justify-between items-center truncate'}>
           <div
-            className={`cursor-pointer ${overlayStyle}`}
+            className={'cursor-pointer'}
             onClick={toggleSideBarCollapse}
           >
             <span
-              className={` text-3xl ${overlayStyle} transition-all duration-300:ease-in-out pb-1 pr-1 pl-1 rounded-xl border-2`}
+              className={' text-3xl transition-all duration-300:ease-in-out pb-1 pr-1 pl-1 rounded-xl border-2'}
             >
             {'>_'}
             </span>
@@ -57,23 +58,29 @@ export default function Sidebar (): React.ReactElement {
             </button>
           )}
         </div>
-        <ul className={`list-none ${overlayStyle}`}>
+        <ul className={'list-none'}>
           {sideBarItems.map(({ name, href, icon: Icon, auth }) => {
             if (auth === Auth.Guest ||
               (auth === Auth.User && session !== null) ||
               (auth === Auth.Admin && session?.roles.values().next().value === Auth.Admin)) {
               return (
-                <TabLink name={name} href={href} key={name}>
-                  <li
-                    className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2"
-                  >
-                    <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
-                    <span
-                      className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
+                <div key={name}
+                     onClick={() => {
+                       setCollapsed(true)
+                     }}
+                >
+                  <TabLink name={name} href={href} key={name}>
+                    <li
+                      className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2"
+                    >
+                      <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                      <span
+                        className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
                   {name}
-                </span>
-                  </li>
-                </TabLink>
+                    </span>
+                    </li>
+                  </TabLink>
+                </div>
               )
             }
             return null

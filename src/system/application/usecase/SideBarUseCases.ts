@@ -3,13 +3,14 @@ import { SideBarAtom } from '@/system/infra/atom/SideBarAtom'
 
 export const useSideBar = (): {
   isCollapsed: boolean
+  setCollapsed: (value: boolean) => void
   toggleSideBarCollapse: () => void
 } => {
-  const [isCollapsed, setSideBar] = useAtom(SideBarAtom)
+  const [isCollapsed, setCollapsed] = useAtom(SideBarAtom)
 
   const toggleSideBarCollapse = (): void => {
-    setSideBar(!isCollapsed)
+    setCollapsed(!isCollapsed)
   }
 
-  return { isCollapsed, toggleSideBarCollapse }
+  return { isCollapsed, setCollapsed, toggleSideBarCollapse }
 }
