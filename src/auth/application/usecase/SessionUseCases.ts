@@ -14,7 +14,6 @@ export const useSession = (): {
   const [session, setSession] = useAtom(sessionAtom)
   const initializeSession = async (): Promise<void> => {
     const refreshedSession = await refreshTokens()
-    console.log('세션:', refreshedSession)
     setSession(refreshedSession)
   }
 

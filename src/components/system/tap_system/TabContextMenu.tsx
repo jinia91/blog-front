@@ -9,6 +9,7 @@ export interface TabContextMenuProps {
 
 export default function TabContextMenu (): React.ReactNode {
   const { contextMenu, closeOtherTabs, closeContextMenu, removeThisTab, closeAllTabs } = useContextMenu()
+
   return (
     (contextMenu != null) && (
       <>

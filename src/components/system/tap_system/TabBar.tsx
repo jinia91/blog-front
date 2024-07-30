@@ -1,28 +1,27 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { TabItem } from '@/components/system/tap_system/TabItem'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
-import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
+import { usePathname, useRouter } from 'next/navigation'
 
 export function TabBar (): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { tabs, selectedTabIdx, selectTab, moveTabTo } = useTabs()
-  const { closeContextMenu, setContextMenu } = useContextMenu()
-
-  const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
-    event.preventDefault()
-    setContextMenu({
-      xPos: `${event.pageX}px`,
-      yPos: `${event.pageY}px`,
-      tabIdx: idx
-    })
-  }, [])
+  const router = useRouter()
+  const path = usePathname()
 
   useEffect(() => {
-    document.addEventListener('click', closeContextMenu)
-    return () => {
-      document.removeEventListener('click', closeContextMenu)
+    const routePage = (): void => {
+      if (tabs.length === 0) {
+        router.push('/empty')
+        return
+      }
+      const selectedTab = tabs[selectedTabIdx]
+      if (selectedTab?.urlPath !== path) {
+        router.push(selectedTab.urlPath)
+      }
     }
-  }, [closeContextMenu])
+    routePage()
+  }, [tabs, selectedTabIdx])
 
   const handleDragStart = (index: number): void => {
     if (index !== selectedTabIdx) {
@@ -92,7 +91,6 @@ export function TabBar (): React.ReactElement {
             tab={tab}
             index={idx}
             isSelected={idx === selectedTabIdx}
-            onContextMenu={onContextMenu}
             onDragStart={() => {
               handleDragStart(idx)
             }}

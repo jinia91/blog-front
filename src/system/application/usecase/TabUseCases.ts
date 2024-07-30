@@ -11,20 +11,21 @@ export function useTabs (): {
   removeTab: (target: number) => void
   setTabs: (newTabs: Tab[]) => void
   moveTabTo: (from: number, to: number) => void
-  addAndSelectTab: (newTab: Tab) => void
+  upsertAndSelectTab: (newTab: Tab) => void
 } {
   const [tabs, setTabs] = useAtom(TabsAtom)
   const [selectedTabIdx, setSelectedTabIdx] = useAtom(SelectedTabIdxAtom)
 
   const initializeTabs = (path: string): void => {
     const tabsList = restoreTabsFromLocalStorage()
-    const newTabs = rebuildTabs(path, tabsList)
+    const newTabs = rebuildTabsWithPath(path, tabsList)
     const tabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === path)
     const newSelected = tabIndex >= 0 ? tabIndex : 0
     setTabsAtom(newTabs, newSelected)
   }
 
-  function rebuildTabs (path: string, tabsList: Tab[]): Tab[] {
+  function rebuildTabsWithPath (path: string, tabsList: Tab[]): Tab[] {
+    // 로그인시 예외 핸들링
     if (path.startsWith('/login/oauth2')) {
       if (tabsList == null || tabsList.length === 0) {
         return [{ name: '/', urlPath: '/' }]
@@ -32,12 +33,25 @@ export function useTabs (): {
         return tabsList
       }
     }
-    if (tabsList == null || (tabsList.length === 0 && path !== '/empty')) {
-      return path === '/empty' ? [] : [{ name: path, urlPath: path }]
-    }
-    if ((tabsList.length === 0 && path === '/empty') || (tabsList.length !== 0 && path === '/empty')) {
+
+    // 빈 페이지 예외 핸들링
+    if (path === '/empty') {
       return []
     }
+
+    // 탭이 없을 경우
+    if (tabsList == null || tabsList.length === 0) {
+      return [{ name: path, urlPath: path }]
+    }
+
+    // 탭이 있고 패쓰가 있을경우
+    if (tabsList.some((tab: Tab) => tab.urlPath === path)) {
+      return tabsList
+    }
+
+    // 탭이 있지만 패쓰가 없을경우
+    tabsList.push({ name: path, urlPath: path })
+
     return tabsList
   }
 
@@ -71,7 +85,7 @@ export function useTabs (): {
     setTabsAtom(newTabs, to)
   }
 
-  const addTab = (newTab: Tab): void => {
+  const upsertAndSelectTab = (newTab: Tab): void => {
     const existingTabIndex = tabs.findIndex(function (tab: Tab) {
       return tab.urlPath === newTab.urlPath
     })
@@ -99,6 +113,6 @@ export function useTabs (): {
     removeTab,
     setTabs: setTabsWithLocalStorage,
     moveTabTo,
-    addAndSelectTab: addTab
+    upsertAndSelectTab
   }
 }

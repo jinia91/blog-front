@@ -1,25 +1,12 @@
 'use client'
-import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import TabContextMenu from '@/components/system/tap_system/TabContextMenu'
-import { TabBar } from '@/components/system/tap_system/TabBar'
 import { RenderApp } from '@/components/system/tap_system/AppPageRenderer'
 import TopNav from '@/components/system/top/TopNav'
 import SideAppBar from '@/components/system/sidebar/SideBar'
-import { useTabs } from '@/system/application/usecase/TabUseCases'
+import React from 'react'
+import { TapBarContainer } from '@/components/system/tap_system/TapBarContainer'
 
-const TapMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
-  const router = useRouter()
-  const { tabs } = useTabs()
-  console.log('TapMain 렌더링 횟수 체크')
-  console.log('탭 메인의 tabs:', tabs)
-
-  useEffect(() => {
-    if (tabs.length === 0) {
-      router.push('/empty')
-    }
-  }, [tabs])
-
+const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   return (
     <>
       <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
@@ -34,7 +21,7 @@ const TapMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
           style={{ height: 'calc(100vh - 60px)' }}>
           {TabContextMenu()}
           <div className="bg-gray-800 p-4">
-            <TabBar/>
+            <TapBarContainer/>
             <RenderApp page={page}/>
           </div>
         </main>
@@ -42,4 +29,4 @@ const TapMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
     </>
   )
 }
-export { TapMain }
+export { SystemMain }

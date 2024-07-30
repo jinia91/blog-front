@@ -13,12 +13,10 @@ export function useContextMenu (): {
 } {
   const {
     tabs,
-    selectedTabIdx,
     selectTab,
     removeTab,
     setTabs
   } = useTabs()
-
   const [contextMenu, setContextMenu] = useAtom(TabContextManagerAtom)
 
   const closeContextMenu = (): void => {
@@ -26,7 +24,11 @@ export function useContextMenu (): {
   }
 
   const closeOtherTabs = (): void => {
-    const newTabs = [tabs[selectedTabIdx]]
+    if (contextMenu == null) {
+      return
+    }
+
+    const newTabs = [tabs[contextMenu.tabIdx]]
     setTabs(newTabs)
     selectTab(0)
   }

@@ -11,10 +11,10 @@ export default function TabOpen ({ name, href, type, children }: {
   type?: ApplicationType
   children: React.ReactNode
 }): React.ReactElement {
-  const { addAndSelectTab } = useTabs()
+  const { upsertAndSelectTab } = useTabs()
   return (
     <Link onClick={() => {
-      addAndSelectTab({ name, urlPath: href, type })
+      upsertAndSelectTab({ name, urlPath: href, type })
     }}
           href={href}
     >

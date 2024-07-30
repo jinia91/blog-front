@@ -1,18 +1,36 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { type Tab } from '@/system/application/domain/Tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
 
-export function TabItem ({ tab, index, isSelected, onContextMenu, onDragStart, onDrop }: {
+export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
   tab: Tab
   index: number
   isSelected: boolean
-  onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => void
   onDragStart: any
   onDrop: (e: React.DragEvent, index: number) => void
 }): React.ReactElement {
   const [isDragOver, setIsDragOver] = useState(false)
   const { selectTab, removeTab } = useTabs()
+  const { contextMenu, closeContextMenu, setContextMenu } = useContextMenu()
+
+  const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {
+    event.preventDefault()
+    setContextMenu({
+      xPos: `${event.pageX}px`,
+      yPos: `${event.pageY}px`,
+      tabIdx: idx
+    })
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('click', closeContextMenu)
+    return () => {
+      document.removeEventListener('click', closeContextMenu)
+    }
+  }, [closeContextMenu])
+
   const handleDragOver = (e: React.DragEvent): void => {
     setIsDragOver(true)
     e.preventDefault()
@@ -48,7 +66,7 @@ export function TabItem ({ tab, index, isSelected, onContextMenu, onDragStart, o
           selectTab(index)
         }}
         className={`flex items-center justify-center p-2 rounded-t-lg
-        ${isSelected ? 'bg-gray-700' : isDragOver ? 'bg-gray-700' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer
+        ${isSelected ? 'bg-gray-700' : (isDragOver || contextMenu?.tabIdx === index) ? 'bg-gray-600' : 'bg-gray-900'} hover:bg-gray-700 cursor-pointer
         `}
       >
       <span className={`dos-font truncate ${isSelected ? 'text-white' : 'text-gray-300'}`}>
