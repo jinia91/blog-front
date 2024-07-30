@@ -1,6 +1,6 @@
 'use client'
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
-import { type FolderInfo } from '@/memo/infra/api/models'
+import { type FolderInfo } from '@/memo/application/domain/models'
 import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps

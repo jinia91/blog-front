@@ -17,7 +17,7 @@ import MDEditor, {
   table,
   type TextAreaTextApi
 } from '@uiw/react-md-editor'
-import { type Memo, type ReferenceInfo } from '@/memo/infra/api/models'
+import { type Memo, type ReferenceInfo } from '@/memo/application/domain/models'
 import { RelatedMemoModal } from '@/components/memo/memo_editor/RelatedMemoModal'
 import { fetchRelatedMemo, uploadImage } from '@/memo/infra/api/memo'
 import { TitleInput } from '@/components/memo/memo_editor/MemoTitleEditInput'

@@ -1,4 +1,4 @@
-import { type FolderInfo } from '@/memo/infra/api/models'
+import { type FolderInfo } from '@/memo/application/domain/models'
 import folderImg from '../../../../public/emptyFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'

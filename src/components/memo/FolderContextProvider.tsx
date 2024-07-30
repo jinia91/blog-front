@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { fetchFolderAndMemo } from '@/memo/infra/api/memo'
-import type { FolderInfo } from '@/memo/infra/api/models'
+import type { FolderInfo } from '@/memo/application/domain/models'
 
 const initialFolderContextValue = {
   folders: [],

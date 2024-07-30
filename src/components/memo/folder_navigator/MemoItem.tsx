@@ -1,4 +1,4 @@
-import { type SimpleMemoInfo } from '@/memo/infra/api/models'
+import { type SimpleMemoInfo } from '@/memo/application/domain/models'
 import React, { useContext, useState } from 'react'
 import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'

@@ -1,4 +1,4 @@
-import { type FolderInfo } from '@/memo/infra/api/models'
+import { type FolderInfo } from '@/memo/application/domain/models'
 import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'

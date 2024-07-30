@@ -1,7 +1,7 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
-import { type FolderInfo } from '@/memo/infra/api/models'
+import { type FolderInfo } from '@/memo/application/domain/models'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/memo/infra/api/memo'
