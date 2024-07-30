@@ -1,8 +1,9 @@
-import { useAtom } from 'jotai'
-import { type Session } from '@/auth/application/domain/Session'
-import { sessionAtom } from '@/auth/infra/atom/Session'
-import { oAuthLogin, oAuthLogout, refreshTokens } from '@/auth/infra/api/Auth'
-import type { Provider } from '@/auth/application/domain/Provider'
+import { atom, useAtom } from 'jotai'
+import { type Session } from '@/auth/application/domain/session'
+import { oAuthLogin, oAuthLogout, refreshTokens } from '@/auth/infra/api/auth'
+import type { Provider } from '@/auth/application/domain/provider'
+
+const sessionAtom = atom<Session | null>(null)
 
 export const useSession = (): {
   session: Session | null

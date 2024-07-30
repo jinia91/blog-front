@@ -2,7 +2,7 @@ import Image from 'next/image'
 import googleLogo from '../../../public/retro-google.png'
 import React from 'react'
 import { LoginButton } from '@/components/auth/LoginButton'
-import { Provider } from '@/auth/application/domain/Provider'
+import { Provider } from '@/auth/application/domain/provider'
 
 export default function SignInPage (): React.ReactElement {
   return (

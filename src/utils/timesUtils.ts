@@ -11,8 +11,3 @@ export const formatDate = (date: Date): string => {
 
   return `${year}년 ${formattedMonth}월 ${formattedDay}일 ${formattedHour}시 ${formattedMinute}분`
 }
-
-export const getToday = (): string => {
-  const today = new Date()
-  return formatDate(today)
-}

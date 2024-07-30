@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import SockJS from 'sockjs-client'
 import { type Client, type CompatClient, type IMessage, Stomp } from '@stomp/stompjs'
 import { useDebouncedCallback } from 'use-debounce'
-import { type ReferenceInfo } from '@/api/models'
-import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
+import { type ReferenceInfo } from '@/memo/application/domain/memo'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 const useStompClient = (
   memoId: string,
@@ -13,9 +13,8 @@ const useStompClient = (
   setReferences: (references: ReferenceInfo[]) => void
 ): void => {
   const [stompClient, setStompClient] = useState<Client | null>(null)
-  const { setRefreshCount }: {
-    setRefreshCount: (refreshCount: (currentCount: number) => any) => void
-  } = useContext(ReferenceModeContext)
+  const { refreshReference } = useMemoSystem()
+
   useEffect(() => {
     let client: CompatClient | null = null
     const connectStompClient = (): void => {
@@ -31,7 +30,7 @@ const useStompClient = (
           //   consume
         })
         client.subscribe('/topic/memoResponse/updateReferences', (message) => {
-          setRefreshCount((currentCount) => currentCount + 1)
+          refreshReference()
         })
       }, () => {
         setStompClient(null)

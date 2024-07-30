@@ -4,13 +4,13 @@ import { RenderApp } from '@/components/system/tap_system/AppPageRenderer'
 import TopNav from '@/components/system/top/TopNav'
 import SideAppBar from '@/components/system/sidebar/SideBar'
 import React from 'react'
-import { TapBarContainer } from '@/components/system/tap_system/TapBarContainer'
+import { TapBarMain } from '@/components/system/tap_system/TapBarMain'
 
 const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   console.log('SystemMain 렌더링 체크 1')
   return (
     <>
-      <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
+      <header className="w-full dark:bg-gray-900 border-b"><TopNav/></header>
       <div className="md:flex overflow-hidden">
         <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
@@ -22,7 +22,7 @@ const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
           style={{ height: 'calc(100vh - 60px)' }}>
           <TabContextMenu/>
           <div className="bg-gray-800 p-4">
-            <TapBarContainer/>
+            <TapBarMain/>
             <RenderApp page={page}/>
           </div>
         </main>

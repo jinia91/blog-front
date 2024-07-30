@@ -2,28 +2,31 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type FolderInfo } from '@/api/models'
-import React, { useContext } from 'react'
-import { FolderContext } from '@/components/memo/FolderContextProvider'
-import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
+import { type Folder } from '@/memo/application/domain/folder'
+import React, { useEffect } from 'react'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useRouter } from 'next/navigation'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function MemoGraph (): React.ReactElement | null {
-  const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
-  const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
+  const { folders } = useFolderAndMemo()
+  const { setMemoEditorSharedContext } = useMemoSystem()
+
+  useEffect(() => {
+    setMemoEditorSharedContext({ id: '', title: '' })
+  }, [])
+
   const router = useRouter()
-  console.log('MemoGraph 렌더링 체크 1')
-  if (folders == null || isReferenceMode || folders[0].id === 1) {
+  if (folders == null || folders[0].id === 1) {
     return null
   }
-  console.log('MemoGraph 렌더링 체크 2')
-  const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
+  const flattenFolder = (folder: Folder): Folder[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
   }
   const flattenFolders = folders.flatMap(folder => flattenFolder(folder))
 
-  const createFolderNodes = (folder: FolderInfo, group: number, nodes: any): void => {
+  const createFolderNodes = (folder: Folder, group: number, nodes: any): void => {
     nodes.push({
       id: folder.id ?? -1,
       name: folder.name,
@@ -110,7 +113,6 @@ export default function MemoGraph (): React.ReactElement | null {
     if (isFolder(node)) return
     router.push(`/memo/${node.id}`)
   }
-  console.log('MemoGraph 렌더링 체크 3')
 
   return (
     <div>
