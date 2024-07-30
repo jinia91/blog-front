@@ -1,10 +1,10 @@
 'use client'
 import { type FolderInfo } from '@/memo/application/domain/models'
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import FolderItem from '@/components/memo/folder_navigator/FolderItem'
+import FolderItem from '@/components/memo/memo-system-navigator/FolderItem'
 import TabOpen from '@/components/system/tap_system/TabOpen'
-import MemoItem from '@/components/memo/folder_navigator/MemoItem'
-import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
+import MemoItem from '@/components/memo/memo-system-navigator/MemoItem'
+import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { ApplicationType } from '@/system/application/domain/Tab'
 

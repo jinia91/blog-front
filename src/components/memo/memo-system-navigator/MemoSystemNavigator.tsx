@@ -4,15 +4,15 @@ import { type FolderInfo } from '@/memo/application/domain/models'
 import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
-} from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
+} from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
 import {
   folderContainsMemo,
   rebuildMemoDeleted,
   rebuildMemoTitle,
   rebuildNewNameFolder
-} from '@/components/memo/folder_navigator/folderSystemUtils'
-import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
-import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
+} from '@/components/memo/memo-system-navigator/folderSystemUtils'
+import { FolderAndMemo } from '@/components/memo/memo-system-navigator/FolderAndMemoStructure'
+import NavigatorHeader from '@/components/memo/memo-system-navigator/header/NavigatorHeader'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { type Tab } from '@/system/application/domain/Tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'

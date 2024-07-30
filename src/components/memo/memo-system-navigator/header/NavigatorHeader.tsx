@@ -1,10 +1,10 @@
-import NewFolder from '@/components/memo/folder_navigator/header/NewFolder'
-import { Search } from '@/components/memo/folder_navigator/header/Search'
+import NewFolder from '@/components/memo/memo-system-navigator/header/NewFolder'
+import { Search } from '@/components/memo/memo-system-navigator/header/Search'
 import React, { useContext, useState } from 'react'
-import ReferenceSystem from '@/components/memo/folder_navigator/header/ReferenceSystem'
+import ReferenceSystem from '@/components/memo/memo-system-navigator/header/ReferenceSystem'
 import { usePathname } from 'next/navigation'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
-import NewMemoButton from '@/components/memo/folder_navigator/header/NewMemoButton'
+import NewMemoButton from '@/components/memo/memo-system-navigator/header/NewMemoButton'
 
 export default function NavigatorHeader (): React.ReactElement {
   const [isSearchInputVisible, setSearchInputVisible] = useState(false)

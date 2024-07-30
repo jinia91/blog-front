@@ -3,7 +3,7 @@ import folderImg from '../../../../public/emptyFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
+import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
 import { useFolder } from '@/memo/application/usecase/folder-usecases'
 

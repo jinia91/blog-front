@@ -1,5 +1,5 @@
 'use client'
-import MemoSystemNavigator from '@/components/memo/folder_navigator/MemoSystemNavigator'
+import MemoSystemNavigator from '@/components/memo/memo-system-navigator/MemoSystemNavigator'
 import React, { useEffect, useState } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { MemoEditContextProvider } from '@/components/memo/MemoEditContextProvider'
@@ -14,6 +14,7 @@ export default function MemoFolderMain ({ children }: { children: React.ReactNod
   const { initialization } = useFolder()
   const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
+  const [direction, setDirection] = useState<Direction>('horizontal')
 
   console.log('MemoFolderMain 렌더링 체크 1')
   console.log('MemoFolderMain session:', session)
@@ -39,39 +40,39 @@ export default function MemoFolderMain ({ children }: { children: React.ReactNod
     }
   }, [])
 
-  const [direction, setDirection] = useState<Direction>('horizontal')
-
-  return !mounted
-    ? <></>
-    : (session == null)
-        ? <SignInPage/>
-        : (session.roles.values().next().value === Auth.Admin)
-            ? (
-          <MemoEditContextProvider>
-            <div className="flex-grow">
-              <PanelGroup
-                direction={direction}
-                className="dos-font"
-                style={{ height: '75vh', overflowY: 'auto' }}
+  return (session == null)
+    ? <SignInPage/>
+    : (session.roles.values().next().value === Auth.Admin)
+        ? (
+        <MemoEditContextProvider>
+          <div className="flex-grow">
+            <PanelGroup
+              direction={direction}
+              className="dos-font"
+              style={{ height: '75vh', overflowY: 'auto' }}
+            >
+              <Panel
+                defaultSizePercentage={70}
+                className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
+                minSizePercentage={20}
               >
-                <Panel
-                  defaultSizePercentage={70}
-                  className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
-                  minSizePercentage={20}
-                >
-                  {children}
-                </Panel>
-                <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
-                <Panel
-                  defaultSizePercentage={30}
-                  className="flex flex-1 overflow-auto"
-                  minSizePercentage={20}
-                >{(<MemoSystemNavigator
-                  className="flex flex-1 min-w-0 flex-col"/>)}
-                </Panel>
-              </PanelGroup>
-            </div>
-          </MemoEditContextProvider>
-              )
-            : <AdminAccessDenied/>
+                {!mounted
+                  ? <></>
+                  : children}
+              </Panel>
+
+              <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
+
+              <Panel
+                defaultSizePercentage={30}
+                className="flex flex-1 overflow-auto"
+                minSizePercentage={20}
+              >{<MemoSystemNavigator
+                className="flex flex-1 min-w-0 flex-col"/>}
+              </Panel>
+            </PanelGroup>
+          </div>
+        </MemoEditContextProvider>
+          )
+        : <AdminAccessDenied/>
 }
