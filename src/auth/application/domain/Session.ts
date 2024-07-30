@@ -1,7 +1,7 @@
 export enum Auth {
-  Guest,
-  User,
-  Admin
+  Guest = 'GUEST',
+  User = 'USER',
+  Admin = 'ADMIN',
 }
 
 export interface Session {

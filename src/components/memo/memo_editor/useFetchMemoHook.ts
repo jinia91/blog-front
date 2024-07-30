@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { fetchMemoById } from '@/outbound/api/memo'
-import { type Memo, type ReferenceInfo } from '@/outbound/api/models'
+import { fetchMemoById } from '@/api/memo'
+import { type Memo, type ReferenceInfo } from '@/api/models'
 
 export const useFetchMemo = (
   pageMemoNumber: string,

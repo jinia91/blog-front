@@ -31,6 +31,8 @@ export function MemoEditContextProvider ({ children }: { children: React.ReactNo
   const pathname = usePathname()
   const isMemoTab = pathname.startsWith('/memo/')
 
+  console.log('MemoEditContextProvider 렌더링 체크 1')
+
   useEffect(() => {
     if (!isMemoTab) {
       setUnderwritingId('')

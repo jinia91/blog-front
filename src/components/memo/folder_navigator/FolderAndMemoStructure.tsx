@@ -1,11 +1,12 @@
 'use client'
-import { type FolderInfo } from '@/outbound/api/models'
+import { type FolderInfo } from '@/api/models'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import FolderItem from '@/components/memo/folder_navigator/FolderItem'
-import TabLink from '@/components/ui-layout/tap_system/TabLink'
+import TabOpen from '@/components/system/tap_system/TabOpen'
 import MemoItem from '@/components/memo/folder_navigator/MemoItem'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { ApplicationType } from '@/system/application/domain/Tab'
 
 export function FolderAndMemo ({
   folders,
@@ -80,8 +81,11 @@ export function FolderAndMemo ({
         {openFolders.has(folder.id ?? 0) && (
           <>
             {folder.memos.map((memo) => (
-              <TabLink key={memo.id} href={`/memo/${memo.id}`}
-                       name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}>
+              <TabOpen key={memo.id}
+                       href={`/memo/${memo.id}`}
+                       name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}
+                       type={ApplicationType.MEMO}
+              >
                 <MemoItem
                   memo={memo}
                   parentFolderId={folder.id}
@@ -89,7 +93,7 @@ export function FolderAndMemo ({
                   contextMenu={contextMenu}
                   depth={depth}
                 />
-              </TabLink>
+              </TabOpen>
             ))}
             {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
           </>

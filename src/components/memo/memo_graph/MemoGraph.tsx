@@ -2,19 +2,21 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type FolderInfo } from '@/outbound/api/models'
+import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
+import { useRouter } from 'next/navigation'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
-  const { tabs, setTabs, setSelectedTabIdx } = useContext(TabBarContext)
+  const router = useRouter()
+  console.log('MemoGraph 렌더링 체크 1')
   if (folders == null || isReferenceMode || folders[0].id === 1) {
     return null
   }
+  console.log('MemoGraph 렌더링 체크 2')
   const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
@@ -106,20 +108,9 @@ export default function MemoGraph (): React.ReactElement | null {
 
   const handleNodeClick = (node: any): void => {
     if (isFolder(node)) return
-
-    const existingTabIndex = tabs.findIndex(function (tab: any) {
-      return tab.context === `/memo/${node.id}`
-    })
-
-    if (existingTabIndex !== -1) {
-      setSelectedTabIdx(existingTabIndex)
-    } else {
-      const newTab = { name: node.name ?? 'untitled', context: `/memo/${node.id}` }
-      const updatedTabs = [...tabs, newTab]
-      setTabs(updatedTabs)
-      setSelectedTabIdx(updatedTabs.length - 1)
-    }
+    router.push(`/memo/${node.id}`)
   }
+  console.log('MemoGraph 렌더링 체크 3')
 
   return (
     <div>

@@ -1,8 +1,7 @@
 'use client'
 import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
-import { type FolderInfo } from '@/outbound/api/models'
-import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/outbound/api/memo'
-import { TabBarContext } from '@/components/ui-layout/tap_system/TapRouteMain'
+import { type FolderInfo } from '@/api/models'
+import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
@@ -14,21 +13,17 @@ import {
 } from '@/components/memo/folder_navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
-import { type Tab } from '@/components/ui-layout/tap_system/TabItem'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { type Tab } from '@/system/application/domain/Tab'
+import { useTabs } from '@/system/application/usecase/TabUseCases'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders }: {
     folders: FolderInfo[]
     setFolders: Dispatch<SetStateAction<FolderInfo[]>>
   } = useContext(FolderContext)
-  const { tabs, selectedTabIdx, setTabs, setSelectedTabIdx }: {
-    tabs: Tab[]
-    selectedTabIdx: number | null
-    setTabs: Dispatch<SetStateAction<Tab[]>>
-    setSelectedTabIdx: Dispatch<SetStateAction<number | null>>
-  } = useContext(TabBarContext)
+  const { tabs, selectedTabIdx, setTabs, selectTab } = useTabs()
   const { underwritingTitle, underwritingId }: {
     underwritingTitle: string
     underwritingId: string
@@ -102,7 +97,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       setFolders(newFetchedFolders)
 
       const newTabs = tabs.filter((tab: Tab) => {
-        const memoId = tab.context.startsWith('/memo/') ? tab.context.split('/')[2] : null
+        const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
 
         return memoId == null ||
           newFetchedFolders.some((folder: FolderInfo) => folderContainsMemo(folder, memoId))
@@ -110,8 +105,8 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       setTabs(newTabs)
 
       if (selectedTabIdx !== null && newTabs[selectedTabIdx] !== null) {
-        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null
-        setSelectedTabIdx(newSelectedTabIdx)
+        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
+        selectTab(newSelectedTabIdx)
       }
       closeContextMenu()
     }
@@ -124,8 +119,8 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     setFolders(newFolderStructure)
     // eslint-disable-next-line array-callback-return
     const deletedTabIndex = tabs.findIndex(function (tab: Tab) {
-      if (tab.context.startsWith('/memo/')) {
-        const memoId = tab.context.split('/')[2]
+      if (tab.urlPath.startsWith('/memo/')) {
+        const memoId = tab.urlPath.split('/')[2]
         return memoId === memoContextMenu.memoId
       }
     })
@@ -136,10 +131,10 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       setTabs(newTabs)
 
       if (selectedTabIdx === deletedTabIndex) {
-        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : null
-        setSelectedTabIdx(newSelectedTabIdx)
+        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
+        selectTab(newSelectedTabIdx)
       } else if (selectedTabIdx !== null && selectedTabIdx > deletedTabIndex) {
-        setSelectedTabIdx(selectedTabIdx - 1)
+        selectTab(selectedTabIdx - 1)
       }
     }
     closeContextMenu()
