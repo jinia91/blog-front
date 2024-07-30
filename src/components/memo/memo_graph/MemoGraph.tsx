@@ -4,11 +4,11 @@ import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type Folder } from '@/memo/application/domain/models'
 import React from 'react'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useRouter } from 'next/navigation'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
 export default function MemoGraph (): React.ReactElement | null {
-  const { folders } = useFolder()
+  const { folders } = useFolderAndMemo()
   const router = useRouter()
   console.log('MemoGraph 렌더링 체크 1')
   if (folders == null || folders[0].id === 1) {

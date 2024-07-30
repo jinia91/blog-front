@@ -5,6 +5,7 @@ import {
 import { type Tab } from '@/system/application/domain/Tab'
 import { useAtom } from 'jotai'
 import { SelectedTabIdxAtom, TabsAtom } from '@/system/infra/atom/TabManagerAtom'
+import { useRouter } from 'next/navigation'
 
 export function useTabs (): {
   initializeTabs: (path: string) => void
@@ -12,19 +13,22 @@ export function useTabs (): {
   selectedTabIdx: number
   selectTab: (index: number) => void
   removeTab: (target: number) => void
-  setTabs: (newTabs: Tab[]) => void
   moveTabTo: (from: number, to: number) => void
   upsertAndSelectTab: (newTab: Tab) => void
+  removeAllTabs: () => void
+  closeOtherTabsWith: (targetTab: Tab) => void
+  updateNewTabsAndSelect: (newTabs: Tab[], newSelectedTabIdx: number) => void
 } {
-  const [tabs, setTabs] = useAtom(TabsAtom)
-  const [selectedTabIdx, setSelectedTabIdx] = useAtom(SelectedTabIdxAtom)
+  const [tabs, setTabsAtom] = useAtom(TabsAtom)
+  const [selectedTabIdx, setSelectedTabIdxAtom] = useAtom(SelectedTabIdxAtom)
+  const router = useRouter()
 
   const initializeTabs = (path: string): void => {
     const tabsList = restoreTabsFromLocalStorage()
     const newTabs = rebuildTabsWithPath(path, tabsList)
     const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
     const newSelectedTabIdx = rebuildSelectedTabIdx(path, newTabs, asIsSelectedTabIdx)
-    setTabsAtom(newTabs, newSelectedTabIdx)
+    setTabsAndRoute(newTabs, newSelectedTabIdx)
   }
 
   function rebuildTabsWithPath (path: string, tabsList: Tab[]): Tab[] {
@@ -84,7 +88,12 @@ export function useTabs (): {
   }
 
   const selectTab = (index: number): void => {
-    setSelectedTabIdx(index)
+    setSelectedTabIdxAtom(index)
+    if (tabs.length === 0) {
+      router.push('/empty')
+    } else {
+      router.push(tabs[index].urlPath)
+    }
     localStorage.setItem('selectedTabIdx', String(index))
   }
 
@@ -97,12 +106,7 @@ export function useTabs (): {
         ? selectedTabIdx - 1
         : selectedTabIdx
 
-    setTabsAtom(newTabs, newSelectedTabIdx)
-  }
-
-  const setTabsWithLocalStorage = (newTabs: Tab[]): void => {
-    setTabsAtom(newTabs, selectedTabIdx)
-    localStorage.setItem('tabs', JSON.stringify(newTabs))
+    setTabsAndRoute(newTabs, newSelectedTabIdx)
   }
 
   const moveTabTo = (from: number, to: number): void => {
@@ -110,37 +114,56 @@ export function useTabs (): {
     const draggedTab = newTabs[from]
     newTabs.splice(from, 1)
     newTabs.splice(to, 0, draggedTab)
-    setTabsAtom(newTabs, to)
+    setTabsAndRoute(newTabs, to)
   }
 
   const upsertAndSelectTab = (newTab: Tab): void => {
-    const existingTabIndex = tabs.findIndex(function (tab: Tab) {
+    const alReadyExistingTabIndex = tabs.findIndex(function (tab: Tab) {
       return tab.urlPath === newTab.urlPath
     })
 
-    if (existingTabIndex !== -1) {
-      selectTab(existingTabIndex)
+    if (alReadyExistingTabIndex !== -1) {
+      selectTab(alReadyExistingTabIndex)
     } else {
       const updatedTabs = [...tabs, newTab]
-      setTabsAtom(updatedTabs, updatedTabs.length - 1)
+      setTabsAndRoute(updatedTabs, updatedTabs.length - 1)
     }
   }
 
-  function setTabsAtom (newTabs: Tab[], newSelected: number): void {
-    setTabs(newTabs)
-    setSelectedTabIdx(newSelected)
+  const removeAllTabs = (): void => {
+    setTabsAndRoute([], 0)
+  }
+
+  const closeOtherTabs = (targetTab: Tab): void => {
+    setTabsAndRoute([targetTab], 0)
+  }
+
+  const updateNewTabsAndSelect = (newTabs: Tab[], newSelectedTabIdx: number): void => {
+    setTabsAndRoute(newTabs, newSelectedTabIdx)
+  }
+
+  function setTabsAndRoute (newTabs: Tab[], newSelected: number): void {
+    setTabsAtom(newTabs)
+    setSelectedTabIdxAtom(newSelected)
+    if (newTabs.length === 0) {
+      router.push('/empty')
+    } else {
+      router.push(newTabs[newSelected].urlPath)
+    }
     localStorage.setItem('tabs', JSON.stringify(newTabs))
     localStorage.setItem('selectedTabIdx', String(newSelected))
   }
 
   return {
-    initializeTabs,
     tabs,
-    selectTab,
     selectedTabIdx,
+    initializeTabs,
+    selectTab,
     removeTab,
-    setTabs: setTabsWithLocalStorage,
     moveTabTo,
-    upsertAndSelectTab
+    upsertAndSelectTab,
+    removeAllTabs,
+    closeOtherTabsWith: closeOtherTabs,
+    updateNewTabsAndSelect
   }
 }

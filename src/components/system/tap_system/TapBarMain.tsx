@@ -3,7 +3,7 @@ import { TabBar } from '@/components/system/tap_system/TabBar'
 import { usePathname } from 'next/navigation'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 
-export function TapBarContainer (): React.ReactElement {
+export function TapBarMain (): React.ReactElement {
   const path = usePathname()
   const [mounted, setMounted] = React.useState(false)
   const { initializeTabs } = useTabs()

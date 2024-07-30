@@ -13,25 +13,6 @@ export const rebuildMemoDeleted = (folders: Folder[], deletedMemoId: string): Fo
   }, [])
 }
 
-export const rebuildMemoTitle = (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    const updatedMemos = folder.memos.map(memo => {
-      if (memo.id.toString() === memoId) {
-        return { ...memo, title: newTitle }
-      } else {
-        return memo
-      }
-    })
-    const updatedChildren = rebuildMemoTitle(folder.children, memoId, newTitle)
-    const updatedFolder = {
-      ...folder,
-      memos: updatedMemos,
-      children: updatedChildren
-    }
-    return [...acc, updatedFolder]
-  }, [])
-}
-
 export const rebuildNewNameFolder = (folders: Folder[], folderId: string, newName: string): Folder[] => {
   return folders.reduce((acc: Folder[], folder: Folder) => {
     if (folder.id?.toString() === folderId) {

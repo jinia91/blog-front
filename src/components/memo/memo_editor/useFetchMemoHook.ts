@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { fetchMemoById } from '@/memo/infra/api/memo'
 import { type Memo, type ReferenceInfo } from '@/memo/application/domain/models'
+import { type MemoEditorSharedContext } from '@/memo/application/domain/memo-editor-shared-context'
 
 export const useFetchMemo = (
   pageMemoNumber: string,
   setMemo: (memo: Memo) => void,
-  setTitle: (title: string) => void,
-  setMemoId: (memoId: string) => void,
+  setMemoEditorContext: (memoEditorSharedContext: MemoEditorSharedContext) => void,
   setContent: (content: string) => void,
   setReferences: (references: ReferenceInfo[]) => void
 ): void => {
@@ -16,8 +16,7 @@ export const useFetchMemo = (
         const fetchedMemo = await fetchMemoById(pageMemoNumber)
         if (fetchedMemo != null) {
           setMemo(fetchedMemo)
-          setTitle(fetchedMemo.title)
-          setMemoId(fetchedMemo.memoId.toString())
+          setMemoEditorContext({ id: fetchedMemo.memoId.toString(), title: fetchedMemo.title })
           setContent(fetchedMemo.content)
           setReferences(fetchedMemo.references)
         }
@@ -27,7 +26,7 @@ export const useFetchMemo = (
     }
 
     void fetchData()
-  }, [pageMemoNumber, setMemo, setTitle, setMemoId, setContent])
+  }, [pageMemoNumber, setMemo, setContent])
 }
 
 export default useFetchMemo

@@ -1,11 +1,11 @@
 import { type SimpleMemoInfo } from '@/memo/application/domain/models'
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {
   memo: SimpleMemoInfo
@@ -14,9 +14,9 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
   depth: number
   contextMenu: ContextMenuProps | null
 }): React.ReactElement {
-  const { underwritingId, underwritingTitle } = useContext(MemoEditContext)
+  const { memoEditorSharedContext } = useMemoSystem()
   const [isDragOver, setIsDragOver] = useState(false)
-  const { refreshFolders } = useFolder()
+  const { refreshFolders } = useFolderAndMemo()
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
     e.dataTransfer.effectAllowed = 'move'
@@ -80,7 +80,7 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
       className={`
       pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500
       ${isDragOver ? 'bg-gray-500' : ''}
-      ${memo.id.toString() === underwritingId ? 'bg-gray-600' : 'hover:bg-gray-500'}
+      ${memo.id.toString() === memoEditorSharedContext.id ? 'bg-gray-600' : 'hover:bg-gray-500'}
       ${(contextMenu != null) && contextMenu.memoId === memo.id.toString() ? 'bg-gray-600' : ''}
       `}
     >
@@ -90,7 +90,8 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
       >
         <Image src={memoImg} alt={'memo'} width={20} height={10}/>
         {/* eslint-disable-next-line @typescript-eslint/no-unsafe-argument */}
-        <span className="ml-2">{determineMemoText(memo, underwritingId, underwritingTitle)}</span>
+        <span
+          className="ml-2">{determineMemoText(memo, memoEditorSharedContext.id, memoEditorSharedContext.title)}</span>
       </div>
     </li>
   )

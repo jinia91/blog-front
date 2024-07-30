@@ -5,7 +5,7 @@ import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 
 export default function FolderItem ({
   folder,
@@ -28,7 +28,7 @@ export default function FolderItem ({
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
 }): React.ReactElement {
-  const { refreshFolders } = useFolder()
+  const { refreshFolders } = useFolderAndMemo()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = useState(false)
 

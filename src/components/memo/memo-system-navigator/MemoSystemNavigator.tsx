@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { type Folder } from '@/memo/application/domain/models'
 import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
@@ -8,28 +8,25 @@ import MemoAndFolderContextMenu, {
 import {
   folderContainsMemo,
   rebuildMemoDeleted,
-  rebuildMemoTitle,
   rebuildNewNameFolder
 } from '@/components/memo/memo-system-navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/memo-system-navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/memo-system-navigator/header/NavigatorHeader'
-import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { type Tab } from '@/system/application/domain/Tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
-  const { folders, setFolders, deleteFolder } = useFolder()
-  const { tabs, selectedTabIdx, setTabs, selectTab } = useTabs()
-  const { underwritingTitle, underwritingId }: {
-    underwritingTitle: string
-    underwritingId: string
-  } = useContext(MemoEditContext)
+  const { folders, setFolders, deleteFolder, writeNewMemoTitle } = useFolderAndMemo()
+  const { tabs, selectedTabIdx, updateNewTabsAndSelect } = useTabs()
+  const { memoEditorSharedContext } = useMemoSystem()
 
   useEffect(() => {
-    const newFolderRef = rebuildMemoTitle(folders, underwritingId, underwritingTitle ?? '')
-    setFolders(newFolderRef)
-  }, [underwritingTitle])
+    writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)
+  }, [memoEditorSharedContext])
+
+  console.log('MemoSystemNavigator render')
 
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const closeContextMenu = useCallback(() => {
@@ -67,17 +64,22 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     // fixme 되는지 확인해볼것
     const newFolder = await deleteFolder(memoContextMenu.folderId)
 
+    const asIsSelectedTab = tabs[selectedTabIdx]
+
     const newTabs = tabs.filter((tab: Tab) => {
       const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
       return memoId == null ||
         newFolder.some((folder: Folder) => folderContainsMemo(folder, memoId))
     })
-    setTabs(newTabs)
+    const asIsTabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
 
-    if (selectedTabIdx !== null && newTabs[selectedTabIdx] !== null) {
+    if (asIsTabIndex === -1) { // 기존 탭이 삭제되었을 경우
       const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
-      selectTab(newSelectedTabIdx)
+      updateNewTabsAndSelect(newTabs, newSelectedTabIdx)
+    } else { // 기존 탭이 존재하는 경우
+      updateNewTabsAndSelect(newTabs, asIsTabIndex)
     }
+
     closeContextMenu()
   }
 
@@ -120,13 +122,12 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       const newTabs = tabs.filter(function (_: any, idx: number) {
         return idx !== deletedTabIndex
       })
-      setTabs(newTabs)
 
       if (selectedTabIdx === deletedTabIndex) {
         const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
-        selectTab(newSelectedTabIdx)
+        updateNewTabsAndSelect(newTabs, newSelectedTabIdx)
       } else if (selectedTabIdx !== null && selectedTabIdx > deletedTabIndex) {
-        selectTab(selectedTabIdx - 1)
+        updateNewTabsAndSelect(newTabs, selectedTabIdx - 1)
       }
     }
     closeContextMenu()

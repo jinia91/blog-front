@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useContext, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import MDEditor, {
   bold,
   codeEdit,
@@ -24,22 +24,22 @@ import { TitleInput } from '@/components/memo/memo_editor/MemoTitleEditInput'
 import useFetchMemoHook from '@/components/memo/memo_editor/useFetchMemoHook'
 import { Code } from '@/components/memo/memo_editor/MermaidAndCodeHighlightPlugin'
 import useStompClient from '@/components/memo/memo_editor/MemoEditWebsocket'
-import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string }): React.ReactElement {
+  const { memoEditorSharedContext, setMemoEditorSharedContext } = useMemoSystem()
+
   const [memo, setMemo] = useState<Memo | null>(null)
-  const { underwritingTitle, setUnderwritingTitle, setUnderwritingId }: {
-    underwritingTitle: string
-    setUnderwritingTitle: React.Dispatch<React.SetStateAction<string>>
-    setUnderwritingId: React.Dispatch<React.SetStateAction<string>>
-  } = useContext(MemoEditContext)
   const [content, setContent] = useState<string>(memo?.content ?? '')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recommendations, setRecommendations] = useState<Memo[]>([])
   const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
   const [references, setReferences] = useState<ReferenceInfo[]>([])
-  useStompClient(pageMemoNumber, underwritingTitle, content, references, setReferences)
-  useFetchMemoHook(pageMemoNumber, setMemo, setUnderwritingTitle, setUnderwritingId, setContent, setReferences)
+
+  useStompClient(pageMemoNumber, memoEditorSharedContext.title, content, references, setReferences)
+  useFetchMemoHook(pageMemoNumber, setMemo, setMemoEditorSharedContext, setContent, setReferences)
+
+  console.log('메모 에디터 렌더링')
 
   const getCustomExtraCommands: () => ICommand[] = () => [timestamp, referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen]
 
@@ -136,7 +136,7 @@ export default function MemoEditor ({ pageMemoNumber }: { pageMemoNumber: string
   }, [])
   return (
     <>
-      <TitleInput title={underwritingTitle} setTitle={setUnderwritingTitle}/>
+      <TitleInput/>
       {/* editor */}
       <div className="mb-4 flex-grow"
            onPaste={(e) => {

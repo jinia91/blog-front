@@ -2,24 +2,20 @@ import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 're
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 
 export function Search ({ isInputVisible, setInputVisible }: {
   isInputVisible: boolean
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {
   const inputRef = useRef<HTMLInputElement>(null)
-  const { searchMemoAndFolders } = useFolder()
+  const { searchMemo } = useFolderAndMemo()
 
   useEffect(() => {
     if (isInputVisible && (inputRef.current != null)) {
       inputRef.current.focus()
     }
   }, [isInputVisible])
-
-  const searchData = useDebouncedCallback(async (value: string) => {
-    await searchMemoAndFolders(value)
-  }, 300)
 
   useEffect(() => {
     const searchModeKeyboardAction = async (event: KeyboardEvent): Promise<void> => {
@@ -40,12 +36,16 @@ export function Search ({ isInputVisible, setInputVisible }: {
 
   useEffect(() => {
     if (!isInputVisible) {
-      void searchMemoAndFolders('')
+      void searchMemo('')
     }
   }, [isInputVisible])
 
+  const searchMemoCallBack = useDebouncedCallback(async (value: string) => {
+    await searchMemo(value)
+  }, 300)
+
   const searchDataCallback = (value: string): void => {
-    void searchData(value)
+    void searchMemoCallBack(value)
   }
   return (
     <div className={`flex flex-row ${isInputVisible ? 'w-full' : ''}`}>

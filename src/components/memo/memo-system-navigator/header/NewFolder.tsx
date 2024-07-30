@@ -3,10 +3,10 @@
 import React from 'react'
 import Image from 'next/image'
 import newFolder from '../../../../../public/newFolder.png'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 
 export default function NewFolder (): React.ReactElement {
-  const { createNewFolder } = useFolder()
+  const { createNewFolder } = useFolderAndMemo()
 
   return (
     <div className="tooltip">

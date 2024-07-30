@@ -1,58 +1,24 @@
 'use client'
 
-import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
-import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/memo/infra/api/memo'
-import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
-import { useFolder } from '@/memo/application/usecase/folder-usecases'
+import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
-export default function ReferenceSystem ({ isReferenceMode, setReferenceMode, refreshCount }: {
-  isReferenceMode: boolean
-  setReferenceMode: Dispatch<SetStateAction<boolean>>
-  refreshCount: number
-}): React.ReactElement {
-  const { setFolders } = useFolder()
-  const { underwritingId }: { underwritingId: string } = useContext(MemoEditContext)
-
+export default function ReferenceSystem (): React.ReactElement {
+  const { fetchReferenceMemos } = useFolderAndMemo()
+  const { navigatorContext, memoEditorSharedContext, toggleReferenceMode } = useMemoSystem()
   useEffect(() => {
-    if (underwritingId == null) {
-      return
+    if (navigatorContext.isReferenceMode) {
+      void fetchReferenceMemos(memoEditorSharedContext.id)
     }
-    const fetchData = async (): Promise<void> => {
-      try {
-        const references = await fetchReferencesByMemoId(underwritingId.toString()) ?? []
-        const referenced = await fetchReferencedByMemoId(underwritingId.toString()) ?? []
-        const referenceFolderInfo = {
-          id: 1,
-          name: '참조중',
-          parent: null,
-          memos: references,
-          children: []
-        }
-        const referencedFolderInfo = {
-          id: 2,
-          name: '참조됨',
-          parent: null,
-          memos: referenced,
-          children: []
-        }
-        const newFolders = [referenceFolderInfo, referencedFolderInfo]
-        setFolders(newFolders)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-
-    if (isReferenceMode) {
-      void fetchData()
-    }
-  }, [underwritingId, isReferenceMode, refreshCount])
+  }, [navigatorContext, memoEditorSharedContext])
 
   return (
     <div className="tooltip">
       <div onClick={() => {
-        setReferenceMode(!isReferenceMode)
+        toggleReferenceMode()
       }}>
         <button
           className="text-white hover:text-gray-300 ml-2"
@@ -63,7 +29,7 @@ export default function ReferenceSystem ({ isReferenceMode, setReferenceMode, re
                  className={'white-image'}
                  width={30} height={30}/>
         </button>
-        {!isReferenceMode
+        {!navigatorContext.isReferenceMode
           ? <span className="tooltip-message">참조모드</span>
           : <span className="tooltip-message">전체모드</span>}
       </div>

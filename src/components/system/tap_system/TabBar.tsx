@@ -5,23 +5,25 @@ import { usePathname, useRouter } from 'next/navigation'
 
 export function TabBar (): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const { tabs, selectedTabIdx, selectTab, moveTabTo } = useTabs()
-  const router = useRouter()
+  const { tabs, selectedTabIdx, selectTab, moveTabTo, upsertAndSelectTab } = useTabs()
   const path = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
-    const routePage = (): void => {
+    const routeIfNeed = (): void => {
       if (tabs.length === 0) {
-        router.push('/empty')
+        if (path !== '/empty') {
+          router.push('/empty')
+        }
         return
       }
-      const selectedTab = tabs[selectedTabIdx]
-      if (selectedTab?.urlPath !== path) {
-        router.push(selectedTab.urlPath)
+      const asIsTab = tabs[selectedTabIdx]
+      if (asIsTab.urlPath !== path) {
+        upsertAndSelectTab({ name: path, urlPath: path })
       }
     }
-    routePage()
-  }, [tabs, selectedTabIdx])
+    routeIfNeed()
+  }, [path])
 
   const handleDragStart = (index: number): void => {
     if (index !== selectedTabIdx) {

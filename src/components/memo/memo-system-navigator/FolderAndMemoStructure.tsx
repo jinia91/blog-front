@@ -1,12 +1,12 @@
 'use client'
 import { type Folder } from '@/memo/application/domain/models'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import FolderItem from '@/components/memo/memo-system-navigator/FolderItem'
 import TabOpen from '@/components/system/tap_system/TabOpen'
 import MemoItem from '@/components/memo/memo-system-navigator/MemoItem'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { ApplicationType } from '@/system/application/domain/Tab'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export function FolderAndMemo ({
   folders,
@@ -25,7 +25,7 @@ export function FolderAndMemo ({
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
 }): React.ReactElement {
-  const { underwritingTitle, underwritingId } = useContext(MemoEditContext)
+  const { memoEditorSharedContext } = useMemoSystem()
   const listRef = useRef<HTMLUListElement>(null)
   const getInitialOpenFolders = (): Set<any> => {
     const storedOpenFolders = localStorage.getItem('openFolders')
@@ -35,7 +35,7 @@ export function FolderAndMemo ({
   const [openFolders, setOpenFolders] = useState(getInitialOpenFolders)
   const scrollToCenter = (): void => {
     if (listRef?.current != null) {
-      const selectedMemoElement: HTMLElement | null = listRef.current.querySelector(`[data-memo-id="${underwritingId}"]`)
+      const selectedMemoElement: HTMLElement | null = listRef.current.querySelector(`[data-memo-id="${memoEditorSharedContext.id}"]`)
       if (selectedMemoElement != null) {
         const listHeight = listRef.current.offsetHeight
         const memoPosition = selectedMemoElement.offsetTop
@@ -49,7 +49,7 @@ export function FolderAndMemo ({
   }
   useEffect(() => {
     scrollToCenter()
-  }, [folders, underwritingId, underwritingTitle])
+  }, [folders, memoEditorSharedContext])
   useEffect(() => {
     localStorage.setItem('openFolders', JSON.stringify(Array.from(openFolders)))
   }, [openFolders])
@@ -64,6 +64,8 @@ export function FolderAndMemo ({
       return newSet
     })
   }
+  console.log('FolderAndMemo render')
+
   const renderItems = (folders: Folder[], depth: number): React.ReactNode => {
     return folders.map((folder) => (
       <React.Fragment key={folder.id}>
