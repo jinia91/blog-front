@@ -1,8 +1,8 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction, useEffect } from 'react'
-import { createMemo } from '@/api/memo'
-import { type FolderInfo, type SimpleMemoInfo } from '@/api/models'
+import { createMemo } from '@/memo/infra/api/memo'
+import { type FolderInfo, type SimpleMemoInfo } from '@/memo/infra/api/models'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
