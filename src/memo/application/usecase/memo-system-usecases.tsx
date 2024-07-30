@@ -1,8 +1,10 @@
-import { useAtom, atom } from 'jotai'
+import { atom, useAtom } from 'jotai'
 import { type MemoSystemNavigatorContext } from '@/memo/application/domain/memo-system-navigator-context'
 import { type MemoEditorSharedContext } from '@/memo/application/domain/memo-editor-shared-context'
 
-const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({ isReferenceMode: false, refreshTrigger: 0 })
+const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({ isReferenceMode: false })
+
+const refreshTriggerAtom = atom<number>(0)
 
 const memoEditorContextAtom = atom<MemoEditorSharedContext>({ title: '', id: '' })
 
@@ -12,22 +14,22 @@ export const useMemoSystem = (): {
   setMemoEditorSharedContext: (context: MemoEditorSharedContext) => void
   toggleReferenceMode: () => void
   setMemoTitle: (title: string) => void
-  refreshReference: () => void
+  refreshListener: number
+  refreshTrigger: () => void
 } => {
   const [navigatorContext, setNavigatorContext] = useAtom(memoSystemContextAtom)
   const [memoEditorSharedContext, setMemoEditorSharedContextAtom] = useAtom(memoEditorContextAtom)
+  const [refreshListener, setRefresh] = useAtom(refreshTriggerAtom)
+
+  const refreshTrigger = (): void => {
+    setRefresh((prev) => prev + 1)
+  }
 
   const toggleReferenceMode = (): void => {
     const toggledContext = {
-      isReferenceMode: !navigatorContext.isReferenceMode,
-      refreshTrigger: navigatorContext.refreshTrigger
+      isReferenceMode: !navigatorContext.isReferenceMode
     }
     setNavigatorContext(toggledContext)
-  }
-
-  const refreshReference = (): void => {
-    const refreshTrigger = navigatorContext.refreshTrigger + 1
-    setNavigatorContext({ ...navigatorContext, refreshTrigger })
   }
 
   const setMemoTitle = (title: string): void => {
@@ -39,11 +41,12 @@ export const useMemoSystem = (): {
   }
 
   return {
+    refreshListener,
+    refreshTrigger,
     navigatorContext,
     memoEditorSharedContext,
     toggleReferenceMode,
     setMemoTitle,
-    setMemoEditorSharedContext,
-    refreshReference
+    setMemoEditorSharedContext
   }
 }

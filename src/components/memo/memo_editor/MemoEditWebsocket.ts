@@ -13,7 +13,7 @@ const useStompClient = (
   setReferences: (references: ReferenceInfo[]) => void
 ): void => {
   const [stompClient, setStompClient] = useState<Client | null>(null)
-  const { refreshReference } = useMemoSystem()
+  const { refreshTrigger } = useMemoSystem()
 
   useEffect(() => {
     let client: CompatClient | null = null
@@ -30,7 +30,7 @@ const useStompClient = (
           //   consume
         })
         client.subscribe('/topic/memoResponse/updateReferences', (message) => {
-          refreshReference()
+          refreshTrigger()
         })
       }, () => {
         setStompClient(null)

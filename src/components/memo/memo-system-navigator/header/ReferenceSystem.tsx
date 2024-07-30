@@ -8,12 +8,12 @@ import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function ReferenceSystem (): React.ReactElement {
   const { fetchReferenceMemos } = useFolderAndMemo()
-  const { navigatorContext, memoEditorSharedContext, toggleReferenceMode } = useMemoSystem()
+  const { navigatorContext, memoEditorSharedContext, toggleReferenceMode, refreshListener } = useMemoSystem()
   useEffect(() => {
     if (navigatorContext.isReferenceMode) {
       void fetchReferenceMemos(memoEditorSharedContext.id)
     }
-  }, [navigatorContext, memoEditorSharedContext])
+  }, [navigatorContext, memoEditorSharedContext, refreshListener])
 
   return (
     <div className="tooltip">
