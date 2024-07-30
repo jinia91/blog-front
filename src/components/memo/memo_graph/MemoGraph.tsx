@@ -2,7 +2,7 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useFolder } from '@/memo/application/usecase/folder-usecases'
@@ -15,13 +15,13 @@ export default function MemoGraph (): React.ReactElement | null {
     return null
   }
   console.log('MemoGraph 렌더링 체크 2')
-  const flattenFolder = (folder: FolderInfo): FolderInfo[] => {
+  const flattenFolder = (folder: Folder): Folder[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
   }
   const flattenFolders = folders.flatMap(folder => flattenFolder(folder))
 
-  const createFolderNodes = (folder: FolderInfo, group: number, nodes: any): void => {
+  const createFolderNodes = (folder: Folder, group: number, nodes: any): void => {
     nodes.push({
       id: folder.id ?? -1,
       name: folder.name,

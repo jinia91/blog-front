@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { createMemo } from '@/memo/infra/api/memo'
-import { type FolderInfo, type SimpleMemoInfo } from '@/memo/application/domain/models'
+import { type Folder, type SimpleMemoInfo } from '@/memo/application/domain/models'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
@@ -24,7 +24,7 @@ export default function NewMemoButton (): React.ReactElement {
     selectTab(updatedTabs.length - 1)
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
     const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
-    const newUnCategoryFolder: FolderInfo = (unCategoryFolder != null)
+    const newUnCategoryFolder: Folder = (unCategoryFolder != null)
       ? {
           ...unCategoryFolder,
           memos: [...unCategoryFolder.memos, newMemo]

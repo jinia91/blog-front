@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import { LocalHost } from '@/utils/host'
-import { type FolderInfo, type Memo, type SimpleMemoInfo } from '@/memo/application/domain/models'
+import { type Folder, type Memo, type SimpleMemoInfo } from '@/memo/application/domain/models'
 import { withAuthRetry } from '@/auth/infra/api/Auth'
 
 export async function createMemo (): Promise<{ memoId: number } | null> {
@@ -97,7 +97,7 @@ export async function deleteMemoById (id: string): Promise<any> {
   }
 }
 
-export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
+export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + '/v1/folders',
@@ -115,7 +115,7 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    const data: { folderInfos: FolderInfo[] } = await response.json()
+    const data: { folderInfos: Folder[] } = await response.json()
     return data.folderInfos
   } catch (error) {
     console.error('Error fetching memo:', error)
@@ -123,7 +123,7 @@ export async function fetchFolderAndMemo (): Promise<FolderInfo[] | null> {
   }
 }
 
-export async function createFolder (): Promise<FolderInfo> {
+export async function createFolder (): Promise<Folder> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + '/v1/folders', {
@@ -256,7 +256,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
   }
 }
 
-export async function fetchSearchResults (query: string): Promise<FolderInfo[] | null> {
+export async function fetchSearchResults (query: string): Promise<Folder[] | null> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + `/v1/folders?query=${query}`,
       {

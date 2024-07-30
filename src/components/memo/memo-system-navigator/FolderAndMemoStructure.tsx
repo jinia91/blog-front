@@ -1,5 +1,5 @@
 'use client'
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import FolderItem from '@/components/memo/memo-system-navigator/FolderItem'
 import TabOpen from '@/components/system/tap_system/TabOpen'
@@ -17,7 +17,7 @@ export function FolderAndMemo ({
   setNewFolderName,
   handleSubmitRename
 }: {
-  folders: FolderInfo[]
+  folders: Folder[]
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?: string) => void
   contextMenu: ContextMenuProps | null
   renamingFolderId: string | null
@@ -64,7 +64,7 @@ export function FolderAndMemo ({
       return newSet
     })
   }
-  const renderItems = (folders: FolderInfo[], depth: number): React.ReactNode => {
+  const renderItems = (folders: Folder[], depth: number): React.ReactNode => {
     return folders.map((folder) => (
       <React.Fragment key={folder.id}>
         <FolderItem

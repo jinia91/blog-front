@@ -5,7 +5,7 @@ import blogMetaData from '@/metadata/blogMetaData'
 import { SystemMain } from '@/components/system/tap_system/SystemMain'
 import UiContextProvider from '@/components/system/UiContextProvider'
 import { Provider } from 'jotai'
-import { ContextInitializer } from '@/components/ContextInitializer'
+import { SessionProvider } from '@/components/SessionProvider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -56,12 +56,12 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <body className="overflow-hidden">
     <Provider>
       <UiContextProvider>
-        <ContextInitializer>
+        <SessionProvider>
           <SystemMain
             page={children}
           >
           </SystemMain>
-        </ContextInitializer>
+        </SessionProvider>
       </UiContextProvider>
     </Provider>
     </body>

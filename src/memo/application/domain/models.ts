@@ -16,10 +16,10 @@ export interface ReferenceInfo {
   referenceId: number
 }
 
-export interface FolderInfo {
+export interface Folder {
   id: number | null
   name: string
-  parent: FolderInfo | null
-  children: FolderInfo[]
+  parent: Folder | null
+  children: Folder[]
   memos: SimpleMemoInfo[]
 }

@@ -1,6 +1,6 @@
 'use client'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
@@ -70,7 +70,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     const newTabs = tabs.filter((tab: Tab) => {
       const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
       return memoId == null ||
-        newFolder.some((folder: FolderInfo) => folderContainsMemo(folder, memoId))
+        newFolder.some((folder: Folder) => folderContainsMemo(folder, memoId))
     })
     setTabs(newTabs)
 

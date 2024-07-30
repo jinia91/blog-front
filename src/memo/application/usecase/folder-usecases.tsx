@@ -1,16 +1,16 @@
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 import { useAtom } from 'jotai'
 import { folderAtom } from '@/memo/infra/atom/folder-atom'
 import { createFolder, deleteFolderById, fetchFolderAndMemo, fetchSearchResults } from '@/memo/infra/api/memo'
 
 export const useFolder = (): {
-  folders: FolderInfo[]
-  setFolders: (folders: FolderInfo[]) => void
+  folders: Folder[]
+  setFolders: (folders: Folder[]) => void
   initialization: () => Promise<void>
   refreshFolders: () => Promise<void>
   createNewFolder: () => Promise<void>
   searchMemoAndFolders: (value: string) => Promise<void>
-  deleteFolder: (folderId: string) => Promise<FolderInfo[]>
+  deleteFolder: (folderId: string) => Promise<Folder[]>
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
@@ -31,14 +31,14 @@ export const useFolder = (): {
     await fetchAndSetFolders()
   }
 
-  const setFolders = (folders: FolderInfo[]): void => {
+  const setFolders = (folders: Folder[]): void => {
     setFoldersAtom(folders)
   }
 
   const createNewFolder = async (): Promise<void> => {
     const newFolder = await createFolder()
 
-    function orderedNewFolders (newFolder: FolderInfo): FolderInfo[] {
+    function orderedNewFolders (newFolder: Folder): Folder[] {
       const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
       const unCategorizedFolder = folders.find((folder) => folder.id === null)
       if (unCategorizedFolder != null) {
@@ -59,7 +59,7 @@ export const useFolder = (): {
     setFolders(folders)
   }
 
-  const deleteFolder = async (folderId: string): Promise<FolderInfo[]> => {
+  const deleteFolder = async (folderId: string): Promise<Folder[]> => {
     const result = await deleteFolderById(folderId.toString())
     if (result != null) {
       await fetchAndSetFolders()

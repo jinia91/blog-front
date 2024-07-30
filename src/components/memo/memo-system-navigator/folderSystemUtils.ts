@@ -1,7 +1,7 @@
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 
-export const rebuildMemoDeleted = (folders: FolderInfo[], deletedMemoId: string): FolderInfo[] => {
-  return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
+export const rebuildMemoDeleted = (folders: Folder[], deletedMemoId: string): Folder[] => {
+  return folders.reduce((acc: Folder[], folder: Folder) => {
     const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)
     const updatedChildren = rebuildMemoDeleted(folder.children, deletedMemoId)
     const updatedFolder = {
@@ -13,8 +13,8 @@ export const rebuildMemoDeleted = (folders: FolderInfo[], deletedMemoId: string)
   }, [])
 }
 
-export const rebuildMemoTitle = (folders: FolderInfo[], memoId: string | undefined, newTitle: string): FolderInfo[] => {
-  return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
+export const rebuildMemoTitle = (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] => {
+  return folders.reduce((acc: Folder[], folder: Folder) => {
     const updatedMemos = folder.memos.map(memo => {
       if (memo.id.toString() === memoId) {
         return { ...memo, title: newTitle }
@@ -32,8 +32,8 @@ export const rebuildMemoTitle = (folders: FolderInfo[], memoId: string | undefin
   }, [])
 }
 
-export const rebuildNewNameFolder = (folders: FolderInfo[], folderId: string, newName: string): FolderInfo[] => {
-  return folders.reduce((acc: FolderInfo[], folder: FolderInfo) => {
+export const rebuildNewNameFolder = (folders: Folder[], folderId: string, newName: string): Folder[] => {
+  return folders.reduce((acc: Folder[], folder: Folder) => {
     if (folder.id?.toString() === folderId) {
       return [...acc, { ...folder, name: newName }]
     } else {
@@ -47,7 +47,7 @@ export const rebuildNewNameFolder = (folders: FolderInfo[], folderId: string, ne
   }, [])
 }
 
-export function folderContainsMemo (folder: FolderInfo, memoId: string): boolean {
+export function folderContainsMemo (folder: Folder, memoId: string): boolean {
   if (folder.memos.some(memo => memo.id.toString() === memoId)) {
     return true
   }

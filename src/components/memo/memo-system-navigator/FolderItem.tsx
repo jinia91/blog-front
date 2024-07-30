@@ -1,4 +1,4 @@
-import { type FolderInfo } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/models'
 import folderImg from '../../../../public/emptyFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
@@ -18,7 +18,7 @@ export default function FolderItem ({
   setNewFolderName,
   handleSubmitRename
 }: {
-  folder: FolderInfo
+  folder: Folder
   toggleFolder: (folderId: number) => void
   depth: number
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?: string) => void
