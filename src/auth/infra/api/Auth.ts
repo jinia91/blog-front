@@ -34,6 +34,17 @@ Promise<{
   return await response.json()
 }
 
+export async function oAuthLogout (): Promise<void> {
+  const response = await fetch(LocalHost + '/v1/auth/logout', {
+    method: 'POST',
+    credentials: 'include'
+  })
+
+  if (!response.ok) {
+    console.error(response.statusText)
+  }
+}
+
 export async function refreshTokens (): Promise<{
   nickName: string
   email: string

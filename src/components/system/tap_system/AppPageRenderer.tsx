@@ -1,17 +1,15 @@
 import React from 'react'
-import { useTabs } from '@/system/application/usecase/TabUseCases'
 import { usePathname } from 'next/navigation'
 import MemoFolderContainer from '@/components/memo/MemoFolderContainer'
 
 export function RenderApp ({ page }: {
   page: React.ReactNode
 }): React.ReactElement | null {
-  const { tabs } = useTabs()
   const path = usePathname()
-  console.log('RenderApp 렌더링 횟수 체크')
+  console.log('RenderApp 렌더링 횟수 체크, path:', path)
 
   function isEmpty (): boolean {
-    return tabs.length === 0 || (path === '/empty')
+    return (path === '/empty')
   }
 
   function renderOthers (): React.ReactElement | null {
@@ -23,7 +21,7 @@ export function RenderApp ({ page }: {
   }
 
   function isMemo (): boolean {
-    return tabs.length > 0 && (path !== '/empty') && path.startsWith('/memo')
+    return (path !== '/empty') && path.startsWith('/memo')
   }
 
   function renderMemo (): React.ReactElement | null {

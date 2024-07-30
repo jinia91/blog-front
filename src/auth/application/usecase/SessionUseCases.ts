@@ -1,13 +1,12 @@
 import { useAtom } from 'jotai'
 import { type Session } from '@/auth/application/domain/Session'
 import { sessionAtom } from '@/auth/infra/atom/Session'
-import { oAuthLogin, refreshTokens } from '@/auth/infra/api/Auth'
+import { oAuthLogin, oAuthLogout, refreshTokens } from '@/auth/infra/api/Auth'
 import type { Provider } from '@/auth/application/domain/Provider'
 
 export const useSession = (): {
   session: Session | null
   initializeSession: () => Promise<void>
-  updateSession: (newSession: Session | null) => void
   handleLogout: () => Promise<void>
   executeLoginWithCode: (provider: Provider, code: string) => Promise<void>
 } => {
@@ -24,6 +23,7 @@ export const useSession = (): {
   const handleLogout = async (): Promise<void> => {
     try {
       updateSession(null)
+      await oAuthLogout()
     } catch (error) {
       console.error('Failed to logout:', error)
     }
@@ -42,5 +42,5 @@ export const useSession = (): {
     })
   }
 
-  return { session, initializeSession, updateSession, handleLogout, executeLoginWithCode }
+  return { session, initializeSession, handleLogout, executeLoginWithCode }
 }

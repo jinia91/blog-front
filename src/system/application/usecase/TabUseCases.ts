@@ -1,4 +1,7 @@
-import { restoreTabsFromLocalStorage } from '@/system/infra/localstorage/TabLocalStorage'
+import {
+  restoreSelectedTabIdxFromLocalStorage,
+  restoreTabsFromLocalStorage
+} from '@/system/infra/localstorage/TabLocalStorage'
 import { type Tab } from '@/system/application/domain/Tab'
 import { useAtom } from 'jotai'
 import { SelectedTabIdxAtom, TabsAtom } from '@/system/infra/atom/TabManagerAtom'
@@ -19,9 +22,9 @@ export function useTabs (): {
   const initializeTabs = (path: string): void => {
     const tabsList = restoreTabsFromLocalStorage()
     const newTabs = rebuildTabsWithPath(path, tabsList)
-    const tabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === path)
-    const newSelected = tabIndex >= 0 ? tabIndex : 0
-    setTabsAtom(newTabs, newSelected)
+    const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
+    const newSelectedTabIdx = rebuildSelectedTabIdx(path, newTabs, asIsSelectedTabIdx)
+    setTabsAtom(newTabs, newSelectedTabIdx)
   }
 
   function rebuildTabsWithPath (path: string, tabsList: Tab[]): Tab[] {
@@ -53,6 +56,31 @@ export function useTabs (): {
     tabsList.push({ name: path, urlPath: path })
 
     return tabsList
+  }
+
+  function rebuildSelectedTabIdx (path: string, tabsList: Tab[], asIsSelectedTabIdx: number): number {
+    // 로그인시 예외 핸들링
+    if (path.startsWith('/login/oauth2')) {
+      return asIsSelectedTabIdx
+    }
+
+    // 빈 페이지 예외 핸들링
+    if (path === '/empty') {
+      return 0
+    }
+
+    // 탭이 없을 경우
+    if (tabsList == null || tabsList.length === 0) {
+      return 0
+    }
+
+    // 탭이 있고 패쓰가 있을경우
+    if (tabsList.some((tab: Tab) => tab.urlPath === path)) {
+      return tabsList.findIndex((tab: Tab) => tab.urlPath === path)
+    }
+
+    // 탭이 있지만 패쓰가 없을경우
+    return tabsList.length - 1
   }
 
   const selectTab = (index: number): void => {

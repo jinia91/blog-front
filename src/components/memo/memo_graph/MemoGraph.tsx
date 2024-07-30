@@ -6,13 +6,12 @@ import { type FolderInfo } from '@/api/models'
 import React, { useContext } from 'react'
 import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
-import { useTabs } from '@/system/application/usecase/TabUseCases'
-import { type Tab } from '@/system/application/domain/Tab'
+import { useRouter } from 'next/navigation'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
-  const { tabs, setTabs, selectTab } = useTabs()
+  const router = useRouter()
   console.log('MemoGraph 렌더링 체크 1')
   if (folders == null || isReferenceMode || folders[0].id === 1) {
     return null
@@ -109,19 +108,7 @@ export default function MemoGraph (): React.ReactElement | null {
 
   const handleNodeClick = (node: any): void => {
     if (isFolder(node)) return
-
-    const existingTabIndex = tabs.findIndex(function (tab: Tab) {
-      return tab.urlPath === `/memo/${node.id}`
-    })
-
-    if (existingTabIndex !== -1) {
-      selectTab(existingTabIndex)
-    } else {
-      const newTab = { name: node.name ?? 'untitled', urlPath: `/memo/${node.id}` }
-      const updatedTabs = [...tabs, newTab]
-      setTabs(updatedTabs)
-      selectTab(updatedTabs.length - 1)
-    }
+    router.push(`/memo/${node.id}`)
   }
   console.log('MemoGraph 렌더링 체크 3')
 

@@ -7,6 +7,7 @@ import React from 'react'
 import { TapBarContainer } from '@/components/system/tap_system/TapBarContainer'
 
 const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
+  console.log('SystemMain 렌더링 체크 1')
   return (
     <>
       <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
@@ -19,7 +20,7 @@ const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
         <main
           className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-auto pb-4"
           style={{ height: 'calc(100vh - 60px)' }}>
-          {TabContextMenu()}
+          <TabContextMenu/>
           <div className="bg-gray-800 p-4">
             <TapBarContainer/>
             <RenderApp page={page}/>
