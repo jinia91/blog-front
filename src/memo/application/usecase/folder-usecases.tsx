@@ -14,15 +14,6 @@ export const useFolder = (): {
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
-  const fetchAndSetFolders = async (): Promise<void> => {
-    const fetchedFolders = await fetchFolderAndMemo()
-    if (fetchedFolders === null) {
-      console.debug('폴더 정보를 가져오는데 실패했습니다.')
-      return
-    }
-    setFoldersAtom(fetchedFolders)
-  }
-
   const initialization = async (): Promise<void> => {
     await fetchAndSetFolders()
   }
@@ -65,6 +56,15 @@ export const useFolder = (): {
       await fetchAndSetFolders()
     }
     return folders
+  }
+
+  async function fetchAndSetFolders (): Promise<void> {
+    const fetchedFolders = await fetchFolderAndMemo()
+    if (fetchedFolders === null) {
+      console.debug('폴더 정보를 가져오는데 실패했습니다.')
+      return
+    }
+    setFoldersAtom(fetchedFolders)
   }
 
   return { initialization, folders, setFolders, refreshFolders, createNewFolder, searchMemoAndFolders, deleteFolder }
