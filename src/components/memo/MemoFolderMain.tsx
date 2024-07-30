@@ -2,20 +2,29 @@
 import MemoSystemNavigator from '@/components/memo/folder_navigator/MemoSystemNavigator'
 import React, { useEffect, useState } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
-import { FolderContextProvider } from '@/components/memo/FolderContextProvider'
 import { MemoEditContextProvider } from '@/components/memo/MemoEditContextProvider'
 import SignInPage from '@/components/auth/SignInPage'
 import AdminAccessDenied from '@/components/auth/AccessDeniedPage'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 import { Auth } from '@/auth/application/domain/Session'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
-export default function MemoFolderContainer ({ children }: { children: React.ReactNode }): React.ReactElement {
+export default function MemoFolderMain ({ children }: { children: React.ReactNode }): React.ReactElement {
   const { session } = useSession()
-  console.log('MemoFolderContainer 렌더링 체크 1')
-  console.log('MemoFolderContainer session:', session)
+  const { initialization } = useFolder()
+  const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
 
+  console.log('MemoFolderMain 렌더링 체크 1')
+  console.log('MemoFolderMain session:', session)
+
   useEffect(() => {
+    initialization().then(() => {
+      setMounted(true)
+    }).catch(error => {
+      console.error(error)
+    })
+
     const handleResize = (): void => {
       if (window.innerWidth <= 768) {
         setDirection('vertical')
@@ -32,11 +41,12 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
 
   const [direction, setDirection] = useState<Direction>('horizontal')
 
-  return (session == null)
-    ? <SignInPage/>
-    : (session.roles.values().next().value === Auth.Admin)
-        ? (
-        <FolderContextProvider>
+  return !mounted
+    ? <></>
+    : (session == null)
+        ? <SignInPage/>
+        : (session.roles.values().next().value === Auth.Admin)
+            ? (
           <MemoEditContextProvider>
             <div className="flex-grow">
               <PanelGroup
@@ -62,7 +72,6 @@ export default function MemoFolderContainer ({ children }: { children: React.Rea
               </PanelGroup>
             </div>
           </MemoEditContextProvider>
-        </FolderContextProvider>
-          )
-        : <AdminAccessDenied/>
+              )
+            : <AdminAccessDenied/>
 }

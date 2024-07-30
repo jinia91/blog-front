@@ -1,19 +1,18 @@
 'use client'
 
 import React, { type Dispatch, type SetStateAction, useContext, useEffect } from 'react'
-import { type FolderInfo } from '@/memo/application/domain/models'
 import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '@/memo/infra/api/memo'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
-export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenceMode, setReferenceMode, refreshCount }: {
-  foldersRef: FolderInfo[]
-  setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
+export default function ReferenceSystem ({ isReferenceMode, setReferenceMode, refreshCount }: {
   isReferenceMode: boolean
   setReferenceMode: Dispatch<SetStateAction<boolean>>
   refreshCount: number
 }): React.ReactElement {
+  const { setFolders } = useFolder()
   const { underwritingId }: { underwritingId: string } = useContext(MemoEditContext)
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function ReferenceSystem ({ foldersRef, setFoldersRef, isReferenc
           children: []
         }
         const newFolders = [referenceFolderInfo, referencedFolderInfo]
-        setFoldersRef(newFolders)
+        setFolders(newFolders)
       } catch (error) {
         console.error('Error fetching data:', error)
       }

@@ -1,24 +1,12 @@
 'use client'
 
-import React, { type Dispatch, type SetStateAction } from 'react'
-import { type FolderInfo } from '@/memo/application/domain/models'
-import { createFolder } from '@/memo/infra/api/memo'
+import React from 'react'
 import Image from 'next/image'
 import newFolder from '../../../../../public/newFolder.png'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
-export default function NewFolder ({ foldersRef, setFoldersRef }: {
-  foldersRef: FolderInfo[]
-  setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
-}): React.ReactElement {
-  const createNewFolder = async (): Promise<void> => {
-    const newFolder = await createFolder()
-    const unCategoryFolder = foldersRef.find((folder) => folder.id === null)
-    const newFolders = [...foldersRef.filter((folder) => folder.id !== null), newFolder]
-    if (unCategoryFolder != null) {
-      newFolders.push(unCategoryFolder)
-    }
-    setFoldersRef(newFolders)
-  }
+export default function NewFolder (): React.ReactElement {
+  const { createNewFolder } = useFolder()
 
   return (
     <div className="tooltip">

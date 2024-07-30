@@ -2,10 +2,10 @@ import { type FolderInfo } from '@/memo/application/domain/models'
 import folderImg from '../../../../public/emptyFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
-import { FolderContext } from '@/components/memo/FolderContextProvider'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
 export default function FolderItem ({
   folder,
@@ -28,7 +28,7 @@ export default function FolderItem ({
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
 }): React.ReactElement {
-  const { refreshFolders } = useContext(FolderContext)
+  const { refreshFolders } = useFolder()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = useState(false)
 
@@ -52,14 +52,14 @@ export default function FolderItem ({
     if (draggedItem.type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        refreshFolders()
+        await refreshFolders()
       } else {
         console.log('fail')
       }
     } else if (draggedItem.type === 'folder') {
       const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        refreshFolders()
+        await refreshFolders()
       } else {
         console.log('fail')
       }

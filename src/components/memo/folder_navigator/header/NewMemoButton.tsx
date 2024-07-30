@@ -1,23 +1,22 @@
 'use client'
 
-import React, { type Dispatch, type SetStateAction, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { createMemo } from '@/memo/infra/api/memo'
 import { type FolderInfo, type SimpleMemoInfo } from '@/memo/application/domain/models'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
-export default function NewMemoLink ({ name, foldersRef, setFoldersRef }: {
-  name: string
-  foldersRef: FolderInfo[]
-  setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
-}): React.ReactElement {
+export default function NewMemoButton (): React.ReactElement {
   const { tabs, setTabs, selectTab } = useTabs()
+  const { folders: foldersRef, setFolders: setFoldersRef } = useFolder()
   const createNewMemo = async (): Promise<void> => {
     const memo = await createMemo()
     if (memo == null) {
       return
     }
+    const name = '새 메모'
     const newHref = `/memo/${memo.memoId}`
     const newTab = { name, urlPath: newHref }
     const updatedTabs = [...tabs, newTab]

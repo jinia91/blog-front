@@ -5,7 +5,7 @@ import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
-import { FolderContext } from '@/components/memo/FolderContextProvider'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
 export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {
   memo: SimpleMemoInfo
@@ -16,7 +16,7 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
 }): React.ReactElement {
   const { underwritingId, underwritingTitle } = useContext(MemoEditContext)
   const [isDragOver, setIsDragOver] = useState(false)
-  const { refreshFolders } = useContext(FolderContext)
+  const { refreshFolders } = useFolder()
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
     e.dataTransfer.effectAllowed = 'move'
@@ -28,14 +28,14 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
     if (draggedItem.type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        refreshFolders()
+        await refreshFolders()
       } else {
         console.log('fail')
       }
     } else if (draggedItem.type === 'folder') {
       const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        refreshFolders()
+        await refreshFolders()
       } else {
         console.log('fail')
       }

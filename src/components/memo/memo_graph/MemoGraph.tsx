@@ -4,12 +4,12 @@ import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type FolderInfo } from '@/memo/application/domain/models'
 import React, { useContext } from 'react'
-import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { ReferenceModeContext } from '@/components/memo/MemoEditContextProvider'
 import { useRouter } from 'next/navigation'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
 export default function MemoGraph (): React.ReactElement | null {
-  const { folders }: { folders: FolderInfo[] } = useContext(FolderContext)
+  const { folders }: { folders: FolderInfo[] } = useFolder()
   const { isReferenceMode }: { isReferenceMode: boolean } = useContext(ReferenceModeContext)
   const router = useRouter()
   console.log('MemoGraph 렌더링 체크 1')

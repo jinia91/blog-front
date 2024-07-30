@@ -1,7 +1,7 @@
 'use client'
-import React, { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { type FolderInfo } from '@/memo/application/domain/models'
-import { changeFolderName, deleteFolderById, deleteMemoById, fetchFolderAndMemo } from '@/memo/infra/api/memo'
+import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/folder_navigator/MemoAndFolderContextMenu'
@@ -13,16 +13,13 @@ import {
 } from '@/components/memo/folder_navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/folder_navigator/FolderAndMemoStructure'
 import NavigatorHeader from '@/components/memo/folder_navigator/header/NavigatorHeader'
-import { FolderContext } from '@/components/memo/FolderContextProvider'
 import { MemoEditContext } from '@/components/memo/MemoEditContextProvider'
 import { type Tab } from '@/system/application/domain/Tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
-  const { folders, setFolders }: {
-    folders: FolderInfo[]
-    setFolders: Dispatch<SetStateAction<FolderInfo[]>>
-  } = useContext(FolderContext)
+  const { folders, setFolders, deleteFolder } = useFolder()
   const { tabs, selectedTabIdx, setTabs, selectTab } = useTabs()
   const { underwritingTitle, underwritingId }: {
     underwritingTitle: string
@@ -61,12 +58,32 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     if ((memoContextMenu?.memoId) != null) {
       await deleteMemo()
     } else if ((memoContextMenu?.folderId) != null) {
-      await deleteFolder()
+      await deleteFolderAndUpdateTabs()
     }
+  }
+
+  async function deleteFolderAndUpdateTabs (): Promise<void> {
+    if ((memoContextMenu?.folderId) == null) return
+    // fixme 되는지 확인해볼것
+    const newFolder = await deleteFolder(memoContextMenu.folderId)
+
+    const newTabs = tabs.filter((tab: Tab) => {
+      const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
+      return memoId == null ||
+        newFolder.some((folder: FolderInfo) => folderContainsMemo(folder, memoId))
+    })
+    setTabs(newTabs)
+
+    if (selectedTabIdx !== null && newTabs[selectedTabIdx] !== null) {
+      const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
+      selectTab(newSelectedTabIdx)
+    }
+    closeContextMenu()
   }
 
   // 폴더명 변경 todo 적절한 컴포넌트로 이동
   const [renamingFolderId, setRenamingFolderId] = useState<string>('')
+
   const [newFolderName, setNewFolderName] = useState<string>('')
 
   const handleRenameClick = (folderId: string, currentName: string): void => {
@@ -84,31 +101,6 @@ export default function MemoSystemNavigator ({ className }: { className?: string
         setRenamingFolderId('')
         setFolders(newFolderRef)
       }
-    }
-  }
-
-  async function deleteFolder (): Promise<void> {
-    if ((memoContextMenu?.folderId) == null) return
-
-    const result = await deleteFolderById(memoContextMenu.folderId)
-    if (result != null) {
-      const newFetchedFolders = await fetchFolderAndMemo()
-      if (newFetchedFolders == null) return
-      setFolders(newFetchedFolders)
-
-      const newTabs = tabs.filter((tab: Tab) => {
-        const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
-
-        return memoId == null ||
-          newFetchedFolders.some((folder: FolderInfo) => folderContainsMemo(folder, memoId))
-      })
-      setTabs(newTabs)
-
-      if (selectedTabIdx !== null && newTabs[selectedTabIdx] !== null) {
-        const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
-        selectTab(newSelectedTabIdx)
-      }
-      closeContextMenu()
     }
   }
 
@@ -142,7 +134,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
   return (
     <div className={className}>
-      <NavigatorHeader folders={folders} setFolders={setFolders}/>
+      <NavigatorHeader/>
       {MemoAndFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
       <FolderAndMemo
         folders={folders}

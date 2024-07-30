@@ -1,17 +1,15 @@
-import { type FolderInfo } from '@/memo/application/domain/models'
 import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
-import { fetchSearchResults } from '@/memo/infra/api/memo'
+import { useFolder } from '@/memo/application/usecase/folder-usecases'
 
-export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVisible }: {
-  foldersRef: FolderInfo[]
-  setFoldersRef: Dispatch<SetStateAction<FolderInfo[]>>
+export function Search ({ isInputVisible, setInputVisible }: {
   isInputVisible: boolean
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { searchMemoAndFolders } = useFolder()
 
   useEffect(() => {
     if (isInputVisible && (inputRef.current != null)) {
@@ -20,21 +18,11 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
   }, [isInputVisible])
 
   const searchData = useDebouncedCallback(async (value: string) => {
-    try {
-      const folders = await fetchSearchResults(value)
-      if (folders == null) {
-        console.log('fetchSearchResults error')
-        return
-      }
-      setFoldersRef(folders)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  },
-  300
-  )
+    await searchMemoAndFolders(value)
+  }, 300)
+
   useEffect(() => {
-    const moveTab = async (event: KeyboardEvent): Promise<void> => {
+    const searchModeKeyboardAction = async (event: KeyboardEvent): Promise<void> => {
       if (event.ctrlKey && (event.key === 'f' || event.key === 'ㄹ')) {
         event.preventDefault()
         setInputVisible(!isInputVisible)
@@ -42,31 +30,20 @@ export function Search ({ foldersRef, setFoldersRef, isInputVisible, setInputVis
     }
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    window.addEventListener('keydown', moveTab)
+    window.addEventListener('keydown', searchModeKeyboardAction)
 
     return () => {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      window.removeEventListener('keydown', moveTab)
+      window.removeEventListener('keydown', searchModeKeyboardAction)
     }
   }, [isInputVisible])
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const folders = await fetchSearchResults('')
-        if (folders == null) {
-          return
-        }
-        setFoldersRef(folders)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-
     if (!isInputVisible) {
-      void fetchData()
+      void searchMemoAndFolders('')
     }
   }, [isInputVisible])
+
   const searchDataCallback = (value: string): void => {
     void searchData(value)
   }

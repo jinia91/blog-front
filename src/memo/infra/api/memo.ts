@@ -136,7 +136,7 @@ export async function createFolder (): Promise<FolderInfo> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    throw new Error('Network response was not ok')
+    throw new Error('카테고리 생성에 실패했습니다')
   }
   return await response.json().then((data) => data.folder)
 }
@@ -176,16 +176,12 @@ export async function deleteFolderById (folderId: string): Promise<any> {
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      console.error('폴더 삭제 api 호출시 에러, 정상 삭제가 되지 않았습니다')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('폴더 삭제 api 호출시 에러', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('폴더 삭제 api 호출시 에러, 정상 삭제가 되지 않았습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function makeRelationshipWithFolders (childFolderId: string, parentFolderId: string | null): Promise<any> {
@@ -272,17 +268,13 @@ export async function fetchSearchResults (query: string): Promise<FolderInfo[] |
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.folderInfos
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('폴더 검색에 실패했습니다')
     return null
   }
+  const data = await response.json()
+  return data.folderInfos
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
