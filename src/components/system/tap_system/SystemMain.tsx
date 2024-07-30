@@ -10,7 +10,7 @@ const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   console.log('SystemMain 렌더링 체크 1')
   return (
     <>
-      <header className="sticky top-0 w-full dark:bg-gray-900 border-b"><TopNav/></header>
+      <header className="w-full dark:bg-gray-900 border-b"><TopNav/></header>
       <div className="md:flex overflow-hidden">
         <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
