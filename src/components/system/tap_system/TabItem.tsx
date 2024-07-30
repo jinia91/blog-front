@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { type Tab } from '@/system/application/domain/Tab'
+import { type Tab } from '@/system/application/domain/tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 import { useContextMenu } from '@/system/application/usecase/ContextMenuUseCases'
 

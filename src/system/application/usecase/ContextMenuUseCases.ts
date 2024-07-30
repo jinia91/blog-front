@@ -1,7 +1,8 @@
 import { type TabContextMenuProps } from '@/components/system/tap_system/TabContextMenu'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
-import { useAtom } from 'jotai'
-import { TabContextManagerAtom } from '@/system/infra/atom/TabContextManagerAtom'
+import { useAtom, atom } from 'jotai'
+
+const TabContextManagerAtom = atom<TabContextMenuProps | null>(null)
 
 export function useContextMenu (): {
   contextMenu: TabContextMenuProps | null

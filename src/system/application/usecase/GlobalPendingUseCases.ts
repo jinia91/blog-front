@@ -1,5 +1,6 @@
-import { useAtom } from 'jotai/index'
-import { GlobalPending } from '@/system/infra/atom/GlobalPendingAtom'
+import { atom, useAtom } from 'jotai'
+
+const GlobalPending = atom(false)
 
 export const useGlobalPending = (): {
   isGlobalPending: boolean

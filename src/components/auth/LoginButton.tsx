@@ -1,5 +1,5 @@
 import React from 'react'
-import { type Provider } from '@/auth/application/domain/Provider'
+import { type Provider } from '@/auth/application/domain/provider'
 import { executeOAuthLoginRequest } from '@/auth/application/usecase/OAuthLoginRequestUseCase'
 
 interface LoginButtonProps {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SockJS from 'sockjs-client'
 import { type Client, type CompatClient, type IMessage, Stomp } from '@stomp/stompjs'
 import { useDebouncedCallback } from 'use-debounce'
-import { type ReferenceInfo } from '@/memo/application/domain/models'
+import { type ReferenceInfo } from '@/memo/application/domain/memo'
 import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 const useStompClient = (

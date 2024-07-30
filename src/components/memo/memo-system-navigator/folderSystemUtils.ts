@@ -1,4 +1,4 @@
-import { type Folder } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/folder'
 
 export const rebuildMemoDeleted = (folders: Folder[], deletedMemoId: string): Folder[] => {
   return folders.reduce((acc: Folder[], folder: Folder) => {
@@ -26,20 +26,4 @@ export const rebuildNewNameFolder = (folders: Folder[], folderId: string, newNam
       return [...acc, updatedFolder]
     }
   }, [])
-}
-
-export function folderContainsMemo (folder: Folder, memoId: string): boolean {
-  if (folder.memos.some(memo => memo.id.toString() === memoId)) {
-    return true
-  }
-  return folder.children.some(childFolder => folderContainsMemo(childFolder, memoId))
-}
-
-export function findFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
-  for (const folder of folders) {
-    if (folderContainsMemo(folder, memoId)) {
-      return folder.id?.toString() ?? null
-    }
-  }
-  return null
 }

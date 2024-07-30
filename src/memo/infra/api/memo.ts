@@ -1,7 +1,8 @@
 import { unstable_noStore as noStore } from 'next/cache'
-import { LocalHost } from '@/utils/host'
-import { type Folder, type Memo, type SimpleMemoInfo } from '@/memo/application/domain/models'
-import { withAuthRetry } from '@/auth/infra/api/Auth'
+import { LocalHost } from '@/utils/constants'
+import { type Memo, type SimpleMemoInfo } from '@/memo/application/domain/memo'
+import { type Folder } from '@/memo/application/domain/folder'
+import { withAuthRetry } from '@/auth/infra/api/auth'
 
 export async function createMemo (): Promise<{ memoId: number } | null> {
   const apiCall = async (): Promise<Response> => {

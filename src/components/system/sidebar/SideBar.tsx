@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import TabOpen from '@/components/system/tap_system/TabOpen'
 import { sideBarItems } from '@/components/system/sidebar/sideBarItems'
-import { Auth } from '@/auth/application/domain/Session'
+import { Auth } from '@/auth/application/domain/session'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 import { useSideBar } from '@/system/application/usecase/SideBarUseCases'
 

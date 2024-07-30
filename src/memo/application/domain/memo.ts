@@ -15,11 +15,3 @@ export interface ReferenceInfo {
   id: number
   referenceId: number
 }
-
-export interface Folder {
-  id: number | null
-  name: string
-  parent: Folder | null
-  children: Folder[]
-  memos: SimpleMemoInfo[]
-}

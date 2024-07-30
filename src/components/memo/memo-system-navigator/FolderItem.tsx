@@ -1,11 +1,10 @@
-import { type Folder } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/folder'
 import folderImg from '../../../../public/emptyFolder.png'
 import openFolder from '../../../../public/openFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 
 export default function FolderItem ({
@@ -31,7 +30,7 @@ export default function FolderItem ({
   handleSubmitRename: () => void
   isOpen: boolean
 }): React.ReactElement {
-  const { refreshFolders } = useFolderAndMemo()
+  const { makeRelationshipAndRefresh } = useFolderAndMemo()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = useState(false)
 
@@ -52,22 +51,9 @@ export default function FolderItem ({
     e.preventDefault()
     setIsDragOver(false)
     const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
-    if (draggedItem.type === 'memo') {
-      const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
-      if (result != null) {
-        await refreshFolders()
-      } else {
-        console.log('fail')
-      }
-    } else if (draggedItem.type === 'folder') {
-      const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
-      if (result != null) {
-        await refreshFolders()
-      } else {
-        console.log('fail')
-      }
-    }
+    await makeRelationshipAndRefresh(draggedItem, targetFolderId)
   }
+
   const handleDragOver = (e: React.DragEvent): void => {
     e.preventDefault()
     setIsDragOver(true)
@@ -136,6 +122,7 @@ export default function FolderItem ({
       </li>
     )
   } else {
+    const isOnContextMenu = ((contextMenu?.folderId) != null) && contextMenu.folderId === folder.id?.toString()
     return (
       <li
         draggable={true}
@@ -149,7 +136,7 @@ export default function FolderItem ({
         onDragLeave={handleDragLeave}
         className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500
         ${isDragOver ? 'bg-gray-500' : ''}
-      ${((contextMenu?.folderId) != null) && contextMenu.folderId === folder.id?.toString() ? 'bg-gray-600' : ''}`}
+      ${isOnContextMenu ? 'bg-gray-600' : ''}`}
         onContextMenu={(e) => {
           folder.id === null
             ? handleUnCategorizedContextMenu(e)

@@ -1,4 +1,4 @@
-import { LocalHost } from '@/utils/host'
+import { LocalHost } from '@/utils/constants'
 
 export async function getOAuthLoginUrl (provider: string): Promise<{ url: string } | null> {
   const response = await fetch(LocalHost + `/v1/auth/${provider}/url`, {

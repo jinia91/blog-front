@@ -3,7 +3,7 @@ import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
 import CommonModal from '@/components/system/common/CommonModal'
 import { LoginButton } from '@/components/auth/LoginButton'
-import { Provider } from '@/auth/application/domain/Provider'
+import { Provider } from '@/auth/application/domain/provider'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
 
 export default function SignInModal ({ onClose }: { onClose: () => void }): React.ReactElement | null {

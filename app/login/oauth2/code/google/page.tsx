@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
-import { Provider } from '@/auth/application/domain/Provider'
+import { Provider } from '@/auth/application/domain/provider'
 import { useGlobalPending } from '@/system/application/usecase/GlobalPendingUseCases'
 
 export default function Page (): React.ReactElement {

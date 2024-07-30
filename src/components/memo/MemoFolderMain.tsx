@@ -5,7 +5,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import SignInPage from '@/components/auth/SignInPage'
 import AdminAccessDenied from '@/components/auth/AccessDeniedPage'
 import { useSession } from '@/auth/application/usecase/SessionUseCases'
-import { Auth } from '@/auth/application/domain/Session'
+import { Auth } from '@/auth/application/domain/session'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 
 export default function MemoFolderMain ({ children }: { children: React.ReactNode }): React.ReactElement {

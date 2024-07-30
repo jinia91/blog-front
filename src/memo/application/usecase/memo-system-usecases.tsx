@@ -1,7 +1,10 @@
-import { useAtom } from 'jotai'
-import { memoEditorContextAtom, memoSystemContextAtom } from '@/memo/infra/atom/memo-system-context-atom'
+import { useAtom, atom } from 'jotai'
 import { type MemoSystemNavigatorContext } from '@/memo/application/domain/memo-system-navigator-context'
 import { type MemoEditorSharedContext } from '@/memo/application/domain/memo-editor-shared-context'
+
+const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({ isReferenceMode: false, refreshTrigger: 0 })
+
+const memoEditorContextAtom = atom<MemoEditorSharedContext>({ title: '', id: '' })
 
 export const useMemoSystem = (): {
   navigatorContext: MemoSystemNavigatorContext

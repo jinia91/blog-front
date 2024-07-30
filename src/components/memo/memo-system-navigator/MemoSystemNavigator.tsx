@@ -1,21 +1,17 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
-import { type Folder } from '@/memo/application/domain/models'
+import { type Folder, isFolderHasMemo } from '@/memo/application/domain/folder'
 import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import {
-  folderContainsMemo,
-  rebuildMemoDeleted,
-  rebuildNewNameFolder
-} from '@/components/memo/memo-system-navigator/folderSystemUtils'
+import { rebuildMemoDeleted, rebuildNewNameFolder } from '@/components/memo/memo-system-navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/memo-system-navigator/FolderAndMemoStructure'
-import NavigatorHeader from '@/components/memo/memo-system-navigator/header/NavigatorHeader'
-import { type Tab } from '@/system/application/domain/Tab'
+import { type Tab } from '@/system/application/domain/tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
+import NavigatorHeader from '@/components/memo/memo-system-navigator/header/navigator-header'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders, deleteFolder, writeNewMemoTitle } = useFolderAndMemo()
@@ -25,8 +21,6 @@ export default function MemoSystemNavigator ({ className }: { className?: string
   useEffect(() => {
     writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)
   }, [memoEditorSharedContext])
-
-  console.log('MemoSystemNavigator render')
 
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const closeContextMenu = useCallback(() => {
@@ -69,7 +63,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     const newTabs = tabs.filter((tab: Tab) => {
       const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
       return memoId == null ||
-        newFolder.some((folder: Folder) => folderContainsMemo(folder, memoId))
+        newFolder.some((folder: Folder) => isFolderHasMemo(folder, memoId))
     })
     const asIsTabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
 

@@ -1,5 +1,6 @@
-import { useAtom } from 'jotai'
-import { SideBarAtom } from '@/system/infra/atom/SideBarAtom'
+import { atom, useAtom } from 'jotai'
+
+const SideBarAtom = atom<boolean>(true)
 
 export const useSideBar = (): {
   isCollapsed: boolean

@@ -1,9 +1,8 @@
-import { type SimpleMemoInfo } from '@/memo/application/domain/models'
+import { type SimpleMemoInfo } from '@/memo/application/domain/memo'
 import React, { useState } from 'react'
 import Image from 'next/image'
 import memoImg from '../../../../public/memo.png'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import { makeRelationshipWithFolders, makeRelationshipWithMemoAndFolders } from '@/memo/infra/api/memo'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
@@ -16,7 +15,7 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
 }): React.ReactElement {
   const { memoEditorSharedContext } = useMemoSystem()
   const [isDragOver, setIsDragOver] = useState(false)
-  const { refreshFolders } = useFolderAndMemo()
+  const { makeRelationshipAndRefresh } = useFolderAndMemo()
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
     e.dataTransfer.effectAllowed = 'move'
@@ -25,21 +24,7 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
     e.preventDefault()
     setIsDragOver(false)
     const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
-    if (draggedItem.type === 'memo') {
-      const result = await makeRelationshipWithMemoAndFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
-      if (result != null) {
-        await refreshFolders()
-      } else {
-        console.log('fail')
-      }
-    } else if (draggedItem.type === 'folder') {
-      const result = await makeRelationshipWithFolders(draggedItem.id.toString(), targetFolderId?.toString() ?? null)
-      if (result != null) {
-        await refreshFolders()
-      } else {
-        console.log('fail')
-      }
-    }
+    await makeRelationshipAndRefresh(draggedItem, targetFolderId)
   }
 
   const handleDragOver = (e: React.DragEvent): void => {

@@ -1,6 +1,12 @@
-import { type Folder, type SimpleMemoInfo } from '@/memo/application/domain/models'
-import { useAtom } from 'jotai'
-import { folderAtom } from '@/memo/infra/atom/folder-atom'
+import { type SimpleMemoInfo } from '@/memo/application/domain/memo'
+import {
+  buildReferenceFolders,
+  findUnCategorizedFolder,
+  type Folder,
+  includeNewMemoToFolders,
+  updateMemoTitleByMemoIdInFolders
+} from '@/memo/application/domain/folder'
+import { atom, useAtom } from 'jotai'
 import {
   createFolder,
   createMemo,
@@ -8,8 +14,12 @@ import {
   fetchFolderAndMemo,
   fetchReferencedByMemoId,
   fetchReferencesByMemoId,
-  fetchSearchResults
+  fetchSearchResults,
+  makeRelationshipWithFolders,
+  makeRelationshipWithMemoAndFolders
 } from '@/memo/infra/api/memo'
+
+const folderAtom = atom<Folder[]>([])
 
 export const useFolderAndMemo = (): {
   folders: Folder[]
@@ -22,6 +32,7 @@ export const useFolderAndMemo = (): {
   fetchReferenceMemos: (targetMemoId: string) => Promise<void>
   createNewMemo: () => Promise<string>
   writeNewMemoTitle: (memoId: string, newTitle: string) => void
+  makeRelationshipAndRefresh: ({ id, type }: { id: number, type: string }, targetFolderId: number | null) => Promise<void>
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
@@ -42,7 +53,7 @@ export const useFolderAndMemo = (): {
 
     function orderedNewFolders (newFolder: Folder): Folder[] {
       const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
-      const unCategorizedFolder = folders.find((folder) => folder.id === null)
+      const unCategorizedFolder = findUnCategorizedFolder(newFolders)
       if (unCategorizedFolder != null) {
         newFolders.push(unCategorizedFolder)
       }
@@ -72,8 +83,7 @@ export const useFolderAndMemo = (): {
   async function fetchAndSetFolders (): Promise<void> {
     const fetchedFolders = await fetchFolderAndMemo()
     if (fetchedFolders === null) {
-      console.debug('폴더 정보를 가져오는데 실패했습니다.')
-      return
+      throw new Error('폴더 정보를 가져오는데 실패했습니다.')
     }
     setFoldersAtom(fetchedFolders)
   }
@@ -81,21 +91,7 @@ export const useFolderAndMemo = (): {
   const fetchReferenceMemos = async (targetMemoId: string): Promise<void> => {
     const references = await fetchReferencesByMemoId(targetMemoId) ?? []
     const referenced = await fetchReferencedByMemoId(targetMemoId) ?? []
-    const referenceFolderInfo = {
-      id: 1,
-      name: '참조중',
-      parent: null,
-      memos: references,
-      children: []
-    }
-    const referencedFolderInfo = {
-      id: 2,
-      name: '참조됨',
-      parent: null,
-      memos: referenced,
-      children: []
-    }
-    const newFolders = [referenceFolderInfo, referencedFolderInfo]
+    const newFolders = buildReferenceFolders(references, referenced)
     setFolders(newFolders)
   }
 
@@ -104,43 +100,36 @@ export const useFolderAndMemo = (): {
     if (memo == null) {
       throw new Error('메모 생성에 실패했습니다.')
     }
-
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
-    const unCategoryFolder = folders.find((folder) => folder.id === null)
-    const newUnCategoryFolder: Folder = (unCategoryFolder != null)
-      ? {
-          ...unCategoryFolder,
-          memos: [...unCategoryFolder.memos, newMemo]
-        }
-      : { id: null, name: 'unCategory', parent: null, memos: [newMemo], children: [] }
-    const newFolders = [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
+    const newFolders = includeNewMemoToFolders(folders, newMemo)
     setFolders(newFolders)
-    console.log('생성된 memoId:', memo.memoId.toString())
     return memo.memoId.toString()
   }
 
   const writeNewMemoTitle = (memoId: string, newTitle: string): void => {
-    const newFolders = rebuildMemoTitle(folders, memoId, newTitle ?? '')
+    const newFolders = updateMemoTitleByMemoIdInFolders(folders, memoId, newTitle ?? '')
     setFolders(newFolders)
   }
 
-  const rebuildMemoTitle = (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] => {
-    return folders.reduce((acc: Folder[], folder: Folder) => {
-      const updatedMemos = folder.memos.map(memo => {
-        if (memo.id.toString() === memoId) {
-          return { ...memo, title: newTitle }
-        } else {
-          return memo
-        }
-      })
-      const updatedChildren = rebuildMemoTitle(folder.children, memoId, newTitle)
-      const updatedFolder = {
-        ...folder,
-        memos: updatedMemos,
-        children: updatedChildren
+  const makeRelationshipAndRefresh = async ({ id, type }: {
+    id: number
+    type: string
+  }, targetFolderId: number | null): Promise<void> => {
+    if (type === 'memo') {
+      const result = await makeRelationshipWithMemoAndFolders(id.toString(), targetFolderId?.toString() ?? null)
+      if (result != null) {
+        await refreshFolders()
+      } else {
+        console.log('fail')
       }
-      return [...acc, updatedFolder]
-    }, [])
+    } else if (type === 'folder') {
+      const result = await makeRelationshipWithFolders(id.toString(), targetFolderId?.toString() ?? null)
+      if (result != null) {
+        await refreshFolders()
+      } else {
+        console.log('fail')
+      }
+    }
   }
 
   return {
@@ -153,6 +142,7 @@ export const useFolderAndMemo = (): {
     deleteFolder,
     fetchReferenceMemos,
     createNewMemo,
-    writeNewMemoTitle
+    writeNewMemoTitle,
+    makeRelationshipAndRefresh
   }
 }

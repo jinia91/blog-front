@@ -2,7 +2,7 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type Folder } from '@/memo/application/domain/models'
+import { type Folder } from '@/memo/application/domain/folder'
 import React from 'react'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useRouter } from 'next/navigation'
@@ -10,11 +10,9 @@ import { useRouter } from 'next/navigation'
 export default function MemoGraph (): React.ReactElement | null {
   const { folders } = useFolderAndMemo()
   const router = useRouter()
-  console.log('MemoGraph 렌더링 체크 1')
   if (folders == null || folders[0].id === 1) {
     return null
   }
-  console.log('MemoGraph 렌더링 체크 2')
   const flattenFolder = (folder: Folder): Folder[] => {
     const children = folder.children.flatMap(child => flattenFolder(child))
     return [folder, ...children]
@@ -108,7 +106,6 @@ export default function MemoGraph (): React.ReactElement | null {
     if (isFolder(node)) return
     router.push(`/memo/${node.id}`)
   }
-  console.log('MemoGraph 렌더링 체크 3')
 
   return (
     <div>
