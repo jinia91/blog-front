@@ -34,3 +34,12 @@ export function folderContainsMemo (folder: Folder, memoId: string): boolean {
   }
   return folder.children.some(childFolder => folderContainsMemo(childFolder, memoId))
 }
+
+export function findFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
+  for (const folder of folders) {
+    if (folderContainsMemo(folder, memoId)) {
+      return folder.id?.toString() ?? null
+    }
+  }
+  return null
+}

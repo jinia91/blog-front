@@ -13,10 +13,12 @@ export default function TabOpen ({ name, href, type, children }: {
 }): React.ReactElement {
   const { upsertAndSelectTab } = useTabs()
   return (
-    <Link onClick={() => {
-      upsertAndSelectTab({ name, urlPath: href, type })
-    }}
-          href={href}
+    <Link
+      prefetch={true}
+      onClick={() => {
+        upsertAndSelectTab({ name, urlPath: href, type })
+      }}
+      href={href}
     >
       {children}
     </Link>

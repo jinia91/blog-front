@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from 'react'
 import { fetchMemoById } from '@/memo/infra/api/memo'
 import { type Memo, type ReferenceInfo } from '@/memo/application/domain/models'

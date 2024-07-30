@@ -53,7 +53,7 @@ export function TabBar (): React.ReactElement {
           if (selectedTabOffset < containerScrollLeft) {
             container.scrollLeft = selectedTabOffset
           } else if (selectedTabEnd > containerEnd) {
-            container.scrollLeft = selectedTabEnd - containerWidth
+            container.scrollLeft = selectedTabOffset - (containerWidth - selectedTabWidth)
           }
         }
       }

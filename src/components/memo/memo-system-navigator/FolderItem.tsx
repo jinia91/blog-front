@@ -1,5 +1,6 @@
 import { type Folder } from '@/memo/application/domain/models'
 import folderImg from '../../../../public/emptyFolder.png'
+import openFolder from '../../../../public/openFolder.png'
 import folderWithContentImg from '../../../../public/contentFolder.png'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -16,7 +17,8 @@ export default function FolderItem ({
   renamingFolderId,
   newFolderName,
   setNewFolderName,
-  handleSubmitRename
+  handleSubmitRename,
+  isOpen
 }: {
   folder: Folder
   toggleFolder: (folderId: number) => void
@@ -27,6 +29,7 @@ export default function FolderItem ({
   newFolderName: string
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
+  isOpen: boolean
 }): React.ReactElement {
   const { refreshFolders } = useFolderAndMemo()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -94,6 +97,11 @@ export default function FolderItem ({
       document.removeEventListener('mousedown', handleOutsideClick)
     }
   }, [])
+
+  function hasChild (): boolean {
+    return folder.children.length > 0 || folder.memos.length > 0
+  }
+
   if (folder.id?.toString() === renamingFolderId) {
     return (
       <li
@@ -105,7 +113,7 @@ export default function FolderItem ({
           style={{ marginLeft: `${depth * 20}px` }}
         >
           <Image
-            src={(folder.children.length > 0 || folder.memos.length > 0) ? folderWithContentImg : folderImg}
+            src={hasChild() ? isOpen ? openFolder : folderWithContentImg : folderImg}
             alt={'folder'}
             width={20}
             height={20}
@@ -148,7 +156,9 @@ export default function FolderItem ({
             : handleContextMenu(e, undefined, folder.id.toString(), folder.name)
         }}
         onClick={() => {
-          toggleFolder(folder.id ?? 0)
+          if (hasChild()) {
+            toggleFolder(folder.id ?? 0)
+          }
         }}
       >
         <div
@@ -156,7 +166,7 @@ export default function FolderItem ({
           style={{ marginLeft: `${depth * 20}px` }}
         >
           <Image
-            src={(folder.children.length > 0 || folder.memos.length > 0) ? folderWithContentImg : folderImg}
+            src={hasChild() ? isOpen ? openFolder : folderWithContentImg : folderImg}
             alt={'folder'}
             width={20}
             height={20}

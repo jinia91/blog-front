@@ -7,6 +7,7 @@ import MemoItem from '@/components/memo/memo-system-navigator/MemoItem'
 import { type ContextMenuProps } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
 import { ApplicationType } from '@/system/application/domain/Tab'
 import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
+import { findFolderIdByMemoId } from '@/components/memo/memo-system-navigator/folderSystemUtils'
 
 export function FolderAndMemo ({
   folders,
@@ -33,26 +34,41 @@ export function FolderAndMemo ({
     return (storedOpenFolders != null) ? new Set(JSON.parse(storedOpenFolders)) : new Set()
   }
   const [openFolders, setOpenFolders] = useState(getInitialOpenFolders)
-  const scrollToCenter = (): void => {
+  const scrollToViewIfNeeded = (): void => {
     if (listRef?.current != null) {
+      const container = listRef.current
       const selectedMemoElement: HTMLElement | null = listRef.current.querySelector(`[data-memo-id="${memoEditorSharedContext.id}"]`)
+
       if (selectedMemoElement != null) {
-        const listHeight = listRef.current.offsetHeight
-        const memoPosition = selectedMemoElement.offsetTop
-        const memoHeight = selectedMemoElement.offsetHeight
-        const centerPosition = memoPosition - (listHeight / 2) + (memoHeight / 2)
-        listRef.current.scrollTop = centerPosition
-      } else {
-        listRef.current.scrollTop = listRef.current.offsetHeight
+        const containerScrollTop = container.scrollTop
+        const containerHeight = container.offsetHeight
+        const containerEnd = containerScrollTop + containerHeight
+
+        const selectedItemOffset = selectedMemoElement.offsetTop - 240
+        const selectedItemHeight = selectedMemoElement.offsetHeight
+        const selectedItemEnd = selectedItemOffset + selectedItemHeight
+
+        if (selectedItemOffset < containerScrollTop) {
+          listRef.current.scrollTop = selectedItemOffset - 50
+        } else if (selectedItemEnd + 80 > containerEnd) {
+          listRef.current.scrollTop = selectedItemEnd - (containerHeight - selectedItemHeight) + 80
+        }
       }
     }
   }
+
   useEffect(() => {
-    scrollToCenter()
-  }, [folders, memoEditorSharedContext])
+    const id = memoEditorSharedContext.id
+    const folderId = parseInt(findFolderIdByMemoId(folders, id) ?? '0')
+    console.log('!!!!!!!!!!!!folderId', folderId)
+    openFolders.has(folderId) || toggleFolder(folderId)
+    scrollToViewIfNeeded()
+  }, [memoEditorSharedContext])
+
   useEffect(() => {
     localStorage.setItem('openFolders', JSON.stringify(Array.from(openFolders)))
   }, [openFolders])
+
   const toggleFolder = (folderId: number): void => {
     setOpenFolders(prev => {
       const newSet = new Set(prev)
@@ -64,44 +80,47 @@ export function FolderAndMemo ({
       return newSet
     })
   }
-  console.log('FolderAndMemo render')
 
   const renderItems = (folders: Folder[], depth: number): React.ReactNode => {
-    return folders.map((folder) => (
-      <React.Fragment key={folder.id}>
-        <FolderItem
-          folder={folder}
-          toggleFolder={toggleFolder}
-          depth={depth}
-          handleContextMenu={handleContextMenu}
-          contextMenu={contextMenu}
-          renamingFolderId={renamingFolderId}
-          newFolderName={newFolderName}
-          setNewFolderName={setNewFolderName}
-          handleSubmitRename={handleSubmitRename}
-        />
-        {openFolders.has(folder.id ?? 0) && (
-          <>
-            {folder.memos.map((memo) => (
-              <TabOpen key={memo.id}
-                       href={`/memo/${memo.id}`}
-                       name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}
-                       type={ApplicationType.MEMO}
-              >
-                <MemoItem
-                  memo={memo}
-                  parentFolderId={folder.id}
-                  handleContextMenu={handleContextMenu}
-                  contextMenu={contextMenu}
-                  depth={depth}
-                />
-              </TabOpen>
-            ))}
-            {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
-          </>
-        )}
-      </React.Fragment>
-    ))
+    return folders.map((folder) => {
+      const isOpen = openFolders.has(folder.id ?? 0)
+      return (
+        <React.Fragment key={folder.id}>
+          <FolderItem
+            folder={folder}
+            toggleFolder={toggleFolder}
+            depth={depth}
+            handleContextMenu={handleContextMenu}
+            contextMenu={contextMenu}
+            renamingFolderId={renamingFolderId}
+            newFolderName={newFolderName}
+            setNewFolderName={setNewFolderName}
+            handleSubmitRename={handleSubmitRename}
+            isOpen={isOpen}
+          />
+          {isOpen && (
+            <>
+              {folder.memos.map((memo) => (
+                <TabOpen key={memo.id}
+                         href={`/memo/${memo.id}`}
+                         name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}
+                         type={ApplicationType.MEMO}
+                >
+                  <MemoItem
+                    memo={memo}
+                    parentFolderId={folder.id}
+                    handleContextMenu={handleContextMenu}
+                    contextMenu={contextMenu}
+                    depth={depth}
+                  />
+                </TabOpen>
+              ))}
+              {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
+            </>
+          )}
+        </React.Fragment>
+      )
+    })
   }
   return (
     <ul ref={listRef}
