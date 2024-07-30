@@ -11,6 +11,7 @@ import {
   createFolder,
   createMemo,
   deleteFolderById,
+  deleteMemoById,
   fetchFolderAndMemo,
   fetchReferencedByMemoId,
   fetchReferencesByMemoId,
@@ -18,6 +19,7 @@ import {
   makeRelationshipWithFolders,
   makeRelationshipWithMemoAndFolders
 } from '@/memo/infra/api/memo'
+import { rebuildMemoDeleted } from '@/components/memo/memo-system-navigator/folderSystemUtils'
 
 const folderAtom = atom<Folder[]>([])
 
@@ -33,6 +35,7 @@ export const useFolderAndMemo = (): {
   createNewMemo: () => Promise<string>
   writeNewMemoTitle: (memoId: string, newTitle: string) => void
   makeRelationshipAndRefresh: ({ id, type }: { id: number, type: string }, targetFolderId: number | null) => Promise<void>
+  deleteMemo: (memoId: string) => Promise<void>
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
@@ -52,8 +55,8 @@ export const useFolderAndMemo = (): {
     const newFolder = await createFolder()
 
     function orderedNewFolders (newFolder: Folder): Folder[] {
+      const unCategorizedFolder = findUnCategorizedFolder(folders)
       const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
-      const unCategorizedFolder = findUnCategorizedFolder(newFolders)
       if (unCategorizedFolder != null) {
         newFolders.push(unCategorizedFolder)
       }
@@ -132,6 +135,12 @@ export const useFolderAndMemo = (): {
     }
   }
 
+  const deleteMemo = async (memoId: string): Promise<void> => {
+    await deleteMemoById(memoId)
+    const newFolderStructure = rebuildMemoDeleted(folders, memoId)
+    setFolders(newFolderStructure)
+  }
+
   return {
     initialization,
     folders,
@@ -143,6 +152,7 @@ export const useFolderAndMemo = (): {
     fetchReferenceMemos,
     createNewMemo,
     writeNewMemoTitle,
-    makeRelationshipAndRefresh
+    makeRelationshipAndRefresh,
+    deleteMemo
   }
 }

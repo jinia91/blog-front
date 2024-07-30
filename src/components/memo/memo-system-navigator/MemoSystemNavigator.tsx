@@ -1,11 +1,11 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { type Folder, isFolderHasMemo } from '@/memo/application/domain/folder'
-import { changeFolderName, deleteMemoById } from '@/memo/infra/api/memo'
+import { changeFolderName } from '@/memo/infra/api/memo'
 import MemoAndFolderContextMenu, {
   type ContextMenuProps
 } from '@/components/memo/memo-system-navigator/MemoAndFolderContextMenu'
-import { rebuildMemoDeleted, rebuildNewNameFolder } from '@/components/memo/memo-system-navigator/folderSystemUtils'
+import { rebuildNewNameFolder } from '@/components/memo/memo-system-navigator/folderSystemUtils'
 import { FolderAndMemo } from '@/components/memo/memo-system-navigator/FolderAndMemoStructure'
 import { type Tab } from '@/system/application/domain/tab'
 import { useTabs } from '@/system/application/usecase/TabUseCases'
@@ -14,7 +14,7 @@ import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 import NavigatorHeader from '@/components/memo/memo-system-navigator/header/navigator-header'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
-  const { folders, setFolders, deleteFolder, writeNewMemoTitle } = useFolderAndMemo()
+  const { folders, setFolders, deleteFolder, writeNewMemoTitle, deleteMemo } = useFolderAndMemo()
   const { tabs, selectedTabIdx, updateNewTabsAndSelect } = useTabs()
   const { memoEditorSharedContext } = useMemoSystem()
 
@@ -47,7 +47,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
   const handleDeleteClick = async (): Promise<void> => {
     if ((memoContextMenu?.memoId) != null) {
-      await deleteMemo()
+      await deleteMemoAndUpdateTabs()
     } else if ((memoContextMenu?.folderId) != null) {
       await deleteFolderAndUpdateTabs()
     }
@@ -55,7 +55,6 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
   async function deleteFolderAndUpdateTabs (): Promise<void> {
     if ((memoContextMenu?.folderId) == null) return
-    // fixme 되는지 확인해볼것
     const newFolder = await deleteFolder(memoContextMenu.folderId)
 
     const asIsSelectedTab = tabs[selectedTabIdx]
@@ -65,46 +64,20 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       return memoId == null ||
         newFolder.some((folder: Folder) => isFolderHasMemo(folder, memoId))
     })
-    const asIsTabIndex = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
+    const asIsSelectedIndexBasedNewTabs = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
 
-    if (asIsTabIndex === -1) { // 기존 탭이 삭제되었을 경우
+    if (asIsSelectedIndexBasedNewTabs === -1) { // 기존 탭이 삭제되었을 경우
       const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
       updateNewTabsAndSelect(newTabs, newSelectedTabIdx)
     } else { // 기존 탭이 존재하는 경우
-      updateNewTabsAndSelect(newTabs, asIsTabIndex)
+      updateNewTabsAndSelect(newTabs, asIsSelectedIndexBasedNewTabs)
     }
-
     closeContextMenu()
   }
 
-  // 폴더명 변경 todo 적절한 컴포넌트로 이동
-  const [renamingFolderId, setRenamingFolderId] = useState<string>('')
-
-  const [newFolderName, setNewFolderName] = useState<string>('')
-
-  const handleRenameClick = (folderId: string, currentName: string): void => {
-    setRenamingFolderId(folderId)
-    setNewFolderName(currentName)
-  }
-
-  const handleSubmitRename = async (): Promise<void> => {
-    if (newFolderName === '') {
-      setRenamingFolderId('')
-    } else if (renamingFolderId !== '') {
-      const result = await changeFolderName(renamingFolderId, newFolderName)
-      if (result != null) {
-        const newFolderRef = rebuildNewNameFolder(folders, renamingFolderId, newFolderName)
-        setRenamingFolderId('')
-        setFolders(newFolderRef)
-      }
-    }
-  }
-
-  async function deleteMemo (): Promise<void> {
+  async function deleteMemoAndUpdateTabs (): Promise<void> {
     if ((memoContextMenu?.memoId) == null) return
-    await deleteMemoById(memoContextMenu.memoId)
-    const newFolderStructure = rebuildMemoDeleted(folders, memoContextMenu.memoId)
-    setFolders(newFolderStructure)
+    await deleteMemo(memoContextMenu.memoId)
     // eslint-disable-next-line array-callback-return
     const deletedTabIndex = tabs.findIndex(function (tab: Tab) {
       if (tab.urlPath.startsWith('/memo/')) {
@@ -125,6 +98,28 @@ export default function MemoSystemNavigator ({ className }: { className?: string
       }
     }
     closeContextMenu()
+  }
+
+  const [renamingFolderId, setRenamingFolderId] = useState<string>('')
+
+  const [newFolderName, setNewFolderName] = useState<string>('')
+
+  const handleRenameClick = (folderId: string, currentName: string): void => {
+    setRenamingFolderId(folderId)
+    setNewFolderName(currentName)
+  }
+
+  const handleSubmitRename = async (): Promise<void> => {
+    if (newFolderName === '') {
+      setRenamingFolderId('')
+    } else if (renamingFolderId !== '') {
+      const result = await changeFolderName(renamingFolderId, newFolderName)
+      if (result != null) {
+        const newFolderRef = rebuildNewNameFolder(folders, renamingFolderId, newFolderName)
+        setRenamingFolderId('')
+        setFolders(newFolderRef)
+      }
+    }
   }
 
   return (

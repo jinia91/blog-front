@@ -54,7 +54,6 @@ export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
       className={'flex-shrink-0 w-48 relative'}
     >
       <Link
-        prefetch={true}
         draggable={true}
         onDragStart={onDragStart}
         onDragOver={handleDragOver}

@@ -14,7 +14,6 @@ export default function TabOpen ({ name, href, type, children }: {
   const { upsertAndSelectTab } = useTabs()
   return (
     <Link
-      prefetch={true}
       onClick={() => {
         upsertAndSelectTab({ name, urlPath: href, type })
       }}

@@ -3,12 +3,19 @@
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
 import { type Folder } from '@/memo/application/domain/folder'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useFolderAndMemo } from '@/memo/application/usecase/memo-folder-usecases'
 import { useRouter } from 'next/navigation'
+import { useMemoSystem } from '@/memo/application/usecase/memo-system-usecases'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders } = useFolderAndMemo()
+  const { setMemoEditorSharedContext } = useMemoSystem()
+
+  useEffect(() => {
+    setMemoEditorSharedContext({ id: '', title: '' })
+  }, [])
+
   const router = useRouter()
   if (folders == null || folders[0].id === 1) {
     return null
