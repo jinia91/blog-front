@@ -25,13 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: 테스트 커버리지 측정 및 저장
-        id: output-coverage
-        run: |
-          echo "## Test Coverage Report" > coverage-report.md
-          echo '```' >> coverage-report.md
-          npm run test:coverage | tee -a coverage-report.md
-          echo '```' >> coverage-report.md
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Generate coverage report markdown
+        run: npm run generate-coverage-report
 
       - name: Comment coverage report on PR
         uses: actions/github-script@v6
