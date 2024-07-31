@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import { SystemMain } from '@/components/system/tap_system/SystemMain'
-import UiContextProvider from '@/components/system/UiContextProvider'
+import { SystemMain } from './(layout)/(components)/(tap-system)/SystemMain'
+import UiContextProvider from './(layout)/(components)/ui-context-provider'
 import { Provider } from 'jotai'
-import { SessionProvider } from '@/components/SessionProvider'
+import { SessionProvider } from './login/(components)/SessionProvider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
