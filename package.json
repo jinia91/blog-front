@@ -6,11 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate-coverage-report": "node generate-coverage-report.js"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
     "@uiw/react-md-editor": "^4.0.4",
+    "@vitest/coverage-v8": "^2.0.5",
+    "c8": "^10.1.2",
     "inversify": "^6.0.2",
     "jotai": "^2.9.1",
     "mermaid": "^10.6.1",
@@ -24,7 +29,8 @@
     "react-resizable": "^3.0.5",
     "react-resizable-panels": "^0.0.63",
     "sockjs-client": "^1.6.1",
-    "use-debounce": "^10.0.0"
+    "use-debounce": "^10.0.0",
+    "ts-node": "^10.4.0"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
@@ -42,10 +48,10 @@
     "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.33.2",
-    "jsdom": "^24.1.0",
+    "jsdom": "^24.1.1",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "*",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.5"
   }
 }
