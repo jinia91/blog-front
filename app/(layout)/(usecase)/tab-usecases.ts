@@ -1,4 +1,4 @@
-import { rebuildTabsWithPath, removeTabAndSelectNearTab, type Tab } from '../(domain)/tab'
+import { type Tab, TabBarUtils } from '../(domain)/tab'
 import { atom, useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -34,10 +34,13 @@ export function useTabs (): {
   const path = usePathname()
 
   const initializeTabs = (path: string): void => {
-    const tabsList = restoreTabsFromLocalStorage()
+    const preTabs = restoreTabsFromLocalStorage()
     const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
-    const { updatedTabs, updatedSelectedTabIndex } = rebuildTabsWithPath(path, tabsList, asIsSelectedTabIdx)
-    setTabsAndRoute(updatedTabs, updatedSelectedTabIndex)
+    const { tabs, selectedTabIndex } = TabBarUtils.rebuildWithPath({
+      tabs: preTabs,
+      selectedTabIndex: asIsSelectedTabIdx
+    }, path)
+    setTabsAndRoute(tabs, selectedTabIndex)
   }
 
   const selectTab = (index: number): void => {
@@ -51,16 +54,16 @@ export function useTabs (): {
   }
 
   const removeTab = (target: number): void => {
-    const { newTabs, newSelectedTabIdx } = removeTabAndSelectNearTab(tabs, selectedTabIdx, target)
+    const { tabs: newTabs, selectedTabIndex: newSelectedTabIdx } = TabBarUtils.removeTargetTabAndSelectNear({
+      tabs,
+      selectedTabIndex: selectedTabIdx
+    }, target)
     setTabsAndRoute(newTabs, newSelectedTabIdx)
   }
 
   const moveTabTo = (from: number, to: number): void => {
-    const copiedTabs = [...tabs]
-    const draggedTab = copiedTabs[from]
-    copiedTabs.splice(from, 1)
-    copiedTabs.splice(to, 0, draggedTab)
-    setTabsAndRoute(copiedTabs, to)
+    const newTabBarState = TabBarUtils.moveSelectedTabTo({ tabs, selectedTabIndex: selectedTabIdx }, to)
+    setTabsAndRoute(newTabBarState.tabs, newTabBarState.selectedTabIndex)
   }
 
   const upsertAndSelectTab = (newTab: Tab): void => {
