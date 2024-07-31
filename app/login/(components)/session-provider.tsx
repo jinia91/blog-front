@@ -1,7 +1,7 @@
 'use client'
-import { useSession } from '../(usecase)/SessionUseCases'
+import { useSession } from '../(usecase)/session-usecases'
 import React, { useEffect } from 'react'
-import { useGlobalPending } from '../../(layout)/(usecase)/GlobalPendingUseCases'
+import { useGlobalPending } from '../../(layout)/(usecase)/global-pending-usecases'
 
 export const SessionProvider = ({ children }: { children: React.ReactNode }): React.ReactElement | null => {
   const { initializeSession } = useSession()

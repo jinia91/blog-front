@@ -1,5 +1,5 @@
 import React from 'react'
-import { useContextMenu } from '../../(usecase)/ContextMenuUseCases'
+import { useContextMenu } from '../../(usecase)/tab-context-menu-usecases'
 
 export interface TabContextMenuProps {
   xPos: string

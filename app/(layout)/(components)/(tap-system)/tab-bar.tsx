@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
-import { TabItem } from './TabItem'
-import { useTabs } from '../../(usecase)/TabUseCases'
+import { TabItem } from './tab-item'
+import { useTabs } from '../../(usecase)/tab-usecases'
 import { usePathname, useRouter } from 'next/navigation'
 
 export function TabBar (): React.ReactElement {

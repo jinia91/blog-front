@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 
-export const TitleInput: React.FC = () => {
+export const MemoTitleInput: React.FC = () => {
   const { memoEditorSharedContext, setMemoTitle } = useMemoSystem()
   return (
     <div className="">

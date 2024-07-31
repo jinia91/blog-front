@@ -19,7 +19,7 @@ import {
   makeRelationshipWithFolders,
   makeRelationshipWithMemoAndFolders
 } from '../(infra)/memo'
-import { rebuildMemoDeleted } from '../(components)/memo-system-navigator/folderSystemUtils'
+import { rebuildMemoDeleted } from '../(components)/memo-system-navigator/memo-folder-hooks'
 
 const folderAtom = atom<Folder[]>([])
 

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import googleLogo from '../../../public/retro-google.png'
 import React from 'react'
-import { LoginButton } from './LoginButton'
+import { LoginButton } from './login-button'
 import { Provider } from '../(domain)/provider'
 
 export default function SignInPage (): React.ReactElement {

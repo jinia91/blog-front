@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import menu from '../../../../public/menu.png'
-import { useSideBar } from '../../(usecase)/SideBarUseCases'
+import { useSideBar } from '../../(usecase)/side-bar-usecases'
 
 export default function SideBarToggle (): React.ReactElement {
   const { toggleSideBarCollapse } = useSideBar()

@@ -4,9 +4,9 @@ import React, { useEffect } from 'react'
 import Image from 'next/image'
 import newMemo from '../../../../../public/newMemo.png'
 import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
-import { useTabs } from '../../../../(layout)/(usecase)/TabUseCases'
+import { useTabs } from '../../../../(layout)/(usecase)/tab-usecases'
 
-export default function NewMemoButton (): React.ReactElement {
+export default function NewMemo (): React.ReactElement {
   const { createNewMemo } = useFolderAndMemo()
   const { upsertAndSelectTab } = useTabs()
 

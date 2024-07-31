@@ -1,6 +1,6 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
-import MemoFolderMain from '../../../memo/(components)/MemoFolderMain'
+import MemoSystemMain from '../../../memo/(components)/memo-system-main'
 
 export function RenderApp ({ page }: {
   page: React.ReactNode
@@ -27,9 +27,9 @@ export function RenderApp ({ page }: {
   function renderMemo (): React.ReactElement | null {
     return (
       <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
-        <MemoFolderMain>
+        <MemoSystemMain>
           {page}
-        </MemoFolderMain>
+        </MemoSystemMain>
       </div>
     )
   }

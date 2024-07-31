@@ -8,7 +8,7 @@ export interface ContextMenuProps {
   folderName?: string
 }
 
-export default function MemoAndFolderContextMenu ({
+export default function MemoFolderContextMenu ({
   contextMenu,
   closeContextMenu,
   handleDeleteClick,

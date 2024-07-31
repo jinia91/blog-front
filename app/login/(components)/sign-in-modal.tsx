@@ -1,10 +1,10 @@
 import React from 'react'
 import googleLogo from '../../../public/retro-google.png'
 import Image from 'next/image'
-import CommonModal from '../../(layout)/(components)/(common)/CommonModal'
-import { LoginButton } from './LoginButton'
+import CommonModal from '../../(layout)/(components)/(common)/common-modal'
+import { LoginButton } from './login-button'
 import { Provider } from '../(domain)/provider'
-import { useSession } from '../(usecase)/SessionUseCases'
+import { useSession } from '../(usecase)/session-usecases'
 
 export default function SignInModal ({ onClose }: { onClose: () => void }): React.ReactElement | null {
   const { session } = useSession()

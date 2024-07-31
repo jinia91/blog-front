@@ -2,11 +2,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { type Folder, isFolderHasMemo } from '../../(domain)/folder'
 import { changeFolderName } from '../../(infra)/memo'
-import MemoAndFolderContextMenu, { type ContextMenuProps } from './MemoAndFolderContextMenu'
-import { rebuildNewNameFolder } from './folderSystemUtils'
+import MemoFolderContextMenu, { type ContextMenuProps } from './memo-folder-context-menu'
+import { rebuildNewNameFolder } from './memo-folder-hooks'
 import { FolderAndMemo } from './FolderAndMemoStructure'
 import { type Tab } from '../../../(layout)/(domain)/tab'
-import { useTabs } from '../../../(layout)/(usecase)/TabUseCases'
+import { useTabs } from '../../../(layout)/(usecase)/tab-usecases'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import NavigatorHeader from './header/navigator-header'
@@ -123,7 +123,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
   return (
     <div className={className}>
       <NavigatorHeader/>
-      {MemoAndFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
+      {MemoFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
       <FolderAndMemo
         folders={folders}
         handleContextMenu={handleContextMenu}

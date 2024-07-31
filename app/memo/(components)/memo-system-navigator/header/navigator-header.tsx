@@ -1,9 +1,9 @@
-import NewFolder from './NewFolder'
-import { Search } from './Search'
+import NewFolder from './new-folder'
+import { MemoSearch } from './memo-search'
 import React, { useState } from 'react'
-import ReferenceSystem from './ReferenceSystem'
+import ReferenceSystem from './reference-system'
 import { usePathname } from 'next/navigation'
-import NewMemoButton from './NewMemoButton'
+import NewMemo from './new-memo'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 
 export default function NavigatorHeader (): React.ReactElement {
@@ -16,7 +16,7 @@ export default function NavigatorHeader (): React.ReactElement {
     <div className={'flex p-2 flex-row-reverse border-t-2 border-l-2 border-r-2 bg-gray-900 '}>
       {!isSearchInputVisible && !navigatorContext.isReferenceMode && (
         <>
-          <NewMemoButton/>
+          <NewMemo/>
           <NewFolder/>
         </>
       )}
@@ -24,7 +24,7 @@ export default function NavigatorHeader (): React.ReactElement {
         <ReferenceSystem/>
       )}
       {
-        !navigatorContext.isReferenceMode && <Search
+        !navigatorContext.isReferenceMode && <MemoSearch
           isInputVisible={isSearchInputVisible}
           setInputVisible={setSearchInputVisible}
         />

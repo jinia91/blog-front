@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import TabOpen from '../(tap-system)/TabOpen'
-import { sideBarItems } from './sideBarItems'
+import TabOpen from '../(tap-system)/tab-open'
+import { sideBarItems } from './side-bar-items'
 import { Auth } from '../../../login/(domain)/session'
-import { useSession } from '../../../login/(usecase)/SessionUseCases'
-import { useSideBar } from '../../(usecase)/SideBarUseCases'
+import { useSession } from '../../../login/(usecase)/session-usecases'
+import { useSideBar } from '../../(usecase)/side-bar-usecases'
 
-export default function Sidebar (): React.ReactElement {
+export default function SideBarMain (): React.ReactElement {
   const { isCollapsed, setCollapsed, toggleSideBarCollapse }: {
     isCollapsed: boolean
     setCollapsed: (isCollapsed: boolean) => void

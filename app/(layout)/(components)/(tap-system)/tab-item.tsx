@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { type Tab } from '../../(domain)/tab'
-import { useTabs } from '../../(usecase)/TabUseCases'
-import { useContextMenu } from '../../(usecase)/ContextMenuUseCases'
+import { useTabs } from '../../(usecase)/tab-usecases'
+import { useContextMenu } from '../../(usecase)/tab-context-menu-usecases'
 
 export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
   tab: Tab

@@ -1,12 +1,10 @@
-'use client'
-
-import DarkLightToggle from './DarkLightToggle'
+import DarkLightToggle from './dark-light-toggle'
 import React from 'react'
-import SideBarToggle from './SideBarToggle'
-import TabOpen from '../(tap-system)/TabOpen'
-import SigninAndOutButton from './SigninAndOutButton'
+import SideBarToggle from './side-bar-toggle'
+import TabOpen from '../(tap-system)/tab-open'
+import SignInAndOutButton from './sign-in-and-out-button'
 
-export default function TopNav (): React.ReactElement {
+export default function TopNavMain (): React.ReactElement {
   return (
     <div className="max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-center py-4">
@@ -17,7 +15,7 @@ export default function TopNav (): React.ReactElement {
           </span>
         </TabOpen>
         <div className="flex items-center">
-          <SigninAndOutButton/>
+          <SignInAndOutButton/>
           <DarkLightToggle/>
         </div>
       </div>

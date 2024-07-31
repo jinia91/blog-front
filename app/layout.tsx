@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import { SystemMain } from './(layout)/(components)/(tap-system)/SystemMain'
+import { TabSystemMain } from './(layout)/(components)/(tap-system)/tab-system-main'
 import UiContextProvider from './(layout)/(components)/ui-context-provider'
 import { Provider } from 'jotai'
-import { SessionProvider } from './login/(components)/SessionProvider'
+import { SessionProvider } from './login/(components)/session-provider'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -57,10 +57,10 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <Provider>
       <UiContextProvider>
         <SessionProvider>
-          <SystemMain
+          <TabSystemMain
             page={children}
           >
-          </SystemMain>
+          </TabSystemMain>
         </SessionProvider>
       </UiContextProvider>
     </Provider>

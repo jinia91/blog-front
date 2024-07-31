@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useTabs } from '../../(usecase)/TabUseCases'
+import { useTabs } from '../../(usecase)/tab-usecases'
 import { type ApplicationType } from '../../(domain)/tab'
 import Link from 'next/link'
 

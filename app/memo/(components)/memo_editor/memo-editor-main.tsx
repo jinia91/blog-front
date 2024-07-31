@@ -18,14 +18,13 @@ import MDEditor, {
   type TextAreaTextApi
 } from '@uiw/react-md-editor'
 import { type Memo, type ReferenceInfo } from '../../(domain)/memo'
-import { RelatedMemoModal } from './RelatedMemoModal'
+import { RelatedMemoModal } from './related-memo-modal'
 import { fetchRelatedMemo, uploadImage } from '../../(infra)/memo'
-import { TitleInput } from './MemoTitleEditInput'
-import { Code } from './MermaidAndCodeHighlightPlugin'
-import useStompClient from './MemoEditWebsocket'
+import { MemoTitleInput } from './memo-title-edit-input'
+import useStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { useEffectFetchMemo } from './use-effect-fetch-memo'
-import { timestamp } from './memo-editor-plugins'
+import { Code, timestamp } from './memo-editor-plugins'
 
 export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
   const { memoEditorSharedContext, setMemoEditorSharedContext } = useMemoSystem()
@@ -114,7 +113,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
   }, [])
   return (
     <>
-      <TitleInput/>
+      <MemoTitleInput/>
       {/* editor */}
       <div className="mb-4 flex-grow"
            onPaste={(e) => {

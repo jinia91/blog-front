@@ -1,16 +1,16 @@
 'use client'
-import TabContextMenu from './TabContextMenu'
-import { RenderApp } from './AppPageRenderer'
-import TopNav from '../(topbar)/TopNav'
-import SideAppBar from '../(sidebar)/SideBar'
+import TabContextMenu from './tab-context-menu'
+import { RenderApp } from './app-page-renderer'
+import TopNavMain from '../(topbar)/top-nav-main'
+import SideAppBar from '../(sidebar)/side-bar-main'
 import React from 'react'
-import { TapBarMain } from './TapBarMain'
+import { TapBarMain } from './tap-bar-main'
 
-const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
-  console.log('SystemMain 렌더링 체크 1')
+const TabSystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
+  console.log('TabSystemMain 렌더링 체크 1')
   return (
     <>
-      <header className="w-full dark:bg-gray-900 border-b"><TopNav/></header>
+      <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>
       <div className="md:flex overflow-hidden">
         <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
@@ -30,4 +30,4 @@ const SystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
     </>
   )
 }
-export { SystemMain }
+export { TabSystemMain }

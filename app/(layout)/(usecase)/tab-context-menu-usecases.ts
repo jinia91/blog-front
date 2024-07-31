@@ -1,5 +1,5 @@
-import { type TabContextMenuProps } from '../(components)/(tap-system)/TabContextMenu'
-import { useTabs } from './TabUseCases'
+import { type TabContextMenuProps } from '../(components)/(tap-system)/tab-context-menu'
+import { useTabs } from './tab-usecases'
 import { atom, useAtom } from 'jotai'
 
 const TabContextManagerAtom = atom<TabContextMenuProps | null>(null)

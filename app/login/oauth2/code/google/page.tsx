@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from '../../../(usecase)/SessionUseCases'
+import { useSession } from '../../../(usecase)/session-usecases'
 import { Provider } from '../../../(domain)/provider'
-import { useGlobalPending } from '../../../../(layout)/(usecase)/GlobalPendingUseCases'
+import { useGlobalPending } from '../../../../(layout)/(usecase)/global-pending-usecases'
 
 export default function Page (): React.ReactElement {
   const router = useRouter()

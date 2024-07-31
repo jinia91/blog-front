@@ -4,7 +4,7 @@ import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
 import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
 
-export function Search ({ isInputVisible, setInputVisible }: {
+export function MemoSearch ({ isInputVisible, setInputVisible }: {
   isInputVisible: boolean
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {

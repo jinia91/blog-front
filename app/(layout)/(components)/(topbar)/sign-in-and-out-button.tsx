@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import SignInModal from '../../../login/(components)/SignInModal'
+import SignInModal from '../../../login/(components)/sign-in-modal'
 import Image from 'next/image'
 import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
-import { useSession } from '../../../login/(usecase)/SessionUseCases'
+import { useSession } from '../../../login/(usecase)/session-usecases'
 
-export default function SigninAndOutButton (): React.ReactElement {
+export default function SignInAndOutButton (): React.ReactElement {
   const { session, handleLogout } = useSession()
   const [showLoginModal, setShowLoginModal] = useState(false)
 

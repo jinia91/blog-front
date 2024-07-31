@@ -1,22 +1,22 @@
 'use client'
-import MemoSystemNavigator from './memo-system-navigator/MemoSystemNavigator'
+import MemoSystemNavigator from './memo-system-navigator/memo-system-navigator'
 import React, { useEffect, useState } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
-import SignInPage from '../../login/(components)/SignInPage'
-import AdminAccessDenied from '../../login/(components)/AccessDeniedPage'
-import { useSession } from '../../login/(usecase)/SessionUseCases'
+import SignInPage from '../../login/(components)/sign-in-page'
+import AdminAccessDenied from '../../login/(components)/access-denied-page'
+import { useSession } from '../../login/(usecase)/session-usecases'
 import { Auth } from '../../login/(domain)/session'
 import { useFolderAndMemo } from '../(usecase)/memo-folder-usecases'
 
-export default function MemoFolderMain ({ children }: { children: React.ReactNode }): React.ReactElement {
+export default function MemoSystemMain ({ children }: { children: React.ReactNode }): React.ReactElement {
   const { session } = useSession()
   const { initialization } = useFolderAndMemo()
   const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
   const [direction, setDirection] = useState<Direction>('horizontal')
 
-  console.log('MemoFolderMain 렌더링 체크 1')
-  console.log('MemoFolderMain session:', session)
+  console.log('MemoSystemMain 렌더링 체크 1')
+  console.log('MemoSystemMain session:', session)
 
   useEffect(() => {
     initialization().then(() => {
