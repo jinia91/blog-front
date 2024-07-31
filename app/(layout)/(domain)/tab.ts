@@ -1,3 +1,5 @@
+import { LOGIN_PATH } from '../../(utils)/constants'
+
 export enum ApplicationType {
   MEMO = 'MEMO',
   COMMON = 'COMMON',
@@ -14,7 +16,7 @@ export function rebuildTabsWithPath (path: string, tabsList: Tab[], selectedTabI
   updatedSelectedTabIndex: number
 } {
   // 로그인시 예외 핸들링
-  if (path.startsWith('/login/oauth2')) {
+  if (path.startsWith(LOGIN_PATH)) {
     return {
       updatedTabs: (tabsList.length > 0) ? tabsList : [{ name: '/', urlPath: '/' }],
       updatedSelectedTabIndex: selectedTabIdx
