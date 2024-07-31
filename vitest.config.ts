@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json-summary'],
+      reporter: ['text', 'json-summary', 'html'],
       reportsDirectory: './coverage',
       include: ['app/**/*.{ts,tsx}'],
       exclude: ['**/node_modules/**', 'vitest.config.ts', 'postcss.config.js']

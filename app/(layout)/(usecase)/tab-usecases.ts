@@ -1,4 +1,4 @@
-import { rebuildTabsWithPath, removeTabAndSelect, type Tab } from '../(domain)/tab'
+import { rebuildTabsWithPath, removeTabAndSelectNearTab, type Tab } from '../(domain)/tab'
 import { atom, useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -51,7 +51,7 @@ export function useTabs (): {
   }
 
   const removeTab = (target: number): void => {
-    const { newTabs, newSelectedTabIdx } = removeTabAndSelect(tabs, selectedTabIdx, target)
+    const { newTabs, newSelectedTabIdx } = removeTabAndSelectNearTab(tabs, selectedTabIdx, target)
     setTabsAndRoute(newTabs, newSelectedTabIdx)
   }
 

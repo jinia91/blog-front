@@ -56,7 +56,7 @@ export function rebuildTabsWithPath (path: string, tabsList: Tab[], selectedTabI
   }
 }
 
-export function removeTabAndSelect (tabs: Tab[], selectedTabIdx: number, target: number): {
+export function removeTabAndSelectNearTab (tabs: Tab[], selectedTabIdx: number, target: number): {
   newTabs: Tab[]
   newSelectedTabIdx: number
 } {
