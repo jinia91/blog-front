@@ -39,7 +39,6 @@ jobs:
           script: |
             const fs = require('fs');
             const coverageReport = fs.readFileSync('coverage-report.md', 'utf8');
-            const context = github.context;
             
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
