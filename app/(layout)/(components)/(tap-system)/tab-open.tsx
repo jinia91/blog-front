@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useTabs } from '../../(usecase)/tab-usecases'
+import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 import { type ApplicationType } from '../../(domain)/tab'
 import Link from 'next/link'
 
@@ -11,7 +11,7 @@ export default function TabOpen ({ name, href, type, children }: {
   type?: ApplicationType
   children: React.ReactNode
 }): React.ReactElement {
-  const { upsertAndSelectTab } = useTabs()
+  const { upsertAndSelectTab } = useTabBarAndRouter()
   return (
     <Link
       onClick={() => {

@@ -1,5 +1,5 @@
 import { type TabContextMenuProps } from '../(components)/(tap-system)/tab-context-menu'
-import { useTabs } from './tab-usecases'
+import { useTabBarAndRouter } from './tab-usecases'
 import { atom, useAtom } from 'jotai'
 
 const TabContextManagerAtom = atom<TabContextMenuProps | null>(null)
@@ -16,8 +16,8 @@ export function useContextMenu (): {
     tabs,
     removeTab,
     removeAllTabs,
-    closeOtherTabsWith
-  } = useTabs()
+    closeOtherTabsWithOut
+  } = useTabBarAndRouter()
   const [contextMenu, setContextMenu] = useAtom(TabContextManagerAtom)
 
   const closeContextMenu = (): void => {
@@ -29,7 +29,7 @@ export function useContextMenu (): {
       return
     }
 
-    closeOtherTabsWith(tabs[contextMenu.tabIdx])
+    closeOtherTabsWithOut(tabs[contextMenu.tabIdx])
   }
 
   const closeAllTabs = (): void => {

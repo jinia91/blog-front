@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { type Tab } from '../../(domain)/tab'
-import { useTabs } from '../../(usecase)/tab-usecases'
+import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 import { useContextMenu } from '../../(usecase)/tab-context-menu-usecases'
 
 export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
@@ -12,7 +12,7 @@ export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
   onDrop: (e: React.DragEvent, index: number) => void
 }): React.ReactElement {
   const [isDragOver, setIsDragOver] = useState(false)
-  const { selectTab, removeTab } = useTabs()
+  const { selectTab, removeTab } = useTabBarAndRouter()
   const { contextMenu, closeContextMenu, setContextMenu } = useContextMenu()
 
   const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, idx: number) => {

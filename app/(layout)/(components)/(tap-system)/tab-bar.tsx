@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import { TabItem } from './tab-item'
-import { useTabs } from '../../(usecase)/tab-usecases'
+import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 import { usePathname, useRouter } from 'next/navigation'
 
 export function TabBar (): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const { tabs, selectedTabIdx, selectTab, moveTabTo, upsertAndSelectTab } = useTabs()
+  const { tabs, selectedTabIdx, selectTab, moveSelectedTabTo, upsertAndSelectTab } = useTabBarAndRouter()
   const path = usePathname()
   const router = useRouter()
 
@@ -32,7 +32,7 @@ export function TabBar (): React.ReactElement {
   }
 
   const handleDrop = (droppedIndex: number): void => {
-    moveTabTo(selectedTabIdx, droppedIndex)
+    moveSelectedTabTo(droppedIndex)
   }
 
   useEffect(() => {
