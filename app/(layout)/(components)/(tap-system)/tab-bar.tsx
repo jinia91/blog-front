@@ -1,29 +1,34 @@
 import React, { useEffect, useRef } from 'react'
 import { TabItem } from './tab-item'
 import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
-import { usePathname, useRouter } from 'next/navigation'
+import { ensureFocusInHorizontalView } from './ui-controll-utils'
 
 export function TabBar (): React.ReactElement {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const { tabs, selectedTabIdx, selectTab, moveSelectedTabTo, upsertAndSelectTab } = useTabBarAndRouter()
-  const path = usePathname()
-  const router = useRouter()
+  const { tabs, selectedTabIdx, selectTab, moveSelectedTabTo } = useTabBarAndRouter()
 
   useEffect(() => {
-    const routeIfNeed = (): void => {
-      if (tabs.length === 0) {
-        if (path !== '/empty') {
-          router.push('/empty')
-        }
-        return
+    ensureFocusInHorizontalView(scrollContainerRef, selectedTabIdx)
+  }, [selectedTabIdx, tabs])
+
+  useEffect(() => {
+    const moveTab = async (event: KeyboardEvent): Promise<void> => {
+      if (event.metaKey && (event.key === 'ArrowLeft')) {
+        const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
+        selectTab(newSelectedIdx)
       }
-      const asIsTab = tabs[selectedTabIdx]
-      if (asIsTab.urlPath !== path) {
-        upsertAndSelectTab({ name: path, urlPath: path })
+      if (event.metaKey && (event.key === 'ArrowRight')) {
+        const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
+        selectTab(newSelectedIdx)
       }
     }
-    routeIfNeed()
-  }, [path])
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    window.addEventListener('keydown', moveTab)
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      window.removeEventListener('keydown', moveTab)
+    }
+  }, [selectedTabIdx, tabs])
 
   const handleDragStart = (index: number): void => {
     if (index !== selectedTabIdx) {
@@ -34,56 +39,6 @@ export function TabBar (): React.ReactElement {
   const handleDrop = (droppedIndex: number): void => {
     moveSelectedTabTo(droppedIndex)
   }
-
-  useEffect(() => {
-    function ensureTabInView (): void {
-      if (scrollContainerRef.current != null) {
-        const container = scrollContainerRef.current
-        const selectedTabElement = container.children[selectedTabIdx] as HTMLDivElement
-
-        if (selectedTabElement != null) {
-          const containerWidth = container.offsetWidth
-          const containerScrollLeft = container.scrollLeft
-          const selectedTabOffset = selectedTabElement.offsetLeft
-          const selectedTabWidth = selectedTabElement.offsetWidth
-
-          const selectedTabEnd = selectedTabOffset + selectedTabWidth
-          const containerEnd = containerScrollLeft + containerWidth
-
-          if (selectedTabOffset < containerScrollLeft) {
-            container.scrollLeft = selectedTabOffset
-          } else if (selectedTabEnd > containerEnd) {
-            container.scrollLeft = selectedTabOffset - (containerWidth - selectedTabWidth)
-          }
-        }
-      }
-    }
-
-    ensureTabInView()
-  }, [selectedTabIdx, tabs])
-
-  useEffect(() => {
-    const moveTab = async (event: KeyboardEvent): Promise<void> => {
-      if (event.metaKey && (event.key === 'ArrowLeft')) {
-        event.preventDefault()
-        const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
-        selectTab(newSelectedIdx)
-      }
-      if (event.metaKey && (event.key === 'ArrowRight')) {
-        event.preventDefault()
-        const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
-        selectTab(newSelectedIdx)
-      }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    window.addEventListener('keydown', moveTab)
-
-    return () => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      window.removeEventListener('keydown', moveTab)
-    }
-  }, [selectedTabIdx, tabs])
 
   return (
     <div className="flex overflow-hidden">

@@ -7,7 +7,6 @@ import React from 'react'
 import { TapBarMain } from './tap-bar-main'
 
 const TabSystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
-  console.log('TabSystemMain 렌더링 체크 1')
   return (
     <>
       <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>
