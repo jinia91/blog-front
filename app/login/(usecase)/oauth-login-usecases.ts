@@ -1,4 +1,4 @@
-import { getOAuthLoginUrl } from '../(infra)/auth'
+import { getOAuthLoginUrl } from '../(infra)/auth-api'
 import { FAIL_TO_LOGIN_WITH_PROVIDER } from '../../(utils)/error-message'
 
 export async function executeOAuthLoginRequest (provider: string): Promise<{ url: string }> {

@@ -2,7 +2,7 @@ import Image from 'next/image'
 import googleLogo from '../../../public/retro-google.png'
 import React from 'react'
 import { LoginButton } from './login-button'
-import { OAuthProvider } from '../(domain)/OAuthProvider'
+import { OauthProvider } from '../(domain)/oauth-provider'
 import { useSession } from '../(usecase)/session-usecases'
 
 export default function SignInPage (): React.ReactElement {
@@ -18,7 +18,7 @@ export default function SignInPage (): React.ReactElement {
           <p className={'dos-font text-gray-400 p-10'}>로그인이 필요한 화면입니다</p>
           <LoginButton
             className={'retro-font bg-gray-800 hover:bg-gray-700 text-gray-400 font-bold py-2 px-4 rounded-lg border-2 border-gray-700 inline-flex items-center justify-center w-full'}
-            provider={OAuthProvider.GOOGLE}
+            provider={OauthProvider.GOOGLE}
             logo={<Image src={googleLogo} alt={'google'} width={20} height={20} className="mr-2"/>}
             title={'Google Login'}
           />

@@ -1,12 +1,12 @@
 import { type Mock, vi } from 'vitest'
-import { OAuthProvider } from '../../(domain)/OAuthProvider'
+import { OauthProvider } from '../../(domain)/oauth-provider'
 import { executeOAuthLoginRequest } from '../oauth-login-usecases'
 import { FAIL_TO_LOGIN_WITH_PROVIDER } from '../../../(utils)/error-message'
 
 describe('oAuth 로그인 url 가져오기 테스트', () => {
   it('oAuth 로그인 url 가져오기 성공', async () => {
     // given
-    const provider = OAuthProvider.GOOGLE
+    const provider = OauthProvider.GOOGLE
     global.fetch = vi.fn(() => ({
       ok: true,
       json: async () => ({ url: 'https://google.com' })
@@ -21,7 +21,7 @@ describe('oAuth 로그인 url 가져오기 테스트', () => {
 
   it('oAuth 로그인 url 가져오기 실패', async () => {
     // given
-    const provider = OAuthProvider.GOOGLE
+    const provider = OauthProvider.GOOGLE
     global.fetch = vi.fn(() => ({
       ok: false,
       statusText: 'Internal Server Error'
