@@ -41,7 +41,7 @@ describe('폴더 탐색 테스트', () => {
     const folder = folderTestFixture.buildDefault()
 
     // when
-    const result = folderManager.isFolderHasMemo(folder, '1')
+    const result = folderManager.containsMemo(folder, '1')
 
     // then
     expect(result).toBe(true)
@@ -52,7 +52,7 @@ describe('폴더 탐색 테스트', () => {
     const parent = folderTestFixture.buildHirachy()
 
     // when
-    const result = folderManager.isFolderHasMemo(parent, '3')
+    const result = folderManager.containsMemo(parent, '3')
 
     // then
     expect(result).toBe(true)
@@ -63,7 +63,7 @@ describe('폴더 탐색 테스트', () => {
     const parent = folderTestFixture.buildHirachy()
 
     // when
-    const result = folderManager.isFolderHasMemo(parent, '4')
+    const result = folderManager.containsMemo(parent, '4')
 
     // then
     expect(result).toBe(false)

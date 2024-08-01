@@ -9,17 +9,21 @@ export interface Folder {
 }
 
 export const folderManager = {
-  isFolderHasMemo (folder: Folder, memoId: string): boolean {
-    if (folder.memos.some(memo => memo.id.toString() === memoId)) {
-      return true
+  containsMemo (folder: Folder, memoId: string): boolean {
+    const containsMemoRecursive = (folder: Folder, memoId: string): boolean => {
+      if (folder.memos.some(memo => memo.id.toString() === memoId)) {
+        return true
+      }
+      return folder.children.some(childFolder => containsMemoRecursive(childFolder, memoId))
     }
-    return folder.children.some(childFolder => this.isFolderHasMemo(childFolder, memoId))
+
+    return containsMemoRecursive(folder, memoId)
   }
 }
 
 export function extractFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
   for (const folder of folders) {
-    if (folderManager.isFolderHasMemo(folder, memoId)) {
+    if (folderManager.containsMemo(folder, memoId)) {
       return folder.id?.toString() ?? null
     }
   }

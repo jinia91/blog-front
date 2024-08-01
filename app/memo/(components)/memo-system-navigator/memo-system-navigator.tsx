@@ -59,7 +59,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     const newTabs = tabs.filter((tab: Tab) => {
       const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
       return memoId == null ||
-        newFolder.some((folder: Folder) => folderManager.isFolderHasMemo(folder, memoId))
+        newFolder.some((folder: Folder) => folderManager.containsMemo(folder, memoId))
     })
     const asIsSelectedIndexBasedNewTabs = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
 
