@@ -1,19 +1,22 @@
-import { type Tab, TabBarUtils } from '../(domain)/tab'
+import { type Tab, type TabBarState, TabBarUtils } from '../(domain)/tab'
 import { atom, useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
+import { EMPTY_PATH } from '../../(utils)/constants'
+
+const TABS_KEY = 'tabs'
+const SELECTED_TAB_IDX_KEY = 'selectedTabIdx'
 
 const restoreTabsFromLocalStorage = (): Tab[] => {
-  const savedTabs = localStorage.getItem('tabs')
-  return (savedTabs != null) ? JSON.parse(savedTabs) : null
+  const savedTabs = localStorage.getItem(TABS_KEY)
+  return (savedTabs != null) ? JSON.parse(savedTabs) : []
 }
 
 const restoreSelectedTabIdxFromLocalStorage = (): number => {
-  const savedIdx = localStorage.getItem('selectedTabIdx')
+  const savedIdx = localStorage.getItem(SELECTED_TAB_IDX_KEY)
   return (savedIdx != null) ? Number(savedIdx) : 0
 }
 
 const TabsAtom = atom<Tab[]>([])
-
 const SelectedTabIdxAtom = atom<number>(0)
 
 export function useTabBarAndRouter (): {
@@ -25,7 +28,7 @@ export function useTabBarAndRouter (): {
   moveSelectedTabTo: (to: number) => void
   upsertAndSelectTab: (newTab: Tab) => void
   removeAllTabs: () => void
-  closeOtherTabsWithOut: (targetTab: Tab) => void
+  closeOtherTabsWithOut: (targetTabIdx: number) => void
   updateTabBar: (newTabs: Tab[], newSelectedTabIdx: number) => void
 } {
   const [tabsAtom, setTabsAtom] = useAtom(TabsAtom)
@@ -38,23 +41,23 @@ export function useTabBarAndRouter (): {
     const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
     const preTabBarState = { tabs: preTabs, selectedTabIndex: asIsSelectedTabIdx }
     const toBeState = TabBarUtils.rebuildWithPath(preTabBarState, path)
-    setTabBarAndRoute(toBeState.tabs, toBeState.selectedTabIndex)
+    setTabBarAndRoute(toBeState)
   }
 
   const selectTab = (index: number): void => {
-    setTabBarAndRoute(tabsAtom, index)
+    setTabBarAndRoute({ tabs: tabsAtom, selectedTabIndex: index })
   }
 
   const removeTab = (target: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
     const toBe = TabBarUtils.removeTargetTabAndSelectNear(pre, target)
-    setTabBarAndRoute(toBe.tabs, toBe.selectedTabIndex)
+    setTabBarAndRoute(toBe)
   }
 
   const moveSelectedTabTo = (to: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
     const toBe = TabBarUtils.moveSelectedTabTo(pre, to)
-    setTabBarAndRoute(toBe.tabs, toBe.selectedTabIndex)
+    setTabBarAndRoute(toBe)
   }
 
   const upsertAndSelectTab = (newTab: Tab): void => {
@@ -66,41 +69,46 @@ export function useTabBarAndRouter (): {
       selectTab(foundIdx)
     } else {
       const updatedTabs = [...tabsAtom, newTab]
-      setTabBarAndRoute(updatedTabs, updatedTabs.length - 1)
+      setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: updatedTabs.length - 1 })
     }
   }
 
   const removeAllTabs = (): void => {
-    setTabBarAndRoute([], 0)
+    setTabBarAndRoute({ tabs: [], selectedTabIndex: 0 })
   }
 
-  const closeOtherTabsWithOut = (targetTab: Tab): void => {
-    setTabBarAndRoute([targetTab], 0)
+  const closeOtherTabsWithOut = (targetTabIdx: number): void => {
+    const newTabBarState = { tabs: [tabsAtom[targetTabIdx]], selectedTabIndex: 0 }
+    setTabBarAndRoute(newTabBarState)
   }
 
+  // fixme: 메모시스템 유즈케이스 리팩토링시 제거
   const updateTabBar = (newTabs: Tab[], newSelectedTabIdx: number): void => {
-    setTabBarAndRoute(newTabs, newSelectedTabIdx)
+    const tabBar = { tabs: newTabs, selectedTabIndex: newSelectedTabIdx }
+    setTabBarAndRoute(tabBar)
   }
 
-  function setTabBarAndRoute (newTabs: Tab[], newSelected: number): void {
-    setTabBar(newTabs, newSelected)
-    route(newTabs, newSelected)
+  function setTabBarAndRoute (tabBar: TabBarState): void {
+    setTabBar(tabBar)
+    route(tabBar)
   }
 
-  function setTabBar (newTabs: Tab[], newSelected: number): void {
+  function setTabBar (tabBar: TabBarState): void {
+    const { tabs: newTabs, selectedTabIndex: newSelected } = tabBar
     if (tabsAtom !== newTabs) {
       setTabsAtom(newTabs)
-      localStorage.setItem('tabs', JSON.stringify(newTabs))
+      localStorage.setItem(TABS_KEY, JSON.stringify(newTabs))
     }
     if (selectedTabIdxAtom !== newSelected) {
       setSelectedTabIdxAtom(newSelected)
-      localStorage.setItem('selectedTabIdx', String(newSelected))
+      localStorage.setItem(SELECTED_TAB_IDX_KEY, String(newSelected))
     }
   }
 
-  function route (newTabs: Tab[], newSelected: number): void {
+  function route (tabBar: TabBarState): void {
+    const { tabs: newTabs, selectedTabIndex: newSelected } = tabBar
     if (newTabs.length === 0) {
-      router.push('/empty')
+      router.push(EMPTY_PATH)
     } else if (newTabs[newSelected].urlPath !== path) {
       router.push(newTabs[newSelected].urlPath)
     }
