@@ -5,21 +5,25 @@ import { act, renderHook } from '@testing-library/react'
 import { OauthProvider } from '../../(domain)/oauth-provider'
 import { Provider } from 'jotai'
 import { FAIL_TO_LOGIN } from '../../../(utils)/error-message'
+import { type Session } from '../../(domain)/session'
 
 const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => <Provider>{children}</Provider>
 
 describe('세션 유스케이스 테스트', () => {
   it('유효한 리프레시토큰이 있다면 세션정보를 불러와 로그인을 계속한다', async () => {
     // given
-    global.fetch = vi.fn(() => ({
-      ok: true,
-      json: async () => ({
+    global.fetch = vi.fn(() => {
+      const validSessionInfo: Session = {
         nickName: 'test',
         email: 'test`',
         roles: new Set(['ADMIN']),
         picUrl: 'https://test.com'
+      }
+      return ({
+        ok: true,
+        json: async () => validSessionInfo
       })
-    })) as Mock
+    }) as Mock
 
     // when
     const { result } = renderHook(() => useSession(), { wrapper })
