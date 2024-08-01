@@ -1,9 +1,9 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
-import { type Folder, isFolderHasMemo, rebuildNewNameFolder } from '../../(domain)/folder'
+import { type Folder, folderManager, rebuildNewNameFolder } from '../../(domain)/folder'
 import { changeFolderName } from '../../(infra)/memo'
 import MemoFolderContextMenu, { type ContextMenuProps } from './memo-folder-context-menu'
-import { FolderAndMemo } from './FolderAndMemoStructure'
+import { FolderAndMemo } from './folder-memo-structure'
 import { type Tab } from '../../../(layout)/(domain)/tab'
 import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
@@ -59,7 +59,7 @@ export default function MemoSystemNavigator ({ className }: { className?: string
     const newTabs = tabs.filter((tab: Tab) => {
       const memoId = tab.urlPath.startsWith('/memo/') ? tab.urlPath.split('/')[2] : null
       return memoId == null ||
-        newFolder.some((folder: Folder) => isFolderHasMemo(folder, memoId))
+        newFolder.some((folder: Folder) => folderManager.isFolderHasMemo(folder, memoId))
     })
     const asIsSelectedIndexBasedNewTabs = newTabs.findIndex((tab: Tab) => tab.urlPath === asIsSelectedTab.urlPath)
 

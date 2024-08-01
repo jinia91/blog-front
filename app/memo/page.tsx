@@ -1,4 +1,4 @@
-import MemoGraph from './(components)/memo_graph/memo-graph'
+import MemoGraph from './(components)/memo-graph/memo-graph'
 import React from 'react'
 
 export default async function Page (): Promise<React.ReactElement> {

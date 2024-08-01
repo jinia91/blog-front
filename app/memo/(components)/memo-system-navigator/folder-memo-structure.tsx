@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import FolderItem from './FolderItem'
+import FolderItem from './folder-item'
 import TabOpen from '../../../(layout)/(components)/(tap-system)/tab-open'
 import MemoItem from './memo-item'
 import { type ContextMenuProps } from './memo-folder-context-menu'

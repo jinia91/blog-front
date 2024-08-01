@@ -8,16 +8,18 @@ export interface Folder {
   memos: SimpleMemoInfo[]
 }
 
-export function isFolderHasMemo (folder: Folder, memoId: string): boolean {
-  if (folder.memos.some(memo => memo.id.toString() === memoId)) {
-    return true
+export const folderManager = {
+  isFolderHasMemo (folder: Folder, memoId: string): boolean {
+    if (folder.memos.some(memo => memo.id.toString() === memoId)) {
+      return true
+    }
+    return folder.children.some(childFolder => this.isFolderHasMemo(childFolder, memoId))
   }
-  return folder.children.some(childFolder => isFolderHasMemo(childFolder, memoId))
 }
 
 export function extractFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
   for (const folder of folders) {
-    if (isFolderHasMemo(folder, memoId)) {
+    if (folderManager.isFolderHasMemo(folder, memoId)) {
       return folder.id?.toString() ?? null
     }
   }
