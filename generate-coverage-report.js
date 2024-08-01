@@ -11,7 +11,7 @@ let markdownReport = `
 
 for (const [file, metrics] of Object.entries(coverageSummary)) {
   if (file !== 'total') {
-    markdownReport += `| ${file} | ${metrics.statements.pct}% | ${metrics.branches.pct}% | ${metrics.functions.pct}% | ${metrics.lines.pct}% |\n`;
+    markdownReport += `| ${file.replace('home/runner/work/', '')} | ${metrics.statements.pct}% | ${metrics.branches.pct}% | ${metrics.functions.pct}% | ${metrics.lines.pct}% |\n`;
   }
 }
 
