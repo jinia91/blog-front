@@ -1,4 +1,4 @@
-import { type Tab, type TabBarState, TabBarUtils } from '../(domain)/tab'
+import { type Tab, TabBarManager, type TabBarState } from '../(domain)/tab'
 import { atom, useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
 import { EMPTY_PATH } from '../../(utils)/constants'
@@ -40,7 +40,7 @@ export function useTabBarAndRouter (): {
     const preTabs = restoreTabsFromLocalStorage()
     const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
     const preTabBarState = { tabs: preTabs, selectedTabIndex: asIsSelectedTabIdx }
-    const toBeState = TabBarUtils.rebuildWithPath(preTabBarState, path)
+    const toBeState = TabBarManager.rebuildWithPath(preTabBarState, path)
     setTabBarAndRoute(toBeState)
   }
 
@@ -50,13 +50,13 @@ export function useTabBarAndRouter (): {
 
   const removeTab = (target: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
-    const toBe = TabBarUtils.removeTargetTabAndSelectNear(pre, target)
+    const toBe = TabBarManager.removeTargetTabAndSelectNear(pre, target)
     setTabBarAndRoute(toBe)
   }
 
   const moveSelectedTabTo = (to: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
-    const toBe = TabBarUtils.moveSelectedTabTo(pre, to)
+    const toBe = TabBarManager.moveSelectedTabTo(pre, to)
     setTabBarAndRoute(toBe)
   }
 

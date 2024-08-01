@@ -1,7 +1,8 @@
 import { atom, useAtom } from 'jotai'
 import { type Session } from '../(domain)/session'
 import { oAuthLogin, oAuthLogout, refreshTokens } from '../(infra)/auth'
-import type { Provider } from '../(domain)/provider'
+import type { OAuthProvider } from '../(domain)/OAuthProvider'
+import { FAIL_TO_LOGIN } from '../../(utils)/error-message'
 
 const sessionAtom = atom<Session | null>(null)
 
@@ -9,7 +10,7 @@ export const useSession = (): {
   session: Session | null
   initializeSession: () => Promise<void>
   handleLogout: () => Promise<void>
-  executeLoginWithCode: (provider: Provider, code: string) => Promise<void>
+  executeLoginWithCode: (provider: OAuthProvider, code: string) => Promise<void>
 } => {
   const [session, setSession] = useAtom(sessionAtom)
   const initializeSession = async (): Promise<void> => {
@@ -17,25 +18,21 @@ export const useSession = (): {
     setSession(refreshedSession)
   }
 
-  const updateSession = (newSession: Session | null): void => {
-    setSession(newSession)
-  }
-
   const handleLogout = async (): Promise<void> => {
     try {
-      updateSession(null)
+      setSession(null)
       await oAuthLogout()
     } catch (error) {
       console.error('Failed to logout:', error)
     }
   }
 
-  const executeLoginWithCode = async (provider: Provider, code: string): Promise<void> => {
+  const executeLoginWithCode = async (provider: OAuthProvider, code: string): Promise<void> => {
     const loginInfo = await oAuthLogin(provider, code)
     if (loginInfo == null) {
-      throw new Error('loginInfo 가 없습니다')
+      throw new Error(FAIL_TO_LOGIN)
     }
-    updateSession({
+    setSession({
       nickName: loginInfo.nickName,
       email: loginInfo.email,
       roles: loginInfo.roles,

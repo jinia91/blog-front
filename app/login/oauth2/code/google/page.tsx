@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '../../../(usecase)/session-usecases'
-import { Provider } from '../../../(domain)/provider'
+import { OAuthProvider } from '../../../(domain)/OAuthProvider'
 import { useGlobalPending } from '../../../../(layout)/(usecase)/global-pending-usecases'
 
 export default function Page (): React.ReactElement {
@@ -26,7 +26,7 @@ export default function Page (): React.ReactElement {
         if (providerStr == null) {
           throw new Error('프로바이더가 없습니다')
         }
-        const provider = Provider[providerStr.toUpperCase() as keyof typeof Provider]
+        const provider = OAuthProvider[providerStr.toUpperCase() as keyof typeof OAuthProvider]
         await executeLoginWithCode(provider, code).finally(() => {
           setGlobalPending(false)
         })

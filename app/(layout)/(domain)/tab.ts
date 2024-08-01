@@ -16,7 +16,7 @@ export interface TabBarState {
   selectedTabIndex: number
 }
 
-export const TabBarUtils = {
+export const TabBarManager = {
   rebuildWithPath (preState: TabBarState, path: string): TabBarState {
     const { tabs: tabsList, selectedTabIndex: selectedTabIdx } = preState
     // 로그인시 예외 핸들링
