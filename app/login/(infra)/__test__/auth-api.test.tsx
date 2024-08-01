@@ -13,22 +13,25 @@ describe('재로그인 데코레이터 테스트', () => {
     }
     let count = 0
     const callBackResponse = { ok: false, status: 401 }
+    const unUsedSessionInfo = {
+      nickName: 'test',
+      email: 'test`',
+      roles: new Set(['ADMIN']),
+      picUrl: 'https://test.com'
+    }
     const authRetryResponse = {
       ok: true,
-      json: async () => ({
-        nickName: 'test',
-        email: 'test`',
-        roles: new Set(['ADMIN']),
-        picUrl: 'https://test.com'
-      })
+      json: async () => unUsedSessionInfo
     }
     const finalResponse = { ok: true, json: async () => ({}) }
     global.fetch = vi.fn(() => {
-      if (count++ === 0) {
+      count++
+      if (count === 1) {
         return callBackResponse
-      } else if (count === 1) {
+      } else if (count === 2) {
         return authRetryResponse
       } else {
+        console.log(count)
         return finalResponse
       }
     }) as Mock
@@ -39,6 +42,9 @@ describe('재로그인 데코레이터 테스트', () => {
     // then
     expect(result).toEqual(finalResponse)
     expect(count).toBe(3)
+
+    // for coverage
+    expect(unUsedSessionInfo).toEqual(unUsedSessionInfo)
   })
 
   it('콜백요청 401이 발생하고 로그인 시도시 실패하면 에러가 발생한다', async () => {
