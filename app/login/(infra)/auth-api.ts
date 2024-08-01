@@ -34,7 +34,7 @@ Promise<{
   return await response.json()
 }
 
-export async function oAuthLogout (): Promise<void> {
+export async function oAuthLogout (): Promise<boolean> {
   const response = await fetch(LocalHost + '/v1/auth/logout', {
     method: 'POST',
     credentials: 'include'
@@ -42,7 +42,10 @@ export async function oAuthLogout (): Promise<void> {
 
   if (!response.ok) {
     console.error(response.statusText)
+    return false
   }
+
+  return true
 }
 
 export async function refreshTokens (): Promise<{

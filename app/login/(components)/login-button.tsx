@@ -1,10 +1,10 @@
 import React from 'react'
-import { type Provider } from '../(domain)/provider'
+import { type OauthProvider } from '../(domain)/oauth-provider'
 import { executeOAuthLoginRequest } from '../(usecase)/oauth-login-usecases'
 
 interface LoginButtonProps {
   className?: string
-  provider: Provider
+  provider: OauthProvider
   logo: React.ReactNode
   title: string
 }
