@@ -4,6 +4,7 @@ import {
   findUnCategorizedFolder,
   type Folder,
   includeNewMemoToFolders,
+  rebuildMemoDeleted,
   updateMemoTitleByMemoIdInFolders
 } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
@@ -19,7 +20,6 @@ import {
   makeRelationshipWithFolders,
   makeRelationshipWithMemoAndFolders
 } from '../(infra)/memo'
-import { rebuildMemoDeleted } from '../(components)/memo-system-navigator/memo-folder-hooks'
 
 const folderAtom = atom<Folder[]>([])
 

@@ -7,12 +7,13 @@ import sun from '../../../../public/sun.png'
 import CommonModal from '../(common)/common-modal'
 
 export default function DarkLightToggle (): React.ReactElement | null {
-  const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [isModalOpen, setModalOpen] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
+
   const handleToggle = (): void => {
     setTheme('dark')
     setModalOpen(true)
@@ -20,6 +21,7 @@ export default function DarkLightToggle (): React.ReactElement | null {
   const handleClose = (): void => {
     setModalOpen(false)
   }
+
   return mounted
     ? (
       <>

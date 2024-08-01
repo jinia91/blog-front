@@ -1,19 +1,18 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
-import { type Folder, isFolderHasMemo } from '../../(domain)/folder'
+import { type Folder, isFolderHasMemo, rebuildNewNameFolder } from '../../(domain)/folder'
 import { changeFolderName } from '../../(infra)/memo'
 import MemoFolderContextMenu, { type ContextMenuProps } from './memo-folder-context-menu'
-import { rebuildNewNameFolder } from './memo-folder-hooks'
 import { FolderAndMemo } from './FolderAndMemoStructure'
 import { type Tab } from '../../../(layout)/(domain)/tab'
-import { useTabs } from '../../../(layout)/(usecase)/tab-usecases'
+import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import NavigatorHeader from './header/navigator-header'
 
 export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders, deleteFolder, writeNewMemoTitle, deleteMemo } = useFolderAndMemo()
-  const { tabs, selectedTabIdx, updateNewTabsAndSelect } = useTabs()
+  const { tabs, selectedTabIdx, updateTabBar } = useTabBarAndRouter()
   const { memoEditorSharedContext } = useMemoSystem()
 
   useEffect(() => {
@@ -66,9 +65,9 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
     if (asIsSelectedIndexBasedNewTabs === -1) { // 기존 탭이 삭제되었을 경우
       const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
-      updateNewTabsAndSelect(newTabs, newSelectedTabIdx)
+      updateTabBar(newTabs, newSelectedTabIdx)
     } else { // 기존 탭이 존재하는 경우
-      updateNewTabsAndSelect(newTabs, asIsSelectedIndexBasedNewTabs)
+      updateTabBar(newTabs, asIsSelectedIndexBasedNewTabs)
     }
     closeContextMenu()
   }
@@ -90,9 +89,9 @@ export default function MemoSystemNavigator ({ className }: { className?: string
 
       if (selectedTabIdx === deletedTabIndex) {
         const newSelectedTabIdx = newTabs.length > 0 ? newTabs.length - 1 : 0
-        updateNewTabsAndSelect(newTabs, newSelectedTabIdx)
+        updateTabBar(newTabs, newSelectedTabIdx)
       } else if (selectedTabIdx !== null && selectedTabIdx > deletedTabIndex) {
-        updateNewTabsAndSelect(newTabs, selectedTabIdx - 1)
+        updateTabBar(newTabs, selectedTabIdx - 1)
       }
     }
     closeContextMenu()

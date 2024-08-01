@@ -11,7 +11,6 @@ export default function Page (): React.ReactElement {
   const { setGlobalPending } = useGlobalPending()
   useEffect(() => {
     async function handleLogin (): Promise<void> {
-      console.log('로그인 처리')
       const isAlreadyLogin = session !== null
       if (isAlreadyLogin) {
         console.log('이미 로그인 되어있음')

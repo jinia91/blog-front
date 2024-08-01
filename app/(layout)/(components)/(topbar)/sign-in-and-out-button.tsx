@@ -5,13 +5,20 @@ import signIn from '../../../../public/signin.png'
 import logout from '../../../../public/logout.png'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 
-export default function SignInAndOutButton (): React.ReactElement {
-  const { session, handleLogout } = useSession()
+const useToggleLoginModal = (): {
+  isShowLoginModal: boolean
+  toggleLoginModal: () => void
+} => {
   const [showLoginModal, setShowLoginModal] = useState(false)
-
   const toggleLoginModal = (): void => {
     setShowLoginModal(!showLoginModal)
   }
+  return { isShowLoginModal: showLoginModal, toggleLoginModal }
+}
+
+export default function SignInAndOutButton (): React.ReactElement {
+  const { session, handleLogout } = useSession()
+  const { isShowLoginModal, toggleLoginModal } = useToggleLoginModal()
 
   return (
     session != null
@@ -47,8 +54,8 @@ export default function SignInAndOutButton (): React.ReactElement {
             <Image src={signIn} alt={'로그인'} className="w-5 h-5 mr-2"/>
             LOGIN
           </button>
-          {showLoginModal && <SignInModal onClose={() => {
-            setShowLoginModal(false)
+          {isShowLoginModal && <SignInModal onClose={() => {
+            toggleLoginModal()
           }}/>}
         </>
         )

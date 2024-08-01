@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react'
 import { TabBar } from './tab-bar'
 import { usePathname } from 'next/navigation'
-import { useTabs } from '../../(usecase)/tab-usecases'
+import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 
 export function TapBarMain (): React.ReactElement {
   const path = usePathname()
   const [mounted, setMounted] = React.useState(false)
-  const { initializeTabs } = useTabs()
+  const { initializeTabBar } = useTabBarAndRouter()
 
   useEffect(() => {
-    initializeTabs(path)
+    initializeTabBar(path)
     setMounted(true)
   }, [])
 

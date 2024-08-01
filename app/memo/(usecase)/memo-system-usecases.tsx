@@ -3,7 +3,6 @@ import { type MemoSystemNavigatorContext } from '../(domain)/memo-system-navigat
 import { type MemoEditorSharedContext } from '../(domain)/memo-editor-shared-context'
 
 const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({ isReferenceMode: false, refreshTrigger: 0 })
-
 const memoEditorContextAtom = atom<MemoEditorSharedContext>({ title: '', id: '' })
 
 export const useMemoSystem = (): {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useContextMenu } from '../../(usecase)/tab-context-menu-usecases'
+import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 
 export interface TabContextMenuProps {
   xPos: string
@@ -8,7 +9,8 @@ export interface TabContextMenuProps {
 }
 
 export default function TabContextMenu (): React.ReactNode {
-  const { contextMenu, closeOtherTabs, closeContextMenu, removeThisTab, closeAllTabs } = useContextMenu()
+  const { contextMenu, closeContextMenu } = useContextMenu()
+  const { closeOtherTabsWithOut, removeAllTabs, removeTab } = useTabBarAndRouter()
 
   return (
     (contextMenu != null) && (
@@ -34,17 +36,17 @@ export default function TabContextMenu (): React.ReactNode {
           }}
         >
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
-            removeThisTab()
+            removeTab(contextMenu.tabIdx)
             closeContextMenu()
           }}>닫기
           </li>
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
-            closeOtherTabs()
+            closeOtherTabsWithOut(contextMenu.tabIdx)
             closeContextMenu()
           }}>다른 탭 닫기
           </li>
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
-            closeAllTabs()
+            removeAllTabs()
             closeContextMenu()
           }}>모든 탭 닫기
           </li>
