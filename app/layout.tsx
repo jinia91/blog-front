@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import React from 'react'
 import blogMetaData from '@/metadata/blogMetaData'
-import { TabSystemMain } from './(layout)/(components)/(tap-system)/tab-system-main'
+import { LayoutMain } from './(layout)/(components)/layout-main'
 import UiContextProvider from './(layout)/(components)/ui-context-provider'
 import { Provider } from 'jotai'
 import { SessionProvider } from './login/(components)/session-provider'
@@ -57,10 +57,10 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <Provider>
       <UiContextProvider>
         <SessionProvider>
-          <TabSystemMain
+          <LayoutMain
             page={children}
           >
-          </TabSystemMain>
+          </LayoutMain>
         </SessionProvider>
       </UiContextProvider>
     </Provider>

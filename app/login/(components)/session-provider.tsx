@@ -7,7 +7,6 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }): Re
   const { initializeSession } = useSession()
   const [mounted, setMounted] = React.useState(false)
   const { isGlobalPending } = useGlobalPending()
-  console.log('Session Provider 렌더링 횟수 체크')
   useEffect(() => {
     initializeSession().then(() => {
       setMounted(true)

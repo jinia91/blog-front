@@ -1,12 +1,12 @@
 'use client'
-import TabContextMenu from './tab-context-menu'
-import { RenderApp } from './app-page-renderer'
-import TopNavMain from '../(topbar)/top-nav-main'
-import SideAppBar from '../(sidebar)/side-bar-main'
+import TabContextMenu from './(tap-system)/tab-context-menu'
+import { RenderApp } from './(tap-system)/app-page-renderer'
+import TopNavMain from './(topbar)/top-nav-main'
+import SideAppBar from './(sidebar)/side-bar-main'
 import React from 'react'
-import { TapBarMain } from './tap-bar-main'
+import { TapBarMain } from './(tap-system)/tap-bar-main'
 
-const TabSystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
+const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   return (
     <>
       <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>
@@ -29,4 +29,4 @@ const TabSystemMain = ({ page }: { page: React.ReactNode }): React.ReactNode => 
     </>
   )
 }
-export { TabSystemMain }
+export { LayoutMain }

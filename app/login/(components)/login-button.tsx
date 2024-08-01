@@ -9,19 +9,15 @@ interface LoginButtonProps {
   title: string
 }
 
-async function handleAuthLoginRequest (provider: string): Promise<void> {
+async function redirectOAuthLoginPage (provider: string): Promise<void> {
   const url = await executeOAuthLoginRequest(provider)
-  if (url == null) {
-    console.error('로그인 리다이렉트 URL이 없습니다.')
-    return
-  }
   window.location.href = url.url
 }
 
 export const LoginButton: React.FC<LoginButtonProps> = ({ className, provider, logo, title }) => (
   <button
     onClick={() => {
-      handleAuthLoginRequest(provider).catch((err) => {
+      redirectOAuthLoginPage(provider).catch((err) => {
         console.error('Error:', err)
       })
     }}
