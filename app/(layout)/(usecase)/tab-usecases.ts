@@ -24,12 +24,13 @@ export function useTabBarAndRouter (): {
   selectedTabIdx: number
   initializeTabBar: (path: string) => void
   selectTab: (index: number) => void
-  removeTab: (target: number) => void
+  closeTab: (target: number) => void
   moveSelectedTabTo: (to: number) => void
   upsertAndSelectTab: (newTab: Tab) => void
-  removeAllTabs: () => void
+  closeAllTabs: () => void
   closeOtherTabsWithOut: (targetTabIdx: number) => void
   updateTabBar: (newTabs: Tab[], newSelectedTabIdx: number) => void
+  closeTabs: (targets: number[]) => void
 } {
   const [tabsAtom, setTabsAtom] = useAtom(TabsAtom)
   const [selectedTabIdxAtom, setSelectedTabIdxAtom] = useAtom(SelectedTabIdxAtom)
@@ -48,7 +49,7 @@ export function useTabBarAndRouter (): {
     setTabBarAndRoute({ tabs: tabsAtom, selectedTabIndex: index })
   }
 
-  const removeTab = (target: number): void => {
+  const closeTab = (target: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
     const toBe = tabBarManager.removeTargetTabAndSelectNear(pre, target)
     setTabBarAndRoute(toBe)
@@ -73,7 +74,7 @@ export function useTabBarAndRouter (): {
     }
   }
 
-  const removeAllTabs = (): void => {
+  const closeAllTabs = (): void => {
     setTabBarAndRoute({ tabs: [], selectedTabIndex: 0 })
   }
 
@@ -86,6 +87,14 @@ export function useTabBarAndRouter (): {
   const updateTabBar = (newTabs: Tab[], newSelectedTabIdx: number): void => {
     const tabBar = { tabs: newTabs, selectedTabIndex: newSelectedTabIdx }
     setTabBarAndRoute(tabBar)
+  }
+
+  const closeTabs = (targets: number[]): void => {
+    const newTabs = tabsAtom.filter((_, idx) => !targets.includes(idx))
+    const asIsSelectedTab = tabsAtom[selectedTabIdxAtom]
+    const asIsSelectedIndexBasedNewTabs = newTabs.findIndex(tab => tab.urlPath === asIsSelectedTab.urlPath)
+    const newSelectedTabIdx = asIsSelectedIndexBasedNewTabs === -1 ? newTabs.length > 0 ? newTabs.length - 1 : 0 : asIsSelectedIndexBasedNewTabs
+    setTabBarAndRoute({ tabs: newTabs, selectedTabIndex: newSelectedTabIdx })
   }
 
   function setTabBarAndRoute (tabBar: TabBarState): void {
@@ -119,11 +128,12 @@ export function useTabBarAndRouter (): {
     selectedTabIdx: selectedTabIdxAtom,
     initializeTabBar,
     selectTab,
-    removeTab,
-    moveSelectedTabTo,
     upsertAndSelectTab,
-    removeAllTabs,
+    moveSelectedTabTo,
+    closeTab,
+    closeAllTabs,
     closeOtherTabsWithOut,
+    closeTabs,
     updateTabBar
   }
 }

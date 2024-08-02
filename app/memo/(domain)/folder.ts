@@ -8,26 +8,65 @@ export interface Folder {
   memos: SimpleMemoInfo[]
 }
 
-export const folderManager = {
-  containsMemo (folder: Folder, memoId: string): boolean {
-    const containsMemoRecursive = (folder: Folder, memoId: string): boolean => {
-      if (folder.memos.some(memo => memo.id.toString() === memoId)) {
-        return true
+export const folderManager: {
+  findFolderById: (folders: Folder[], folderId: number) => Folder | null
+  extractMemoIdsInFolderRecursively: (folder: Folder) => string[]
+  extractFolderIdsContainMemoIdRecursively: (folders: Folder[], memoId: string) => string[]
+} = {
+  findFolderById (folders: Folder[], folderId: number): Folder | null {
+    const findFolderRecursive = (folders: Folder[], folderId: number): Folder | null => {
+      for (const folder of folders) {
+        if (folder.id === folderId) {
+          return folder
+        }
+        const found = findFolderRecursive(folder.children, folderId)
+        if (found != null) {
+          return found
+        }
       }
-      return folder.children.some(childFolder => containsMemoRecursive(childFolder, memoId))
+      return null
+    }
+    return findFolderRecursive(folders, folderId)
+  },
+
+  extractMemoIdsInFolderRecursively (folder: Folder): string[] {
+    const extractMemoIdsRecursive = (folder: Folder): string[] => {
+      const memoIds = folder.memos.map(memo => memo.id.toString())
+      const childrenMemoIds = folder.children.flatMap(child => extractMemoIdsRecursive(child))
+      return [...memoIds, ...childrenMemoIds]
+    }
+    return extractMemoIdsRecursive(folder)
+  },
+
+  extractFolderIdsContainMemoIdRecursively (folders: Folder[], memoId: string): string[] {
+    let isFound = false
+    const findPathToMemo = (folder: Folder, memoId: string, result: string[]): void => {
+      if (folder.id == null) return
+      if (isFound) return
+
+      if (folder.memos.some(memo => memo.id.toString() === memoId)) {
+        isFound = true
+        result.push(folder.id.toString())
+        return
+      }
+
+      folder.children.forEach(childFolder => {
+        findPathToMemo(childFolder, memoId, result)
+      })
+
+      if (isFound) {
+        result.push(folder.id.toString())
+      }
     }
 
-    return containsMemoRecursive(folder, memoId)
-  }
-}
+    const result: string[] = []
+    folders.forEach(folder => {
+      if (result.length > 0) return
+      findPathToMemo(folder, memoId, result)
+    })
 
-export function extractFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
-  for (const folder of folders) {
-    if (folderManager.containsMemo(folder, memoId)) {
-      return folder.id?.toString() ?? null
-    }
+    return result
   }
-  return null
 }
 
 export function findUnCategorizedFolder (folders: Folder[]): Folder | null {

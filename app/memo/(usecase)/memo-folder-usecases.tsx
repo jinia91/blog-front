@@ -78,6 +78,7 @@ export const useFolderAndMemo = (): {
   const deleteFolder = async (folderId: string): Promise<Folder[]> => {
     const result = await deleteFolderById(folderId.toString())
     if (result != null) {
+      // refresh
       await fetchAndSetFolders()
     }
     return folders

@@ -16,7 +16,12 @@ export interface TabBarState {
   selectedTabIndex: number
 }
 
-export const tabBarManager = {
+export const tabBarManager: {
+  rebuildWithPath: (preState: TabBarState, path: string) => TabBarState
+  removeTargetTabAndSelectNear: (pre: TabBarState, target: number) => TabBarState
+  moveSelectedTabTo: (pre: TabBarState, to: number) => TabBarState
+  removeTargetTabsAndSelect: (pre: TabBarState, targets: number[]) => TabBarState
+} = {
   rebuildWithPath (preState: TabBarState, path: string): TabBarState {
     const { tabs: tabsList, selectedTabIndex: selectedTabIdx } = preState
     // 로그인시 예외 핸들링
@@ -77,5 +82,17 @@ export const tabBarManager = {
     copiedTabs.splice(pre.selectedTabIndex, 1)
     copiedTabs.splice(to, 0, draggedTab)
     return { tabs: copiedTabs, selectedTabIndex: to }
+  },
+
+  removeTargetTabsAndSelect (pre: TabBarState, targets: number[]): TabBarState {
+    const newTabs = pre.tabs.filter((_, idx) => !targets.includes(idx))
+    const asIsSelectedTab = pre.tabs[pre.selectedTabIndex]
+    const asIsSelectedIndexBasedNewTabs = newTabs.findIndex(tab => tab.urlPath === asIsSelectedTab.urlPath)
+    const newSelectedTabIdx = asIsSelectedIndexBasedNewTabs === -1
+      ? newTabs.length > 0
+        ? newTabs.length - 1
+        : 0
+      : asIsSelectedIndexBasedNewTabs
+    return { tabs: newTabs, selectedTabIndex: newSelectedTabIdx }
   }
 }

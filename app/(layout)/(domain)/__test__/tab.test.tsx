@@ -181,3 +181,66 @@ describe('탭 이동 테스트', () => {
     })
   })
 })
+
+describe('탭 여러개 제거 테스트', () => {
+  it('탭바에서 여러개의 탭을 제거할때 선택된 탭도 제거된다면 가장 최신 탭이 선택된다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' },
+      { name: '회원가입', urlPath: '/signup' }, // to be delete
+      { name: '마이페이지', urlPath: '/mypage' }, // to be delete, selected
+      { name: '설정', urlPath: '/setting' }
+    ]
+    const selectedTabIndex = 3
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 2, 3])
+
+    // then
+    expect(result).toEqual({
+      tabs: [{ name: '로그인', urlPath: '/login' }, { name: '설정', urlPath: '/setting' }],
+      selectedTabIndex: 1
+    })
+  })
+
+  it('탭바에서 여러개의 탭을 제거할때 선택된 탭이 제거되지 않는다면 선택된 탭은 그대로다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' },
+      { name: '회원가입', urlPath: '/signup' }, // to be delete
+      { name: '마이페이지', urlPath: '/mypage' }, //  selected
+      { name: '설정', urlPath: '/setting' }
+    ]
+    const selectedTabIndex = 3
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 2])
+
+    // then
+    expect(result).toEqual({
+      tabs: [{ name: '로그인', urlPath: '/login' }, { name: '마이페이지', urlPath: '/mypage' }, { name: '설정', urlPath: '/setting' }],
+      selectedTabIndex: 1
+    })
+  })
+
+  it('탭바에서 여러 탭들이 제거되고 남은 탭이 없다면 빈탭이 된다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' }, // to be delete
+      { name: '회원가입', urlPath: '/signup' } // to be delete
+    ]
+    const selectedTabIndex = 1
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 1, 2])
+
+    // then
+    expect(result).toEqual({
+      tabs: [],
+      selectedTabIndex: 0
+    })
+  })
+})

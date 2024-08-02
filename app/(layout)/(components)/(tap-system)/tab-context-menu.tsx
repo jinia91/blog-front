@@ -10,7 +10,7 @@ export interface TabContextMenuProps {
 
 export default function TabContextMenu (): React.ReactNode {
   const { contextMenu, closeContextMenu } = useContextMenu()
-  const { closeOtherTabsWithOut, removeAllTabs, removeTab } = useTabBarAndRouter()
+  const { closeOtherTabsWithOut, closeAllTabs, closeTab } = useTabBarAndRouter()
 
   return (
     (contextMenu != null) && (
@@ -36,7 +36,7 @@ export default function TabContextMenu (): React.ReactNode {
           }}
         >
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
-            removeTab(contextMenu.tabIdx)
+            closeTab(contextMenu.tabIdx)
             closeContextMenu()
           }}>닫기
           </li>
@@ -46,7 +46,7 @@ export default function TabContextMenu (): React.ReactNode {
           }}>다른 탭 닫기
           </li>
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={() => {
-            removeAllTabs()
+            closeAllTabs()
             closeContextMenu()
           }}>모든 탭 닫기
           </li>
