@@ -1,5 +1,5 @@
 import { type SimpleMemoInfo } from '../(domain)/memo'
-import { buildReferenceFolders, type Folder, folderFinder, folderManager } from '../(domain)/folder'
+import { type Folder, folderFinder, folderManager } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
 import {
   createFolder,
@@ -88,7 +88,7 @@ export const useFolderAndMemo = (): {
   const fetchReferenceMemos = async (targetMemoId: string): Promise<void> => {
     const references = await fetchReferencesByMemoId(targetMemoId) ?? []
     const referenced = await fetchReferencedByMemoId(targetMemoId) ?? []
-    const newFolders = buildReferenceFolders(references, referenced)
+    const newFolders = folderManager.buildReferenceFolders(references, referenced)
     setFolders(newFolders)
   }
 

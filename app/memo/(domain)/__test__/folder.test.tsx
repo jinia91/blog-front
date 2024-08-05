@@ -398,4 +398,24 @@ describe('Folder 관리 테스트', () => {
     // then
     expect(result[0].children[1].children[0].name).toEqual('새로운 이름')
   })
+
+  it('참조 폴더를 생성할 수 있다', () => {
+    // given
+    const references: SimpleMemoInfo[] = [
+      { id: 1, title: '메모1', references: [] },
+      { id: 2, title: '메모2', references: [] },
+      { id: 3, title: '메모3', references: [] }
+    ]
+    const referenced: SimpleMemoInfo[] = [
+      { id: 4, title: '메모4', references: [] },
+      { id: 5, title: '메모5', references: [] },
+      { id: 6, title: '메모6', references: [] }
+    ]
+
+    // when
+    const result = folderManager.buildReferenceFolders(references, referenced)
+
+    // then
+    expect(result.length).toEqual(2)
+  })
 })

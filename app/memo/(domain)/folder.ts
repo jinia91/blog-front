@@ -78,6 +78,7 @@ export const folderManager: {
   rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string | undefined, newTitle: string) => Folder[]
   rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
   rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
+  buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
 } = {
   rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
@@ -114,23 +115,22 @@ export const folderManager: {
         return { ...folder, children: updatedChildren }
       }
     })
+  },
+  buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {
+    const referenceFolderInfo = {
+      id: 1,
+      name: '참조중',
+      parent: null,
+      memos: references,
+      children: []
+    }
+    const referencedFolderInfo = {
+      id: 2,
+      name: '참조됨',
+      parent: null,
+      memos: referenced,
+      children: []
+    }
+    return [referenceFolderInfo, referencedFolderInfo]
   }
-}
-
-export const buildReferenceFolders = (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] => {
-  const referenceFolderInfo = {
-    id: 1,
-    name: '참조중',
-    parent: null,
-    memos: references,
-    children: []
-  }
-  const referencedFolderInfo = {
-    id: 2,
-    name: '참조됨',
-    parent: null,
-    memos: referenced,
-    children: []
-  }
-  return [referenceFolderInfo, referencedFolderInfo]
 }
