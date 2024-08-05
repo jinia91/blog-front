@@ -8,7 +8,7 @@ export interface Folder {
   memos: SimpleMemoInfo[]
 }
 
-export const folderManager: {
+export const folderFinder: {
   findFolderById: (folders: Folder[], folderId: number) => Folder | null
   findMemoIdsInFolderRecursively: (folder: Folder) => string[]
   findFolderIdsPathToMemoId: (folders: Folder[], memoId: string) => string[]
@@ -73,34 +73,26 @@ export const folderManager: {
   }
 }
 
-export function includeNewMemoToFolders (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
-  const unCategoryFolder = folderManager.findUnCategorizedFolder(folders)
-  const newUnCategoryFolder: Folder = (unCategoryFolder != null)
-    ? {
-        ...unCategoryFolder,
-        memos: [...unCategoryFolder.memos, memo]
-      }
-    : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
-  return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
-}
+export const folderManager: {
+  includeNewMemoToFolders: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
+  updateMemoTitleByMemoIdInFolders: (folders: Folder[], memoId: string | undefined, newTitle: string) => Folder[]
+} = {
+  includeNewMemoToFolders (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
+    const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
+    const newUnCategoryFolder: Folder = (unCategoryFolder != null)
+      ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
+      : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
+    return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
+  },
+  updateMemoTitleByMemoIdInFolders (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] {
+    if (memoId === undefined) return folders
 
-export const updateMemoTitleByMemoIdInFolders = (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    const updatedMemos = folder.memos.map(memo => {
-      if (memo.id.toString() === memoId) {
-        return { ...memo, title: newTitle }
-      } else {
-        return memo
-      }
+    return folders.map(folder => {
+      const updatedMemos = folder.memos.map(memo => memo.id.toString() === memoId ? { ...memo, title: newTitle } : memo)
+      const updatedChildren = this.updateMemoTitleByMemoIdInFolders(folder.children, memoId, newTitle)
+      return { ...folder, memos: updatedMemos, children: updatedChildren }
     })
-    const updatedChildren = updateMemoTitleByMemoIdInFolders(folder.children, memoId, newTitle)
-    const updatedFolder = {
-      ...folder,
-      memos: updatedMemos,
-      children: updatedChildren
-    }
-    return [...acc, updatedFolder]
-  }, [])
+  }
 }
 
 export const buildReferenceFolders = (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] => {

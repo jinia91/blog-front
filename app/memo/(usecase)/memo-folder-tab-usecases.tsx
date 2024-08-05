@@ -1,6 +1,6 @@
 import { useFolderAndMemo } from './memo-folder-usecases'
 import { useTabBarAndRouter } from '../../(layout)/(usecase)/tab-usecases'
-import { folderManager } from '../(domain)/folder'
+import { folderFinder } from '../(domain)/folder'
 import { type Tab } from '../../(layout)/(domain)/tab'
 
 export const useMemoFolderWithTabRouter = (): {
@@ -11,12 +11,12 @@ export const useMemoFolderWithTabRouter = (): {
   const { tabs, closeTabs, closeTab } = useTabBarAndRouter()
 
   const deleteFolderAndUpdateTabs = async (folderId: string): Promise<void> => {
-    const toBeDeleteFolder = folderManager.findFolderById(folders, parseInt(folderId))
+    const toBeDeleteFolder = folderFinder.findFolderById(folders, parseInt(folderId))
     if (toBeDeleteFolder == null) return
 
     await deleteFolder(folderId)
 
-    const deletedMemoIds = folderManager.findMemoIdsInFolderRecursively(toBeDeleteFolder)
+    const deletedMemoIds = folderFinder.findMemoIdsInFolderRecursively(toBeDeleteFolder)
     if (deletedMemoIds.length === 0) return
 
     const toBeClosedTabIdx = tabs.filter((tab: Tab) => {

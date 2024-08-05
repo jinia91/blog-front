@@ -1,12 +1,5 @@
 import { type SimpleMemoInfo } from '../(domain)/memo'
-import {
-  buildReferenceFolders,
-  type Folder,
-  folderManager,
-  includeNewMemoToFolders,
-  rebuildMemoDeleted,
-  updateMemoTitleByMemoIdInFolders
-} from '../(domain)/folder'
+import { buildReferenceFolders, type Folder, folderFinder, folderManager, rebuildMemoDeleted } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
 import {
   createFolder,
@@ -55,7 +48,7 @@ export const useFolderAndMemo = (): {
     const newFolder = await createFolder()
 
     function orderedNewFolders (newFolder: Folder): Folder[] {
-      const unCategorizedFolder = folderManager.findUnCategorizedFolder(folders)
+      const unCategorizedFolder = folderFinder.findUnCategorizedFolder(folders)
       const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
       if (unCategorizedFolder != null) {
         newFolders.push(unCategorizedFolder)
@@ -105,13 +98,13 @@ export const useFolderAndMemo = (): {
       throw new Error('메모 생성에 실패했습니다.')
     }
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
-    const newFolders = includeNewMemoToFolders(folders, newMemo)
+    const newFolders = folderManager.includeNewMemoToFolders(folders, newMemo)
     setFolders(newFolders)
     return memo.memoId.toString()
   }
 
   const writeNewMemoTitle = (memoId: string, newTitle: string): void => {
-    const newFolders = updateMemoTitleByMemoIdInFolders(folders, memoId, newTitle ?? '')
+    const newFolders = folderManager.updateMemoTitleByMemoIdInFolders(folders, memoId, newTitle ?? '')
     setFolders(newFolders)
   }
 

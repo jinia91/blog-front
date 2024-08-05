@@ -6,7 +6,7 @@ import MemoItem from './memo-item'
 import { type ContextMenuProps } from './memo-folder-context-menu'
 import { ApplicationType } from '../../../../(layout)/(domain)/tab'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
-import { type Folder, folderManager } from '../../../(domain)/folder'
+import { type Folder, folderFinder } from '../../../(domain)/folder'
 
 export function FolderAndMemo ({
   folders,
@@ -58,7 +58,7 @@ export function FolderAndMemo ({
 
   useEffect(() => {
     const id = memoEditorSharedContext.id
-    const folderIds = folderManager.findFolderIdsPathToMemoId(folders, id)
+    const folderIds = folderFinder.findFolderIdsPathToMemoId(folders, id)
     folderIds.forEach(folderId => {
       openFolders.has(parseInt(folderId)) || toggleFolder(parseInt(folderId))
     })
