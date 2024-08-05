@@ -12,6 +12,7 @@ export const folderManager: {
   findFolderById: (folders: Folder[], folderId: number) => Folder | null
   findMemoIdsInFolderRecursively: (folder: Folder) => string[]
   findFolderIdsPathToMemoId: (folders: Folder[], memoId: string) => string[]
+  findUnCategorizedFolder: (folders: Folder[]) => Folder | null
 } = {
   findFolderById (folders: Folder[], folderId: number): Folder | null {
     const findFolderRecursive = (folders: Folder[], folderId: number): Folder | null => {
@@ -65,15 +66,15 @@ export const folderManager: {
     })
 
     return result
+  },
+
+  findUnCategorizedFolder (folders: Folder[]): Folder | null {
+    return folders.find((folder) => folder.id === null) ?? null
   }
 }
 
-export function findUnCategorizedFolder (folders: Folder[]): Folder | null {
-  return folders.find((folder) => folder.id === null) ?? null
-}
-
 export function includeNewMemoToFolders (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
-  const unCategoryFolder = findUnCategorizedFolder(folders)
+  const unCategoryFolder = folderManager.findUnCategorizedFolder(folders)
   const newUnCategoryFolder: Folder = (unCategoryFolder != null)
     ? {
         ...unCategoryFolder,

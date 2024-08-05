@@ -143,4 +143,21 @@ describe('Folder 탐색 테스트', () => {
     // then
     expect(result).toEqual(['0'])
   })
+
+  it('uncategorized 폴더를 찾을 수 있다', () => {
+    // given
+    const uncategorized: Folder = {
+      id: null,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: []
+    }
+
+    // when
+    const result = folderManager.findUnCategorizedFolder([folderTestFixture.buildEmpty(40), uncategorized])
+
+    // then
+    expect(result).toEqual(uncategorized)
+  })
 })

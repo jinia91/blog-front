@@ -1,8 +1,8 @@
 import { type SimpleMemoInfo } from '../(domain)/memo'
 import {
   buildReferenceFolders,
-  findUnCategorizedFolder,
   type Folder,
+  folderManager,
   includeNewMemoToFolders,
   rebuildMemoDeleted,
   updateMemoTitleByMemoIdInFolders
@@ -55,7 +55,7 @@ export const useFolderAndMemo = (): {
     const newFolder = await createFolder()
 
     function orderedNewFolders (newFolder: Folder): Folder[] {
-      const unCategorizedFolder = findUnCategorizedFolder(folders)
+      const unCategorizedFolder = folderManager.findUnCategorizedFolder(folders)
       const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
       if (unCategorizedFolder != null) {
         newFolders.push(unCategorizedFolder)
