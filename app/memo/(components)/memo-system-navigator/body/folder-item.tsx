@@ -1,11 +1,11 @@
-import { type Folder } from '../../(domain)/folder'
-import folderImg from '../../../../public/emptyFolder.png'
-import openFolder from '../../../../public/openFolder.png'
-import folderWithContentImg from '../../../../public/contentFolder.png'
+import { type Folder } from '../../../(domain)/folder'
+import folderImg from '../../../../../public/emptyFolder.png'
+import openFolder from '../../../../../public/openFolder.png'
+import folderWithContentImg from '../../../../../public/contentFolder.png'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from './memo-folder-context-menu'
-import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
+import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
 
 export default function FolderItem ({
   folder,

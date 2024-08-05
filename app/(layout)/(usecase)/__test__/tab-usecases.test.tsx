@@ -98,7 +98,7 @@ describe('탭 제거 유즈케이스 테스트', () => {
 
     // when
     act(() => {
-      result.current.removeTab(0)
+      result.current.closeTab(0)
     })
 
     // then
@@ -187,7 +187,7 @@ describe('탭 전체 제거 유즈케이스 테스트', () => {
 
     // when
     act(() => {
-      result.current.removeAllTabs()
+      result.current.closeAllTabs()
     })
 
     // then

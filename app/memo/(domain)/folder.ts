@@ -8,98 +8,127 @@ export interface Folder {
   memos: SimpleMemoInfo[]
 }
 
-export function isFolderHasMemo (folder: Folder, memoId: string): boolean {
-  if (folder.memos.some(memo => memo.id.toString() === memoId)) {
-    return true
-  }
-  return folder.children.some(childFolder => isFolderHasMemo(childFolder, memoId))
-}
-
-export function extractFolderIdByMemoId (folders: Folder[], memoId: string): string | null {
-  for (const folder of folders) {
-    if (isFolderHasMemo(folder, memoId)) {
-      return folder.id?.toString() ?? null
-    }
-  }
-  return null
-}
-
-export function findUnCategorizedFolder (folders: Folder[]): Folder | null {
-  return folders.find((folder) => folder.id === null) ?? null
-}
-
-export function includeNewMemoToFolders (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
-  const unCategoryFolder = findUnCategorizedFolder(folders)
-  const newUnCategoryFolder: Folder = (unCategoryFolder != null)
-    ? {
-        ...unCategoryFolder,
-        memos: [...unCategoryFolder.memos, memo]
+export const folderFinder: {
+  findFolderById: (folders: Folder[], folderId: number) => Folder | null
+  findMemoIdsInFolderRecursively: (folder: Folder) => string[]
+  findFolderIdsPathToMemoId: (folders: Folder[], memoId: string) => string[]
+  findUnCategorizedFolder: (folders: Folder[]) => Folder | null
+} = {
+  findFolderById (folders: Folder[], folderId: number): Folder | null {
+    const findFolderRecursive = (folders: Folder[], folderId: number): Folder | null => {
+      for (const folder of folders) {
+        if (folder.id === folderId) {
+          return folder
+        }
+        const found = findFolderRecursive(folder.children, folderId)
+        if (found != null) {
+          return found
+        }
       }
-    : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
-  return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
+      return null
+    }
+    return findFolderRecursive(folders, folderId)
+  },
+
+  findMemoIdsInFolderRecursively (folder: Folder): string[] {
+    const extractMemoIdsRecursive = (folder: Folder): string[] => {
+      const memoIds = folder.memos.map(memo => memo.id.toString())
+      const childrenMemoIds = folder.children.flatMap(child => extractMemoIdsRecursive(child))
+      return [...memoIds, ...childrenMemoIds]
+    }
+    return extractMemoIdsRecursive(folder)
+  },
+
+  findFolderIdsPathToMemoId (folders: Folder[], memoId: string): string[] {
+    let isFound = false
+    const findPathToMemo = (folder: Folder, memoId: string, result: string[]): void => {
+      if (isFound) return
+
+      if (folder.memos.some(memo => memo.id.toString() === memoId)) {
+        isFound = true
+        result.push(folder.id?.toString() ?? '0')
+        return
+      }
+
+      folder.children.forEach(childFolder => {
+        findPathToMemo(childFolder, memoId, result)
+      })
+
+      if (isFound) {
+        result.push(folder.id?.toString() ?? '0')
+      }
+    }
+
+    const result: string[] = []
+    folders.forEach(folder => {
+      if (result.length > 0) return
+      findPathToMemo(folder, memoId, result)
+    })
+
+    return result
+  },
+
+  findUnCategorizedFolder (folders: Folder[]): Folder | null {
+    return folders.find((folder) => folder.id === null) ?? null
+  }
 }
 
-export const updateMemoTitleByMemoIdInFolders = (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    const updatedMemos = folder.memos.map(memo => {
-      if (memo.id.toString() === memoId) {
-        return { ...memo, title: newTitle }
+export const folderManager: {
+  rebuildFoldersAtIncludingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
+  rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string, newTitle: string) => Folder[]
+  rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
+  rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
+  buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
+} = {
+  rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
+    const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
+    const newUnCategoryFolder: Folder = (unCategoryFolder != null)
+      ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
+      : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
+    return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
+  },
+
+  rebuildFoldersAtUpdatingMemoTitle (folders: Folder[], memoId: string, newTitle: string): Folder[] {
+    return folders.map(folder => {
+      const updatedMemos = folder.memos.map(memo => memo.id.toString() === memoId ? { ...memo, title: newTitle } : memo)
+      const updatedChildren = this.rebuildFoldersAtUpdatingMemoTitle(folder.children, memoId, newTitle)
+      return { ...folder, memos: updatedMemos, children: updatedChildren }
+    })
+  },
+
+  rebuildFoldersAtDeletingMemo (folders: Folder[], deletedMemoId: string): Folder[] {
+    return folders.map(folder => {
+      const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)
+      const updatedChildren = this.rebuildFoldersAtDeletingMemo(folder.children, deletedMemoId)
+      return { ...folder, memos: filteredMemos, children: updatedChildren }
+    })
+  },
+
+  rebuildAtNamingFolder (folders: Folder[], folderId: string, newName: string): Folder[] {
+    return folders.map(folder => {
+      if (folder.id?.toString() === folderId) {
+        return { ...folder, name: newName }
       } else {
-        return memo
+        const updatedChildren = this.rebuildAtNamingFolder(folder.children, folderId, newName)
+        return { ...folder, children: updatedChildren }
       }
     })
-    const updatedChildren = updateMemoTitleByMemoIdInFolders(folder.children, memoId, newTitle)
-    const updatedFolder = {
-      ...folder,
-      memos: updatedMemos,
-      children: updatedChildren
+  },
+  buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {
+    const referenceFolderInfo = {
+      id: 1,
+      name: '참조중',
+      parent: null,
+      memos: references,
+      children: []
     }
-    return [...acc, updatedFolder]
-  }, [])
-}
-
-export const buildReferenceFolders = (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] => {
-  const referenceFolderInfo = {
-    id: 1,
-    name: '참조중',
-    parent: null,
-    memos: references,
-    children: []
+    const referencedFolderInfo = {
+      id: 2,
+      name: '참조됨',
+      parent: null,
+      memos: referenced,
+      children: []
+    }
+    return [referenceFolderInfo, referencedFolderInfo]
   }
-  const referencedFolderInfo = {
-    id: 2,
-    name: '참조됨',
-    parent: null,
-    memos: referenced,
-    children: []
-  }
-  return [referenceFolderInfo, referencedFolderInfo]
-}
-
-export const rebuildMemoDeleted = (folders: Folder[], deletedMemoId: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)
-    const updatedChildren = rebuildMemoDeleted(folder.children, deletedMemoId)
-    const updatedFolder = {
-      ...folder,
-      memos: filteredMemos,
-      children: updatedChildren
-    }
-    return [...acc, updatedFolder]
-  }, [])
-}
-
-export const rebuildNewNameFolder = (folders: Folder[], folderId: string, newName: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    if (folder.id?.toString() === folderId) {
-      return [...acc, { ...folder, name: newName }]
-    } else {
-      const updatedChildren = rebuildNewNameFolder(folder.children, folderId, newName)
-      const updatedFolder = {
-        ...folder,
-        children: updatedChildren
-      }
-      return [...acc, updatedFolder]
-    }
-  }, [])
 }

@@ -1,10 +1,10 @@
-import { type SimpleMemoInfo } from '../../(domain)/memo'
+import { type SimpleMemoInfo } from '../../../(domain)/memo'
 import React, { useState } from 'react'
 import Image from 'next/image'
-import memoImg from '../../../../public/memo.png'
+import memoImg from '../../../../../public/memo.png'
 import { type ContextMenuProps } from './memo-folder-context-menu'
-import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
-import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
+import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
+import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 
 export default function MemoItem ({ memo, parentFolderId, handleContextMenu, depth, contextMenu }: {
   memo: SimpleMemoInfo

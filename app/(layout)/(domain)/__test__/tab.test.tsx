@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { EMPTY_PATH, LOGIN_PATH } from '../../../(utils)/constants'
-import { type Tab, TabBarManager } from '../tab'
+import { type Tab, tabBarManager } from '../tab'
 
 describe('경로 -> 탭 재생성 테스트', () => {
   it('로그인 경로가 주어지고 탭이 없다면 재생성된 탭은 메인탭을 가리켜야한다', () => {
@@ -12,7 +12,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [{ name: '/', urlPath: '/' }], selectedTabIndex: 0 })
@@ -26,7 +26,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [{ name: '메인', urlPath: '/' }], selectedTabIndex: 0 })
@@ -40,7 +40,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [], selectedTabIndex: 0 })
@@ -54,7 +54,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [], selectedTabIndex: 0 })
@@ -68,7 +68,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [{ name: '/', urlPath: '/' }], selectedTabIndex: 0 })
@@ -82,7 +82,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result.tabs.length).toBe(2)
@@ -97,7 +97,7 @@ describe('경로 -> 탭 재생성 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.rebuildWithPath(tabBarState, path)
+    const result = tabBarManager.rebuildWithPath(tabBarState, path)
 
     // then
     expect(result).toEqual({ tabs: [{ name: '/', urlPath: '/' }], selectedTabIndex: 0 })
@@ -112,7 +112,7 @@ describe('탭 제거 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.removeTargetTabAndSelectNear(tabBarState, selectedTabIndex)
+    const result = tabBarManager.removeTargetTabAndSelectNear(tabBarState, selectedTabIndex)
     // then
     expect(result).toEqual({
       tabs: [{ name: '메인', urlPath: '/' }, { name: '회원가입', urlPath: '/signup' }],
@@ -127,7 +127,7 @@ describe('탭 제거 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.removeTargetTabAndSelectNear(tabBarState, selectedTabIndex)
+    const result = tabBarManager.removeTargetTabAndSelectNear(tabBarState, selectedTabIndex)
     // then
     expect(result).toEqual({
       tabs: [{ name: '로그인', urlPath: '/login' }],
@@ -141,7 +141,7 @@ describe('탭 제거 테스트', () => {
     const selectedTabIndex = 2
 
     // when
-    const result = TabBarManager.removeTargetTabAndSelectNear({ tabs, selectedTabIndex }, selectedTabIndex - 1)
+    const result = tabBarManager.removeTargetTabAndSelectNear({ tabs, selectedTabIndex }, selectedTabIndex - 1)
     // then
     expect(result).toEqual({
       tabs: [{ name: '메인', urlPath: '/' }, { name: '회원가입', urlPath: '/signup' }],
@@ -155,7 +155,7 @@ describe('탭 제거 테스트', () => {
     const selectedTabIndex = 0
 
     // when
-    const result = TabBarManager.removeTargetTabAndSelectNear({ tabs, selectedTabIndex }, selectedTabIndex + 1)
+    const result = tabBarManager.removeTargetTabAndSelectNear({ tabs, selectedTabIndex }, selectedTabIndex + 1)
     // then
     expect(result).toEqual({
       tabs: [{ name: '메인', urlPath: '/' }, { name: '회원가입', urlPath: '/signup' }],
@@ -172,11 +172,74 @@ describe('탭 이동 테스트', () => {
     const tabBarState = { tabs, selectedTabIndex }
 
     // when
-    const result = TabBarManager.moveSelectedTabTo(tabBarState, 0)
+    const result = tabBarManager.moveSelectedTabTo(tabBarState, 0)
 
     // then
     expect(result).toEqual({
       tabs: [{ name: '로그인', urlPath: '/login' }, { name: '메인', urlPath: '/' }, { name: '회원가입', urlPath: '/signup' }],
+      selectedTabIndex: 0
+    })
+  })
+})
+
+describe('탭 여러개 제거 테스트', () => {
+  it('탭바에서 여러개의 탭을 제거할때 선택된 탭도 제거된다면 가장 최신 탭이 선택된다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' },
+      { name: '회원가입', urlPath: '/signup' }, // to be delete
+      { name: '마이페이지', urlPath: '/mypage' }, // to be delete, selected
+      { name: '설정', urlPath: '/setting' }
+    ]
+    const selectedTabIndex = 3
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 2, 3])
+
+    // then
+    expect(result).toEqual({
+      tabs: [{ name: '로그인', urlPath: '/login' }, { name: '설정', urlPath: '/setting' }],
+      selectedTabIndex: 1
+    })
+  })
+
+  it('탭바에서 여러개의 탭을 제거할때 선택된 탭이 제거되지 않는다면 선택된 탭은 그대로다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' },
+      { name: '회원가입', urlPath: '/signup' }, // to be delete
+      { name: '마이페이지', urlPath: '/mypage' }, //  selected
+      { name: '설정', urlPath: '/setting' }
+    ]
+    const selectedTabIndex = 3
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 2])
+
+    // then
+    expect(result).toEqual({
+      tabs: [{ name: '로그인', urlPath: '/login' }, { name: '마이페이지', urlPath: '/mypage' }, { name: '설정', urlPath: '/setting' }],
+      selectedTabIndex: 1
+    })
+  })
+
+  it('탭바에서 여러 탭들이 제거되고 남은 탭이 없다면 빈탭이 된다', () => {
+    // given
+    const tabs = [
+      { name: '메인', urlPath: '/' }, // to be delete
+      { name: '로그인', urlPath: '/login' }, // to be delete
+      { name: '회원가입', urlPath: '/signup' } // to be delete
+    ]
+    const selectedTabIndex = 1
+
+    // when
+    const result = tabBarManager.removeTargetTabsAndSelect({ tabs, selectedTabIndex }, [0, 1, 2])
+
+    // then
+    expect(result).toEqual({
+      tabs: [],
       selectedTabIndex: 0
     })
   })

@@ -1,12 +1,12 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import FolderItem from './FolderItem'
-import TabOpen from '../../../(layout)/(components)/(tap-system)/tab-open'
+import FolderItem from './folder-item'
+import TabOpen from '../../../../(layout)/(components)/(tap-system)/tab-open'
 import MemoItem from './memo-item'
 import { type ContextMenuProps } from './memo-folder-context-menu'
-import { ApplicationType } from '../../../(layout)/(domain)/tab'
-import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
-import { extractFolderIdByMemoId, type Folder } from '../../(domain)/folder'
+import { ApplicationType } from '../../../../(layout)/(domain)/tab'
+import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
+import { type Folder, folderFinder } from '../../../(domain)/folder'
 
 export function FolderAndMemo ({
   folders,
@@ -58,8 +58,10 @@ export function FolderAndMemo ({
 
   useEffect(() => {
     const id = memoEditorSharedContext.id
-    const folderId = parseInt(extractFolderIdByMemoId(folders, id) ?? '0')
-    openFolders.has(folderId) || toggleFolder(folderId)
+    const folderIds = folderFinder.findFolderIdsPathToMemoId(folders, id)
+    folderIds.forEach(folderId => {
+      openFolders.has(parseInt(folderId)) || toggleFolder(parseInt(folderId))
+    })
     scrollToViewIfNeeded()
   }, [memoEditorSharedContext])
 
