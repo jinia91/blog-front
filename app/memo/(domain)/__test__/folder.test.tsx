@@ -185,7 +185,7 @@ describe('Folder 관리 테스트', () => {
     }
 
     // when
-    const result = folderManager.includeNewMemoToFolders([folderTestFixture.buildEmpty(40), uncategorized], newMemo)
+    const result = folderManager.rebuildFoldersAtIncludingNewMemo([folderTestFixture.buildEmpty(40), uncategorized], newMemo)
 
     // then
     expect(result[1].memos.length).toEqual(4)
@@ -199,7 +199,7 @@ describe('Folder 관리 테스트', () => {
       references: []
     }
     // when
-    const result = folderManager.includeNewMemoToFolders([folderTestFixture.buildEmpty(40)], newMemo)
+    const result = folderManager.rebuildFoldersAtIncludingNewMemo([folderTestFixture.buildEmpty(40)], newMemo)
 
     // then
     expect(result[1].memos.length).toEqual(1)
@@ -220,7 +220,7 @@ describe('Folder 관리 테스트', () => {
     }
 
     // when
-    const result = folderManager.updateMemoTitleByMemoIdInFolders([folderTestFixture.buildEmpty(40), uncategorized], '1', '갱신된 메모')
+    const result = folderManager.rebuildFoldersAtUpdatingMemoTitle([folderTestFixture.buildEmpty(40), uncategorized], '1', '갱신된 메모')
 
     // then
     expect(result[1].memos[0].title).toEqual('갱신된 메모')
@@ -241,7 +241,7 @@ describe('Folder 관리 테스트', () => {
     }
 
     // when
-    const result = folderManager.updateMemoTitleByMemoIdInFolders([folderTestFixture.buildEmpty(40), uncategorized], '10', '갱신된 메모')
+    const result = folderManager.rebuildFoldersAtUpdatingMemoTitle([folderTestFixture.buildEmpty(40), uncategorized], '10', '갱신된 메모')
 
     // then
     expect(result[1].memos[0].title).toEqual('메모1')
@@ -270,9 +270,132 @@ describe('Folder 관리 테스트', () => {
     child2.children = [testFolder]
 
     // when
-    const result = folderManager.updateMemoTitleByMemoIdInFolders([parent], '13', '갱신된 메모')
+    const result = folderManager.rebuildFoldersAtUpdatingMemoTitle([parent], '13', '갱신된 메모')
 
     // then
     expect(result[0].children[1].children[0].memos[2].title).toEqual('갱신된 메모')
+  })
+
+  it('메모 삭제 폴더 재갱신 요청이 있으면 폴더는 재갱신된다', () => {
+    // given
+    const uncategorized: Folder = {
+      id: null,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 1, title: '메모1', references: [] },
+        { id: 2, title: '메모2', references: [] },
+        { id: 3, title: '메모3', references: [] }
+      ]
+    }
+
+    // when
+    const result = folderManager.rebuildFoldersAtDeletingMemo([folderTestFixture.buildEmpty(40), uncategorized], '1')
+
+    // then
+    expect(result[1].memos.length).toEqual(2)
+  })
+
+  it('메모삭제 폴더 재갱신 요청시 메모가 깊은 뎁스의폴더에 있어도 정상 재갱신된다', () => {
+    // given
+    const testFolder: Folder = {
+      id: 10,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 11, title: '메모1', references: [] },
+        { id: 12, title: '메모2', references: [] },
+        { id: 13, title: '메모3', references: [] }
+      ]
+    }
+
+    const child1 = folderTestFixture.buildEmpty(2)
+    const child2 = folderTestFixture.buildDefault(3)
+    const parent = folderTestFixture.buildEmpty(1)
+    parent.children = [child1, child2]
+    child1.parent = parent
+    child2.parent = parent
+    child2.children = [testFolder]
+
+    // when
+    const result = folderManager.rebuildFoldersAtDeletingMemo([parent], '13')
+
+    // then
+    expect(result[0].children[1].children[0].memos.length).toEqual(2)
+  })
+
+  it('폴더 이름 변경 폴더 재갱신 요청이 있으면 정상적으로 갱신된다', () => {
+    // given
+    const uncategorized: Folder = {
+      id: null,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 1, title: '메모1', references: [] },
+        { id: 2, title: '메모2', references: [] },
+        { id: 3, title: '메모3', references: [] }
+      ]
+    }
+
+    const targertFolder = folderTestFixture.buildEmpty(40)
+
+    // when
+    const result = folderManager.rebuildAtNamingFolder([targertFolder, uncategorized], '40', '새로운 이름')
+
+    // then
+    expect(result[0].name).toEqual('새로운 이름')
+  })
+
+  it('폴더 이름 변경 폴더 재갱신 요청이 있지만 해당 폴더가 없다면 폴더는 재갱신되지 않는다', () => {
+    // given
+    const uncategorized: Folder = {
+      id: null,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 1, title: '메모1', references: [] },
+        { id: 2, title: '메모2', references: [] },
+        { id: 3, title: '메모3', references: [] }
+      ]
+    }
+
+    // when
+    const result = folderManager.rebuildAtNamingFolder([folderTestFixture.buildEmpty(40), uncategorized], '56', '새로운 이름')
+
+    // then
+    expect(result[1].name).toEqual('uncategorized')
+  })
+
+  it('폴더 이름 변경 폴더 재갱신 요청이 있고 폴더가 깊은 뎁스에 있어도 재갱신된다', () => {
+    // given
+    const testFolder: Folder = {
+      id: 10,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 11, title: '메모1', references: [] },
+        { id: 12, title: '메모2', references: [] },
+        { id: 13, title: '메모3', references: [] }
+      ]
+    }
+
+    const child1 = folderTestFixture.buildEmpty(2)
+    const child2 = folderTestFixture.buildDefault(3)
+    const parent = folderTestFixture.buildEmpty(1)
+    parent.children = [child1, child2]
+    child1.parent = parent
+    child2.parent = parent
+    child2.children = [testFolder]
+
+    // when
+    const result = folderManager.rebuildAtNamingFolder([parent], '10', '새로운 이름')
+
+    // then
+    expect(result[0].children[1].children[0].name).toEqual('새로운 이름')
   })
 })

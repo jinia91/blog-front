@@ -1,5 +1,5 @@
 import { type SimpleMemoInfo } from '../(domain)/memo'
-import { buildReferenceFolders, type Folder, folderFinder, folderManager, rebuildMemoDeleted } from '../(domain)/folder'
+import { buildReferenceFolders, type Folder, folderFinder, folderManager } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
 import {
   createFolder,
@@ -98,13 +98,13 @@ export const useFolderAndMemo = (): {
       throw new Error('메모 생성에 실패했습니다.')
     }
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
-    const newFolders = folderManager.includeNewMemoToFolders(folders, newMemo)
+    const newFolders = folderManager.rebuildFoldersAtIncludingNewMemo(folders, newMemo)
     setFolders(newFolders)
     return memo.memoId.toString()
   }
 
   const writeNewMemoTitle = (memoId: string, newTitle: string): void => {
-    const newFolders = folderManager.updateMemoTitleByMemoIdInFolders(folders, memoId, newTitle ?? '')
+    const newFolders = folderManager.rebuildFoldersAtUpdatingMemoTitle(folders, memoId, newTitle ?? '')
     setFolders(newFolders)
   }
 
@@ -131,7 +131,7 @@ export const useFolderAndMemo = (): {
 
   const deleteMemo = async (memoId: string): Promise<void> => {
     await deleteMemoById(memoId)
-    const newFolderStructure = rebuildMemoDeleted(folders, memoId)
+    const newFolderStructure = folderManager.rebuildFoldersAtDeletingMemo(folders, memoId)
     setFolders(newFolderStructure)
   }
 

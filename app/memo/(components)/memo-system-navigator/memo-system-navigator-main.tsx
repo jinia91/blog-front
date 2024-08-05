@@ -1,6 +1,6 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
-import { rebuildNewNameFolder } from '../../(domain)/folder'
+import { folderManager } from '../../(domain)/folder'
 import { changeFolderName } from '../../(infra)/memo'
 import MemoFolderContextMenu, { type ContextMenuProps } from './body/memo-folder-context-menu'
 import { FolderAndMemo } from './body/folder-memo-structure'
@@ -64,7 +64,7 @@ export default function MemoSystemNavigatorMain ({ className }: { className?: st
     } else if (renamingFolderId !== '') {
       const result = await changeFolderName(renamingFolderId, newFolderName)
       if (result != null) {
-        const newFolderRef = rebuildNewNameFolder(folders, renamingFolderId, newFolderName)
+        const newFolderRef = folderManager.rebuildAtNamingFolder(folders, renamingFolderId, newFolderName)
         setRenamingFolderId('')
         setFolders(newFolderRef)
       }

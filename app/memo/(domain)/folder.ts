@@ -74,23 +74,45 @@ export const folderFinder: {
 }
 
 export const folderManager: {
-  includeNewMemoToFolders: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
-  updateMemoTitleByMemoIdInFolders: (folders: Folder[], memoId: string | undefined, newTitle: string) => Folder[]
+  rebuildFoldersAtIncludingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
+  rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string | undefined, newTitle: string) => Folder[]
+  rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
+  rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
 } = {
-  includeNewMemoToFolders (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
+  rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
     const newUnCategoryFolder: Folder = (unCategoryFolder != null)
       ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
       : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
     return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
   },
-  updateMemoTitleByMemoIdInFolders (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] {
+
+  rebuildFoldersAtUpdatingMemoTitle (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] {
     if (memoId === undefined) return folders
 
     return folders.map(folder => {
       const updatedMemos = folder.memos.map(memo => memo.id.toString() === memoId ? { ...memo, title: newTitle } : memo)
-      const updatedChildren = this.updateMemoTitleByMemoIdInFolders(folder.children, memoId, newTitle)
+      const updatedChildren = this.rebuildFoldersAtUpdatingMemoTitle(folder.children, memoId, newTitle)
       return { ...folder, memos: updatedMemos, children: updatedChildren }
+    })
+  },
+
+  rebuildFoldersAtDeletingMemo (folders: Folder[], deletedMemoId: string): Folder[] {
+    return folders.map(folder => {
+      const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)
+      const updatedChildren = this.rebuildFoldersAtDeletingMemo(folder.children, deletedMemoId)
+      return { ...folder, memos: filteredMemos, children: updatedChildren }
+    })
+  },
+
+  rebuildAtNamingFolder (folders: Folder[], folderId: string, newName: string): Folder[] {
+    return folders.map(folder => {
+      if (folder.id?.toString() === folderId) {
+        return { ...folder, name: newName }
+      } else {
+        const updatedChildren = this.rebuildAtNamingFolder(folder.children, folderId, newName)
+        return { ...folder, children: updatedChildren }
+      }
     })
   }
 }
@@ -111,32 +133,4 @@ export const buildReferenceFolders = (references: SimpleMemoInfo[], referenced: 
     children: []
   }
   return [referenceFolderInfo, referencedFolderInfo]
-}
-
-export const rebuildMemoDeleted = (folders: Folder[], deletedMemoId: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    const filteredMemos = folder.memos.filter(memo => memo.id.toString() !== deletedMemoId)
-    const updatedChildren = rebuildMemoDeleted(folder.children, deletedMemoId)
-    const updatedFolder = {
-      ...folder,
-      memos: filteredMemos,
-      children: updatedChildren
-    }
-    return [...acc, updatedFolder]
-  }, [])
-}
-
-export const rebuildNewNameFolder = (folders: Folder[], folderId: string, newName: string): Folder[] => {
-  return folders.reduce((acc: Folder[], folder: Folder) => {
-    if (folder.id?.toString() === folderId) {
-      return [...acc, { ...folder, name: newName }]
-    } else {
-      const updatedChildren = rebuildNewNameFolder(folder.children, folderId, newName)
-      const updatedFolder = {
-        ...folder,
-        children: updatedChildren
-      }
-      return [...acc, updatedFolder]
-    }
-  }, [])
 }
