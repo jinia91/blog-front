@@ -10,8 +10,8 @@ export interface Folder {
 
 export const folderManager: {
   findFolderById: (folders: Folder[], folderId: number) => Folder | null
-  extractMemoIdsInFolderRecursively: (folder: Folder) => string[]
-  extractFolderIdsContainMemoIdRecursively: (folders: Folder[], memoId: string) => string[]
+  findMemoIdsInFolderRecursively: (folder: Folder) => string[]
+  findFolderIdsPathToMemoId: (folders: Folder[], memoId: string) => string[]
 } = {
   findFolderById (folders: Folder[], folderId: number): Folder | null {
     const findFolderRecursive = (folders: Folder[], folderId: number): Folder | null => {
@@ -29,7 +29,7 @@ export const folderManager: {
     return findFolderRecursive(folders, folderId)
   },
 
-  extractMemoIdsInFolderRecursively (folder: Folder): string[] {
+  findMemoIdsInFolderRecursively (folder: Folder): string[] {
     const extractMemoIdsRecursive = (folder: Folder): string[] => {
       const memoIds = folder.memos.map(memo => memo.id.toString())
       const childrenMemoIds = folder.children.flatMap(child => extractMemoIdsRecursive(child))
@@ -38,15 +38,14 @@ export const folderManager: {
     return extractMemoIdsRecursive(folder)
   },
 
-  extractFolderIdsContainMemoIdRecursively (folders: Folder[], memoId: string): string[] {
+  findFolderIdsPathToMemoId (folders: Folder[], memoId: string): string[] {
     let isFound = false
     const findPathToMemo = (folder: Folder, memoId: string, result: string[]): void => {
-      if (folder.id == null) return
       if (isFound) return
 
       if (folder.memos.some(memo => memo.id.toString() === memoId)) {
         isFound = true
-        result.push(folder.id.toString())
+        result.push(folder.id?.toString() ?? '0')
         return
       }
 
@@ -55,7 +54,7 @@ export const folderManager: {
       })
 
       if (isFound) {
-        result.push(folder.id.toString())
+        result.push(folder.id?.toString() ?? '0')
       }
     }
 

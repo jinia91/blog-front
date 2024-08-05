@@ -2,18 +2,18 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { rebuildNewNameFolder } from '../../(domain)/folder'
 import { changeFolderName } from '../../(infra)/memo'
-import MemoFolderContextMenu, { type ContextMenuProps } from './memo-folder-context-menu'
-import { FolderAndMemo } from './folder-memo-structure'
+import MemoFolderContextMenu, { type ContextMenuProps } from './body/memo-folder-context-menu'
+import { FolderAndMemo } from './body/folder-memo-structure'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import NavigatorHeader from './header/navigator-header'
 import { useMemoFolderWithTabRouter } from '../../(usecase)/memo-folder-tab-usecases'
 
-export default function MemoSystemNavigator ({ className }: { className?: string }): React.ReactElement {
+export default function MemoSystemNavigatorMain ({ className }: { className?: string }): React.ReactElement {
   const { folders, setFolders, writeNewMemoTitle } = useFolderAndMemo()
-  const { memoEditorSharedContext } = useMemoSystem()
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
+  const { memoEditorSharedContext } = useMemoSystem()
 
   useEffect(() => {
     writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)

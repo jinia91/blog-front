@@ -79,7 +79,7 @@ describe('Folder 탐색 테스트', () => {
     child.parent = parent
 
     // when
-    const result = folderManager.extractMemoIdsInFolderRecursively(parent)
+    const result = folderManager.findMemoIdsInFolderRecursively(parent)
 
     // then
     expect(result).toEqual(['1', '2', '3'])
@@ -93,9 +93,54 @@ describe('Folder 탐색 테스트', () => {
     child.parent = parent
 
     // when
-    const result = folderManager.extractMemoIdsInFolderRecursively(parent)
+    const result = folderManager.findMemoIdsInFolderRecursively(parent)
 
     // then
     expect(result).toEqual([])
+  })
+
+  it('계층화된 폴더구조에서 특정 메모 아이디를 가진 폴더의 모든  상위 경로들을 찾을 수 있다', () => {
+    // given
+    const level1 = folderTestFixture.buildEmpty(10)
+    const level2L1 = folderTestFixture.buildEmpty(20)
+    const level2L2 = folderTestFixture.buildEmpty(21)
+    const level3L1 = folderTestFixture.buildDefault(30)
+    const level3L2 = folderTestFixture.buildEmpty(31)
+    const level3L3 = folderTestFixture.buildEmpty(32)
+    level1.children = [level2L1, level2L2]
+    level2L1.parent = level1
+    level2L2.parent = level1
+    level2L1.children = [level3L1, level3L2]
+    level3L1.parent = level2L1
+    level3L2.parent = level2L1
+    level2L2.children = [level3L3]
+    level3L3.parent = level2L2
+
+    // when
+    const result = folderManager.findFolderIdsPathToMemoId([level1, folderTestFixture.buildEmpty(40)], '1')
+
+    // then
+    expect(result).toEqual(['30', '20', '10'])
+  })
+
+  it('찾으려는 메모가  uncategorized에 있을때 해당 메모 아이디로 탐색하면 id 0 인 폴더를 반환한다', () => {
+    // given
+    const uncategorized: Folder = {
+      id: null,
+      name: 'uncategorized',
+      parent: null,
+      children: [],
+      memos: [
+        { id: 1, title: '메모1', references: [] },
+        { id: 2, title: '메모2', references: [] },
+        { id: 3, title: '메모3', references: [] }
+      ]
+    }
+
+    // when
+    const result = folderManager.findFolderIdsPathToMemoId([folderTestFixture.buildEmpty(40), uncategorized], '1')
+
+    // then
+    expect(result).toEqual(['0'])
   })
 })

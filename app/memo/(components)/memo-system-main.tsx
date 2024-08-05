@@ -1,5 +1,5 @@
 'use client'
-import MemoSystemNavigator from './memo-system-navigator/memo-system-navigator'
+import MemoSystemNavigatorMain from './memo-system-navigator/memo-system-navigator-main'
 import React, { useEffect, useState } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import SignInPage from '../../login/(components)/sign-in-page'
@@ -65,7 +65,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
               defaultSizePercentage={30}
               className="flex flex-1 overflow-auto"
               minSizePercentage={20}
-            >{<MemoSystemNavigator
+            >{<MemoSystemNavigatorMain
               className="flex flex-1 min-w-0 flex-col"/>}
             </Panel>
           </PanelGroup>

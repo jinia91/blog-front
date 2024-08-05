@@ -16,7 +16,7 @@ export const useMemoFolderWithTabRouter = (): {
 
     await deleteFolder(folderId)
 
-    const deletedMemoIds = folderManager.extractMemoIdsInFolderRecursively(toBeDeleteFolder)
+    const deletedMemoIds = folderManager.findMemoIdsInFolderRecursively(toBeDeleteFolder)
     if (deletedMemoIds.length === 0) return
 
     const toBeClosedTabIdx = tabs.filter((tab: Tab) => {
