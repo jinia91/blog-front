@@ -75,7 +75,7 @@ export const folderFinder: {
 
 export const folderManager: {
   rebuildFoldersAtIncludingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
-  rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string | undefined, newTitle: string) => Folder[]
+  rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string, newTitle: string) => Folder[]
   rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
   rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
@@ -88,9 +88,7 @@ export const folderManager: {
     return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
   },
 
-  rebuildFoldersAtUpdatingMemoTitle (folders: Folder[], memoId: string | undefined, newTitle: string): Folder[] {
-    if (memoId === undefined) return folders
-
+  rebuildFoldersAtUpdatingMemoTitle (folders: Folder[], memoId: string, newTitle: string): Folder[] {
     return folders.map(folder => {
       const updatedMemos = folder.memos.map(memo => memo.id.toString() === memoId ? { ...memo, title: newTitle } : memo)
       const updatedChildren = this.rebuildFoldersAtUpdatingMemoTitle(folder.children, memoId, newTitle)
