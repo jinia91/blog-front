@@ -74,15 +74,15 @@ export const folderFinder: {
 }
 
 export const folderManager: {
-  rebuildFoldersAtIncludingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
+  rebuildFoldersAtCreatingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
   rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string, newTitle: string) => Folder[]
   rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
-  rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
-  rebuildAtCreatingNewFolder: (folders: Folder[], newFolder: Folder) => Folder[]
+  rebuildFoldersAtCreatingNewFolder: (folders: Folder[], newFolder: Folder) => Folder[]
+  rebuildFoldersAtUpdatingFolderTitle: (folders: Folder[], folderId: string, newName: string) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
   buildSearchResultFolders: (resultMemos: SimpleMemoInfo[] | null) => Folder[]
 } = {
-  rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
+  rebuildFoldersAtCreatingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
     const newUnCategoryFolder: Folder = (unCategoryFolder != null)
       ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
@@ -106,17 +106,17 @@ export const folderManager: {
     })
   },
 
-  rebuildAtNamingFolder (folders: Folder[], folderId: string, newName: string): Folder[] {
+  rebuildFoldersAtUpdatingFolderTitle (folders: Folder[], folderId: string, newName: string): Folder[] {
     return folders.map(folder => {
       if (folder.id?.toString() === folderId) {
         return { ...folder, name: newName }
       } else {
-        const updatedChildren = this.rebuildAtNamingFolder(folder.children, folderId, newName)
+        const updatedChildren = this.rebuildFoldersAtUpdatingFolderTitle(folder.children, folderId, newName)
         return { ...folder, children: updatedChildren }
       }
     })
   },
-  rebuildAtCreatingNewFolder (folders: Folder[], newFolder: Folder): Folder[] {
+  rebuildFoldersAtCreatingNewFolder (folders: Folder[], newFolder: Folder): Folder[] {
     const unCategorizedFolder = folderFinder.findUnCategorizedFolder(folders)
     if (unCategorizedFolder == null) throw new Error('uncategorized 폴더가 존재하지 않습니다.')
     if (folderFinder.findFolderById(folders, newFolder.id!) != null) throw new Error('이미 존재하는 폴더입니다.')

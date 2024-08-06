@@ -86,16 +86,12 @@ export async function deleteMemoById (id: string): Promise<any> {
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error delete memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('메모 삭제에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
@@ -276,8 +272,8 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
-  try {
-    const response = await fetch(LocalHost + `/v1/memos/${memoId}/references`,
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(LocalHost + `/v1/memos/${memoId}/references`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -285,15 +281,15 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
           'Content-Type': 'application/json'
         }
       })
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.references
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  }
+
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('참조 메모 검색에 실패했습니다')
     return null
   }
+  const data = await response.json()
+  return data.references
 }
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
@@ -308,15 +304,11 @@ export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMe
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.referenceds
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('참조된 메모 검색에 실패했습니다')
     return null
   }
+  const data = await response.json()
+  return data.referenceds
 }

@@ -152,7 +152,7 @@ describe('Folder 관리 테스트', () => {
     }
 
     // when
-    const result = folderManager.rebuildFoldersAtIncludingNewMemo([folderTestFixture.buildEmpty(40), uncategorized], newMemo)
+    const result = folderManager.rebuildFoldersAtCreatingNewMemo([folderTestFixture.buildEmpty(40), uncategorized], newMemo)
 
     // then
     expect(result[1].memos.length).toEqual(4)
@@ -166,7 +166,7 @@ describe('Folder 관리 테스트', () => {
       references: []
     }
     // when
-    const result = folderManager.rebuildFoldersAtIncludingNewMemo([folderTestFixture.buildEmpty(40)], newMemo)
+    const result = folderManager.rebuildFoldersAtCreatingNewMemo([folderTestFixture.buildEmpty(40)], newMemo)
 
     // then
     expect(result[1].memos.length).toEqual(1)
@@ -310,7 +310,7 @@ describe('Folder 관리 테스트', () => {
     const targertFolder = folderTestFixture.buildEmpty(40)
 
     // when
-    const result = folderManager.rebuildAtNamingFolder([targertFolder, uncategorized], '40', '새로운 이름')
+    const result = folderManager.rebuildFoldersAtUpdatingFolderTitle([targertFolder, uncategorized], '40', '새로운 이름')
 
     // then
     expect(result[0].name).toEqual('새로운 이름')
@@ -331,7 +331,7 @@ describe('Folder 관리 테스트', () => {
     }
 
     // when
-    const result = folderManager.rebuildAtNamingFolder([folderTestFixture.buildEmpty(40), uncategorized], '56', '새로운 이름')
+    const result = folderManager.rebuildFoldersAtUpdatingFolderTitle([folderTestFixture.buildEmpty(40), uncategorized], '56', '새로운 이름')
 
     // then
     expect(result[1].name).toEqual('uncategorized')
@@ -360,7 +360,7 @@ describe('Folder 관리 테스트', () => {
     child2.children = [testFolder]
 
     // when
-    const result = folderManager.rebuildAtNamingFolder([parent], '10', '새로운 이름')
+    const result = folderManager.rebuildFoldersAtUpdatingFolderTitle([parent], '10', '새로운 이름')
 
     // then
     expect(result[0].children[1].children[0].name).toEqual('새로운 이름')
@@ -397,7 +397,7 @@ describe('Folder 관리 테스트', () => {
     const newFolder = folderTestFixture.buildEmpty(100)
 
     // when
-    const result = folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+    const result = folderManager.rebuildFoldersAtCreatingNewFolder(asIsFolders, newFolder)
 
     // then
     expect(result.length).toEqual(5)
@@ -415,7 +415,7 @@ describe('Folder 관리 테스트', () => {
 
     // when, then
     expect(() => {
-      folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+      folderManager.rebuildFoldersAtCreatingNewFolder(asIsFolders, newFolder)
     }).toThrowError('uncategorized 폴더가 존재하지 않습니다.')
   })
 
@@ -431,7 +431,7 @@ describe('Folder 관리 테스트', () => {
 
     // when, then
     expect(() => {
-      folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+      folderManager.rebuildFoldersAtCreatingNewFolder(asIsFolders, newFolder)
     }).toThrowError('이미 존재하는 폴더입니다.')
   })
 })
