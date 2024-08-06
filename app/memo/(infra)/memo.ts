@@ -111,17 +111,13 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data: { folderInfos: Folder[] } = await response.json()
-    return data.folderInfos
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('folder memo 가져오기 실패')
     return null
   }
+  const data: { folderInfos: Folder[] } = await response.json()
+  return data.folderInfos
 }
 
 export async function createFolder (): Promise<Folder> {

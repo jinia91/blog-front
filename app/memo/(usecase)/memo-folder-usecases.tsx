@@ -19,8 +19,7 @@ const folderAtom = atom<Folder[]>([])
 export const useFolderAndMemo = (): {
   folders: Folder[]
   setFolders: (folders: Folder[]) => void
-  initialization: () => Promise<void>
-  refreshFolders: () => Promise<void>
+  initializeFolderAndMemo: () => Promise<void>
   createNewFolder: () => Promise<void>
   searchMemo: (value: string) => Promise<void>
   deleteFolder: (folderId: string) => Promise<Folder[]>
@@ -32,16 +31,12 @@ export const useFolderAndMemo = (): {
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
-  const initialization = async (): Promise<void> => {
-    await fetchAndSetFolders()
-  }
-
-  const refreshFolders = async (): Promise<void> => {
-    await fetchAndSetFolders()
-  }
-
   const setFolders = (folders: Folder[]): void => {
     setFoldersAtom(folders)
+  }
+
+  const initializeFolderAndMemo = async (): Promise<void> => {
+    await fetchAndSetFolders()
   }
 
   const createNewFolder = async (): Promise<void> => {
@@ -115,14 +110,14 @@ export const useFolderAndMemo = (): {
     if (type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        await refreshFolders()
+        await fetchAndSetFolders()
       } else {
         console.log('fail')
       }
     } else if (type === 'folder') {
       const result = await makeRelationshipWithFolders(id.toString(), targetFolderId?.toString() ?? null)
       if (result != null) {
-        await refreshFolders()
+        await fetchAndSetFolders()
       } else {
         console.log('fail')
       }
@@ -136,10 +131,9 @@ export const useFolderAndMemo = (): {
   }
 
   return {
-    initialization,
+    initializeFolderAndMemo,
     folders,
     setFolders,
-    refreshFolders,
     createNewFolder,
     searchMemo: searchMemoAndFolders,
     deleteFolder,
