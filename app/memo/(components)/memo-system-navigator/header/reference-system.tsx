@@ -7,11 +7,11 @@ import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 
 export default function ReferenceSystem (): React.ReactElement {
-  const { fetchReferenceMemos } = useFolderAndMemo()
+  const { searchReferenceMemos } = useFolderAndMemo()
   const { navigatorContext, memoEditorSharedContext, toggleReferenceMode } = useMemoSystem()
   useEffect(() => {
     if (navigatorContext.isReferenceMode) {
-      void fetchReferenceMemos(memoEditorSharedContext.id)
+      void searchReferenceMemos(memoEditorSharedContext.id)
     }
   }, [navigatorContext, memoEditorSharedContext])
 

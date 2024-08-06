@@ -64,7 +64,7 @@ export default function MemoSystemNavigatorMain ({ className }: { className?: st
     } else if (renamingFolderId !== '') {
       const result = await changeFolderName(renamingFolderId, newFolderName)
       if (result != null) {
-        const newFolderRef = folderManager.rebuildAtNamingFolder(folders, renamingFolderId, newFolderName)
+        const newFolderRef = folderManager.rebuildFoldersAtUpdatingFolderTitle(folders, renamingFolderId, newFolderName)
         setRenamingFolderId('')
         setFolders(newFolderRef)
       }

@@ -10,7 +10,7 @@ import { useFolderAndMemo } from '../(usecase)/memo-folder-usecases'
 
 export default function MemoSystemMain ({ children }: { children: React.ReactNode }): React.ReactElement {
   const { session } = useSession()
-  const { initialization } = useFolderAndMemo()
+  const { initializeFolderAndMemo } = useFolderAndMemo()
   const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
   const [direction, setDirection] = useState<Direction>('horizontal')
@@ -19,7 +19,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
   console.log('MemoSystemMain session:', session)
 
   useEffect(() => {
-    initialization().then(() => {
+    initializeFolderAndMemo().then(() => {
       setMounted(true)
     }).catch(error => {
       console.error(error)

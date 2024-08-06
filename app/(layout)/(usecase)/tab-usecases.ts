@@ -29,7 +29,6 @@ export function useTabBarAndRouter (): {
   upsertAndSelectTab: (newTab: Tab) => void
   closeAllTabs: () => void
   closeOtherTabsWithOut: (targetTabIdx: number) => void
-  updateTabBar: (newTabs: Tab[], newSelectedTabIdx: number) => void
   closeTabs: (targets: number[]) => void
 } {
   const [tabsAtom, setTabsAtom] = useAtom(TabsAtom)
@@ -83,12 +82,6 @@ export function useTabBarAndRouter (): {
     setTabBarAndRoute(newTabBarState)
   }
 
-  // fixme: 메모시스템 유즈케이스 리팩토링시 제거
-  const updateTabBar = (newTabs: Tab[], newSelectedTabIdx: number): void => {
-    const tabBar = { tabs: newTabs, selectedTabIndex: newSelectedTabIdx }
-    setTabBarAndRoute(tabBar)
-  }
-
   const closeTabs = (targets: number[]): void => {
     const newTabs = tabsAtom.filter((_, idx) => !targets.includes(idx))
     const asIsSelectedTab = tabsAtom[selectedTabIdxAtom]
@@ -133,7 +126,6 @@ export function useTabBarAndRouter (): {
     closeTab,
     closeAllTabs,
     closeOtherTabsWithOut,
-    closeTabs,
-    updateTabBar
+    closeTabs
   }
 }

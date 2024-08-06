@@ -86,16 +86,12 @@ export async function deleteMemoById (id: string): Promise<any> {
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error delete memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('메모 삭제에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
@@ -111,20 +107,16 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data: { folderInfos: Folder[] } = await response.json()
-    return data.folderInfos
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('folder memo 가져오기 실패')
     return null
   }
+  const data: { folderInfos: Folder[] } = await response.json()
+  return data.folderInfos
 }
 
-export async function createFolder (): Promise<Folder> {
+export async function requestCreateFolder (): Promise<Folder | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + '/v1/folders', {
@@ -137,7 +129,8 @@ export async function createFolder (): Promise<Folder> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    throw new Error('카테고리 생성에 실패했습니다')
+    console.error('폴더 생성에 실패했습니다')
+    return null
   }
   return await response.json().then((data) => data.folder)
 }
@@ -257,7 +250,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
   }
 }
 
-export async function fetchSearchResults (query: string): Promise<Folder[] | null> {
+export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + `/v1/folders?query=${query}`,
       {
@@ -275,12 +268,12 @@ export async function fetchSearchResults (query: string): Promise<Folder[] | nul
     return null
   }
   const data = await response.json()
-  return data.folderInfos
+  return data.folderInfos[0].memos
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
-  try {
-    const response = await fetch(LocalHost + `/v1/memos/${memoId}/references`,
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(LocalHost + `/v1/memos/${memoId}/references`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -288,15 +281,15 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
           'Content-Type': 'application/json'
         }
       })
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.references
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  }
+
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('참조 메모 검색에 실패했습니다')
     return null
   }
+  const data = await response.json()
+  return data.references
 }
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
@@ -311,15 +304,11 @@ export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMe
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.referenceds
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('참조된 메모 검색에 실패했습니다')
     return null
   }
+  const data = await response.json()
+  return data.referenceds
 }
