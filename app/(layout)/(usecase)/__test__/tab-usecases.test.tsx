@@ -219,11 +219,19 @@ describe('탭 제거 without 유즈케이스 테스트', () => {
   })
 })
 
-describe('탭바 교체 유즈케이스 테스트', () => {
-  it('탭바를 교체하면 모든 탭이 교체되고 요청한 탭으로 선택되며 라우팅된다', () => {
+describe('탭 여러개 닫기 유즈케이스 테스트', () => {
+  it('여러개 탭을 닫을때 선택된 탭도 닫히면 가장 최신 탭으로 이동한다', () => {
     // given
-    setDefaultTabBarAtLocalStorage()
-    const path = '/test'
+    const initTabs = [
+      { name: '/test', urlPath: '/test' },
+      { name: '/test2', urlPath: '/test2' },
+      { name: '/test3', urlPath: '/test3' },
+      { name: '/test4', urlPath: '/test4' }
+    ]
+    localStorage.setItem('tabs', JSON.stringify(initTabs))
+    localStorage.setItem('selectedTabIdx', '2')
+
+    const path = '/test3'
     const { result } = renderHook(() => useTabBarAndRouter(), { wrapper })
     act(() => {
       result.current.initializeTabBar(path)
@@ -231,12 +239,65 @@ describe('탭바 교체 유즈케이스 테스트', () => {
 
     // when
     act(() => {
-      result.current.updateTabBar([{ name: '/test3', urlPath: '/test3' }], 0)
+      result.current.closeTabs([0, 2])
     })
 
     // then
-    expect(result.current.tabs).toEqual([{ name: '/test3', urlPath: '/test3' }])
+    expect(result.current.tabs).toEqual([{ name: '/test2', urlPath: '/test2' }, { name: '/test4', urlPath: '/test4' }])
+    expect(result.current.selectedTabIdx).toBe(1)
+  })
+
+  it('여러개 탭을 닫을때 탭이 모두 닫히면 빈탭상태가 된다', () => {
+    // given
+    const initTabs = [
+      { name: '/test', urlPath: '/test' },
+      { name: '/test2', urlPath: '/test2' },
+      { name: '/test3', urlPath: '/test3' },
+      { name: '/test4', urlPath: '/test4' }
+    ]
+    localStorage.setItem('tabs', JSON.stringify(initTabs))
+    localStorage.setItem('selectedTabIdx', '2')
+
+    const path = '/test3'
+    const { result } = renderHook(() => useTabBarAndRouter(), { wrapper })
+    act(() => {
+      result.current.initializeTabBar(path)
+    })
+
+    // when
+    act(() => {
+      result.current.closeTabs([0, 1, 2, 3])
+    })
+
+    // then
+    expect(result.current.tabs).toEqual([])
     expect(result.current.selectedTabIdx).toBe(0)
-    expect(MockRouter.pathname).toBe('/test3')
+  })
+
+  it('여러개 탭을 닫아도 선택된 탭이 남아있다면 해당 탭을 계속 선택한다', () => {
+    // given
+    const initTabs = [
+      { name: '/test', urlPath: '/test' },
+      { name: '/test2', urlPath: '/test2' },
+      { name: '/test3', urlPath: '/test3' },
+      { name: '/test4', urlPath: '/test4' }
+    ]
+    localStorage.setItem('tabs', JSON.stringify(initTabs))
+    localStorage.setItem('selectedTabIdx', '2')
+
+    const path = '/test3'
+    const { result } = renderHook(() => useTabBarAndRouter(), { wrapper })
+    act(() => {
+      result.current.initializeTabBar(path)
+    })
+
+    // when
+    act(() => {
+      result.current.closeTabs([0, 1])
+    })
+
+    // then
+    expect(result.current.tabs).toEqual([{ name: '/test3', urlPath: '/test3' }, { name: '/test4', urlPath: '/test4' }])
+    expect(result.current.selectedTabIdx).toBe(0)
   })
 })

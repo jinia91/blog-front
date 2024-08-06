@@ -138,6 +138,18 @@ describe('폴더 생성 유즈케이스', () => {
       }
     )
   })
+
+  it('폴더 생성요청이 실패하면 에러가 발생한다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+    global.fetch = vi.fn(() => ({
+      ok: false,
+      statusText: 'Internal Server Error'
+    })) as Mock
+
+    // when, then
+    await expect(result.current.createNewFolder()).rejects.toThrowError('폴더 생성에 실패했습니다.')
+  })
 })
 
 describe('메모 폴더 키워드 검색 유즈케이스', () => {
@@ -187,5 +199,89 @@ describe('메모 폴더 키워드 검색 유즈케이스', () => {
     expect(result.current.folders[0].memos).toEqual(
       [{ id: 1, title: '메모1', references: [] }]
     )
+  })
+
+  it('키워드 검색에 실패하면 검색결과 빈배열을 반환한다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+    const initialFolders: Folder[] = [
+      {
+        id: 1,
+        name: '테스트 폴더1',
+        memos: [{ id: 1, title: '메모1', references: [] }],
+        parent: null,
+        children: []
+      },
+      {
+        id: 2,
+        name: '테스트 폴더2',
+        memos: [{ id: 2, title: '메모2', references: [] }],
+        parent: null,
+        children: []
+      }
+    ]
+
+    act(() => {
+      result.current.setFolders(initialFolders)
+    })
+
+    global.fetch = vi.fn(() => ({
+      ok: false,
+      statusText: 'Internal Server Error'
+    })) as Mock
+
+    // when
+    await act(async () => {
+      await result.current.searchMemo('메모1')
+    })
+
+    // then
+    expect(result.current.folders[0].memos).toEqual([])
+  })
+
+  it('키워드 검색 결과가 없으면 검색결과 빈배열을 반환한다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+    const initialFolders: Folder[] = [
+      {
+        id: 1,
+        name: '테스트 폴더1',
+        memos: [{ id: 1, title: '메모1', references: [] }],
+        parent: null,
+        children: []
+      },
+      {
+        id: 2,
+        name: '테스트 폴더2',
+        memos: [{ id: 2, title: '메모2', references: [] }],
+        parent: null,
+        children: []
+      }
+    ]
+
+    act(() => {
+      result.current.setFolders(initialFolders)
+    })
+
+    global.fetch = vi.fn(() => ({
+      ok: true,
+      json: async () => ({
+        folderInfos: [{
+          id: null,
+          name: '검색결과',
+          memos: [],
+          parent: null,
+          children: []
+        }]
+      })
+    })) as Mock
+
+    // when
+    await act(async () => {
+      await result.current.searchMemo('메모3')
+    })
+
+    // then
+    expect(result.current.folders[0].memos).toEqual([])
   })
 })

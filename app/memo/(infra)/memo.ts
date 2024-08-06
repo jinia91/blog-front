@@ -254,7 +254,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
   }
 }
 
-export async function fetchSearchResults (query: string): Promise<Folder[] | null> {
+export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + `/v1/folders?query=${query}`,
       {
@@ -272,7 +272,7 @@ export async function fetchSearchResults (query: string): Promise<Folder[] | nul
     return null
   }
   const data = await response.json()
-  return data.folderInfos
+  return data.folderInfos[0].memos
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {

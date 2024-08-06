@@ -49,8 +49,9 @@ export const useFolderAndMemo = (): {
   }
 
   const searchMemo = async (value: string): Promise<void> => {
-    const folders = await fetchSearchResults(value) ?? []
-    setFolders(folders)
+    const resultMemos = await fetchSearchResults(value)
+    const resultFolder = folderManager.buildSearchResultFolders(resultMemos)
+    setFolders(resultFolder)
   }
 
   const deleteFolder = async (folderId: string): Promise<Folder[]> => {

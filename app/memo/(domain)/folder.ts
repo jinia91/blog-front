@@ -80,6 +80,7 @@ export const folderManager: {
   rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
   rebuildAtCreatingNewFolder: (folders: Folder[], newFolder: Folder) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
+  buildSearchResultFolders: (resultMemos: SimpleMemoInfo[] | null) => Folder[]
 } = {
   rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
@@ -140,5 +141,16 @@ export const folderManager: {
       children: []
     }
     return [referenceFolderInfo, referencedFolderInfo]
+  },
+  buildSearchResultFolders (resultMemos: SimpleMemoInfo[] | null): Folder[] {
+    return [
+      {
+        id: null,
+        name: '검색결과',
+        parent: null,
+        memos: resultMemos ?? [],
+        children: []
+      }
+    ]
   }
 }
