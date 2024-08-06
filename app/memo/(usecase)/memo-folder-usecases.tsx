@@ -41,6 +41,9 @@ export const useFolderAndMemo = (): {
 
   const createNewFolder = async (): Promise<void> => {
     const newFolder = await createFolder()
+    if (newFolder == null) {
+      throw new Error('폴더 생성에 실패했습니다.')
+    }
     const newFolders = folderManager.rebuildAtCreatingNewFolder(folders, newFolder)
     setFolders(newFolders)
   }

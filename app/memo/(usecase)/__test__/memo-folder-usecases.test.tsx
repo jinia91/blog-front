@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react'
 import { useFolderAndMemo } from '../memo-folder-usecases'
 import { type Folder } from '../../(domain)/folder'
 import { type Mock, vi } from 'vitest'
+import { folderTestFixture } from '../../(domain)/__test__/folder-test-fixture'
 
 const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => <Provider>{children}</Provider>
 
@@ -88,5 +89,53 @@ describe('폴더와 메모 초기화 유즈케이스', () => {
     await act(async () => {
       await expect(result.current.initializeFolderAndMemo()).rejects.toThrowError('폴더 정보를 가져오는데 실패했습니다.')
     })
+  })
+})
+
+describe('폴더 생성 유즈케이스', () => {
+  it('폴더 생성요청을 성공하면 새폴더가 추가된다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+    const initialFolders: Folder[] = [
+      {
+        id: 1,
+        name: '테스트 폴더1',
+        memos: [],
+        parent: null,
+        children: []
+      },
+      {
+        id: 2,
+        name: '테스트 폴더2',
+        memos: [],
+        parent: null,
+        children: []
+      },
+      folderTestFixture.buildUnCategorizedFolder()
+    ]
+    global.fetch = vi.fn(() => ({
+      ok: true,
+      json: async () => ({ folder: { id: 3, name: '테스트 폴더3', memos: [], parent: null, children: [] } })
+    })) as Mock
+
+    // when
+    act(() => {
+      result.current.setFolders(initialFolders)
+    })
+
+    await act(async () => {
+      await result.current.createNewFolder()
+    })
+
+    // then
+    expect(result.current.folders[2]).toEqual(
+      {
+        id: 3,
+        name: '테스트 폴더3',
+        memos: [],
+        parent: null,
+        children: []
+      }
+    )
   })
 })

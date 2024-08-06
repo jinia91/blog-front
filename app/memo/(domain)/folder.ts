@@ -117,10 +117,11 @@ export const folderManager: {
   },
   rebuildAtCreatingNewFolder (folders: Folder[], newFolder: Folder): Folder[] {
     const unCategorizedFolder = folderFinder.findUnCategorizedFolder(folders)
+    if (unCategorizedFolder == null) throw new Error('uncategorized 폴더가 존재하지 않습니다.')
+    if (folderFinder.findFolderById(folders, newFolder.id!) != null) throw new Error('이미 존재하는 폴더입니다.')
+
     const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
-    if (unCategorizedFolder != null) {
-      newFolders.push(unCategorizedFolder)
-    }
+    newFolders.push(unCategorizedFolder)
     return newFolders
   },
   buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {

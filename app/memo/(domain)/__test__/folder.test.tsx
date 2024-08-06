@@ -1,39 +1,6 @@
 import { type Folder, folderFinder, folderManager } from '../folder'
 import { type SimpleMemoInfo } from '../memo'
-
-const folderTestFixture = {
-  buildHierarchy (): Folder {
-    const parent = folderTestFixture.buildEmpty(1)
-    const child = folderTestFixture.buildDefault(2)
-    child.parent = parent
-    parent.children = [child]
-    return parent
-  },
-
-  buildEmpty (id: number): Folder {
-    return {
-      id,
-      name: '폴더1',
-      parent: null,
-      children: [],
-      memos: []
-    }
-  },
-
-  buildDefault (id: number): Folder {
-    return {
-      id,
-      name: '폴더2',
-      parent: null,
-      children: [],
-      memos: [
-        { id: 1, title: '메모1', references: [] },
-        { id: 2, title: '메모2', references: [] },
-        { id: 3, title: '메모3', references: [] }
-      ]
-    }
-  }
-}
+import { folderTestFixture } from './folder-test-fixture'
 
 describe('Folder 탐색 테스트', () => {
   it('계층화된 폴더구조에서 특정 폴더를 아이디로 찾을 수 있다', () => {
@@ -374,7 +341,7 @@ describe('Folder 관리 테스트', () => {
     // given
     const testFolder: Folder = {
       id: 10,
-      name: 'uncategorized',
+      name: 'testFolder',
       parent: null,
       children: [],
       memos: [
@@ -417,5 +384,54 @@ describe('Folder 관리 테스트', () => {
 
     // then
     expect(result.length).toEqual(2)
+  })
+
+  it('새 폴더 생성시 폴더 갱신 요청이 있으면 폴더 가장 마지막 -1 위치에 새폴더가 생성된다', () => {
+    // given
+    const asIsFolders = [
+      folderTestFixture.buildEmpty(40),
+      folderTestFixture.buildEmpty(41),
+      folderTestFixture.buildEmpty(42),
+      folderTestFixture.buildUnCategorizedFolder()
+    ]
+    const newFolder = folderTestFixture.buildEmpty(100)
+
+    // when
+    const result = folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+
+    // then
+    expect(result.length).toEqual(5)
+    expect(result[3].id).toEqual(100)
+  })
+
+  it('새 폴더 생성시 폴더 갱신 요청에서 기존 폴더에 uncategorized 폴더가 없다면 에러가 발생한다', () => {
+    // given
+    const asIsFolders = [
+      folderTestFixture.buildEmpty(40),
+      folderTestFixture.buildEmpty(41),
+      folderTestFixture.buildEmpty(42)
+    ]
+    const newFolder = folderTestFixture.buildEmpty(100)
+
+    // when, then
+    expect(() => {
+      folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+    }).toThrowError('uncategorized 폴더가 존재하지 않습니다.')
+  })
+
+  it('새 폴더 생성시 폴더 갱신 요청에서 폴더가 기존에 존재한다면 에러가 발생한다', () => {
+    // given
+    const asIsFolders = [
+      folderTestFixture.buildEmpty(40),
+      folderTestFixture.buildEmpty(41),
+      folderTestFixture.buildEmpty(42),
+      folderTestFixture.buildUnCategorizedFolder()
+    ]
+    const newFolder = folderTestFixture.buildEmpty(42)
+
+    // when, then
+    expect(() => {
+      folderManager.rebuildAtCreatingNewFolder(asIsFolders, newFolder)
+    }).toThrowError('이미 존재하는 폴더입니다.')
   })
 })

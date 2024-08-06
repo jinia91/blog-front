@@ -120,7 +120,7 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
   return data.folderInfos
 }
 
-export async function createFolder (): Promise<Folder> {
+export async function createFolder (): Promise<Folder | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + '/v1/folders', {
@@ -133,7 +133,8 @@ export async function createFolder (): Promise<Folder> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    throw new Error('카테고리 생성에 실패했습니다')
+    console.error('폴더 생성에 실패했습니다')
+    return null
   }
   return await response.json().then((data) => data.folder)
 }
