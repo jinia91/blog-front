@@ -12,7 +12,7 @@ export const useMemoFolderWithTabRouter = (): {
 
   const deleteFolderAndUpdateTabs = async (folderId: string): Promise<void> => {
     const toBeDeleteFolder = folderFinder.findFolderById(folders, parseInt(folderId))
-    if (toBeDeleteFolder == null) return
+    if (toBeDeleteFolder == null) throw new Error('폴더를 찾을 수 없습니다')
 
     await deleteFolder(folderId)
 
