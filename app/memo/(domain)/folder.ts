@@ -78,6 +78,7 @@ export const folderManager: {
   rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string, newTitle: string) => Folder[]
   rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
   rebuildAtNamingFolder: (folders: Folder[], folderId: string, newName: string) => Folder[]
+  rebuildAtCreatingNewFolder: (folders: Folder[], newFolder: Folder) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
 } = {
   rebuildFoldersAtIncludingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
@@ -113,6 +114,14 @@ export const folderManager: {
         return { ...folder, children: updatedChildren }
       }
     })
+  },
+  rebuildAtCreatingNewFolder (folders: Folder[], newFolder: Folder): Folder[] {
+    const unCategorizedFolder = folderFinder.findUnCategorizedFolder(folders)
+    const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
+    if (unCategorizedFolder != null) {
+      newFolders.push(unCategorizedFolder)
+    }
+    return newFolders
   },
   buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {
     const referenceFolderInfo = {

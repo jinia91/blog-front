@@ -1,5 +1,5 @@
 import { type SimpleMemoInfo } from '../(domain)/memo'
-import { type Folder, folderFinder, folderManager } from '../(domain)/folder'
+import { type Folder, folderManager } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
 import {
   createFolder,
@@ -41,17 +41,7 @@ export const useFolderAndMemo = (): {
 
   const createNewFolder = async (): Promise<void> => {
     const newFolder = await createFolder()
-
-    function orderedNewFolders (newFolder: Folder): Folder[] {
-      const unCategorizedFolder = folderFinder.findUnCategorizedFolder(folders)
-      const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
-      if (unCategorizedFolder != null) {
-        newFolders.push(unCategorizedFolder)
-      }
-      return newFolders
-    }
-
-    const newFolders = orderedNewFolders(newFolder)
+    const newFolders = folderManager.rebuildAtCreatingNewFolder(folders, newFolder)
     setFolders(newFolders)
   }
 

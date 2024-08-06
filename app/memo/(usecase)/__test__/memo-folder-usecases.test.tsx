@@ -74,4 +74,19 @@ describe('폴더와 메모 초기화 유즈케이스', () => {
     // then
     expect(result.current.folders).toEqual(initialFolders)
   })
+
+  it('폴더 메모 초기화시 데이터를 못가져오면 예외를 반환한다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+
+    global.fetch = vi.fn(() => ({
+      ok: false,
+      statusText: 'Internal Server Error'
+    })) as Mock
+
+    // when, then
+    await act(async () => {
+      await expect(result.current.initializeFolderAndMemo()).rejects.toThrowError('폴더 정보를 가져오는데 실패했습니다.')
+    })
+  })
 })
