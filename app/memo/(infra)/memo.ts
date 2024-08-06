@@ -120,7 +120,7 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
   return data.folderInfos
 }
 
-export async function createFolder (): Promise<Folder | null> {
+export async function requestCreateFolder (): Promise<Folder | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + '/v1/folders', {

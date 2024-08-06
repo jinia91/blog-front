@@ -2,7 +2,6 @@ import { type SimpleMemoInfo } from '../(domain)/memo'
 import { type Folder, folderManager } from '../(domain)/folder'
 import { atom, useAtom } from 'jotai'
 import {
-  createFolder,
   createMemo,
   deleteFolderById,
   deleteMemoById,
@@ -11,7 +10,8 @@ import {
   fetchReferencesByMemoId,
   fetchSearchResults,
   makeRelationshipWithFolders,
-  makeRelationshipWithMemoAndFolders
+  makeRelationshipWithMemoAndFolders,
+  requestCreateFolder
 } from '../(infra)/memo'
 
 const folderAtom = atom<Folder[]>([])
@@ -40,7 +40,7 @@ export const useFolderAndMemo = (): {
   }
 
   const createNewFolder = async (): Promise<void> => {
-    const newFolder = await createFolder()
+    const newFolder = await requestCreateFolder()
     if (newFolder == null) {
       throw new Error('폴더 생성에 실패했습니다.')
     }
@@ -48,11 +48,8 @@ export const useFolderAndMemo = (): {
     setFolders(newFolders)
   }
 
-  const searchMemoAndFolders = async (value: string): Promise<void> => {
-    const folders = await fetchSearchResults(value)
-    if (folders == null) {
-      throw new Error('폴더 검색에 실패했습니다.')
-    }
+  const searchMemo = async (value: string): Promise<void> => {
+    const folders = await fetchSearchResults(value) ?? []
     setFolders(folders)
   }
 
@@ -128,7 +125,7 @@ export const useFolderAndMemo = (): {
     folders,
     setFolders,
     createNewFolder,
-    searchMemo: searchMemoAndFolders,
+    searchMemo,
     deleteFolder,
     fetchReferenceMemos,
     createNewMemo,

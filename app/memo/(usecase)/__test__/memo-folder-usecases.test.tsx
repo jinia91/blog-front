@@ -139,3 +139,59 @@ describe('폴더 생성 유즈케이스', () => {
     )
   })
 })
+
+describe('메모 폴더 키워드 검색 유즈케이스', () => {
+  it('키워드 검색에 성공하면 해당 키워드를 포함하는 메모와 폴더를 반환한다', async () => {
+    // given
+    const { result } = renderHook(() => useFolderAndMemo(), { wrapper })
+    const initialFolders: Folder[] = [
+      {
+        id: 1,
+        name: '테스트 폴더1',
+        memos: [{ id: 1, title: '메모1', references: [] }],
+        parent: null,
+        children: []
+      },
+      {
+        id: 2,
+        name: '테스트 폴더2',
+        memos: [{ id: 2, title: '메모2', references: [] }],
+        parent: null,
+        children: []
+      }
+    ]
+
+    act(() => {
+      result.current.setFolders(initialFolders)
+    })
+
+    global.fetch = vi.fn(() => ({
+      ok: true,
+      json: async () => ({
+        folderInfos: {
+          id: 1,
+          name: '테스트 폴더1',
+          memos: [{ id: 1, title: '메모1', references: [] }],
+          parent: null,
+          children: []
+        }
+      })
+    })) as Mock
+
+    // when
+    await act(async () => {
+      await result.current.searchMemo('메모1')
+    })
+
+    // then
+    expect(result.current.folders).toEqual(
+      {
+        id: 1,
+        name: '테스트 폴더1',
+        memos: [{ id: 1, title: '메모1', references: [] }],
+        parent: null,
+        children: []
+      }
+    )
+  })
+})
