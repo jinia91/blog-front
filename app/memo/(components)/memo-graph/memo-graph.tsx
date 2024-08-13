@@ -17,7 +17,7 @@ export default function MemoGraph (): React.ReactElement | null {
   }, [])
 
   const router = useRouter()
-  if (folders == null || folders[0].id === 1) {
+  if (folders === null || folders[0].id === 1) {
     return null
   }
   const flattenFolder = (folder: Folder): Folder[] => {
