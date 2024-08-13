@@ -39,7 +39,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
     }
   }, [])
 
-  return (session == null)
+  return (session === null)
     ? <SignInPage/>
     : (session.roles.values().next().value === Auth.Admin)
         ? (

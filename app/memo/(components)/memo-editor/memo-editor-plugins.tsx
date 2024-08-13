@@ -67,7 +67,7 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
     })
   }
 
-  const language = className?.split('-')[1] !== 'highlight' ? className == null ? '' : className.split('-')[1] : ''
+  const language = className?.split('-')[1] !== 'highlight' ? className === null ? '' : className.split('-')[1] : ''
 
   const refElement = useCallback((node: any) => {
     if (node !== null) {

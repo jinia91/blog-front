@@ -98,7 +98,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
           const file = item.getAsFile()
           if (file != null) {
             const data = await uploadImage(file)
-            if (data == null) {
+            if (data === null) {
               throw new Error('Error uploading image')
             }
             const imageUrl = data.url
