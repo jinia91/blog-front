@@ -211,11 +211,6 @@ describe('메모 삭제 후 탭 업데이트 및 라우팅 유즈케이스 테�
             ok: true,
             json: async () => ({ memoId: 1 })
           }
-        case 'http://localhost:7777/api/v1/memos':
-          return {
-            ok: true,
-            json: async () => ({ memoInfos: [] })
-          }
       }
     }) as Mock
 
@@ -276,11 +271,6 @@ describe('메모 삭제 후 탭 업데이트 및 라우팅 유즈케이스 테�
           return {
             ok: true,
             json: async () => ({ memoId: 1 })
-          }
-        case 'http://localhost:7777/api/v1/memos':
-          return {
-            ok: true,
-            json: async () => ({ memoInfos: [] })
           }
       }
     }) as Mock
