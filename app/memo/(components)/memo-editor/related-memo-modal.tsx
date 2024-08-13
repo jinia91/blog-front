@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useEffect, useState } from 'react'
 import { type Memo } from '../../(domain)/memo'
 import Markdown from 'react-markdown'
