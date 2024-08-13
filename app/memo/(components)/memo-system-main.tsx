@@ -15,9 +15,6 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
   type Direction = 'horizontal' | 'vertical'
   const [direction, setDirection] = useState<Direction>('horizontal')
 
-  console.log('MemoSystemMain 렌더링 체크 1')
-  console.log('MemoSystemMain session:', session)
-
   useEffect(() => {
     initializeFolderAndMemo().then(() => {
       setMounted(true)

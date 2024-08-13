@@ -65,7 +65,6 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
       const selectedWord = api.setSelectionRange(newSelectionRange)
       if (selectedWord.selectedText.length === 0) return
       const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, pageMemoId)
-      console.log(recommendedArr)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       setRecommendations(recommendedArr)

@@ -6,7 +6,6 @@ export function RenderApp ({ page }: {
   page: React.ReactNode
 }): React.ReactElement | null {
   const path = usePathname()
-  console.log('RenderApp 렌더링 횟수 체크, path:', path)
 
   function isEmpty (): boolean {
     return (path === '/empty')

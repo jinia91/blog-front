@@ -13,7 +13,6 @@ export default function Page (): React.ReactElement {
     async function handleLogin (): Promise<void> {
       const isAlreadyLogin = session !== null
       if (isAlreadyLogin) {
-        console.log('이미 로그인 되어있음')
         router.push('/')
       } else {
         setGlobalPending(true)

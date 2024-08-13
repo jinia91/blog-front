@@ -6,7 +6,6 @@ export async function getOAuthLoginUrl (provider: string): Promise<{ url: string
     credentials: 'include'
   })
   if (!response.ok) {
-    console.error(response.statusText)
     return null
   }
   return await response.json()

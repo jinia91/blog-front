@@ -66,9 +66,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
-    const data = await response.json()
-    console.log('fetchedMemo:', data)
-    return data
+    return await response.json()
   } catch (error) {
     console.error('Error fetching memo:', error)
     return null
@@ -230,7 +228,6 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
   const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)
-    console.log(imageFile)
     return await fetch(LocalHost + '/v1/media/image', {
       method: 'POST',
       credentials: 'include',

@@ -47,14 +47,13 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
       mermaid
         .render(id.current, code)
         .then(({ svg, bindFunctions }) => {
-          console.log('svg:', svg)
           container.innerHTML = svg
           if (bindFunctions != null) {
             bindFunctions(container)
           }
         })
         .catch((error) => {
-          console.log('error:', error)
+          console.error('error:', error)
         })
     }
   }, [container, isMermaid, code, id])
