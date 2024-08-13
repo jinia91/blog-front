@@ -2,86 +2,40 @@
 
 import { ForceGraph2D } from 'react-force-graph'
 import { type LinkObject, type NodeObject } from 'force-graph'
-import { type Folder } from '../../(domain)/folder'
+import { folderManager } from '../../(domain)/folder'
 import React, { useEffect } from 'react'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useRouter } from 'next/navigation'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
+import { FOLDER_MEMO_GROUP_SEPARATOR, memoGraphUtils } from './memo-graph-utils'
 
 export default function MemoGraph (): React.ReactElement | null {
   const { folders } = useFolderAndMemo()
   const { setMemoEditorSharedContext } = useMemoSystem()
+  const router = useRouter()
 
   useEffect(() => {
     setMemoEditorSharedContext({ id: '', title: '' })
   }, [])
 
-  const router = useRouter()
-  if (folders === null || folders[0].id === 1) {
+  if (folders === null) {
     return null
   }
-  const flattenFolder = (folder: Folder): Folder[] => {
-    const children = folder.children.flatMap(child => flattenFolder(child))
-    return [folder, ...children]
-  }
-  const flattenFolders = folders.flatMap(folder => flattenFolder(folder))
 
-  const createFolderNodes = (folder: Folder, group: number, nodes: any): void => {
-    nodes.push({
-      id: folder.id ?? -1,
-      name: folder.name,
-      group
-    })
-  }
-
-  const folderNodes: NodeObject[] = []
-  flattenFolders.filter(
-    folder => folder.id !== null
-  ).forEach((folder, index) => {
-    createFolderNodes(folder, 6, folderNodes)
-  })
-
-  const memoNodes: NodeObject[] = flattenFolders.flatMap(folder => folder.memos.map((memo, index) => ({
-    id: memo.id,
-    name: memo.title,
-    group: 109
-  })))
-
+  const flattenFolders = folders.flatMap(folder => folderManager.flattenFolder(folder))
+  const folderNodes: NodeObject[] = memoGraphUtils.buildFolderNodes(flattenFolders)
+  const memoNodes: NodeObject[] = memoGraphUtils.buildMemoNodes(flattenFolders)
   const nodes: NodeObject[] = [...folderNodes, ...memoNodes]
 
-  const memoLinks: LinkObject[] = flattenFolders.flatMap(folder =>
-    folder.memos.flatMap(memo =>
-      memo.references.map(ref => ({
-        source: memo.id,
-        target: ref.id
-      }))
-    )
-  )
-
-  const folderLinks: LinkObject[] = flattenFolders.filter(
-    folder => folder.id !== null
-  ).flatMap(folder =>
-    folder.children.map(child => ({
-      source: child.id ?? -1,
-      target: folder.id ?? -1
-    }))
-  )
-
-  const folderMemoLinks: LinkObject[] = flattenFolders.filter(
-    folder => folder.id !== null
-  ).flatMap(folder =>
-    folder.memos.map(memo => ({
-      source: memo.id,
-      target: folder.id ?? -1
-    }))
-  )
-
+  const memoLinks: LinkObject[] = memoGraphUtils.buildMemoLinks(flattenFolders)
+  const folderLinks: LinkObject[] = memoGraphUtils.buildFolderLinks(flattenFolders)
+  const folderMemoLinks: LinkObject[] = memoGraphUtils.buildFolderMemoLinks(flattenFolders)
   const links: LinkObject[] = [...memoLinks, ...folderLinks, ...folderMemoLinks]
 
   const graphData = { nodes, links }
 
   function isFolder (node: any): boolean {
-    return node.group < 100
+    return node.group < FOLDER_MEMO_GROUP_SEPARATOR
   }
 
   const nodeCanvasObject = (node: any, ctx: CanvasRenderingContext2D, globalScale: number): void => {
