@@ -7,7 +7,7 @@ import { useSession } from '../(usecase)/session-usecases'
 
 export default function SignInPage (): React.ReactElement {
   const { session } = useSession()
-  return (session == null)
+  return (session === null)
     ? (
       <div className={'flex items-center justify-center pb-20 pt-20'}>
         <div className="bg-gray-900 p-6 rounded-lg shadow-lg border-4 border-gray-800"

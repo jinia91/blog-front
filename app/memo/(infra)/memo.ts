@@ -23,7 +23,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
   return await response.json()
 }
 
-export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo | null> {
+export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo[] | null> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
       {
@@ -34,18 +34,13 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
         }
       })
   }
-
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    return data.memos
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('관련 메모 가져오기 실패')
     return null
   }
+  const data = await response.json()
+  return data.memos
 }
 
 export async function fetchMemoById (id: string): Promise<Memo | null> {
@@ -61,18 +56,12 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
       })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-    console.log('fetchedMemo:', data)
-    return data
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.log('메모 조회 실패')
     return null
   }
+  return await response.json()
 }
 
 export async function deleteMemoById (id: string): Promise<any> {
@@ -147,16 +136,12 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('폴더 이름 변경에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function deleteFolderById (folderId: string): Promise<any> {
@@ -190,16 +175,12 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('폴더 관계 설정에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function makeRelationshipWithMemoAndFolders (memoId: string, folderId: string | null): Promise<any> {
@@ -214,23 +195,18 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('메모 폴더 관계 설정에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function uploadImage (imageFile: File): Promise<{ url: string } | null> {
   const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)
-    console.log(imageFile)
     return await fetch(LocalHost + '/v1/media/image', {
       method: 'POST',
       credentials: 'include',
@@ -238,16 +214,12 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
     })
   }
 
-  try {
-    const response = await withAuthRetry(apiCall)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching memo:', error)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('이미지 업로드에 실패했습니다')
     return null
   }
+  return await response.json()
 }
 
 export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {

@@ -6,7 +6,6 @@ export async function getOAuthLoginUrl (provider: string): Promise<{ url: string
     credentials: 'include'
   })
   if (!response.ok) {
-    console.error(response.statusText)
     return null
   }
   return await response.json()
@@ -69,7 +68,7 @@ export async function withAuthRetry (apiFunction: () => Promise<Response>): Prom
   const response = await apiFunction()
   if (response.status === 401) {
     const refreshResult = await refreshTokens()
-    if (refreshResult == null) {
+    if (refreshResult === null) {
       throw new Error('리프레시 토큰이 만료되었습니다')
     }
     return await apiFunction()

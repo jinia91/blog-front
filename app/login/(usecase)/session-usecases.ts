@@ -28,7 +28,7 @@ export const useSession = (): {
 
   const executeLoginWithCode = async (provider: OauthProvider, code: string): Promise<void> => {
     const loginInfo = await oAuthLogin(provider, code)
-    if (loginInfo == null) {
+    if (loginInfo === null) {
       throw new Error(FAIL_TO_LOGIN)
     }
     setSession({

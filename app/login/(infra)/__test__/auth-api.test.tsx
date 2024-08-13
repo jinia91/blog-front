@@ -31,7 +31,6 @@ describe('재로그인 데코레이터 테스트', () => {
       } else if (count === 2) {
         return authRetryResponse
       } else {
-        console.log(count)
         return finalResponse
       }
     }) as Mock

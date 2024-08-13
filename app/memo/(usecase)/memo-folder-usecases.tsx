@@ -41,7 +41,7 @@ export const useFolderAndMemo = (): {
 
   const createNewFolder = async (): Promise<void> => {
     const newFolder = await requestCreateFolder()
-    if (newFolder == null) {
+    if (newFolder === null) {
       throw new Error('폴더 생성에 실패했습니다.')
     }
     const newFolders = folderManager.rebuildFoldersAtCreatingNewFolder(folders, newFolder)
@@ -56,7 +56,7 @@ export const useFolderAndMemo = (): {
 
   const deleteFolder = async (folderId: string): Promise<Folder[]> => {
     const result = await deleteFolderById(folderId.toString())
-    if (result == null) {
+    if (result === null) {
       throw new Error('폴더 삭제에 실패했습니다.')
     }
     await fetchAndSetFolders()
@@ -80,7 +80,7 @@ export const useFolderAndMemo = (): {
 
   const createNewMemo = async (): Promise<string> => {
     const memo = await createMemo()
-    if (memo == null) {
+    if (memo === null) {
       throw new Error('메모 생성에 실패했습니다.')
     }
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
@@ -100,13 +100,13 @@ export const useFolderAndMemo = (): {
   }, targetFolderId: number | null): Promise<void> => {
     if (type === 'memo') {
       const result = await makeRelationshipWithMemoAndFolders(id.toString(), targetFolderId?.toString() ?? null)
-      if (result == null) {
+      if (result === null) {
         throw new Error('메모 -> 폴더 이동에 실패했습니다.')
       }
       await fetchAndSetFolders()
     } else if (type === 'folder') {
       const result = await makeRelationshipWithFolders(id.toString(), targetFolderId?.toString() ?? null)
-      if (result == null) {
+      if (result === null) {
         throw new Error('폴더 -> 폴더 이동에 실패했습니다.')
       }
       await fetchAndSetFolders()
@@ -117,7 +117,7 @@ export const useFolderAndMemo = (): {
 
   const deleteMemo = async (memoId: string): Promise<void> => {
     const result = await deleteMemoById(memoId)
-    if (result == null) {
+    if (result === null) {
       throw new Error('메모 삭제에 실패했습니다.')
     }
     const newFolderStructure = folderManager.rebuildFoldersAtDeletingMemo(folders, memoId)

@@ -23,7 +23,7 @@ const useStompClient = (
 
       client.connect({}, () => {
         setStompClient(client)
-        if (client == null) {
+        if (client === null) {
           return
         }
         client.subscribe('/topic/memoResponse', (message: IMessage) => {

@@ -19,7 +19,7 @@ export default function MemoFolderContextMenu ({
   handleDeleteClick: any
   handleRenameClick: any
 }): React.ReactElement | null | undefined {
-  if (contextMenu == null) return null
+  if (contextMenu === null) return null
   const onRenameClick = (): void => {
     if (contextMenu.folderId != null) {
       handleRenameClick(contextMenu.folderId, contextMenu.folderName)

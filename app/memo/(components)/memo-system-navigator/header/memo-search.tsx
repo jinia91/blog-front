@@ -9,7 +9,7 @@ export function MemoSearch ({ isInputVisible, setInputVisible }: {
   setInputVisible: Dispatch<SetStateAction<boolean>>
 }): React.ReactElement {
   const inputRef = useRef<HTMLInputElement>(null)
-  const { searchMemosByKeyword } = useFolderAndMemo()
+  const { searchMemosByKeyword, initializeFolderAndMemo } = useFolderAndMemo()
 
   useEffect(() => {
     if (isInputVisible && (inputRef.current != null)) {
@@ -36,7 +36,7 @@ export function MemoSearch ({ isInputVisible, setInputVisible }: {
 
   useEffect(() => {
     if (!isInputVisible) {
-      void searchMemosByKeyword('')
+      void initializeFolderAndMemo()
     }
   }, [isInputVisible])
 
