@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import MDEditor, {
   bold,
   codeEdit,
@@ -19,24 +19,39 @@ import MDEditor, {
 } from '@uiw/react-md-editor'
 import { type Memo, type ReferenceInfo } from '../../(domain)/memo'
 import { RelatedMemoModal } from './related-memo-modal'
-import { fetchRelatedMemo, uploadImage } from '../../(infra)/memo'
+import { fetchMemoById, fetchRelatedMemo, uploadImage } from '../../(infra)/memo'
 import { MemoTitleInput } from './memo-title-edit-input'
 import useStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
-import { useEffectFetchMemo } from './use-effect-fetch-memo'
 import { Code, timestamp } from './memo-editor-plugins'
 
 export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
   const { memoEditorSharedContext, setMemoEditorSharedContext } = useMemoSystem()
   const [memo, setMemo] = useState<Memo | null>(null)
   const [content, setContent] = useState<string>(memo?.content ?? '')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [recommendations, setRecommendations] = useState<Memo[]>([])
-  const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
   const [references, setReferences] = useState<ReferenceInfo[]>([])
-
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
   useStompClient(pageMemoId, memoEditorSharedContext.title, content, references, setReferences)
-  useEffectFetchMemo(pageMemoId, setMemo, setMemoEditorSharedContext, setContent, setReferences)
+
+  useEffect(() => {
+    async function load (): Promise<void> {
+      try {
+        const fetchedMemo = await fetchMemoById(pageMemoId)
+        if (fetchedMemo != null) {
+          setMemo(fetchedMemo)
+          setMemoEditorSharedContext({ id: fetchedMemo.memoId.toString(), title: fetchedMemo.title })
+          setContent(fetchedMemo.content)
+          setReferences(fetchedMemo.references)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    void load()
+  }, [pageMemoId])
 
   const getCustomExtraCommands: () => ICommand[] = () => [timestamp, referenceLink, codeEdit, codeLive, codePreview, divider, fullscreen]
 
@@ -65,8 +80,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
       const selectedWord = api.setSelectionRange(newSelectionRange)
       if (selectedWord.selectedText.length === 0) return
       const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, pageMemoId)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
+      if (recommendedArr === null) return
       setRecommendations(recommendedArr)
 
       const selectedValue: any = await openModalWithSelection()
@@ -89,7 +103,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
     setIsModalOpen(false)
   }
 
-  const handlePaste = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
+  const handleImageUpload = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
     const items = event.clipboardData.items
     try {
       for (const item of items) {
@@ -98,7 +112,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
           if (file != null) {
             const data = await uploadImage(file)
             if (data === null) {
-              throw new Error('Error uploading image')
+              throw new Error('이미지 업로드 통신 실패')
             }
             const imageUrl = data.url
             const markdownImageLink = `![uploaded image](${imageUrl})\n`
@@ -110,13 +124,14 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
       console.error('Error uploading image:', error)
     }
   }, [])
+
   return (
     <>
       <MemoTitleInput/>
       {/* editor */}
       <div className="mb-4 flex-grow"
            onPaste={(e) => {
-             handlePaste(e).catch(console.error)
+             handleImageUpload(e).catch(console.error)
            }}
       >
         <RelatedMemoModal
