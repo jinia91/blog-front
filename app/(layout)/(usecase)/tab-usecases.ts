@@ -37,6 +37,7 @@ export function useTabBarAndRouter (): {
   const path = usePathname()
 
   const initializeTabBar = (path: string): void => {
+    if (path.startsWith('/login/oauth2/code')) return
     const preTabs = restoreTabsFromLocalStorage()
     const asIsSelectedTabIdx = restoreSelectedTabIdxFromLocalStorage()
     const preTabBarState = { tabs: preTabs, selectedTabIndex: asIsSelectedTabIdx }
