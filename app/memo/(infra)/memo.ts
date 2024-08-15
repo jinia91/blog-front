@@ -64,7 +64,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
   return await response.json()
 }
 
-export async function deleteMemoById (id: string): Promise<any> {
+export async function deleteMemoById (id: string): Promise<boolean> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(LocalHost + `/v1/memos/${id}`, {
       method: 'DELETE',
@@ -76,11 +76,7 @@ export async function deleteMemoById (id: string): Promise<any> {
   }
 
   const response = await withAuthRetry(apiCall)
-  if (!response.ok) {
-    console.error('메모 삭제에 실패했습니다')
-    return null
-  }
-  return await response.json()
+  return response.ok
 }
 
 export async function fetchFolderAndMemo (): Promise<Folder[] | null> {

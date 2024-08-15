@@ -11,7 +11,7 @@ export function TapBarMain (): React.ReactElement {
   useEffect(() => {
     initializeTabBar(path)
     setMounted(true)
-  }, [])
+  }, [path])
 
   if (!mounted) {
     return <></>

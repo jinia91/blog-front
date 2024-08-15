@@ -117,7 +117,7 @@ export const useFolderAndMemo = (): {
 
   const deleteMemo = async (memoId: string): Promise<void> => {
     const result = await deleteMemoById(memoId)
-    if (result === null) {
+    if (!result) {
       throw new Error('메모 삭제에 실패했습니다.')
     }
     const newFolderStructure = folderManager.rebuildFoldersAtDeletingMemo(folders, memoId)

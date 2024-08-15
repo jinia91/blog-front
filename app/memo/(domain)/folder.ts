@@ -81,6 +81,7 @@ export const folderManager: {
   rebuildFoldersAtUpdatingFolderTitle: (folders: Folder[], folderId: string, newName: string) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
   buildSearchResultFolders: (resultMemos: SimpleMemoInfo[] | null) => Folder[]
+  flattenFolder: (folder: Folder) => Folder[]
 } = {
   rebuildFoldersAtCreatingNewMemo (folders: Folder[], memo: SimpleMemoInfo): Folder[] {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
@@ -152,5 +153,9 @@ export const folderManager: {
         children: []
       }
     ]
+  },
+  flattenFolder (folder: Folder): Folder[] {
+    const children = folder.children.flatMap(child => this.flattenFolder(child))
+    return [folder, ...children]
   }
 }

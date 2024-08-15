@@ -13,11 +13,11 @@ export function TabBar (): React.ReactElement {
 
   useEffect(() => {
     const moveTab = async (event: KeyboardEvent): Promise<void> => {
-      if (event.metaKey && (event.key === 'ArrowLeft')) {
+      if (event.metaKey && event.ctrlKey && event.key === 'ArrowLeft') {
         const newSelectedIdx = selectedTabIdx > 0 ? selectedTabIdx - 1 : 0
         selectTab(newSelectedIdx)
       }
-      if (event.metaKey && (event.key === 'ArrowRight')) {
+      if (event.metaKey && event.ctrlKey && event.key === 'ArrowRight') {
         const newSelectedIdx = selectedTabIdx < tabs.length - 1 ? selectedTabIdx + 1 : selectedTabIdx
         selectTab(newSelectedIdx)
       }
