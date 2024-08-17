@@ -7,6 +7,7 @@ export function TapBarMain (): React.ReactElement {
   const path = usePathname()
   const [mounted, setMounted] = React.useState(false)
   const { initializeTabBar } = useTabBarAndRouter()
+  console.log('TapBarMain')
 
   useEffect(() => {
     initializeTabBar(path)

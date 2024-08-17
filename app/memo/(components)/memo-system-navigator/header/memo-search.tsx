@@ -1,27 +1,33 @@
-import React, { type Dispatch, type SetStateAction, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import search from '../../../../../public/search.png'
 import { useDebouncedCallback } from 'use-debounce'
 import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
+import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
+import { NavigatorContextType } from '../../../(domain)/memo-system-navigator-context'
 
-export function MemoSearch ({ isInputVisible, setInputVisible }: {
-  isInputVisible: boolean
-  setInputVisible: Dispatch<SetStateAction<boolean>>
-}): React.ReactElement {
+export function MemoSearch (): React.ReactElement {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { navigatorContext, toggleSearchMode } = useMemoSystem()
   const { searchMemosByKeyword, initializeFolderAndMemo } = useFolderAndMemo()
+  const previousNavigatorTypeRef = useRef(navigatorContext.type)
 
   useEffect(() => {
-    if (isInputVisible && (inputRef.current != null)) {
+    if (
+      previousNavigatorTypeRef.current === NavigatorContextType.SEARCH_MODE &&
+      navigatorContext.type !== NavigatorContextType.SEARCH_MODE
+    ) {
+      void initializeFolderAndMemo()
+    }
+    previousNavigatorTypeRef.current = navigatorContext.type
+
+    if ((navigatorContext.type === NavigatorContextType.SEARCH_MODE) && (inputRef.current != null)) {
       inputRef.current.focus()
     }
-  }, [isInputVisible])
-
-  useEffect(() => {
     const searchModeKeyboardAction = async (event: KeyboardEvent): Promise<void> => {
       if (event.ctrlKey && (event.key === 'f' || event.key === 'ㄹ')) {
         event.preventDefault()
-        setInputVisible(!isInputVisible)
+        toggleSearchMode()
       }
     }
 
@@ -32,13 +38,7 @@ export function MemoSearch ({ isInputVisible, setInputVisible }: {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       window.removeEventListener('keydown', searchModeKeyboardAction)
     }
-  }, [isInputVisible])
-
-  useEffect(() => {
-    if (!isInputVisible) {
-      void initializeFolderAndMemo()
-    }
-  }, [isInputVisible])
+  }, [navigatorContext])
 
   const searchMemoCallBack = useDebouncedCallback(async (value: string) => {
     await searchMemosByKeyword(value)
@@ -48,21 +48,21 @@ export function MemoSearch ({ isInputVisible, setInputVisible }: {
     void searchMemoCallBack(value)
   }
   return (
-    <div className={`flex flex-row ${isInputVisible ? 'w-full' : ''}`}>
-      <div className={`tooltip flex ${isInputVisible ? 'pr-2' : ''}`}>
+    <div className={`flex flex-row ${navigatorContext.type === NavigatorContextType.SEARCH_MODE ? 'w-full' : ''}`}>
+      <div className={`tooltip flex ${navigatorContext.type === NavigatorContextType.SEARCH_MODE ? 'pr-2' : ''}`}>
         <button
           className="text-white hover:text-gray-300"
           aria-label='search'
           type='button'
           onClick={() => {
-            setInputVisible(!isInputVisible)
+            toggleSearchMode()
           }}
         >
           <Image src={search} alt={'검색'} width={30} height={30}/>
         </button>
         <span className="tooltip-message">검색</span>
       </div>
-      {isInputVisible && (
+      {navigatorContext.type === NavigatorContextType.SEARCH_MODE && (
         <input
           ref={inputRef}
           type="text"

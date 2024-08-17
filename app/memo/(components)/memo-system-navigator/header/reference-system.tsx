@@ -5,12 +5,13 @@ import Image from 'next/image'
 import ref from '../../../../../public/ref.png'
 import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
+import { NavigatorContextType } from '../../../(domain)/memo-system-navigator-context'
 
 export default function ReferenceSystem (): React.ReactElement {
   const { searchReferenceMemos } = useFolderAndMemo()
   const { navigatorContext, memoEditorSharedContext, toggleReferenceMode } = useMemoSystem()
   useEffect(() => {
-    if (navigatorContext.isReferenceMode) {
+    if (navigatorContext.type === NavigatorContextType.REFERENCE_MODE) {
       void searchReferenceMemos(memoEditorSharedContext.id)
     }
   }, [navigatorContext, memoEditorSharedContext])
@@ -29,7 +30,7 @@ export default function ReferenceSystem (): React.ReactElement {
                  className={'white-image'}
                  width={30} height={30}/>
         </button>
-        {!navigatorContext.isReferenceMode
+        {navigatorContext.type !== NavigatorContextType.REFERENCE_MODE
           ? <span className="tooltip-message">참조모드</span>
           : <span className="tooltip-message">전체모드</span>}
       </div>

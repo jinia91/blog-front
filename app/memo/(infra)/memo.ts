@@ -92,6 +92,8 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
       })
   }
 
+  console.log('fetchFolderAndMemo called')
+
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
     console.error('folder memo 가져오기 실패')
