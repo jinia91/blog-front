@@ -6,6 +6,8 @@ import { LayoutMain } from './(layout)/(components)/layout-main'
 import UiContextProvider from './(layout)/(components)/ui-context-provider'
 import { Provider } from 'jotai'
 import { SessionProvider } from './login/(components)/session-provider'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -64,6 +66,8 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
         </SessionProvider>
       </UiContextProvider>
     </Provider>
+    <Analytics/>
+    <SpeedInsights/>
     </body>
     </html>
   )
