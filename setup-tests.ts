@@ -4,6 +4,7 @@ import MockRouter from 'next-router-mock'
 
 const useRouter = mockRouter.useRouter
 
+process.env.HOST = 'http://localhost:7777/'
 beforeAll(() => {
   vi.mock('next/navigation', () => ({
     usePathname: () => useRouter().pathname,
