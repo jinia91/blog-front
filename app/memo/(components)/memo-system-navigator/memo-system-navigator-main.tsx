@@ -14,7 +14,6 @@ export default function MemoSystemNavigatorMain ({ className }: { className?: st
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const { memoEditorSharedContext } = useMemoSystem()
-  console.log('MemoSystemNavigatorMain')
 
   useEffect(() => {
     writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)

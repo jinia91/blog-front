@@ -12,9 +12,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
   const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
   const [direction, setDirection] = useState<Direction>('horizontal')
-  console.log('MemoSystemMain')
 
-  console.log('initializeFolderAndMemo finish')
   useEffect(() => {
     initializeFolderAndMemo().then(() => {
       setMounted(true)
