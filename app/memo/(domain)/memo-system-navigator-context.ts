@@ -1,4 +1,10 @@
 export interface MemoSystemNavigatorContext {
-  isReferenceMode: boolean
+  type: NavigatorContextType
   refreshTrigger: number
+}
+
+export enum NavigatorContextType {
+  NORMAL_MODE,
+  REFERENCE_MODE,
+  SEARCH_MODE
 }

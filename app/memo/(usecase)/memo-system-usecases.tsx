@@ -1,8 +1,11 @@
 import { atom, useAtom } from 'jotai'
-import { type MemoSystemNavigatorContext } from '../(domain)/memo-system-navigator-context'
+import { type MemoSystemNavigatorContext, NavigatorContextType } from '../(domain)/memo-system-navigator-context'
 import { type MemoEditorSharedContext } from '../(domain)/memo-editor-shared-context'
 
-const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({ isReferenceMode: false, refreshTrigger: 0 })
+const memoSystemContextAtom = atom<MemoSystemNavigatorContext>({
+  type: NavigatorContextType.NORMAL_MODE,
+  refreshTrigger: 0
+})
 const memoEditorContextAtom = atom<MemoEditorSharedContext>({ title: '', id: '' })
 
 export const useMemoSystem = (): {
@@ -10,6 +13,7 @@ export const useMemoSystem = (): {
   memoEditorSharedContext: MemoEditorSharedContext
   setMemoEditorSharedContext: (context: MemoEditorSharedContext) => void
   toggleReferenceMode: () => void
+  toggleSearchMode: () => void
   setMemoTitle: (title: string) => void
   refreshReference: () => void
 } => {
@@ -18,7 +22,15 @@ export const useMemoSystem = (): {
 
   const toggleReferenceMode = (): void => {
     const toggledContext = {
-      isReferenceMode: !navigatorContext.isReferenceMode,
+      type: navigatorContext.type === NavigatorContextType.REFERENCE_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.REFERENCE_MODE,
+      refreshTrigger: navigatorContext.refreshTrigger
+    }
+    setNavigatorContext(toggledContext)
+  }
+
+  const toggleSearchMode = (): void => {
+    const toggledContext = {
+      type: navigatorContext.type === NavigatorContextType.SEARCH_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.SEARCH_MODE,
       refreshTrigger: navigatorContext.refreshTrigger
     }
     setNavigatorContext(toggledContext)
@@ -41,6 +53,7 @@ export const useMemoSystem = (): {
     navigatorContext,
     memoEditorSharedContext,
     toggleReferenceMode,
+    toggleSearchMode,
     setMemoTitle,
     setMemoEditorSharedContext,
     refreshReference

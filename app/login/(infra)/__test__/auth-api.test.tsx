@@ -1,12 +1,12 @@
 import { type Mock, vi } from 'vitest'
 import { withAuthRetry } from '../auth-api'
-import { LocalHost } from '../../../(utils)/constants'
+import { HOST } from '../../../(utils)/constants'
 
 describe('재로그인 데코레이터 테스트', () => {
   it('콜백 요청이 401 에러가 발생하면 템플릿으로 로그인을 시도한다', async () => {
     // given
     const callback = async (): Promise<Response> => {
-      return await fetch(LocalHost + '/test', {
+      return await fetch(HOST + '/test', {
         method: 'POST',
         credentials: 'include'
       })
@@ -49,7 +49,7 @@ describe('재로그인 데코레이터 테스트', () => {
   it('콜백요청 401이 발생하고 로그인 시도시 실패하면 에러가 발생한다', async () => {
     // given
     const callback = async (): Promise<Response> => {
-      return await fetch(LocalHost + '/test', {
+      return await fetch(HOST + '/test', {
         method: 'POST',
         credentials: 'include'
       })
@@ -73,7 +73,7 @@ describe('재로그인 데코레이터 테스트', () => {
   it('콜백 요청이 성공하면 템플릿요청은 동작하지 않고 콜백 응답만 수행한다', async () => {
     // given
     const callback = async (): Promise<Response> => {
-      return await fetch(LocalHost + '/test', {
+      return await fetch(HOST + '/test', {
         method: 'POST',
         credentials: 'include'
       })

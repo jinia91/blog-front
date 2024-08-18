@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { useMemoSystem } from '../memo-system-usecases'
 import React from 'react'
 import { Provider } from 'jotai/index'
+import { NavigatorContextType } from '../../(domain)/memo-system-navigator-context'
 
 const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => <Provider>{children}</Provider>
 
@@ -14,7 +15,7 @@ describe('메모시스템 레퍼런스 모드 토글 테스트', () => {
       result.current.toggleReferenceMode()
     })
     // then
-    expect(result.current.navigatorContext.isReferenceMode).toBe(true)
+    expect(result.current.navigatorContext.type === NavigatorContextType.REFERENCE_MODE).toBe(true)
   })
 
   it('레퍼런스 모드 토글 시 레퍼런스 모드가 비활성화 되어야 한다.', () => {
@@ -23,14 +24,14 @@ describe('메모시스템 레퍼런스 모드 토글 테스트', () => {
     act(() => {
       result.current.toggleReferenceMode()
     })
-    expect(result.current.navigatorContext.isReferenceMode).toEqual(true)
+    expect(result.current.navigatorContext.type === NavigatorContextType.REFERENCE_MODE).toBe(true)
 
     // when
     act(() => {
       result.current.toggleReferenceMode()
     })
     // then
-    expect(result.current.navigatorContext.isReferenceMode).toEqual(false)
+    expect(result.current.navigatorContext.type === NavigatorContextType.REFERENCE_MODE).toBe(false)
   })
   it('컨텍스트를 리프레시하면 카운트가 올라간다', () => {
     // given

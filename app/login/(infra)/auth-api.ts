@@ -1,7 +1,7 @@
-import { LocalHost } from '../../(utils)/constants'
+import { HOST } from '../../(utils)/constants'
 
 export async function getOAuthLoginUrl (provider: string): Promise<{ url: string } | null> {
-  const response = await fetch(LocalHost + `/v1/auth/${provider}/url`, {
+  const response = await fetch(HOST + `/v1/auth/${provider}/url`, {
     method: 'GET',
     credentials: 'include'
   })
@@ -18,7 +18,7 @@ Promise<{
   roles: Set<string>
   picUrl: string
 } | null> {
-  const response = await fetch(LocalHost + `/v1/auth/${provider}/login`, {
+  const response = await fetch(HOST + `/v1/auth/${provider}/login`, {
     method: 'POST',
     credentials: 'include',
     body: JSON.stringify({ code }),
@@ -34,7 +34,7 @@ Promise<{
 }
 
 export async function oAuthLogout (): Promise<boolean> {
-  const response = await fetch(LocalHost + '/v1/auth/logout', {
+  const response = await fetch(HOST + '/v1/auth/logout', {
     method: 'POST',
     credentials: 'include'
   })
@@ -53,7 +53,7 @@ export async function refreshTokens (): Promise<{
   roles: Set<string>
   picUrl: string
 } | null> {
-  const response = await fetch(LocalHost + '/v1/auth/refresh', {
+  const response = await fetch(HOST + '/v1/auth/refresh', {
     method: 'POST',
     credentials: 'include'
   })

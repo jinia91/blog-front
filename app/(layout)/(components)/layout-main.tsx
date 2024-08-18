@@ -7,6 +7,7 @@ import React from 'react'
 import { TapBarMain } from './(tap-system)/tap-bar-main'
 
 const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
+  console.log('LayoutMain')
   return (
     <>
       <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>

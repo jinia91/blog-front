@@ -1,12 +1,12 @@
 import { unstable_noStore as noStore } from 'next/cache'
-import { LocalHost } from '../../(utils)/constants'
+import { HOST } from '../../(utils)/constants'
 import { type Memo, type SimpleMemoInfo } from '../(domain)/memo'
 import { type Folder } from '../(domain)/folder'
 import { withAuthRetry } from '../../login/(infra)/auth-api'
 
 export async function createMemo (): Promise<{ memoId: number } | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + '/v1/memos', {
+    return await fetch(HOST + '/v1/memos', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -25,7 +25,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
 
 export async function fetchRelatedMemo (keyword: string, thisId: string): Promise<Memo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
+    return await fetch(HOST + `/v1/memos/${thisId}/recommended?keyword=${keyword}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -46,7 +46,7 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
 export async function fetchMemoById (id: string): Promise<Memo | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${id}`,
+    return await fetch(HOST + `/v1/memos/${id}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -66,7 +66,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 
 export async function deleteMemoById (id: string): Promise<boolean> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${id}`, {
+    return await fetch(HOST + `/v1/memos/${id}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -82,7 +82,7 @@ export async function deleteMemoById (id: string): Promise<boolean> {
 export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + '/v1/folders',
+    return await fetch(HOST + '/v1/folders',
       {
         cache: 'no-store',
         credentials: 'include',
@@ -91,6 +91,8 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
         }
       })
   }
+
+  console.log('fetchFolderAndMemo called')
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
@@ -104,7 +106,7 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
 export async function requestCreateFolder (): Promise<Folder | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + '/v1/folders', {
+    return await fetch(HOST + '/v1/folders', {
       credentials: 'include',
       method: 'POST',
       headers: {
@@ -122,7 +124,7 @@ export async function requestCreateFolder (): Promise<Folder | null> {
 
 export async function changeFolderName (folderId: string, toBeName: string): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/folders/${folderId}/name`, {
+    return await fetch(HOST + `/v1/folders/${folderId}/name`, {
       credentials: 'include',
       method: 'PUT',
       headers: {
@@ -142,7 +144,7 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
 
 export async function deleteFolderById (folderId: string): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/folders/${folderId}`, {
+    return await fetch(HOST + `/v1/folders/${folderId}`, {
       credentials: 'include',
       method: 'DELETE',
       headers: {
@@ -161,7 +163,7 @@ export async function deleteFolderById (folderId: string): Promise<any> {
 
 export async function makeRelationshipWithFolders (childFolderId: string, parentFolderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/folders/${childFolderId}/parent`, {
+    return await fetch(HOST + `/v1/folders/${childFolderId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -181,7 +183,7 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
 
 export async function makeRelationshipWithMemoAndFolders (memoId: string, folderId: string | null): Promise<any> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${memoId}/parent`, {
+    return await fetch(HOST + `/v1/memos/${memoId}/parent`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -203,7 +205,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
   const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)
-    return await fetch(LocalHost + '/v1/media/image', {
+    return await fetch(HOST + '/v1/media/image', {
       method: 'POST',
       credentials: 'include',
       body: formData
@@ -220,7 +222,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
 
 export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/folders?query=${query}`,
+    return await fetch(HOST + `/v1/folders?query=${query}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -241,7 +243,7 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${memoId}/references`,
+    return await fetch(HOST + `/v1/memos/${memoId}/references`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -262,7 +264,7 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
 
 export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(LocalHost + `/v1/memos/${memoId}/referenced`,
+    return await fetch(HOST + `/v1/memos/${memoId}/referenced`,
       {
         cache: 'no-store',
         credentials: 'include',
