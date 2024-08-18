@@ -18,7 +18,7 @@ const useStompClient = (
   useEffect(() => {
     let client: CompatClient | null = null
     const connectStompClient = (): void => {
-      const socket = new SockJS('http://localhost:7777/ws')
+      const socket = new SockJS('https://https://api.jiniaslog.co.kr/ws')
       client = Stomp.over(socket)
 
       client.connect({}, () => {
