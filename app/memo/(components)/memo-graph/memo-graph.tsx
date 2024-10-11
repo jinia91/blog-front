@@ -50,16 +50,20 @@ export default function MemoGraph (): React.ReactElement | null {
       const size = 10
       ctx.fillStyle = node.color
       ctx.fillRect(node.x as number - size / 2, node.y as number - size / 2, size, size)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      ctx.fillText(label, node.x as number, (node.y as number) + size)
+      if (globalScale > 1) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        ctx.fillText(label, node.x as number, (node.y as number) + size)
+      }
     } else {
       const radius = 5
       ctx.beginPath()
       ctx.arc(node.x as number, node.y as number, radius, 0, 2 * Math.PI, false)
       ctx.fillStyle = node.color
       ctx.fill()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      ctx.fillText(label, node.x as number, (node.y as number) + radius + fontSize)
+      if (globalScale > 1) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        ctx.fillText(label, node.x as number, (node.y as number) + radius + fontSize)
+      }
     }
   }
 
