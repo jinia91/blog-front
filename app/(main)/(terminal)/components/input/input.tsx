@@ -92,8 +92,8 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
           onChange={(e) => {
             setInput(e.target.value)
           }}
-          onKeyDown={async event => {
-            await handleKeyPress(event).catch(console.error)
+          onKeyDown={e => {
+            handleKeyPress(e).catch(console.error)
           }}
           autoFocus
         />
