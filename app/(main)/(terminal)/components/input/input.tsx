@@ -1,9 +1,7 @@
 'use client'
 import React, { type KeyboardEvent, useRef, useState } from 'react'
-import { clearCommand } from '../../usecase/clear-command'
 import { useAtom } from 'jotai/index'
-import { terminalContextAtom } from '../../usecase/terminal-context-atom'
-import { welcomeCommand } from '../../usecase/welcome-command'
+import { COMMAND_LIST, terminalUsecases } from '../../usecase/terminal-usecases'
 import { type TerminalContext } from '../../domain/terminal-context'
 
 interface TerminalInputProps {
@@ -13,8 +11,7 @@ interface TerminalInputProps {
 export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const [context, setContext] = useAtom(terminalContextAtom)
-  const COMMAND_LIST = [clearCommand, welcomeCommand]
+  const [context, setContext] = useAtom(terminalUsecases)
 
   const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === 'Enter') {

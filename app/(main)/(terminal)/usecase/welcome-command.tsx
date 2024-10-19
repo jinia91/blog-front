@@ -21,7 +21,7 @@ export const logo = `
 
 export const welcomeCommand: Command = {
   name: 'welcome',
-  description: 'Welcome to the terminal',
+  description: '프로그램을 시작할 때 화면에 보여질 로고를 불러옵니다',
   execute: (terminalContext, setContext, args) => {
     setContext({
       history: terminalContext.history,
