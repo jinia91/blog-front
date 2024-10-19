@@ -61,7 +61,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
   return (
     <div className="p-4" onClick={handleFocusInput}>
       {context.currentScreen.map((line, index) => (
-        <p key={index} className="text-green-400">{line}</p>
+        <pre key={index} className="text-green-400 whitespace-pre-wrap">{line}</pre>
       ))}
 
       {/* 입력 필드 */}
