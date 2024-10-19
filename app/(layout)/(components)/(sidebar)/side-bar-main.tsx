@@ -6,6 +6,7 @@ import { sideBarItems } from './side-bar-items'
 import { Auth } from '../../../login/(domain)/session'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 import { useSideBar } from '../../(usecase)/side-bar-usecases'
+import { AiOutlineHome } from 'react-icons/ai'
 
 export default function SideBarMain (): React.ReactElement {
   const { isCollapsed, setCollapsed, toggleSideBarCollapse }: {
@@ -35,14 +36,10 @@ export default function SideBarMain (): React.ReactElement {
       <aside className="p-4 h-full">
         <div className={'pt-2 pb-4 mb-4 border-b border-gray-300 flex justify-between items-center truncate'}>
           <div
-            className={'cursor-pointer'}
+            className={'cursor-pointer flex pl-1'}
             onClick={toggleSideBarCollapse}
           >
-            <span
-              className={' text-3xl transition-all duration-300:ease-in-out pb-1 pr-1 pl-1 rounded-xl border-2'}
-            >
-            {'>_'}
-            </span>
+            <AiOutlineHome className={'text-4xl'}/>
             <span
               className={`retro-font pl-2 text-2xl ${overlayStyle} transition-all duration-300 ease-in-out`}
             >
