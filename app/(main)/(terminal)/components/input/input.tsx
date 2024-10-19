@@ -10,13 +10,13 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username, validCom
   const [input, setInput] = useState('')
   const [output, setOutput] = useState<string[]>([])
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): any => {
     if (e.key === 'Enter') {
       processCommand(input)
       setInput('')
     }
   }
-  const processCommand = (command: string) => {
+  const processCommand = (command: string): any => {
     if (validCommands.includes(command)) {
       setOutput([...output, `${username}@jiniaslog:~# ${command}`, `명령어 [${command}] 실행됨.`])
     } else {
