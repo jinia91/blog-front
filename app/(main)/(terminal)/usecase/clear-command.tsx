@@ -5,8 +5,8 @@ export const clearCommand: Command = {
   description: 'Clear the terminal screen',
   execute: (terminalContext, setContext, args) => {
     setContext({
-      history: terminalContext.history.concat(args.join(' ')),
-      currentScreen: []
+      history: terminalContext.history,
+      output: []
     })
   }
 }
