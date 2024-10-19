@@ -5,7 +5,6 @@ import { useSession } from '../../../login/(usecase)/session-usecases'
 
 const Terminal: React.FC = () => {
   const { session } = useSession()
-  const validCommands = ['help', 'ls', 'echo', 'clear']
   const username = session?.nickName ?? 'guest'
 
   return (
@@ -15,7 +14,7 @@ const Terminal: React.FC = () => {
           <p className="text-xs text-gray-400">{username}님 jinia&apos;s Log에 오신걸 환영합니다</p>
         </p>
       </div>
-      <TerminalInput username={username} validCommands={validCommands}/>
+      <TerminalInput username={username}/>
     </div>
   )
 }
