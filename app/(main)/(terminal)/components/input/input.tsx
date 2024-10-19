@@ -33,7 +33,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
         const updatedContext = {
           ...prevContext,
           history: prevContext.history.concat(commandLine),
-          output: prevContext.output.concat(username + '@jiniaslog:~# ' + commandLine)
+          output: prevContext.output.concat(username + '@jiniaslog:# ~' + commandLine)
         }
         resolve(updatedContext)
         return updatedContext
@@ -66,13 +66,24 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
 
   return (
     <div className="p-4" onClick={handleFocusInput}>
-      {context.output.map((line, index) => (
-        <pre key={index} className="text-green-400 whitespace-pre-wrap">{line}</pre>
-      ))}
-
-      {/* 입력 필드 */}
+      {context.output.map((line, index) => {
+        const isUsernameLine = line.startsWith(username + '@jiniaslog:# ~')
+        return (
+          <pre key={index} className="whitespace-pre-wrap">
+          {isUsernameLine
+            ? (
+              <>
+                <span className="text-blue-400">{username}</span>
+                <span className="text-green-400">{line.replace(username + '@jiniaslog:# ~', '@jiniaslog:# ~')}</span>
+              </>
+              )
+            : (<span className="text-green-400">{line}</span>)}
+        </pre>
+        )
+      })}
       <div className="flex">
-        <span className="text-green-400">{username}@jiniaslog:~#&nbsp;</span>
+        <span className="text-blue-400">{username}</span>
+        <span className="text-green-400">@jiniaslog:# ~&nbsp;</span>
         <input
           type="text"
           ref={inputRef}
@@ -81,8 +92,8 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
           onChange={(e) => {
             setInput(e.target.value)
           }}
-          onKeyDown={event => {
-            handleKeyPress(event).catch(console.error)
+          onKeyDown={async event => {
+            await handleKeyPress(event).catch(console.error)
           }}
           autoFocus
         />
