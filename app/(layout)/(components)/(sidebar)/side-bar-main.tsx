@@ -6,7 +6,7 @@ import { sideBarItems } from './side-bar-items'
 import { Auth } from '../../../login/(domain)/session'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 import { useSideBar } from '../../(usecase)/side-bar-usecases'
-import { AiOutlineHome } from 'react-icons/ai'
+import { GiHamburgerMenu } from 'react-icons/gi'
 
 export default function SideBarMain (): React.ReactElement {
   const { isCollapsed, setCollapsed, toggleSideBarCollapse }: {
@@ -39,7 +39,7 @@ export default function SideBarMain (): React.ReactElement {
             className={'cursor-pointer flex pl-1'}
             onClick={toggleSideBarCollapse}
           >
-            <AiOutlineHome className={'text-4xl'}/>
+            <GiHamburgerMenu className={'text-4xl'}/>
             <span
               className={`retro-font pl-2 text-2xl ${overlayStyle} transition-all duration-300 ease-in-out`}
             >
