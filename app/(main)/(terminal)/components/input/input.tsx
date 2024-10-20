@@ -11,14 +11,20 @@ interface TerminalInputProps {
 export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null)
   const [context, setContext] = useAtom(terminalUsecases)
 
   const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === 'Enter') {
       const [command, args] = parseCommand(input)
       const postContext = await preProcessCommand(command, args)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       processCommand(postContext, command, args)
       setInput('')
+    } else if (e.key === 'ArrowUp') {
+      navigateHistory('up')
+    } else if (e.key === 'ArrowDown') {
+      navigateHistory('down')
     }
   }
 
@@ -30,9 +36,10 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
   const preProcessCommand = async (commandLine: string, args: string[]): Promise<typeof context> => {
     return await new Promise((resolve) => {
       setContext((prevContext) => {
+        setHistoryIndex(null)
         const updatedContext = {
           ...prevContext,
-          history: prevContext.history.concat(commandLine),
+          history: prevContext.history.concat(commandLine.trim() === '' ? prevContext.history : commandLine),
           output: prevContext.output.concat(username + '@jiniaslog:# ~' + commandLine)
         }
         resolve(updatedContext)
@@ -61,6 +68,32 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
   const handleFocusInput = (): void => {
     if (inputRef.current != null) {
       inputRef.current.focus()
+    }
+  }
+
+  const navigateHistory = (direction: 'up' | 'down'): void => {
+    const historyLength = context.history.length
+    if (historyLength === 0) return
+
+    if (direction === 'up') {
+      if (historyIndex === null) {
+        setHistoryIndex(historyLength - 1)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        setInput(context.history[historyLength - 1])
+      } else if (historyIndex > 0) {
+        setHistoryIndex(historyIndex - 1)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        setInput(context.history[historyIndex - 1])
+      }
+    } else if (direction === 'down') {
+      if (historyIndex !== null && historyIndex < historyLength - 1) {
+        setHistoryIndex(historyIndex + 1)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        setInput(context.history[historyIndex + 1])
+      } else {
+        setHistoryIndex(null)
+        setInput('')
+      }
     }
   }
 
