@@ -40,7 +40,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = ({ username }) => {
         const updatedContext = {
           ...prevContext,
           history: prevContext.history.concat(commandLine.trim() === '' ? prevContext.history : commandLine),
-          output: prevContext.output.concat(username + '@jiniaslog:# ~' + commandLine)
+          output: prevContext.output.concat(username + '@jiniaslog:# ~ ' + commandLine)
         }
         resolve(updatedContext)
         return updatedContext
