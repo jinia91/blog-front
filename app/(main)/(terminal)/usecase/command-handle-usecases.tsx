@@ -6,6 +6,7 @@ import { welcomeCommand } from './welcome-command'
 import { helpCommand } from './help-command'
 import { historyCommand } from './history-command'
 import { githubCommand } from './github-command'
+import { COMMAND_LINE_DEFAULT } from '../domain/terminal-context'
 
 export const useCommandHandle = (): {
   handleCommand: (username: string) => void
@@ -15,21 +16,21 @@ export const useCommandHandle = (): {
   const handleCommand = (username: string): void => {
     const command = context.currentInput
     const [commandName, args] = commandParser.parseCommand(command)
-    preProcessCommand(commandName, args, username)
-    processCommand(commandName, args, username)
+    preProcessCommand(command, username)
+    processCommand(commandName, args)
     processPostCommand()
   }
 
-  function preProcessCommand (commandLine: string, args: string[], username: string): void {
+  function preProcessCommand (command: string, username: string): void {
     setContext((prevContext) => ({
       ...prevContext,
-      commandHistory: commandLine.trim() === '' ? prevContext.commandHistory : prevContext.commandHistory.concat(commandLine),
-      view: prevContext.view.concat(username + '@jiniaslog:# ~ ' + commandLine),
+      commandHistory: command.trim() === '' ? prevContext.commandHistory : prevContext.commandHistory.concat(command),
+      view: prevContext.view.concat(username + COMMAND_LINE_DEFAULT + ' ' + command),
       currentHistoryIndex: null
     }))
   }
 
-  function processCommand (commandLine: string, args: string[], username: string): void {
+  function processCommand (commandLine: string, args: string[]): void {
     if (commandLine.trim() === '') {
       return
     }
@@ -42,7 +43,7 @@ export const useCommandHandle = (): {
         )
       }))
     } else {
-      command.execute(context, setContext, args)
+      command.execute(setContext, args)
     }
   }
 

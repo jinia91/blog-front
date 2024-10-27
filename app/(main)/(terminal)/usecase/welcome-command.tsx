@@ -22,10 +22,10 @@ export const logo = `
 export const welcomeCommand: Command = {
   name: 'welcome',
   description: '프로그램을 시작할 때 화면에 보여질 로고를 불러옵니다',
-  execute: (terminalContext, setContext, args) => {
-    setContext({
-      commandHistory: terminalContext.commandHistory,
-      view: terminalContext.view.concat(logo)
-    })
+  execute: (setContext, args) => {
+    setContext((prev) => ({
+      ...prev,
+      view: prev.view.concat(logo)
+    }))
   }
 }
