@@ -1,4 +1,9 @@
 export interface TerminalContext {
-  history: string[]
-  output: string[]
+  commandHistory: string[]
+  view: string[]
+  currentInput: string
+  currentHistoryIndex: number | null
+  isProcessing: boolean
 }
+
+export const COMMAND_LINE_DEFAULT = '@jiniaslog:# ~'
