@@ -1,4 +1,4 @@
-import { type TerminalContext } from '../domain/terminal-context'
+import { type TerminalContext } from '../../domain/terminal-context'
 
 export const startSnakeGame = async (
   setContext: (args: ((prev: TerminalContext) => TerminalContext) | TerminalContext) => void
@@ -99,7 +99,21 @@ export const startSnakeGame = async (
     })
   }
 
+  const exitGame = (e: KeyboardEvent): void => {
+    if (e.ctrlKey && e.key === 'c') {
+      clearInterval(intervalId)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', exitGame)
+      setContext((prevContext) => ({
+        ...prevContext,
+        view: prevContext.processContext.bufferedView.concat('게임 종료!'),
+        processContext: null
+      }))
+    }
+  }
+
   window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keydown', exitGame)
   const intervalId = setInterval(() => {
     setContext((prevContext) => {
       const updatedProcessContext = processGame(prevContext.processContext)
@@ -128,5 +142,5 @@ export const startSnakeGame = async (
         processContext: updatedProcessContext
       }
     })
-  }, 200)
+  }, 300)
 }
