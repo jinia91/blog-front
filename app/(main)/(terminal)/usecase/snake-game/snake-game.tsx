@@ -7,7 +7,7 @@ export const startSnakeGame = async (
   const INITIAL_SNAKE = [{ x: 0, y: 0 }]
   const INITIAL_DIRECTION = 'RIGHT'
 
-  setContext((prevContext) => ({
+  setContext((prevContext): any => ({
     ...prevContext,
     view: ['🐍 게임을 시작합니다!'],
     processContext: {
@@ -73,7 +73,7 @@ export const startSnakeGame = async (
     }
   }
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent): void => {
     setContext((prevContext) => {
       const newDirection = (() => {
         switch (e.key) {
