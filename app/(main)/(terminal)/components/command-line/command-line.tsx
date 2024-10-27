@@ -1,8 +1,7 @@
 'use client'
 import React, { type KeyboardEvent } from 'react'
 import { useCommandNavigate } from '../../usecase/command-navigator-usecases'
-import { useCommandHandle } from '../../usecase/command-handle-usecases'
-import { terminalAtom } from '../../usecase/terminal-atom'
+import { terminalAtom, useCommandHandle } from '../../usecase/command-handle-usecases'
 import { useAtom } from 'jotai'
 
 interface TerminalInputProps {

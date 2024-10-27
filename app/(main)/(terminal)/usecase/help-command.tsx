@@ -1,5 +1,4 @@
-import { type Command } from '../domain/command'
-import { COMMAND_LIST } from './terminal-atom'
+import { type Command, COMMAND_LIST } from '../domain/command'
 
 export const helpCommand: Command = {
   name: 'help',

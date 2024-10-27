@@ -1,8 +1,8 @@
 'use client'
 import React from 'react'
 import { useAtom } from 'jotai/index'
-import { terminalAtom } from '../../usecase/terminal-atom'
 import { COMMAND_LINE_DEFAULT } from '../../domain/terminal-context'
+import { terminalAtom } from '../../usecase/command-handle-usecases'
 
 interface ViewportProps {
   username: string

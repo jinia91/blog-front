@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai'
-import { terminalAtom } from './terminal-atom'
+import { terminalAtom } from './command-handle-usecases'
 
 export const useCommandNavigate = (): {
   navigate: (direction: 'up' | 'down') => void

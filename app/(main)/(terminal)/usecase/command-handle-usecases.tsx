@@ -1,18 +1,19 @@
 import { commandParser } from '../domain/command'
-import { useAtom } from 'jotai'
-import { terminalAtom } from './terminal-atom'
-import { clearCommand } from './clear-command'
-import { welcomeCommand } from './welcome-command'
-import { helpCommand } from './help-command'
-import { historyCommand } from './history-command'
-import { githubCommand } from './github-command'
-import { COMMAND_LINE_DEFAULT } from '../domain/terminal-context'
-import { curlCommand } from './curl-command'
+import { atom, useAtom } from 'jotai'
+import { COMMAND_LINE_DEFAULT, type TerminalContext } from '../domain/terminal-context'
+import { logo } from './welcome-command'
+
+export const terminalAtom = atom<TerminalContext>({
+  commandHistory: [],
+  view: [logo],
+  currentInput: '',
+  currentHistoryIndex: null,
+  isProcessing: false
+})
 
 export const useCommandHandle = (): {
   handleCommand: (username: string) => Promise<void>
 } => {
-  const COMMAND_LIST = [clearCommand, welcomeCommand, helpCommand, historyCommand, githubCommand, curlCommand]
   const [context, setContext] = useAtom(terminalAtom)
   const handleCommand = async (username: string): Promise<void> => {
     const command = context.currentInput
