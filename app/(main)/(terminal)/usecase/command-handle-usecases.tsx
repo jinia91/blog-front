@@ -8,7 +8,7 @@ export const terminalAtom = atom<TerminalContext>({
   view: [logo],
   currentInput: '',
   currentHistoryIndex: null,
-  isProcessing: false
+  processContext: null
 })
 
 export const useCommandHandle = (): {
@@ -28,8 +28,7 @@ export const useCommandHandle = (): {
       ...prevContext,
       commandHistory: command.trim() === '' ? prevContext.commandHistory : prevContext.commandHistory.concat(command),
       view: prevContext.view.concat(username + COMMAND_LINE_DEFAULT + ' ' + command),
-      currentHistoryIndex: null,
-      isProcessing: true
+      currentHistoryIndex: null
     }))
   }
 
@@ -53,8 +52,7 @@ export const useCommandHandle = (): {
   function processPostCommand (): void {
     setContext((prevContext) => ({
       ...prevContext,
-      currentInput: '',
-      isProcessing: false
+      currentInput: ''
     }))
   }
 

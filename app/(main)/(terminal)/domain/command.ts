@@ -5,6 +5,7 @@ import { helpCommand } from '../usecase/help-command'
 import { historyCommand } from '../usecase/history-command'
 import { githubCommand } from '../usecase/github-command'
 import { curlCommand } from '../usecase/curl-command'
+import { snakeCommand } from '../usecase/snake-command'
 
 export interface Command {
   name: string
@@ -12,7 +13,7 @@ export interface Command {
   execute: (setContext: (args: (((prev: TerminalContext) => TerminalContext) | TerminalContext)) => void, strings: string[]) => Promise<void>
 }
 
-export const COMMAND_LIST = [clearCommand, welcomeCommand, helpCommand, historyCommand, githubCommand, curlCommand]
+export const COMMAND_LIST = [clearCommand, welcomeCommand, helpCommand, historyCommand, githubCommand, curlCommand, snakeCommand]
 
 export const commandParser: {
   parseCommand: (commandLine: string) => [string, string[]]
