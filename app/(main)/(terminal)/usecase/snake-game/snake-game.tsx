@@ -99,11 +99,11 @@ export const startSnakeGame = async (
     })
   }
 
-  const exitGame = (e: KeyboardEvent): void => {
+  const exitGameKeyDown = (e: KeyboardEvent): void => {
     if (e.ctrlKey && e.key === 'c') {
       clearInterval(intervalId)
       window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keydown', exitGame)
+      window.removeEventListener('keydown', exitGameKeyDown)
       setContext((prevContext) => ({
         ...prevContext,
         view: prevContext.processContext.bufferedView.concat('게임 종료!'),
@@ -113,7 +113,7 @@ export const startSnakeGame = async (
   }
 
   window.addEventListener('keydown', handleKeyDown)
-  window.addEventListener('keydown', exitGame)
+  window.addEventListener('keydown', exitGameKeyDown)
   const intervalId = setInterval(() => {
     setContext((prevContext) => {
       const updatedProcessContext = processGame(prevContext.processContext)
