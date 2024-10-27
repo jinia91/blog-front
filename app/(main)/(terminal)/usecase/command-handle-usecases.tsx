@@ -38,7 +38,7 @@ export const useCommandHandle = (): {
     }
     const command = COMMAND_LIST.find((c) => c.name === commandLine)
     if (command === null || command === undefined) {
-      setContext((prevContext: any) => ({
+      setContext((prevContext) => ({
         ...prevContext,
         view: prevContext.view.concat(
           'jsh: 커맨드를 찾을수 없습니다: ' + commandLine
@@ -50,7 +50,7 @@ export const useCommandHandle = (): {
   }
 
   function processPostCommand (): void {
-    setContext((prevContext: any) => ({
+    setContext((prevContext) => ({
       ...prevContext,
       currentInput: '',
       isProcessing: false

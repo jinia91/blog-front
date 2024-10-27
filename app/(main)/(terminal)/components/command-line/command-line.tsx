@@ -37,7 +37,7 @@ export const CommandLine: React.FC<TerminalInputProps> = ({ username, inputRef }
           className="bg-transparent focus:outline-none text-green-400 flex-1"
           value={context.currentInput}
           onChange={(e) => {
-            setContext((prevContext: any) => ({
+            setContext((prevContext) => ({
               ...prevContext,
               currentInput: e.target.value
             }))
