@@ -5,8 +5,8 @@ export const clearCommand: Command = {
   description: '터미널 화면을 지웁니다',
   execute: (terminalContext, setContext, args) => {
     setContext({
-      history: terminalContext.history,
-      output: []
+      commandHistory: terminalContext.commandHistory,
+      view: []
     })
   }
 }

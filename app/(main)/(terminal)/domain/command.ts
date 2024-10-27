@@ -5,3 +5,12 @@ export interface Command {
   description: string
   execute: (terminalContext: TerminalContext, setContext: (args: (((prev: TerminalContext) => TerminalContext) | TerminalContext)) => void, strings: string[]) => void
 }
+
+export const commandParser: {
+  parseCommand: (commandLine: string) => [string, string[]]
+} = {
+  parseCommand (commandLine: string): [string, string[]] {
+    const [command, ...args] = commandLine.split(' ')
+    return [command, args]
+  }
+}

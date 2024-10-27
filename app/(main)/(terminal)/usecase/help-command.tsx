@@ -1,5 +1,5 @@
 import { type Command } from '../domain/command'
-import { COMMAND_LIST } from './terminal-usecases'
+import { COMMAND_LIST } from './terminal-atom'
 
 export const helpCommand: Command = {
   name: 'help',
@@ -9,8 +9,8 @@ export const helpCommand: Command = {
       COMMAND_LIST.map(command => `   - ${command.name}: ${command.description}`).join('\n')
 
     setContext({
-      history: terminalContext.history,
-      output: terminalContext.output.concat(helpManual)
+      commandHistory: terminalContext.commandHistory,
+      view: terminalContext.view.concat(helpManual)
     })
   }
 }

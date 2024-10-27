@@ -1,4 +1,6 @@
 export interface TerminalContext {
-  history: string[]
-  output: string[]
+  commandHistory: string[]
+  view: string[]
+  currentInput: string
+  currentHistoryIndex: number | null
 }
