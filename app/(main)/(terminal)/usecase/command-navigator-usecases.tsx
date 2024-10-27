@@ -11,13 +11,13 @@ export const useCommandNavigate = (): {
 
     if (direction === 'up') {
       if (context.currentHistoryIndex === null) {
-        setContext((prevContext) => ({
+        setContext((prevContext: any) => ({
           ...prevContext,
           currentHistoryIndex: historyLength - 1,
           currentInput: prevContext.commandHistory[historyLength - 1]
         }))
       } else if (context.currentHistoryIndex > 0) {
-        setContext((prevContext) => ({
+        setContext((prevContext: any) => ({
           ...prevContext,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           currentHistoryIndex: prevContext.currentHistoryIndex! - 1,
@@ -27,7 +27,7 @@ export const useCommandNavigate = (): {
       }
     } else if (direction === 'down') {
       if (context.currentHistoryIndex !== null && context.currentHistoryIndex < historyLength - 1) {
-        setContext((prevContext) => ({
+        setContext((prevContext: any) => ({
           ...prevContext,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           currentHistoryIndex: prevContext.currentHistoryIndex! + 1,
@@ -35,7 +35,7 @@ export const useCommandNavigate = (): {
           currentInput: prevContext.commandHistory[prevContext.currentHistoryIndex! + 1]
         }))
       } else {
-        setContext((prevContext) => ({
+        setContext((prevContext: any) => ({
           ...prevContext,
           currentHistoryIndex: null,
           currentInput: ''

@@ -10,7 +10,8 @@ export const terminalAtom = atom<TerminalContext>({
   commandHistory: [],
   view: [logo],
   currentInput: '',
-  currentHistoryIndex: null
+  currentHistoryIndex: null,
+  isProcessing: false
 })
 
 export const COMMAND_LIST = [clearCommand, welcomeCommand, helpCommand, historyCommand, githubCommand]
