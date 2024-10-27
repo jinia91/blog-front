@@ -1,4 +1,4 @@
-import { commandParser } from '../domain/command'
+import { COMMAND_LIST, commandParser } from '../domain/command'
 import { atom, useAtom } from 'jotai'
 import { COMMAND_LINE_DEFAULT, type TerminalContext } from '../domain/terminal-context'
 import { logo } from './welcome-command'
