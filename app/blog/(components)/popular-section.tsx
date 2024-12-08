@@ -1,8 +1,7 @@
 import React from 'react'
+import SwiperCarousel from './carousel'
 
-export default function BlogLayoutBox (
-  { title, children }: { title: string, children: React.ReactNode }
-): React.ReactElement {
+export default function PopularSection ({ title }: { title: string }): React.ReactElement {
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 border-green-400 m-3">
       <div
@@ -19,7 +18,9 @@ export default function BlogLayoutBox (
         <div className="text-right mt-2">
         </div>
       </header>
-      <main className="relative flex-grow p-4">{children}</main>
+      <main className="relative flex-grow p-4">
+        <SwiperCarousel/>
+      </main>
     </div>
   )
 }
