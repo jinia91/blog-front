@@ -17,6 +17,15 @@ const config: Config = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+      },
+      keyframes: {
+        glow: {
+          '0%, 100%': { borderColor: 'rgba(16, 185, 129, 0.4)' },
+          '50%': { borderColor: 'rgba(16, 185, 129, 1)' }
+        }
+      },
+      animation: {
+        glow: 'glow 2.5s infinite'
       }
     }
   },
