@@ -8,8 +8,7 @@ import 'swiper/css/pagination'
 
 export default function SwiperCarousel (): React.ReactElement {
   return (
-    <div className="max-w-4xl mx-auto mt-8">
-      <h1 className="text-center text-2xl font-bold mb-4">Swiper Carousel</h1>
+    <div className="max-w-4xl">
       <Swiper
         modules={[Navigation, Pagination]}
         navigation
