@@ -236,6 +236,7 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
     return null
   }
   const data = await response.json()
+  console.log(data)
   return data.memos
 }
 
