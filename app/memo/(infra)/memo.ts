@@ -220,7 +220,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
 
 export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + `/v1/folders?query=${query}`,
+    return await fetch(HOST + `/v1/folders/search?query=${query}`,
       {
         cache: 'no-store',
         credentials: 'include',
