@@ -50,6 +50,7 @@ export const useFolderAndMemo = (): {
 
   const searchMemosByKeyword = async (value: string): Promise<void> => {
     const resultMemos = await fetchSearchResults(value)
+    console.log(resultMemos)
     const resultFolder = folderManager.buildSearchResultFolders(resultMemos)
     setFolders(resultFolder)
   }
