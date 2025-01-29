@@ -53,7 +53,7 @@ export const memoGraphUtils: {
 
     function createMemoLinks (folder: Folder, links: any): void {
       folder.memos.forEach(memo => {
-        memo.references.forEach(ref => {
+        memo.references?.forEach(ref => {
           links.push({
             source: memo.id,
             target: ref.id
