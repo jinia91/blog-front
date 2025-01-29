@@ -236,7 +236,7 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
     return null
   }
   const data = await response.json()
-  return data.folderInfos[0].memos
+  return data.memos
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
