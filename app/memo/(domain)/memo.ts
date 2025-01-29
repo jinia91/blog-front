@@ -8,7 +8,7 @@ export interface Memo {
 export interface SimpleMemoInfo {
   id: number
   title: string
-  references: ReferenceInfo[]
+  references?: ReferenceInfo[]
 }
 
 export interface ReferenceInfo {
