@@ -180,8 +180,10 @@ describe('메모 폴더 키워드 검색 유즈케이스', () => {
     global.fetch = vi.fn(() => ({
       ok: true,
       json: async () => ({
-        name: '검색결과',
-        memos: [{ id: 1, title: '메모1', references: [] }]
+        result: {
+          name: '검색결과',
+          memos: [{ id: 1, title: '메모1', references: [] }]
+        }
       })
     })) as Mock
 
@@ -261,13 +263,10 @@ describe('메모 폴더 키워드 검색 유즈케이스', () => {
     global.fetch = vi.fn(() => ({
       ok: true,
       json: async () => ({
-        folderInfos: [{
-          id: null,
+        result: {
           name: '검색결과',
-          memos: [],
-          parent: null,
-          children: []
-        }]
+          memos: []
+        }
       })
     })) as Mock
 
