@@ -117,7 +117,18 @@ export async function requestCreateFolder (): Promise<Folder | null> {
     console.error('폴더 생성에 실패했습니다')
     return null
   }
-  return await response.json().then((data) => data.folder)
+  return await response.json()
+    .then((data) => {
+      const result: Folder | null = {
+        id: data.folder.id,
+        name: data.folder.name,
+        memos: [],
+        children: [],
+        parent: null
+      }
+      return result
+    }
+    )
 }
 
 export async function changeFolderName (folderId: string, toBeName: string): Promise<any> {
@@ -220,7 +231,7 @@ export async function uploadImage (imageFile: File): Promise<{ url: string } | n
 
 export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + `/v1/folders/search?query=${query}`,
+    return await fetch(HOST + `/v1/memos?query=${query}`,
       {
         cache: 'no-store',
         credentials: 'include',
