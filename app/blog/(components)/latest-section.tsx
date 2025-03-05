@@ -1,10 +1,5 @@
 import React from 'react'
-
-interface Post {
-  id: number
-  title: string
-  thumbnail: string
-}
+import { type Post } from '../(domain)/post'
 
 export default function LatestSection ({
   title,
@@ -33,6 +28,11 @@ export default function LatestSection ({
             />
             <div className="flex-grow">
               <h2 className="text-md font-semibold text-white">{post.title}</h2>
+            </div>
+            <div className="text-right">
+              <time className="text-sm text-gray-400">
+                {post.createdAt.toLocaleDateString()}
+              </time>
             </div>
           </div>
         ))}
