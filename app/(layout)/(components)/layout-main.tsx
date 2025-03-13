@@ -17,7 +17,7 @@ const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
           <SideAppBar/>
         </aside>
         <main
-          className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-auto pb-4"
+          className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-hidden pb-4"
           style={{ height: 'calc(100vh - 60px)' }}>
           <TabContextMenu/>
           <div className="bg-gray-800 p-4">

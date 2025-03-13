@@ -13,7 +13,6 @@ export const CommandLine: React.FC<TerminalInputProps> = ({ username, inputRef }
   const { navigate } = useCommandNavigate()
   const { handleCommand } = useCommandHandle()
   const [context, setContext] = useAtom(terminalAtom)
-
   const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === 'Enter') {
       await handleCommand(username)

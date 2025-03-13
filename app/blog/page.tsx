@@ -3,7 +3,9 @@ import LatestSection from './(components)/latest-section'
 
 export default function blog (): React.ReactElement {
   return (
-    <main className="flex flex-col bg-gray-900 text-gray-300 border-2 border-green-400">
+    <main className="flex flex-col bg-gray-900 text-gray-300 border-2 border-green-400 overflow-y-auto"
+          style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
+    >
       <LatestSection title="Articles" posts={[
         {
           id: 1,

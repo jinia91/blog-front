@@ -16,7 +16,10 @@ export default function Terminal (): React.ReactElement {
   }
 
   return (
-    <div className="mx-auto bg-gray-900 rounded-lg shadow-lg font-mono text-sm text-gray-200">
+    <div
+      className="mx-auto bg-gray-900 rounded-lg shadow-lg font-mono text-sm text-gray-200 overflow-y-auto"
+      style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
+    >
       <div className="p-4">
         <p className="text-xs text-gray-400">{username}님 jinia&apos;s Log에 오신걸 환영합니다! &apos;help&apos;를 입력하여 명령어 목록을
           확인하세요.</p>
