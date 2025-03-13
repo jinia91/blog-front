@@ -8,19 +8,20 @@ export default function PostCard ({ post }: { post: Post }): React.ReactElement 
       <img
         src={post.thumbnail}
         alt={post.title}
-        className="w-full sm:w-48 h-32 sm:h-36 object-cover rounded-md"
+        className="w-full sm:w-48 h-40 sm:h-40 object-cover rounded-md"
       />
       <div className="flex flex-col flex-grow">
-        <h2 className="text-xl font-semibold text-white hover:text-green-400 transition-colors duration-200">
+        <h2 className="text-2xl font-bold text-white hover:text-green-400 transition-colors duration-200">
           {post.title}
         </h2>
-        <p className="text-sm text-gray-400 line-clamp-2 mt-2">
+        <p className="text-lg text-gray-400 line-clamp-2 mt-2">
           {post.content}
         </p>
         <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
           <time>{post.createdAt.toLocaleDateString()}</time>
         </div>
         {/* Tags Section */}
+        {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {post.tags.map(tag => (

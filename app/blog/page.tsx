@@ -63,16 +63,20 @@ export default function Blog (): React.ReactElement {
     return post.tags.some(tag => selectedTag.includes(tag))
   })
   return (
-    <main className="flex bg-gray-900 text-gray-300 border-2 border-green-400"
-          style={{ maxHeight: 'calc(100vh - 180px)' }}>
-      <div className="flex-grow overflow-y-auto">
-        <LatestSection title={(selectedTag.length > 0)
-          ? `#${selectedTag.join(' #')}`
-          : 'Latest Posts'} posts={filteredPosts}/>
-      </div>
-      <aside className="hidden sm:block sm:w-64 p-4 border-l border-green-400 bg-gray-800">
-        <AsideSection posts={posts} onSelectTag={setSelectedTag} selectedTags={selectedTag}/>
-      </aside>
-    </main>
+    <div className=" justify-center items-center">
+      <main className="flex bg-gray-900 text-gray-300 border-2 border-green-400"
+            style={{
+              maxHeight: 'calc(100vh - 180px)'
+            }}>
+        <div className="flex-grow overflow-y-auto">
+          <LatestSection title={(selectedTag.length > 0)
+            ? `#${selectedTag.join(' #')}`
+            : 'Latest Posts'} posts={filteredPosts}/>
+        </div>
+        <aside className="hidden sm:block sm:w-64 p-4 border-l border-green-400 bg-gray-800">
+          <AsideSection posts={posts} onSelectTag={setSelectedTag} selectedTags={selectedTag}/>
+        </aside>
+      </main>
+    </div>
   )
 }
