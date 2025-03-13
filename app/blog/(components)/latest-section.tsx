@@ -1,5 +1,6 @@
 import React from 'react'
 import { type Post } from '../(domain)/post'
+import PostCard from './post-card'
 
 export default function LatestSection ({
   title,
@@ -19,23 +20,7 @@ export default function LatestSection ({
       </header>
 
       <main className="flex flex-col gap-4 p-4">
-        {posts.map((post) => (
-          <div key={post.id} className="flex items-center gap-4">
-            <img
-              src={post.thumbnail}
-              alt={post.title}
-              className="w-24 h-24 object-cover border border-green-400"
-            />
-            <div className="flex-grow">
-              <h2 className="text-md font-semibold text-white">{post.title}</h2>
-            </div>
-            <div className="text-right">
-              <time className="text-sm text-gray-400">
-                {post.createdAt.toLocaleDateString()}
-              </time>
-            </div>
-          </div>
-        ))}
+        {posts.map((post) => PostCard({ post }))}
       </main>
     </div>
   )
