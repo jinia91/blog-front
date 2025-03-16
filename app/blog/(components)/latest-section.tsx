@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
 import PostCard from './post-card'
 import { useBlogSystem } from '../(usecase)/blog-system-usecases'

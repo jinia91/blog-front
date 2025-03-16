@@ -1,4 +1,3 @@
-'use client'
 import React from 'react'
 import LatestSection from './(components)/latest-section'
 import AsideSection from './(components)/aside-section'
