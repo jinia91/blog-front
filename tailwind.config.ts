@@ -26,9 +26,35 @@ const config: Config = {
       },
       animation: {
         glow: 'glow 2.5s infinite'
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            h1: {
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              color: '#ffffff'
+            },
+            h2: {
+              fontSize: '1.875rem',
+              fontWeight: 'semibold',
+              color: '#cccccc'
+            },
+            h3: {
+              fontSize: '1.5rem',
+              fontWeight: 'medium',
+              color: '#999999'
+            },
+            h4: {
+              fontSize: '1.25rem',
+              fontWeight: 'medium',
+              color: '#888888'
+            }
+          }
+        }
       }
     }
   },
-  plugins: []
+  plugins: [require('@tailwindcss/typography')]
 }
 export default config

@@ -44,7 +44,7 @@ export default function LatestSection (): React.ReactElement {
           <div className="flex-grow border-t animate-glow border-green-400"></div>
           <h1 className="px-2 text-lg font-bold text-green-400">{
             selectedTags.length > 0
-              ? `#${selectedTags.map(tag => tag.name).join(', ')}`
+              ? `#${selectedTags.map(tag => tag.name).join(', #')}`
               : 'Latest Posts'
           }</h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>

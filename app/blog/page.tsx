@@ -12,7 +12,7 @@ export default function Blog (): React.ReactElement {
         <div className="flex-grow overflow-y-auto">
           <LatestSection/>
         </div>
-        <aside className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800">
+        <aside className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800 min-w-[250px]">
           <AsideSection/>
         </aside>
       </main>

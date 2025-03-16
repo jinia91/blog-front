@@ -10,8 +10,8 @@ const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   return (
     <>
       <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>
-      <div className="md:flex overflow-hidden">
-        <aside className="fixed md:static flex-1 h-screen bg-white dark:bg-gray-900 md:border-r"
+      <div className="md:flex">
+        <aside className="fixed md:static flex-1 bg-white dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
         >
           <SideAppBar/>
