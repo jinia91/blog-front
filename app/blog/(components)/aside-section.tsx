@@ -15,14 +15,12 @@ export default function AsideSection (): React.ReactElement {
 
   return (
     <div className="border-1 border-b-green-400 h-full">
-      {/* 검색 입력창 */}
       <input
         type="text"
         placeholder="Search"
         className="w-full p-2 bg-gray-900 text-white border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
       />
 
-      {/* 태그 목록 */}
       <div className="mt-4">
         <h3 className="text-green-400 font-bold mb-2">Tags</h3>
         <div className="flex flex-wrap gap-2">

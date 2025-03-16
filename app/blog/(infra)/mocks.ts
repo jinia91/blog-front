@@ -1,4 +1,4 @@
-import { type Article } from '../(domain)/post'
+import { type Article } from '../(domain)/article'
 
 export const mocks: Article[] = [
   {

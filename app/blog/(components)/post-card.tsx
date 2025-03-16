@@ -1,4 +1,4 @@
-import { type Article } from '../(domain)/post'
+import { type Article } from '../(domain)/article'
 import React from 'react'
 
 export default function PostCard ({ article }: { article: Article }): React.ReactElement {

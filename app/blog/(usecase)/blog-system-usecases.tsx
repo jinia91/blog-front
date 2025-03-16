@@ -1,6 +1,6 @@
 import { atom, useAtom } from 'jotai'
 import { type Tag } from '../(domain)/tag'
-import { type Article } from '../(domain)/post'
+import { type Article } from '../(domain)/article'
 import { fetchArticlesByOffset } from '../(infra)/article'
 
 const tagsAtom = atom<Tag[]>([])

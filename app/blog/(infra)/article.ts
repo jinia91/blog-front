@@ -1,4 +1,4 @@
-import { type Article } from '../(domain)/post'
+import { type Article } from '../(domain)/article'
 import { mocks } from './mocks'
 
 export async function fetchArticlesByOffset (cursor: number): Promise<Article[]> {

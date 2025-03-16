@@ -16,7 +16,7 @@ export default function LatestSection (): React.ReactElement {
   }, [getLatestArticles, getLatestArticleFilteredBySelectedTags])
 
   useEffect(() => {
-    if (!lastPostRef.current) return
+    if (lastPostRef.current == null) return
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -30,7 +30,7 @@ export default function LatestSection (): React.ReactElement {
     observerRef.current.observe(lastPostRef.current)
 
     return () => {
-      if (observerRef.current) {
+      if (observerRef.current != null) {
         observerRef.current.disconnect()
       }
     }
