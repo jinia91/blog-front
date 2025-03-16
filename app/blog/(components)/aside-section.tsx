@@ -14,7 +14,7 @@ export default function AsideSection (): React.ReactElement {
   }
 
   return (
-    <div className="border-1 border-b-green-400 h-full">
+    <div className="border-2 border-b-green-400 h-full p-2 animate-glow border-green-400">
       <input
         type="text"
         placeholder="Search"

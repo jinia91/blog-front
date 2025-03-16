@@ -31,7 +31,7 @@ export default function PostCard ({ article }: { article: Article }): React.Reac
         )}
         <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
           <div className="flex items-center gap-2">
-            <span> {article.likes}</span>
+            <span>❤ {article.likes}</span>
             <span>💬 {article.comments}</span>
           </div>
         </div>
