@@ -1,4 +1,4 @@
-import { AiOutlineFileText } from 'react-icons/ai'
+import { AiOutlineFileText, AiTwotoneBook } from 'react-icons/ai'
 import { BsPeople, BsTerminalDash } from 'react-icons/bs'
 import { Auth } from '../../../login/(domain)/session'
 
@@ -20,5 +20,11 @@ export const sideBarItems = [
     href: '/memo',
     icon: AiOutlineFileText,
     auth: Auth.User
+  },
+  {
+    name: 'Blog',
+    href: '/blog',
+    icon: AiTwotoneBook,
+    auth: Auth.Guest
   }
 ]

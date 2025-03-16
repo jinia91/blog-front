@@ -1,9 +1,11 @@
-export interface Post {
+import { type Tag } from './tag'
+
+export interface Article {
   id: number
   title: string
   content: string
   thumbnail: string
-  tags: string[]
+  tags: Tag[]
   likes: number
   comments: number
   createdAt: Date

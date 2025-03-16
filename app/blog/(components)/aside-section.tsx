@@ -1,20 +1,16 @@
 import React from 'react'
+import { useBlogSystem } from '../(usecase)/blog-system-usecases'
+import { type Tag } from '../(domain)/tag'
 
-interface AsideSectionProps {
-  posts: Array<{ tags: string[] }>
-  onSelectTag: (tags: string[]) => void
-  selectedTags: string[]
-}
+export default function AsideSection (): React.ReactElement {
+  const { tags, selectedTags, selectTag, unselectTag } = useBlogSystem()
 
-export default function AsideSection ({ posts, onSelectTag, selectedTags = [] }: AsideSectionProps): React.ReactElement {
-  const allTags = Array.from(new Set(posts.flatMap(post => post.tags)))
-
-  const handleTagClick = (tag: string): void => {
-    const newSelectedTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag]
-
-    onSelectTag(newSelectedTags)
+  const handleTagClick = (tag: Tag): void => {
+    if (selectedTags.some(selectedTag => selectedTag.id === tag.id)) {
+      unselectTag(tag)
+    } else {
+      selectTag(tag)
+    }
   }
 
   return (
@@ -30,19 +26,21 @@ export default function AsideSection ({ posts, onSelectTag, selectedTags = [] }:
       <div className="mt-4">
         <h3 className="text-green-400 font-bold mb-2">Tags</h3>
         <div className="flex flex-wrap gap-2">
-          {allTags.map(tag => (
+          {tags.map(tag => (
             <button
-              key={tag}
-              onClick={() => { handleTagClick(tag) }}
+              key={tag.id}
+              onClick={() => {
+                handleTagClick(tag)
+              }}
               className={`px-3 py-1 rounded-md border font-medium transition-all
                 ${
-                selectedTags.includes(tag)
-                  ? 'bg-green-700 text-white border-green-700' // Selected: Darker green
+                selectedTags.map(selectedTag => selectedTag.id).includes(tag.id)
+                  ? 'bg-green-700 text-white border-green-700'
                   : 'border-green-400 text-green-300'
               }
-                hover:bg-green-500 hover:text-white hover:border-green-500`} // Hover: Brighter green
+                hover:bg-green-500 hover:text-white hover:border-green-500`}
             >
-              #{tag}
+              #{tag.name}
             </button>
           ))}
         </div>
