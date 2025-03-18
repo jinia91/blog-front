@@ -8,6 +8,6 @@ export async function fetchArticlesByOffset (cursor: number): Promise<Article[]>
   return mocks.slice(cursor, cursor + 5)
 }
 
-export async function getArticleById (id: number): Promise<Article | undefined> {
+export async function fetchArticleById (id: number): Promise<Article | undefined> {
   return mocks.find(article => article.id === id)
 }

@@ -199,7 +199,7 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
   return await response.json()
 }
 
-export async function uploadImage (imageFile: File): Promise<{ url: string } | null> {
+export async function uploadImageToServer (imageFile: File): Promise<{ url: string } | null> {
   const apiCall = async (): Promise<Response> => {
     const formData = new FormData()
     formData.append('image', imageFile)

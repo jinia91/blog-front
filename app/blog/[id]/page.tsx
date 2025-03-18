@@ -1,5 +1,5 @@
 import React from 'react'
-import { getArticleById } from '../(infra)/article'
+import { fetchArticleById } from '../(infra)/article'
 import html from 'remark-html'
 import { notFound } from 'next/navigation'
 import { rehype } from 'rehype'
@@ -9,7 +9,7 @@ import { remark } from 'remark'
 import { TOC } from '../(components)/toc'
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
-  const article = await getArticleById(Number(params.id))
+  const article = await fetchArticleById(Number(params.id))
 
   if (article == null) {
     notFound()

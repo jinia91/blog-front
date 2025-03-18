@@ -16,7 +16,7 @@ import MDEditor, {
 } from '@uiw/react-md-editor'
 import { type Memo, type ReferenceInfo } from '../../(domain)/memo'
 import { RelatedMemoModal } from './related-memo-modal'
-import { fetchMemoById, uploadImage } from '../../(infra)/memo'
+import { fetchMemoById, uploadImageToServer } from '../../(infra)/memo'
 import { MemoTitleInput } from './memo-title-edit-input'
 import useStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
@@ -58,7 +58,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
         if (item.type.indexOf('image') === 0) {
           const file = item.getAsFile()
           if (file != null) {
-            const data = await uploadImage(file)
+            const data = await uploadImageToServer(file)
             if (data === null) {
               throw new Error('이미지 업로드 통신 실패')
             }
