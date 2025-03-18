@@ -11,7 +11,29 @@ export async function fetchArticlesByOffset (cursor: number): Promise<Article[]>
 }
 
 export async function fetchArticleById (id: number): Promise<Article | undefined> {
-  return mocks.find(article => article.id === id)
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/' + id, {
+      method: 'GET',
+      credentials: 'include'
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('아티클 조회 실패')
+    return undefined
+  }
+  const data = await response.json()
+  console.log(data)
+  return {
+    id: data.id,
+    title: data.title,
+    content: data.content,
+    thumbnail: data.thumbnailUrl,
+    tags: data.tags,
+    likes: 1,
+    comments: 1,
+    createdAt: new Date(data.createdAt)
+  }
 }
 
 export async function initDraftArticle (): Promise<string | null> {

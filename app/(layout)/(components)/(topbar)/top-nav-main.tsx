@@ -4,6 +4,7 @@ import React from 'react'
 import SideBarToggle from './side-bar-toggle'
 import TabOpen from '../(tap-system)/tab-open'
 import SignInAndOutButton from './sign-in-and-out-button'
+import NewArticleButton from './new-article-button'
 
 export default function TopNavMain (): React.ReactElement {
   return (
@@ -18,6 +19,7 @@ export default function TopNavMain (): React.ReactElement {
         <div className="flex items-center">
           <SignInAndOutButton/>
           <DarkLightToggle/>
+          <NewArticleButton/>
         </div>
       </div>
     </div>
