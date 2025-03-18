@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { useContextMenu } from '../../(usecase)/tab-context-menu-usecases'
 import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'

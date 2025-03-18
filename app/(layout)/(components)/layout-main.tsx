@@ -1,4 +1,3 @@
-'use client'
 import TabContextMenu from './(tap-system)/tab-context-menu'
 import { RenderApp } from './(tap-system)/app-page-renderer'
 import TopNavMain from './(topbar)/top-nav-main'

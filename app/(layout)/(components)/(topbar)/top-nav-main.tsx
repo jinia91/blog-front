@@ -1,3 +1,4 @@
+'use client'
 import DarkLightToggle from './dark-light-toggle'
 import React from 'react'
 import SideBarToggle from './side-bar-toggle'
