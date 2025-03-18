@@ -9,4 +9,5 @@ export interface Article {
   likes: number
   comments: number
   createdAt: Date
+  isPublished: boolean
 }

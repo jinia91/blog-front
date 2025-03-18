@@ -14,7 +14,8 @@ export async function fetchArticleById (id: number): Promise<Article | undefined
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/articles/' + id, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      cache: 'no-cache'
     })
   }
   const response = await withAuthRetry(apiCall)
