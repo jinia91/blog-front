@@ -5,7 +5,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { type ReferenceInfo } from '../../(domain)/memo'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 
-const useStompClient = (
+const useMemoStompClient = (
   memoId: string,
   title: string,
   content: string,
@@ -95,4 +95,4 @@ const useStompClient = (
   }, 3000)
 }
 
-export default useStompClient
+export default useMemoStompClient

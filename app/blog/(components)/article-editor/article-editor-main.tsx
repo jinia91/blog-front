@@ -4,13 +4,16 @@ import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
 import { fetchArticleById } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import { Code } from '../../../memo/(components)/memo-editor/memo-editor-plugins'
+import useArticleStompClient from './article-stomp-client'
 
 export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
   const {
+    articleTitle,
     setArticleTitle,
     articleContent,
     setArticleContent,
     setArticleTags,
+    thumbnail,
     setThumbnail,
     uploadImage
   } = useArticleEditSystem()
@@ -28,6 +31,7 @@ export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string 
 
     void load()
   }, [pageMemoId])
+  useArticleStompClient(pageMemoId, articleTitle, articleContent, thumbnail)
 
   const handleImageUpload = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
     const items = event.clipboardData.items

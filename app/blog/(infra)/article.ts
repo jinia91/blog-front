@@ -1,5 +1,7 @@
 import { type Article } from '../(domain)/article'
 import { mocks } from './mocks'
+import { HOST } from '../../(utils)/constants'
+import { withAuthRetry } from '../../login/(infra)/auth-api'
 
 export async function fetchArticlesByOffset (cursor: number): Promise<Article[]> {
   if (cursor === 0) {
@@ -10,4 +12,23 @@ export async function fetchArticlesByOffset (cursor: number): Promise<Article[]>
 
 export async function fetchArticleById (id: number): Promise<Article | undefined> {
   return mocks.find(article => article.id === id)
+}
+
+export async function initDraftArticle (): Promise<string | null> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('메모 생성 실패')
+    return null
+  }
+  const data = await response.json()
+  return data.articleId
 }

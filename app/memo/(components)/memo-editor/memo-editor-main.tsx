@@ -18,7 +18,7 @@ import { type Memo, type ReferenceInfo } from '../../(domain)/memo'
 import { RelatedMemoModal } from './related-memo-modal'
 import { fetchMemoById, uploadImageToServer } from '../../(infra)/memo'
 import { MemoTitleInput } from './memo-title-edit-input'
-import useStompClient from './memo-edit-websocket'
+import useMemoStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { Code, timestamp } from './memo-editor-plugins'
 import { createReferenceLinkCommand } from './memo-reference-link'
@@ -31,7 +31,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
   const [references, setReferences] = useState<ReferenceInfo[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
-  useStompClient(pageMemoId, memoEditorSharedContext.title, content, references, setReferences)
+  useMemoStompClient(pageMemoId, memoEditorSharedContext.title, content, references, setReferences)
 
   useEffect(() => {
     async function load (): Promise<void> {
