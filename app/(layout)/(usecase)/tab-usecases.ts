@@ -58,7 +58,6 @@ export function useTabBarAndRouter (): {
 
   const closeAndNewTab = (target: number, newTab: Tab): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
-    console.log('pre', pre)
     const toBe = tabBarManager.removeTargetTabAndUpsert(pre, target, newTab)
     setTabBarAndRoute(toBe)
   }
@@ -70,12 +69,13 @@ export function useTabBarAndRouter (): {
   }
 
   const upsertAndSelectTab = (newTab: Tab): void => {
-    const foundIdx = tabsAtom.findIndex(tab => {
-      return tab.urlPath === newTab.urlPath
-    })
+    const foundIdx = tabsAtom.findIndex(tab => tab.urlPath === newTab.urlPath)
     const isExist = foundIdx !== -1
     if (isExist) {
-      selectTab(foundIdx)
+      const updatedTabs = tabsAtom.map((tab, idx) =>
+        idx === foundIdx ? { ...tab, title: newTab.name } : tab
+      )
+      setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: foundIdx })
     } else {
       const updatedTabs = [...tabsAtom, newTab]
       setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: updatedTabs.length - 1 })

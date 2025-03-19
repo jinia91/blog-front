@@ -1,12 +1,12 @@
 'use client'
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Status, useArticleEditSystem } from '../../(usecase)/article-system-usecases'
 import { fetchDraftArticleById, publishArticle, unpublishArticle } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import useArticleStompClient from './article-stomp-client'
 import DeleteButton from '../delete-button'
 import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
-import { ApplicationType, type Tab } from '../../../(layout)/(domain)/tab'
+import { ApplicationType } from '../../../(layout)/(domain)/tab'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const {
@@ -22,7 +22,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     status,
     setStatus
   } = useArticleEditSystem()
-  const { selectedTabIdx, tabs, closeAndNewTab } = useTabBarAndRouter()
+  const { selectedTabIdx, closeAndNewTab } = useTabBarAndRouter()
 
   useEffect(() => {
     async function load (): Promise<void> {
@@ -41,41 +41,25 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
 
   useArticleStompClient(articleId, articleTitle, articleContent, thumbnail)
 
-  const handleImageUpload = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = event.clipboardData.items
-    try {
-      for (const item of items) {
-        if (item.type.indexOf('image') === 0) {
-          const file = item.getAsFile()
-          if (file != null) {
-            void uploadImageOnContents(file)
-          }
-        }
+  function onUnPublish (): void {
+    if (status === Status.PUBLISH) {
+      if (window.confirm('게시글을 미게시 상태로 변경하시겠습니까?')) {
+        void unpublishArticle(articleId)
+        setStatus(Status.DRAFT)
+        closeAndNewTab(selectedTabIdx, { name: 'blog', urlPath: '/blog' })
       }
-    } catch (error) {
-      console.error('Error uploading image:', error)
     }
-  }, [articleContent])
+  }
 
-  const handleThumbnailUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file != null) {
-      void uploadThumbnail(file)
-    }
-  }, [thumbnail])
-
-  const handlePublishClick = useCallback(() => {
+  function onDelete (): void {
     void publishArticle(articleId)
     setStatus(Status.PUBLISH)
-    const tab: Tab = { name: articleTitle, urlPath: `/blog/${articleId}`, type: ApplicationType.COMMON }
-    closeAndNewTab(selectedTabIdx, tab)
-  }, [tabs])
-
-  const handleUnPublishClick = useCallback(() => {
-    void unpublishArticle(articleId)
-    setStatus(Status.DRAFT)
-    closeAndNewTab(selectedTabIdx, { name: 'blog', urlPath: '/blog' })
-  }, [tabs])
+    closeAndNewTab(selectedTabIdx, {
+      name: articleTitle,
+      urlPath: `/blog/${articleId}`,
+      type: ApplicationType.COMMON
+    })
+  }
 
   return (
     <div className="flex-grow overflow-y-scroll border-2 p-4 max-w-7xl mx-auto">
@@ -108,7 +92,12 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
           id="file-upload"
           type="file"
           accept="image/*"
-          onChange={handleThumbnailUpload}
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (file != null) {
+              void uploadThumbnail(file)
+            }
+          }}
           className="hidden"
         />
         <input
@@ -122,8 +111,20 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
         />
       </div>
       <div
-        onPaste={(e) => {
-          handleImageUpload(e).catch(console.error)
+        onPaste={(event) => {
+          const items = event.clipboardData.items
+          try {
+            for (const item of items) {
+              if (item.type.indexOf('image') === 0) {
+                const file = item.getAsFile()
+                if (file != null) {
+                  void uploadImageOnContents(file)
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error uploading image:', error)
+          }
         }}
         className={'flex-grow'}
       >
@@ -142,7 +143,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
         <div className="flex space-x-4">
           <button
             onClick={() => {
-              handlePublishClick()
+              onDelete()
             }}
             className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-700 hover:text-gray-100 hover:shadow-green-400"
           > PUBLISH
@@ -154,11 +155,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
           <span className="text-green-400 font-mono mr-3">{status === Status.DRAFT ? 'DRAFT' : 'PUBLISH'}</span>
           <div
             onClick={() => {
-              if (status === Status.PUBLISH) {
-                if (window.confirm('게시글을 미게시 상태로 변경하시겠습니까?')) {
-                  handleUnPublishClick()
-                }
-              }
+              onUnPublish()
             }}
             className={`relative w-16 h-8 rounded-full transition duration-300 border border-green-500 cursor-pointer
               ${status === Status.PUBLISH ? 'bg-green-600 shadow-[0_0_15px_#33ff33]' : 'bg-gray-700 cursor-not-allowed'}`}
