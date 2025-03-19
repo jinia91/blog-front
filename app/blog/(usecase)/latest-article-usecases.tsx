@@ -24,7 +24,7 @@ export const useLatestArticles = (): {
   const [hasMore, setHasMore] = useState(true)
 
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchArticlesByOffset(1, 5)
+    const initialArticles = await fetchArticlesByOffset(1, 5, true)
     setLoadedArticles(initialArticles)
     const tagMap = new Map<number, Tag>()
     initialArticles.forEach(post => {
@@ -37,7 +37,7 @@ export const useLatestArticles = (): {
 
   const getLatestArticles = async (): Promise<void> => {
     const cursor = getLatestArticleCursor()
-    const needToAdd = await fetchArticlesByOffset(cursor, 5)
+    const needToAdd = await fetchArticlesByOffset(cursor, 5, true)
     if (needToAdd.length === 0) {
       setHasMore(false)
       return

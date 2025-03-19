@@ -1,6 +1,6 @@
 import { atom, useAtom } from 'jotai'
 import { type Article } from '../(domain)/article'
-import { fetchDraftArticlesByOffset } from '../(infra)/article'
+import { fetchArticlesByOffset } from '../(infra)/article'
 import { useState } from 'react'
 
 const draftArticle = atom<Article[]>([])
@@ -15,13 +15,13 @@ export const useLatestDraftArticles = (): {
   const [hasMore, setHasMore] = useState(true)
 
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchDraftArticlesByOffset(1, 5)
+    const initialArticles = await fetchArticlesByOffset(1, 5, false)
     setLoadedArticles(initialArticles)
   }
 
   const getLatestDraftArticles = async (): Promise<void> => {
     const cursor = getLatestArticleCursor()
-    const needToAdd = await fetchDraftArticlesByOffset(cursor, 5)
+    const needToAdd = await fetchArticlesByOffset(1, 5, false)
     if (needToAdd.length === 0) {
       setHasMore(false)
       return
