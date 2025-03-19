@@ -16,7 +16,6 @@ export async function fetchArticlesByOffset (cursor: number, limit: number): Pro
     return []
   }
   const data = await response.json()
-  console.log('data', data)
   return data.map((article: any) => {
     return {
       id: article.id,

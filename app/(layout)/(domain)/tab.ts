@@ -19,6 +19,7 @@ export interface TabBarState {
 export const tabBarManager: {
   rebuildWithPath: (preState: TabBarState, path: string) => TabBarState
   removeTargetTabAndSelectNear: (pre: TabBarState, target: number) => TabBarState
+  removeTargetTabAndUpsert: (pre: TabBarState, target: number, newTab: Tab) => TabBarState
   moveSelectedTabTo: (pre: TabBarState, to: number) => TabBarState
   removeTargetTabsAndSelect: (pre: TabBarState, targets: number[]) => TabBarState
 } = {
@@ -94,5 +95,17 @@ export const tabBarManager: {
         : 0
       : asIsSelectedIndexBasedNewTabs
     return { tabs: newTabs, selectedTabIndex: newSelectedTabIdx }
+  },
+
+  removeTargetTabAndUpsert (pre: TabBarState, target: number, newTab: Tab): TabBarState {
+    const newTabs = pre.tabs.filter((_, idx) => idx !== target)
+    const idx = newTabs.findIndex(tab => tab.urlPath === newTab.urlPath)
+    console.log('idx', idx)
+    console.log('newTabs', newTabs)
+    if (idx === -1) {
+      return { tabs: [...newTabs, newTab], selectedTabIndex: newTabs.length }
+    } else {
+      return { tabs: newTabs, selectedTabIndex: idx }
+    }
   }
 }

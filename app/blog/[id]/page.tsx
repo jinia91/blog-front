@@ -65,12 +65,13 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
 
         <div className="border-b border-gray-700 mt-6 mb-6"/>
 
-        <div className="bottom-4 right-4 flex gap-2">
-          <EditButton
-            articleId={article.id.toString()}
-          />
-          <DeleteButton/>
+        <div className="flex justify-end mt-4">
+          <EditButton articleId={article.id.toString()}/>
+          <DeleteButton articleId={article.id.toString()}/>
         </div>
+
+        <div className="border-b border-gray-700 mt-6 mb-6"/>
+
       </div>
     </div>
   )

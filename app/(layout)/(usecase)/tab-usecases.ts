@@ -25,6 +25,7 @@ export function useTabBarAndRouter (): {
   initializeTabBar: (path: string) => void
   selectTab: (index: number) => void
   closeTab: (target: number) => void
+  closeAndNewTab: (target: number, newTab: Tab) => void
   moveSelectedTabTo: (to: number) => void
   upsertAndSelectTab: (newTab: Tab) => void
   closeAllTabs: () => void
@@ -52,6 +53,13 @@ export function useTabBarAndRouter (): {
   const closeTab = (target: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
     const toBe = tabBarManager.removeTargetTabAndSelectNear(pre, target)
+    setTabBarAndRoute(toBe)
+  }
+
+  const closeAndNewTab = (target: number, newTab: Tab): void => {
+    const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
+    console.log('pre', pre)
+    const toBe = tabBarManager.removeTargetTabAndUpsert(pre, target, newTab)
     setTabBarAndRoute(toBe)
   }
 
@@ -120,6 +128,7 @@ export function useTabBarAndRouter (): {
   return {
     tabs: tabsAtom,
     selectedTabIdx: selectedTabIdxAtom,
+    closeAndNewTab,
     initializeTabBar,
     selectTab,
     upsertAndSelectTab,

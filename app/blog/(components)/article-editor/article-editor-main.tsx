@@ -1,10 +1,12 @@
 'use client'
 import React, { useCallback, useEffect } from 'react'
 import { Status, useArticleEditSystem } from '../../(usecase)/article-system-usecases'
-import { deleteArticle, fetchDraftArticleById, publishArticle, unpublishArticle } from '../../(infra)/article'
+import { fetchDraftArticleById, publishArticle, unpublishArticle } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import useArticleStompClient from './article-stomp-client'
-import { useRouter } from 'next/navigation'
+import DeleteButton from '../delete-button'
+import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
+import { ApplicationType, type Tab } from '../../../(layout)/(domain)/tab'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const {
@@ -20,6 +22,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     status,
     setStatus
   } = useArticleEditSystem()
+  const { selectedTabIdx, tabs, closeAndNewTab } = useTabBarAndRouter()
 
   useEffect(() => {
     async function load (): Promise<void> {
@@ -37,7 +40,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
   }, [articleId])
 
   useArticleStompClient(articleId, articleTitle, articleContent, thumbnail)
-  const router = useRouter()
+
   const handleImageUpload = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
     const items = event.clipboardData.items
     try {
@@ -52,37 +55,30 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     } catch (error) {
       console.error('Error uploading image:', error)
     }
-  }, [])
+  }, [articleContent])
 
   const handleThumbnailUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file != null) {
       void uploadThumbnail(file)
     }
-  }, [])
+  }, [thumbnail])
 
   const handlePublishClick = useCallback(() => {
     void publishArticle(articleId)
     setStatus(Status.PUBLISH)
-    router.push('/blog/' + articleId)
-    router.refresh()
-  }, [])
-
-  const handleDeleteClick = useCallback(() => {
-    void deleteArticle(articleId)
-    router.push('/blog')
-    router.refresh()
-  }, [])
+    const tab: Tab = { name: articleTitle, urlPath: `/blog/${articleId}`, type: ApplicationType.COMMON }
+    closeAndNewTab(selectedTabIdx, tab)
+  }, [tabs])
 
   const handleUnPublishClick = useCallback(() => {
     void unpublishArticle(articleId)
     setStatus(Status.DRAFT)
-    router.push('/blog')
-    router.refresh()
-  }, [])
+    closeAndNewTab(selectedTabIdx, { name: 'blog', urlPath: '/blog' })
+  }, [tabs])
 
   return (
-    <div className="flex-grow overflow-y-scroll border-2 p-4">
+    <div className="flex-grow overflow-y-scroll border-2 p-4 max-w-7xl mx-auto">
 
       {(
         <div className="relative">
@@ -105,7 +101,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
       )}
       <div className="mt-4 mb-4 flex items-center space-x-4 flex-grow w-full">
         <label htmlFor="file-upload"
-               className="cursor-pointer flex bg-green-600 text-black font-bold py-2 px-3 w-1/6 rounded shadow-lg hover:bg-green-500 text-center">
+               className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-600 hover:text-gray-200">
           📂 썸네일 파일 선택
         </label>
         <input
@@ -148,17 +144,10 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
             onClick={() => {
               handlePublishClick()
             }}
-            className="bg-green-600 hover:bg-green-500 text-black font-bold py-3 px-6 rounded shadow-lg border border-green-500"
-          >게시하기
+            className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-700 hover:text-gray-100 hover:shadow-green-400"
+          > PUBLISH
           </button>
-
-          <button
-            onClick={() => {
-              handleDeleteClick()
-            }}
-            className="bg-red-600 hover:bg-red-500 text-black font-bold py-3 px-6 rounded shadow-lg border border-red-500"
-          >삭제하기
-          </button>
+          <DeleteButton articleId={articleId}/>
         </div>
 
         <div className="relative flex items-center">

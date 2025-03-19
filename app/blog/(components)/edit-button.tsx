@@ -2,23 +2,23 @@
 
 import React from 'react'
 import { useSession } from '../../login/(usecase)/session-usecases'
-import { useRouter } from 'next/navigation'
+import { useTabBarAndRouter } from '../../(layout)/(usecase)/tab-usecases'
 
 export default function EditButton (
   { articleId }: { articleId: string }
 ): React.JSX.Element | null {
   const { session } = useSession()
-  const router = useRouter()
+  const { upsertAndSelectTab } = useTabBarAndRouter()
 
   return session?.roles.values().next().value === 'ADMIN'
     ? (
       <button
-        className="p-2 bg-green-400 text-white font-bold rounded-md hover:bg-green-500 transition-colors duration-200"
+        className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-700 hover:text-gray-100 hover:shadow-green-400"
         onClick={() => {
-          router.push('/blog/edit/' + articleId)
+          upsertAndSelectTab({ name: 'Edit Article', urlPath: `/blog/edit/${articleId}` })
         }}
       >
-        수정 하기
+        Edit
       </button>
       )
     : null
