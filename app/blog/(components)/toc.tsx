@@ -32,7 +32,7 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
 export const TOC = ({ tocData }: TOCProps): React.ReactElement => {
   const toc = getHeadingForTOC(tocData)
   return (
-    <nav className="p-5 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl">
+    <nav className="p-5 bg-gray-700 border border-gray-600 rounded-lg shadow-2xl">
       <h2 className="text-xl font-bold text-green-400 mb-3 border-b border-gray-700">Table of Contents</h2>
       <ul className="text-gray-300 space-y-2">
         {toc.map(({ level, text, id }) => (

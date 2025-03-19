@@ -57,7 +57,7 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
         <div className="border-b border-gray-700 mt-6"/>
 
         <div
-          className="lg:fixed lg:top-52 lg:right-12 bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700 hover:shadow-xl max-h-screen shadow-gray-600 opacity-75">
+          className="lg:fixed lg:top-52 lg:right-12 bg-gray-700 p-5 rounded-lg shadow-lg border border-gray-700 max-h-screen shadow-gray-600 opacity-75">
           <TOC tocData={article.content}/>
         </div>
         <div className="mt-4 text-gray-200 prose max-w-none dark:prose-invert overflow-y-auto"
