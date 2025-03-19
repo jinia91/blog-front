@@ -28,47 +28,49 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
 
   return (
     <div
-      className="relative m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 max-w-7xl mx-auto h-[80vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700">
+      className="relative m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 max-w-full mx-auto h-[80vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700">
+      <div
+        className="m-4 p-4 text-gray-300 bg-gray-900 mx-auto max-w-7xl">
+        <div className="relative">
+          <img src={article.thumbnail} alt={article.title} className="w-full h-96 object-center opacity-40"/>
 
-      <div className="relative">
-        <img src={article.thumbnail} alt={article.title} className="w-full h-96 object-center opacity-40"/>
-
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-          <h1 className="text-5xl font-bold text-green-400 drop-shadow-lg">{article.title}</h1>
-          <p className="text-gray-400 mt-2 text-lg">{new Date(article.createdAt).toLocaleDateString()}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+            <h1 className="text-5xl font-bold text-green-400 drop-shadow-lg">{article.title}</h1>
+            <p className="text-gray-400 mt-2 text-lg">{new Date(article.createdAt).toLocaleDateString()}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-4 text-center">
-        {article.tags.length > 0
-          ? (
-            <div className="flex flex-wrap justify-center gap-2">
-              Tags : {article.tags.map(tag => (
-              <span key={tag.name} className="px-3 py-1 bg-green-700 text-gray-100 rounded-full text-sm">
+        <div className="mt-4 text-center">
+          {article.tags.length > 0
+            ? (
+              <div className="flex flex-wrap justify-center gap-2">
+                Tags : {article.tags.map(tag => (
+                <span key={tag.name} className="px-3 py-1 bg-green-700 text-gray-100 rounded-full text-sm">
                 {tag.name}
               </span>
-            ))}
-            </div>
-            )
-          : null}
-      </div>
+              ))}
+              </div>
+              )
+            : null}
+        </div>
 
-      <div className="border-b border-gray-700 mt-6"/>
+        <div className="border-b border-gray-700 mt-6"/>
 
-      <div
-        className="lg:fixed lg:top-52 lg:right-12 bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700 hover:shadow-xl max-h-screen shadow-gray-600 opacity-75">
-        <TOC tocData={article.content}/>
-      </div>
-      <div className="mt-4 text-gray-200 prose max-w-none dark:prose-invert overflow-y-auto"
-           dangerouslySetInnerHTML={{ __html: rehypeHtml.toString() }}/>
+        <div
+          className="lg:fixed lg:top-52 lg:right-12 bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700 hover:shadow-xl max-h-screen shadow-gray-600 opacity-75">
+          <TOC tocData={article.content}/>
+        </div>
+        <div className="mt-4 text-gray-200 prose max-w-none dark:prose-invert overflow-y-auto"
+             dangerouslySetInnerHTML={{ __html: rehypeHtml.toString() }}/>
 
-      <div className="border-b border-gray-700 mt-6 mb-6"/>
+        <div className="border-b border-gray-700 mt-6 mb-6"/>
 
-      <div className="bottom-4 right-4 flex gap-2">
-        <EditButton
-          articleId={article.id.toString()}
-        />
-        <DeleteButton/>
+        <div className="bottom-4 right-4 flex gap-2">
+          <EditButton
+            articleId={article.id.toString()}
+          />
+          <DeleteButton/>
+        </div>
       </div>
     </div>
   )

@@ -220,7 +220,7 @@ export async function uploadImageToServer (imageFile: File): Promise<{ url: stri
 
 export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + `/v1/folders?query=${query}`,
+    return await fetch(HOST + `/v1/memos?query=${query}`,
       {
         cache: 'no-store',
         credentials: 'include',
@@ -236,7 +236,8 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
     return null
   }
   const data = await response.json()
-  return data.folderInfos[0].memos
+  console.log(data)
+  return data.result.memos
 }
 
 export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMemoInfo[] | null> {
