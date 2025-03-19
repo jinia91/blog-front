@@ -1,13 +1,49 @@
 import { type Article } from '../(domain)/article'
-import { mocks } from './mocks'
 import { HOST } from '../../(utils)/constants'
 import { withAuthRetry } from '../../login/(infra)/auth-api'
 
-export async function fetchArticlesByOffset (cursor: number): Promise<Article[]> {
-  if (cursor === 0) {
-    return mocks.slice(0, 5)
+export async function fetchArticlesByOffset (cursor: number, limit: number): Promise<Article[]> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/simple?cursor=' + cursor + '&limit=' + limit, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-cache'
+    })
   }
-  return mocks.slice(cursor, cursor + 5)
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('아티클 조회 실패')
+    return []
+  }
+  const data = await response.json()
+  console.log('data', data)
+  return data.map((article: any) => {
+    return {
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      thumbnail: article.thumbnailUrl,
+      tags: Array.isArray(article.tags) ? article.tags : [],
+      likes: 1,
+      comments: 1,
+      createdAt: new Date(article.createdAt),
+      isPublished: true
+    }
+  })
+}
+
+export async function publishArticle (id: string): Promise<boolean> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/' + id + '/publish', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  return response.ok
 }
 
 export async function fetchArticleById (id: number): Promise<Article | undefined> {
@@ -24,7 +60,6 @@ export async function fetchArticleById (id: number): Promise<Article | undefined
     return undefined
   }
   const data = await response.json()
-  console.log(data)
   return {
     id: data.id,
     title: data.title,
@@ -33,7 +68,8 @@ export async function fetchArticleById (id: number): Promise<Article | undefined
     tags: data.tags,
     likes: 1,
     comments: 1,
-    createdAt: new Date(data.createdAt)
+    createdAt: new Date(data.createdAt),
+    isPublished: data.isPublished
   }
 }
 

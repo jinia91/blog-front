@@ -4,7 +4,13 @@ import PostCard from './post-card'
 import { useBlogSystem } from '../(usecase)/blog-system-usecases'
 
 export default function LatestSection (): React.ReactElement {
-  const { initialLoad, getLatestArticleFilteredBySelectedTags, getLatestArticles, selectedTags } = useBlogSystem()
+  const {
+    initialLoad,
+    getLatestArticleFilteredBySelectedTags,
+    getLatestArticles,
+    selectedTags,
+    hasMore
+  } = useBlogSystem()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
 
@@ -13,12 +19,12 @@ export default function LatestSection (): React.ReactElement {
   }, [])
 
   const loadMorePosts = useCallback(async () => {
+    if (!hasMore) return
     await getLatestArticles()
-  }, [getLatestArticles, getLatestArticleFilteredBySelectedTags])
+  }, [getLatestArticles, getLatestArticleFilteredBySelectedTags, hasMore])
 
   useEffect(() => {
-    if (lastPostRef.current == null) return
-
+    if (lastPostRef.current == null || !hasMore) return
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -35,7 +41,7 @@ export default function LatestSection (): React.ReactElement {
         observerRef.current.disconnect()
       }
     }
-  }, [loadMorePosts, getLatestArticleFilteredBySelectedTags])
+  }, [loadMorePosts, getLatestArticleFilteredBySelectedTags, hasMore])
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">
@@ -51,13 +57,17 @@ export default function LatestSection (): React.ReactElement {
         </div>
       </header>
 
-      <main className="flex flex-col gap-2 p-2">
+      <main className="flex flex-col gap-2 p-10">
         {getLatestArticleFilteredBySelectedTags().map((post, index) => (
           <div key={post.id} ref={index === getLatestArticleFilteredBySelectedTags().length - 1 ? lastPostRef : null}>
             <PostCard article={post}/>
           </div>
         ))}
       </main>
+
+      {!hasMore && (
+        <p className="text-center text-gray-500 p-2 text-lg">No more posts</p>
+      )}
     </div>
   )
 }

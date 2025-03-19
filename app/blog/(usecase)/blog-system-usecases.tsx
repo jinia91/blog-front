@@ -2,6 +2,7 @@ import { atom, useAtom } from 'jotai'
 import { type Tag } from '../(domain)/tag'
 import { type Article } from '../(domain)/article'
 import { fetchArticlesByOffset } from '../(infra)/article'
+import { useState } from 'react'
 
 const tagsAtom = atom<Tag[]>([])
 const selectedTagsAtom = atom<Tag[]>([])
@@ -15,12 +16,15 @@ export const useBlogSystem = (): {
   selectTag: (tag: Tag) => void
   unselectTag: (tag: Tag) => void
   getLatestArticleFilteredBySelectedTags: () => Article[]
+  hasMore: boolean
 } => {
   const [tags, setTags] = useAtom(tagsAtom)
   const [selectedTags, setSelectedTags] = useAtom(selectedTagsAtom)
   const [loadedArticles, setLoadedArticles] = useAtom(articlesAtom)
+  const [hasMore, setHasMore] = useState(true)
+
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchArticlesByOffset(0)
+    const initialArticles = await fetchArticlesByOffset(1, 5)
     setLoadedArticles(initialArticles)
     const tagMap = new Map<number, Tag>()
     initialArticles.forEach(post => {
@@ -33,7 +37,11 @@ export const useBlogSystem = (): {
 
   const getLatestArticles = async (): Promise<void> => {
     const cursor = getLatestArticleCursor()
-    const needToAdd = await fetchArticlesByOffset(cursor)
+    const needToAdd = await fetchArticlesByOffset(cursor, 5)
+    if (needToAdd.length === 0) {
+      setHasMore(false)
+      return
+    }
     setLoadedArticles([...loadedArticles, ...needToAdd])
     const tagMap = new Map<number, Tag>()
     loadedArticles.forEach(post => {
@@ -70,6 +78,7 @@ export const useBlogSystem = (): {
   }
 
   return {
+    hasMore,
     initialLoad,
     getLatestArticles,
     getLatestArticleFilteredBySelectedTags,

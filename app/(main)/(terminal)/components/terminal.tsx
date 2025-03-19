@@ -17,7 +17,11 @@ export default function Terminal (): React.ReactElement {
 
   return (
     <div
-      className="mx-auto bg-gray-900 rounded-lg shadow-lg font-mono text-sm text-gray-200 overflow-y-auto"
+      className="
+      relative before:content-[''] before:absolute before:inset-0
+        before:bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_80%,rgba(0,0,0,0.25)_80%)]
+        before:bg-[length:100%_8px] before:pointer-events-none
+      mx-auto bg-gray-900 rounded-lg shadow-lg font-mono text-sm text-gray-200 overflow-y-auto"
       style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
     >
       <div className="p-4">

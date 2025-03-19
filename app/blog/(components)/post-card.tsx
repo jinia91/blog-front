@@ -6,7 +6,7 @@ export default function PostCard ({ article }: { article: Article }): React.Reac
   return (
     <TabOpen name={article.title} href={'/blog/' + article.id}>
       <article
-        className="flex flex-col sm:flex-row items-start gap-4 p-4 border border-gray-700 rounded-lg shadow-md bg-gray-900 hover:shadow-lg transition-all duration-300">
+        className="flex flex-col sm:flex-row items-start gap-4 p-4 border border-gray-700 rounded-lg shadow-md bg-gray-900 hover:shadow-lg hover:border-green-400 hover:scale-y-105 transition-all duration-300">
         <img
           src={article.thumbnail}
           alt={article.title}

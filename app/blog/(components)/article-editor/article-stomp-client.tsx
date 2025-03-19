@@ -42,7 +42,7 @@ const useArticleStompClient = (
 
   useEffect(() => {
     debouncedUpdateMemo()
-  }, [articleContent, articleTitle])
+  }, [articleContent, articleTitle, thumbnail])
 
   const debouncedUpdateMemo = useDebouncedCallback(() => {
     if ((stompClient != null) && (articleId !== '')) {
