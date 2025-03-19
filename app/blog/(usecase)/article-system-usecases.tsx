@@ -2,6 +2,12 @@ import { useState } from 'react'
 import { type Tag } from '../(domain)/tag'
 import { uploadImageToServer } from '../../memo/(infra)/memo'
 
+export enum Status {
+  DELETE,
+  DRAFT,
+  PUBLISH
+}
+
 export const useArticleEditSystem = (): {
   articleTitle: string
   setArticleTitle: (title: string) => void
@@ -13,11 +19,14 @@ export const useArticleEditSystem = (): {
   setThumbnail: (thumbnail: string) => void
   uploadThumbnail: (file: File) => Promise<void>
   uploadImageOnContents: (file: File) => Promise<void>
+  status: Status
+  setStatus: (status: Status) => void
 } => {
   const [articleTitle, setArticleTitle] = useState<string>('')
   const [articleContent, setArticleContent] = useState<string>('')
   const [articleTags, setArticleTags] = useState<Tag[]>([])
   const [thumbnail, setThumbnail] = useState<string>('')
+  const [status, setStatus] = useState<Status>(Status.DRAFT)
 
   const uploadThumbnail = async (file: File): Promise<void> => {
     if (file != null) {
@@ -52,6 +61,8 @@ export const useArticleEditSystem = (): {
     thumbnail,
     setThumbnail,
     uploadThumbnail,
-    uploadImageOnContents
+    uploadImageOnContents,
+    status,
+    setStatus
   }
 }

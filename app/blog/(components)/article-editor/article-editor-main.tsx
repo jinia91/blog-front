@@ -1,12 +1,12 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
-import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
-import { fetchArticleById, publishArticle } from '../../(infra)/article'
+import React, { useCallback, useEffect } from 'react'
+import { Status, useArticleEditSystem } from '../../(usecase)/article-system-usecases'
+import { deleteArticle, fetchDraftArticleById, publishArticle, unpublishArticle } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import useArticleStompClient from './article-stomp-client'
 import { useRouter } from 'next/navigation'
 
-export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
+export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const {
     articleTitle,
     setArticleTitle,
@@ -16,48 +16,28 @@ export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string 
     thumbnail,
     setThumbnail,
     uploadThumbnail,
-    uploadImageOnContents
+    uploadImageOnContents,
+    status,
+    setStatus
   } = useArticleEditSystem()
-
-  const [isPublished, setIsPublished] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     async function load (): Promise<void> {
-      const article = await fetchArticleById(Number(pageMemoId))
+      const article = await fetchDraftArticleById(Number(articleId))
       if (article != null) {
         setArticleTitle(article.title)
         setArticleContent(article.content)
         setArticleTags(article.tags)
         setThumbnail(article.thumbnail)
-        setIsPublished(article.isPublished || false)
+        article.isPublished ? setStatus(Status.PUBLISH) : setStatus(Status.DRAFT)
       }
     }
 
     void load()
-  }, [pageMemoId])
+  }, [articleId])
 
-  useArticleStompClient(pageMemoId, articleTitle, articleContent, thumbnail)
-
-  const handleTogglePublish = async () => {
-    const confirmToggle = window.confirm(isPublished ? '게시를 취소하시겠습니까?' : '게시하시겠습니까?')
-
-    if (!confirmToggle) return
-
-    try {
-      const response = await publishArticle(pageMemoId)
-      if (response) {
-        setIsPublished(prev => !prev)
-        router.push('/blog/' + pageMemoId)
-      } else {
-        alert('게시 상태 변경에 실패했습니다.')
-      }
-    } catch (error) {
-      console.error('Error updating publish status:', error)
-      alert('서버 오류가 발생했습니다.')
-    }
-  }
-
+  useArticleStompClient(articleId, articleTitle, articleContent, thumbnail)
+  const router = useRouter()
   const handleImageUpload = useCallback(async (event: React.ClipboardEvent<HTMLDivElement>) => {
     const items = event.clipboardData.items
     try {
@@ -79,6 +59,26 @@ export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string 
     if (file != null) {
       void uploadThumbnail(file)
     }
+  }, [])
+
+  const handlePublishClick = useCallback(() => {
+    void publishArticle(articleId)
+    setStatus(Status.PUBLISH)
+    router.push('/blog/' + articleId)
+    router.refresh()
+  }, [])
+
+  const handleDeleteClick = useCallback(() => {
+    void deleteArticle(articleId)
+    router.push('/blog')
+    router.refresh()
+  }, [])
+
+  const handleUnPublishClick = useCallback(() => {
+    void unpublishArticle(articleId)
+    setStatus(Status.DRAFT)
+    router.push('/blog')
+    router.refresh()
   }, [])
 
   return (
@@ -142,23 +142,46 @@ export default function ArticleEditorMain ({ pageMemoId }: { pageMemoId: string 
           className={'border-2 flex-grow'}
         />
       </div>
-      <div className="flex justify-end items-center mt-4 w-full">
+      <div className="flex justify-between items-center mt-4 w-full">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => {
+              handlePublishClick()
+            }}
+            className="bg-green-600 hover:bg-green-500 text-black font-bold py-3 px-6 rounded shadow-lg border border-green-500"
+          >게시하기
+          </button>
+
+          <button
+            onClick={() => {
+              handleDeleteClick()
+            }}
+            className="bg-red-600 hover:bg-red-500 text-black font-bold py-3 px-6 rounded shadow-lg border border-red-500"
+          >삭제하기
+          </button>
+        </div>
+
         <div className="relative flex items-center">
-          <span className="text-green-400 font-mono mr-3">{isPublished ? 'PUBLISHED' : 'DRAFT'}</span>
+          <span className="text-green-400 font-mono mr-3">{status === Status.DRAFT ? 'DRAFT' : 'PUBLISH'}</span>
           <div
-            onClick={handleTogglePublish}
-            className={`relative w-16 h-8 rounded-full cursor-pointer transition duration-300 border border-green-500
-              ${isPublished ? 'bg-green-600 shadow-[0_0_15px_#33ff33]' : 'bg-gray-700'}`}
+            onClick={() => {
+              if (status === Status.PUBLISH) {
+                if (window.confirm('게시글을 미게시 상태로 변경하시겠습니까?')) {
+                  handleUnPublishClick()
+                }
+              }
+            }}
+            className={`relative w-16 h-8 rounded-full transition duration-300 border border-green-500 cursor-pointer
+              ${status === Status.PUBLISH ? 'bg-green-600 shadow-[0_0_15px_#33ff33]' : 'bg-gray-700 cursor-not-allowed'}`}
           >
             <div
               className={`absolute top-1 left-1 w-6 h-6 rounded-full transition-transform duration-300 shadow-md ${
-                isPublished ? 'translate-x-8 bg-green-500 shadow-[0_0_10px_#33ff33]' : 'translate-x-0 bg-gray-400'
+                status === Status.PUBLISH ? 'translate-x-8 bg-green-500 shadow-[0_0_10px_#33ff33]' : 'translate-x-0 bg-gray-400'
               }`}
             />
           </div>
         </div>
       </div>
-
     </div>
   )
 }

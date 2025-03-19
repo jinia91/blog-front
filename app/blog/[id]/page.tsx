@@ -7,6 +7,8 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { remark } from 'remark'
 import { TOC } from '../(components)/toc'
+import EditButton from '../(components)/edit-button'
+import DeleteButton from '../(components)/delete-button'
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
   const article = await fetchArticleById(Number(params.id))
@@ -59,6 +61,15 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
       </div>
       <div className="mt-4 text-gray-200 prose max-w-none dark:prose-invert overflow-y-auto"
            dangerouslySetInnerHTML={{ __html: rehypeHtml.toString() }}/>
+
+      <div className="border-b border-gray-700 mt-6 mb-6"/>
+
+      <div className="bottom-4 right-4 flex gap-2">
+        <EditButton
+          articleId={article.id.toString()}
+        />
+        <DeleteButton/>
+      </div>
     </div>
   )
 }
