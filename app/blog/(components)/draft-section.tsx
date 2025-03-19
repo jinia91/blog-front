@@ -1,16 +1,15 @@
 'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
 import PostCard from './post-card'
-import { useLatestArticles } from '../(usecase)/latest-article-usecases'
+import { useLatestDraftArticles } from '../(usecase)/draft-article-usecases'
 
-export default function LatestSection (): React.ReactElement {
+export default function DraftSection (): React.ReactElement {
   const {
     initialLoad,
-    getLatestArticleFilteredBySelectedTags,
-    getLatestArticles,
-    selectedTags,
-    hasMore
-  } = useLatestArticles()
+    getLatestDraftArticles,
+    hasMore,
+    loadedDraftArticles
+  } = useLatestDraftArticles()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
 
@@ -20,8 +19,8 @@ export default function LatestSection (): React.ReactElement {
 
   const loadMorePosts = useCallback(async () => {
     if (!hasMore) return
-    await getLatestArticles()
-  }, [getLatestArticles, getLatestArticleFilteredBySelectedTags, hasMore])
+    await getLatestDraftArticles()
+  }, [getLatestDraftArticles, hasMore])
 
   useEffect(() => {
     if (lastPostRef.current == null || !hasMore) return
@@ -41,26 +40,22 @@ export default function LatestSection (): React.ReactElement {
         observerRef.current.disconnect()
       }
     }
-  }, [loadMorePosts, getLatestArticleFilteredBySelectedTags, hasMore])
+  }, [loadMorePosts, hasMore])
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">
       <header className="px-2 py-2">
         <div className="flex items-center">
           <div className="flex-grow border-t animate-glow border-green-400"></div>
-          <h1 className="px-2 text-lg font-bold text-green-400">{
-            selectedTags.length > 0
-              ? `#${selectedTags.map(tag => tag.name).join(', #')}`
-              : 'Latest Posts'
-          }</h1>
+          <h1 className="px-2 text-lg font-bold text-green-400">{'Draft Posts'}</h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>
         </div>
       </header>
 
       <main className="flex flex-col gap-2 p-10">
-        {getLatestArticleFilteredBySelectedTags().map((post, index) => (
-          <div key={post.id} ref={index === getLatestArticleFilteredBySelectedTags().length - 1 ? lastPostRef : null}>
-            <PostCard article={post}/>
+        {loadedDraftArticles.map((article, index) => (
+          <div key={article.id} ref={index === loadedDraftArticles.length - 1 ? lastPostRef : null}>
+            <PostCard article={article}/>
           </div>
         ))}
       </main>

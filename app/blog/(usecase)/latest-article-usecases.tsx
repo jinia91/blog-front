@@ -8,7 +8,7 @@ const tagsAtom = atom<Tag[]>([])
 const selectedTagsAtom = atom<Tag[]>([])
 const articlesAtom = atom<Article[]>([])
 
-export const useBlogSystem = (): {
+export const useLatestArticles = (): {
   initialLoad: () => Promise<void>
   getLatestArticles: () => Promise<void>
   tags: Tag[]

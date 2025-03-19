@@ -4,7 +4,7 @@ import { withAuthRetry } from '../../login/(infra)/auth-api'
 
 export async function fetchArticlesByOffset (cursor: number, limit: number): Promise<Article[]> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/simple?cursor=' + cursor + '&limit=' + limit, {
+    return await fetch(HOST + '/v1/articles/simple?cursor=' + cursor + '&limit=' + limit + '&status=PUBLISHED', {
       method: 'GET',
       credentials: 'include',
       cache: 'no-cache'
@@ -13,6 +13,36 @@ export async function fetchArticlesByOffset (cursor: number, limit: number): Pro
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
     console.error('아티클 조회 실패')
+    return []
+  }
+  const data = await response.json()
+  return data.map((article: any) => {
+    return {
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      thumbnail: article.thumbnailUrl,
+      tags: Array.isArray(article.tags) ? article.tags : [],
+      likes: 1,
+      comments: 1,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      createdAt: new Date(article.createdAt),
+      isPublished: true
+    }
+  })
+}
+
+export async function fetchDraftArticlesByOffset (cursor: number, limit: number): Promise<Article[]> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/simple?cursor=' + cursor + '&limit=' + limit + '&status=DRAFT', {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-cache'
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.error('초안 아티클 조회 실패')
     return []
   }
   const data = await response.json()
