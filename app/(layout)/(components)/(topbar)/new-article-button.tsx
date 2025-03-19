@@ -6,7 +6,7 @@ import { useTabBarAndRouter } from '../../(usecase)/tab-usecases'
 
 const NewArticleButton: React.FC = () => {
   const { session } = useSession()
-  const { upsertAndSelectTab } = useTabBarAndRouter()
+  const { upsertAndSelectTab, tabs } = useTabBarAndRouter()
 
   const createArticle = async (): Promise<string | null> => {
     try {
@@ -27,7 +27,7 @@ const NewArticleButton: React.FC = () => {
       .catch(error => {
         console.error('새로운 글 생성 실패:', error)
       })
-  }, [])
+  }, [tabs])
 
   if (session == null || !(session?.roles.values().next().value === 'ADMIN')) {
     return null
