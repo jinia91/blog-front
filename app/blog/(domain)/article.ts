@@ -11,3 +11,9 @@ export interface Article {
   createdAt: Date
   isPublished: boolean
 }
+
+export enum Status {
+  DELETE,
+  DRAFT,
+  PUBLISHED
+}

@@ -33,28 +33,16 @@ export async function fetchArticlesByOffset (cursor: number, limit: number, isPu
   })
 }
 
-export async function publishArticle (id: string): Promise<boolean> {
+export async function changeStatusArticle (id: string, asIs: string, toBe: string): Promise<boolean> {
+  console.log('changeStatusArticle', id, asIs, toBe)
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + id + '/publish', {
-      method: 'PUT',
+    return await fetch(HOST + '/v1/articles/' + id, {
+      method: 'PATCH',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
-      }
-    })
-  }
-  const response = await withAuthRetry(apiCall)
-  return response.ok
-}
-
-export async function unpublishArticle (id: string): Promise<boolean> {
-  const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + id + '/draft', {
-      method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ toBeStatus: toBe, asIsStatus: asIs })
     })
   }
   const response = await withAuthRetry(apiCall)
@@ -72,37 +60,9 @@ export async function deleteArticle (id: string): Promise<boolean> {
   return response.ok
 }
 
-export async function fetchDraftArticleById (id: number): Promise<Article | undefined> {
+export async function fetchArticleById (id: number, status: string): Promise<Article | undefined> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + id + '/draft', {
-      method: 'GET',
-      credentials: 'include',
-      cache: 'no-cache'
-    })
-  }
-  const response = await withAuthRetry(apiCall)
-  if (!response.ok) {
-    console.error('아티클 조회 실패')
-    return undefined
-  }
-  const data = await response.json()
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    thumbnail: data.thumbnailUrl,
-    tags: data.tags,
-    likes: 1,
-    comments: 1,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    createdAt: new Date(data.createdAt),
-    isPublished: data.isPublished
-  }
-}
-
-export async function fetchArticleById (id: number): Promise<Article | undefined> {
-  const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + id, {
+    return await fetch(HOST + '/v1/articles/' + id + '?status=' + status, {
       method: 'GET',
       credentials: 'include',
       cache: 'no-cache'

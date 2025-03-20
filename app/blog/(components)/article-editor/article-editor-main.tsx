@@ -1,12 +1,13 @@
 'use client'
 import React, { useEffect } from 'react'
-import { Status, useArticleEditSystem } from '../../(usecase)/article-system-usecases'
-import { fetchDraftArticleById, publishArticle, unpublishArticle } from '../../(infra)/article'
+import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
+import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import useArticleStompClient from './article-stomp-client'
 import DeleteButton from '../delete-button'
 import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 import { ApplicationType } from '../../../(layout)/(domain)/tab'
+import { Status } from '../../(domain)/article'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const {
@@ -26,13 +27,13 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
 
   useEffect(() => {
     async function load (): Promise<void> {
-      const article = await fetchDraftArticleById(Number(articleId))
+      const article = await fetchArticleById(Number(articleId), Status[Status.DRAFT])
       if (article != null) {
         setArticleTitle(article.title)
         setArticleContent(article.content)
         setArticleTags(article.tags)
         setThumbnail(article.thumbnail)
-        article.isPublished ? setStatus(Status.PUBLISH) : setStatus(Status.DRAFT)
+        article.isPublished ? setStatus(Status.PUBLISHED) : setStatus(Status.DRAFT)
       }
     }
 
@@ -42,18 +43,18 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
   useArticleStompClient(articleId, articleTitle, articleContent, thumbnail)
 
   function onUnPublish (): void {
-    if (status === Status.PUBLISH) {
+    if (status === Status.PUBLISHED) {
       if (window.confirm('게시글을 미게시 상태로 변경하시겠습니까?')) {
-        void unpublishArticle(articleId)
+        void changeStatusArticle(articleId, Status[Status.PUBLISHED], Status[Status.DRAFT])
         setStatus(Status.DRAFT)
-        closeAndNewTab(selectedTabIdx, { name: 'blog', urlPath: '/blog' })
+        closeAndNewTab(selectedTabIdx, { name: 'blog', urlPath: '/blog', type: ApplicationType.COMMON })
       }
     }
   }
 
-  function onDelete (): void {
-    void publishArticle(articleId)
-    setStatus(Status.PUBLISH)
+  function onPublish (): void {
+    void changeStatusArticle(articleId, Status[status], Status[Status.PUBLISHED])
+    setStatus(Status.PUBLISHED)
     closeAndNewTab(selectedTabIdx, {
       name: articleTitle,
       urlPath: `/blog/${articleId}`,
@@ -143,7 +144,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
         <div className="flex space-x-4">
           <button
             onClick={() => {
-              onDelete()
+              onPublish()
             }}
             className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-700 hover:text-gray-100 hover:shadow-green-400"
           > PUBLISH
@@ -152,17 +153,17 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
         </div>
 
         <div className="relative flex items-center">
-          <span className="text-green-400 font-mono mr-3">{status === Status.DRAFT ? 'DRAFT' : 'PUBLISH'}</span>
+          <span className="text-green-400 font-mono mr-3">{status === Status.DRAFT ? 'DRAFT' : 'PUBLISHED'}</span>
           <div
             onClick={() => {
               onUnPublish()
             }}
             className={`relative w-16 h-8 rounded-full transition duration-300 border border-green-500 cursor-pointer
-              ${status === Status.PUBLISH ? 'bg-green-600 shadow-[0_0_15px_#33ff33]' : 'bg-gray-700 cursor-not-allowed'}`}
+              ${status === Status.PUBLISHED ? 'bg-green-600 shadow-[0_0_15px_#33ff33]' : 'bg-gray-700 cursor-not-allowed'}`}
           >
             <div
               className={`absolute top-1 left-1 w-6 h-6 rounded-full transition-transform duration-300 shadow-md ${
-                status === Status.PUBLISH ? 'translate-x-8 bg-green-500 shadow-[0_0_10px_#33ff33]' : 'translate-x-0 bg-gray-400'
+                status === Status.PUBLISHED ? 'translate-x-8 bg-green-500 shadow-[0_0_10px_#33ff33]' : 'translate-x-0 bg-gray-400'
               }`}
             />
           </div>

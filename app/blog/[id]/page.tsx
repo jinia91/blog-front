@@ -9,9 +9,10 @@ import { remark } from 'remark'
 import { TOC } from '../(components)/toc'
 import EditButton from '../(components)/edit-button'
 import DeleteButton from '../(components)/delete-button'
+import { Status } from '../(domain)/article'
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
-  const article = await fetchArticleById(Number(params.id))
+  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
 
   if (article == null) {
     notFound()

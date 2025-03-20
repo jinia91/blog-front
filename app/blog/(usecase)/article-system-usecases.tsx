@@ -1,12 +1,8 @@
+'use client'
 import { useState } from 'react'
 import { type Tag } from '../(domain)/tag'
 import { uploadImageToServer } from '../../memo/(infra)/memo'
-
-export enum Status {
-  DELETE,
-  DRAFT,
-  PUBLISH
-}
+import { Status } from '../(domain)/article'
 
 export const useArticleEditSystem = (): {
   articleTitle: string
