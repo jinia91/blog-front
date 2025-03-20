@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSectionMode } from '../(usecase)/section-toggle-usecases'
+import { useSectionMode } from '../../(usecase)/section-toggle-usecases'
 import { PublicIcon } from './Public-icon'
 import { DraftIcon } from './Draft-icon'
 

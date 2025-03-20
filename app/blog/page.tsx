@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import LatestSection from './(components)/latest-section'
-import AsideSection from './(components)/aside-section'
+import AsideSection from './(components)/aside/aside-section'
 import { useSectionMode } from './(usecase)/section-toggle-usecases'
 import DraftSection from './(components)/draft-section'
 
