@@ -73,7 +73,7 @@ export function useTabBarAndRouter (): {
     const isExist = foundIdx !== -1
     if (isExist) {
       const updatedTabs = tabsAtom.map((tab, idx) =>
-        idx === foundIdx ? { ...tab, title: newTab.name } : tab
+        idx === foundIdx ? { ...tab, name: newTab.name } : tab
       )
       setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: foundIdx })
     } else {
