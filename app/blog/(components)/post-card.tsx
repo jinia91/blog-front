@@ -38,8 +38,8 @@ export default function PostCard ({ article, isPublished }: {
           )}
           <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
             <div className="flex items-center gap-2">
-              <span>❤ {article.likes}</span>
-              <span>💬 {article.comments}</span>
+              {/* <span>❤ {article.likes}</span> */}
+              {/* <span>💬 {article.comments}</span> */}
             </div>
           </div>
         </div>
