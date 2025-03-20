@@ -16,9 +16,9 @@ import MDEditor, {
 } from '@uiw/react-md-editor'
 import { type Memo, type ReferenceInfo } from '../../(domain)/memo'
 import { RelatedMemoModal } from './related-memo-modal'
-import { fetchMemoById, uploadImage } from '../../(infra)/memo'
+import { fetchMemoById, uploadImageToServer } from '../../(infra)/memo'
 import { MemoTitleInput } from './memo-title-edit-input'
-import useStompClient from './memo-edit-websocket'
+import useMemoStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { Code, timestamp } from './memo-editor-plugins'
 import { createReferenceLinkCommand } from './memo-reference-link'
@@ -31,7 +31,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
   const [references, setReferences] = useState<ReferenceInfo[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [resolveSelection, setResolveSelection] = useState<(value: any) => null>()
-  useStompClient(pageMemoId, memoEditorSharedContext.title, content, references, setReferences)
+  useMemoStompClient(pageMemoId, memoEditorSharedContext.title, content, references, setReferences)
 
   useEffect(() => {
     async function load (): Promise<void> {
@@ -58,7 +58,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
         if (item.type.indexOf('image') === 0) {
           const file = item.getAsFile()
           if (file != null) {
-            const data = await uploadImage(file)
+            const data = await uploadImageToServer(file)
             if (data === null) {
               throw new Error('이미지 업로드 통신 실패')
             }

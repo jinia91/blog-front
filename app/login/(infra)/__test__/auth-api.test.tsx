@@ -46,7 +46,7 @@ describe('재로그인 데코레이터 테스트', () => {
     expect(unUsedSessionInfo).toEqual(unUsedSessionInfo)
   })
 
-  it('콜백요청 401이 발생하고 로그인 시도시 실패하면 에러가 발생한다', async () => {
+  it('콜백요청 401이 발생하고 로그인 시도시 실패하면 401이된다', async () => {
     // given
     const callback = async (): Promise<Response> => {
       return await fetch(HOST + '/test', {
@@ -67,7 +67,7 @@ describe('재로그인 데코레이터 테스트', () => {
     }) as Mock
 
     // when, then
-    await expect(withAuthRetry(callback)).rejects.toThrow()
+    await expect(withAuthRetry(callback)).resolves.toEqual({ ok: false, status: 401 })
   })
 
   it('콜백 요청이 성공하면 템플릿요청은 동작하지 않고 콜백 응답만 수행한다', async () => {

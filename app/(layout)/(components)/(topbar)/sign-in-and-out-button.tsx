@@ -23,7 +23,7 @@ export default function SignInAndOutButton (): React.ReactElement {
   return (
     session != null
       ? (
-        <div className="retro-container rounded-lg inline-flex items-center pr-4">
+        <div className="retro-container rounded-lg inline-flex items-center">
           <Image
             src={session.picUrl}
             alt={'프로필 사진'}

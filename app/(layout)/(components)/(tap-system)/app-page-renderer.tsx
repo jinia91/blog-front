@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import MemoSystemMain from '../../../memo/(components)/memo-system-main'
@@ -13,7 +14,7 @@ export function RenderApp ({ page }: {
 
   function renderOthers (): React.ReactElement | null {
     return (
-      <div className="bg-gray-700 p-4 rounded-b-lg overflow-auto">
+      <div className="bg-gray-700 sm:p-2 rounded-b-lg overflow-auto pt-2">
         {page}
       </div>
     )

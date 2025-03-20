@@ -1,8 +1,10 @@
+'use client'
 import DarkLightToggle from './dark-light-toggle'
 import React from 'react'
 import SideBarToggle from './side-bar-toggle'
 import TabOpen from '../(tap-system)/tab-open'
 import SignInAndOutButton from './sign-in-and-out-button'
+import NewArticleButton from '../../../blog/(components)/new-article-button'
 
 export default function TopNavMain (): React.ReactElement {
   return (
@@ -14,9 +16,10 @@ export default function TopNavMain (): React.ReactElement {
           {"__JINIA'S_LOG__!!"}
           </span>
         </TabOpen>
-        <div className="flex items-center">
+        <div className="flex items-center space-x-3">
           <SignInAndOutButton/>
           <DarkLightToggle/>
+          <NewArticleButton/>
         </div>
       </div>
     </div>

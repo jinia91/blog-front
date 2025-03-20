@@ -54,8 +54,7 @@ export const metadata: Metadata = {
 export default function RootLayout ({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
     <html lang="ko">
-    <head></head>
-    <body className="overflow-hidden">
+    <body>
     <Provider>
       <UiContextProvider>
         <SessionProvider>

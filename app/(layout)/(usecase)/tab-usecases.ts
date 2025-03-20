@@ -25,6 +25,7 @@ export function useTabBarAndRouter (): {
   initializeTabBar: (path: string) => void
   selectTab: (index: number) => void
   closeTab: (target: number) => void
+  closeAndNewTab: (target: number, newTab: Tab) => void
   moveSelectedTabTo: (to: number) => void
   upsertAndSelectTab: (newTab: Tab) => void
   closeAllTabs: () => void
@@ -55,6 +56,12 @@ export function useTabBarAndRouter (): {
     setTabBarAndRoute(toBe)
   }
 
+  const closeAndNewTab = (target: number, newTab: Tab): void => {
+    const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
+    const toBe = tabBarManager.removeTargetTabAndUpsert(pre, target, newTab)
+    setTabBarAndRoute(toBe)
+  }
+
   const moveSelectedTabTo = (to: number): void => {
     const pre = { tabs: tabsAtom, selectedTabIndex: selectedTabIdxAtom }
     const toBe = tabBarManager.moveSelectedTabTo(pre, to)
@@ -62,12 +69,13 @@ export function useTabBarAndRouter (): {
   }
 
   const upsertAndSelectTab = (newTab: Tab): void => {
-    const foundIdx = tabsAtom.findIndex(tab => {
-      return tab.urlPath === newTab.urlPath
-    })
+    const foundIdx = tabsAtom.findIndex(tab => tab.urlPath === newTab.urlPath)
     const isExist = foundIdx !== -1
     if (isExist) {
-      selectTab(foundIdx)
+      const updatedTabs = tabsAtom.map((tab, idx) =>
+        idx === foundIdx ? { ...tab, name: newTab.name } : tab
+      )
+      setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: foundIdx })
     } else {
       const updatedTabs = [...tabsAtom, newTab]
       setTabBarAndRoute({ tabs: updatedTabs, selectedTabIndex: updatedTabs.length - 1 })
@@ -94,6 +102,7 @@ export function useTabBarAndRouter (): {
   function setTabBarAndRoute (tabBar: TabBarState): void {
     setTabBar(tabBar)
     route(tabBar)
+    router.refresh()
   }
 
   function setTabBar (tabBar: TabBarState): void {
@@ -120,6 +129,7 @@ export function useTabBarAndRouter (): {
   return {
     tabs: tabsAtom,
     selectedTabIdx: selectedTabIdxAtom,
+    closeAndNewTab,
     initializeTabBar,
     selectTab,
     upsertAndSelectTab,

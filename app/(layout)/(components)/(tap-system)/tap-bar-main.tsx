@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect } from 'react'
 import { TabBar } from './tab-bar'
 import { usePathname } from 'next/navigation'

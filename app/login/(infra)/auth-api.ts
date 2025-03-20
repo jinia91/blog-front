@@ -69,7 +69,7 @@ export async function withAuthRetry (apiFunction: () => Promise<Response>): Prom
   if (response.status === 401) {
     const refreshResult = await refreshTokens()
     if (refreshResult === null) {
-      throw new Error('리프레시 토큰이 만료되었습니다')
+      return response
     }
     return await apiFunction()
   }

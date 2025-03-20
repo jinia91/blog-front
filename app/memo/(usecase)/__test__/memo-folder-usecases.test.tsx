@@ -263,10 +263,10 @@ describe('메모 폴더 키워드 검색 유즈케이스', () => {
     global.fetch = vi.fn(() => ({
       ok: true,
       json: async () => ({
-        result: {
+        result: [{
           name: '검색결과',
           memos: []
-        }
+        }]
       })
     })) as Mock
 
@@ -274,7 +274,6 @@ describe('메모 폴더 키워드 검색 유즈케이스', () => {
     await act(async () => {
       await result.current.searchMemosByKeyword('메모3')
     })
-
     // then
     expect(result.current.folders[0].memos).toEqual([])
   })
