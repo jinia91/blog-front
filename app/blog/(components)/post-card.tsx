@@ -2,9 +2,14 @@ import { type Article } from '../(domain)/article'
 import React from 'react'
 import TabOpen from '../../(layout)/(components)/(tap-system)/tab-open'
 
-export default function PostCard ({ article }: { article: Article }): React.ReactElement {
+export default function PostCard ({ article, isPublished }: {
+  article: Article
+  isPublished: boolean
+}): React.ReactElement {
   return (
-    <TabOpen name={article.title} href={'/blog/' + article.id}>
+    <TabOpen name={(article.title === '' && isPublished) ? 'New Article' : article.title}
+             href={isPublished ? `/blog/${article.id}` : `/blog/edit/${article.id}`}
+    >
       <article
         className="flex flex-col sm:flex-row items-start gap-4 p-4 border border-gray-700 rounded-lg shadow-md bg-gray-900 hover:shadow-lg hover:border-green-400 hover:scale-y-105 transition-all duration-300">
         <img

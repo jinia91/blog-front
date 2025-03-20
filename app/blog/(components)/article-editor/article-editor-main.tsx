@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
 import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
@@ -8,8 +8,11 @@ import DeleteButton from '../delete-button'
 import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 import { ApplicationType } from '../../../(layout)/(domain)/tab'
 import { Status } from '../../(domain)/article'
+import { TOC } from '../toc'
+import CommonModal from '../../../(layout)/(components)/(common)/common-modal'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
+  const [isTOCVisible, setIsTOCVisible] = useState(true)
   const {
     articleTitle,
     setArticleTitle,
@@ -53,6 +56,9 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
   }
 
   function onPublish (): void {
+    if (!confirm('게시글을 게시하겠습니까?')) {
+      return
+    }
     void changeStatusArticle(articleId, Status[status], Status[Status.PUBLISHED])
     setStatus(Status.PUBLISHED)
     closeAndNewTab(selectedTabIdx, {
@@ -64,7 +70,14 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
 
   return (
     <div className="flex-grow overflow-y-scroll border-2 p-4 max-w-7xl mx-auto">
-
+      {isTOCVisible && (
+        <CommonModal onClose={() => {
+          setIsTOCVisible(false)
+        }} className={'opacity-75 fixed top-30 right-6 bg-gray-900 text-green-400 p-4 rounded-lg shadow-lg w-100 z-50'}
+        >
+          <TOC tocData={articleContent}/>
+        </CommonModal>
+      )}
       {(
         <div className="relative">
           <img
@@ -86,7 +99,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
       )}
       <div className="mt-4 mb-4 flex items-center space-x-4 flex-grow w-full">
         <label htmlFor="file-upload"
-               className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-600 hover:text-gray-200">
+               className="w-1/5 px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-600 hover:text-gray-200">
           📂 썸네일 파일 선택
         </label>
         <input
@@ -108,7 +121,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
             setThumbnail(e.target.value)
           }}
           placeholder="썸네일 URL 입력"
-          className="flex p-2 border border-green-500 bg-black text-green-400 placeholder-green-500 rounded w-5/6 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="flex p-2 w-full border border-green-500 bg-black text-green-400 placeholder-green-500 rounded w-5/6 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
       </div>
       <div
@@ -150,8 +163,15 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
           > PUBLISH
           </button>
           <DeleteButton articleId={articleId}/>
+          <button
+            onClick={() => {
+              setIsTOCVisible(!isTOCVisible)
+            }}
+            className="px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-700 hover:text-gray-100 hover:shadow-green-400"
+          >
+            TOC
+          </button>
         </div>
-
         <div className="relative flex items-center">
           <span className="text-green-400 font-mono mr-3">{status === Status.DRAFT ? 'DRAFT' : 'PUBLISHED'}</span>
           <div

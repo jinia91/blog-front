@@ -5,13 +5,18 @@ interface ModalProps {
   onClose: () => void
   children: React.ReactNode
   width?: string
+  className?: string
 }
 
-export default function CommonModal ({ onClose, children, width = '400px' }: ModalProps): React.ReactElement {
+export default function CommonModal ({
+  onClose,
+  children,
+  width = '400px',
+  className = 'flex justify-center items-center backdrop-hue-rotate-60 fixed inset-0 z-10'
+}: ModalProps
+): React.ReactElement {
   return (
-    <div
-      className="flex justify-center items-center backdrop-hue-rotate-60 fixed inset-0 z-10"
-    >
+    <div className={className}>
       <div className={'relative bg-gray-800 p-6 rounded shadow-lg border-4 border-gray-900'}
            style={{ width }}>
         <button

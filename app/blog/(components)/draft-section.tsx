@@ -55,7 +55,7 @@ export default function DraftSection (): React.ReactElement {
       <main className="flex flex-col gap-2 p-10">
         {loadedDraftArticles.map((article, index) => (
           <div key={article.id} ref={index === loadedDraftArticles.length - 1 ? lastPostRef : null}>
-            <PostCard article={article}/>
+            <PostCard article={article} isPublished={false}/>
           </div>
         ))}
       </main>

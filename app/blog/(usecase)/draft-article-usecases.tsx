@@ -21,7 +21,7 @@ export const useLatestDraftArticles = (): {
 
   const getLatestDraftArticles = async (): Promise<void> => {
     const cursor = getLatestArticleCursor()
-    const needToAdd = await fetchArticlesByOffset(1, 5, false)
+    const needToAdd = await fetchArticlesByOffset(cursor, 5, false)
     if (needToAdd.length === 0) {
       setHasMore(false)
       return

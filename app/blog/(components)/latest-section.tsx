@@ -60,7 +60,7 @@ export default function LatestSection (): React.ReactElement {
       <main className="flex flex-col gap-2 p-10">
         {getLatestArticleFilteredBySelectedTags().map((post, index) => (
           <div key={post.id} ref={index === getLatestArticleFilteredBySelectedTags().length - 1 ? lastPostRef : null}>
-            <PostCard article={post}/>
+            <PostCard article={post} isPublished={true}/>
           </div>
         ))}
       </main>

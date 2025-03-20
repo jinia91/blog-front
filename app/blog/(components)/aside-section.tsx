@@ -26,7 +26,7 @@ export default function AsideSection (): React.ReactElement {
         <div
           className='flex justify-between w-full mt-2 mb-4'>
           <div className='tooltip'>
-            <span className="tooltip-message ml-10">Draft</span>
+            <span className="tooltip-message  ml-10">{isPublishMode ? 'Published' : 'Draft'}</span>
             <DraftModeButton/>
           </div>
           <div className='tooltip'>
