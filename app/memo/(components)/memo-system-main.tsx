@@ -38,6 +38,9 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
     ? <SignInPage/>
     : (
       <div className="flex-grow">
+        {session.roles.values().next().value === 'USER' &&
+          <div
+            className="bg-red-500 text-white text-center">{'메모 앱은 저의 개인 데이터 관리 프로젝트로, 일반 유저의 데이터는 매주 월요일 삭제됩니다'}</div>}
         <PanelGroup
           direction={direction}
           className="dos-font"
