@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import PostCard from './post-card'
 import { useMainSectionRenderArticles } from '../(usecase)/main-section-article-usecases'
 
-export default function LatestSection (): React.ReactElement {
+export default function MainSection (): React.ReactElement {
   const {
     initialLoad,
     renderLatestArticles,

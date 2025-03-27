@@ -1,9 +1,11 @@
 import { atom, useAtom } from 'jotai'
 import { type Article } from '../(domain)/article'
 import { fetchArticlesByOffset, searchArticleByKeyword } from '../(infra)/article'
+import { type Tag } from '../(domain)/tag'
 
 const articlesAtom = atom<Article[]>([])
 const hasMoreAtom = atom<boolean>(true)
+const selectedTagAtom = atom<Tag>()
 
 export const useMainSectionRenderArticles = (): {
   initialLoad: () => Promise<void>

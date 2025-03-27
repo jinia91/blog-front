@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import LatestSection from './(components)/latest-section'
+import MainSection from './(components)/main-section'
 import AsideSection from './(components)/aside/aside-section'
 import { useSectionMode } from './(usecase)/section-toggle-usecases'
 import DraftSection from './(components)/draft-section'
@@ -14,7 +14,7 @@ export default function Blog (): React.ReactElement {
               maxHeight: 'calc(100vh - 180px)'
             }}>
         <div className="flex-grow overflow-y-auto">
-          {isPublishMode ? <LatestSection/> : <DraftSection/>}
+          {isPublishMode ? <MainSection/> : <DraftSection/>}
         </div>
         <aside className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800 min-w-[250px]">
           <AsideSection/>
