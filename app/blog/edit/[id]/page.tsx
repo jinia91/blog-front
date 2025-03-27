@@ -1,9 +1,11 @@
 'use client'
 import React from 'react'
-import ArticleEditorMain from '../../(components)/article-editor/article-editor-main'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 import SignInPage from '../../../login/(components)/sign-in-page'
 import ForbiddenPage from '../../../error/403'
+import dynamic from 'next/dynamic'
+
+const ArticleEditorMain = dynamic(async () => await import('../../(components)/article-editor/article-editor-main'), { ssr: false })
 
 export default function Page ({ params }: { params: { id: string } }): React.ReactElement {
   const { session } = useSession()

@@ -15,7 +15,7 @@ export const useLatestDraftArticles = (): {
   const [hasMore, setHasMore] = useState(true)
 
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchArticlesByOffset(1, 5, false)
+    const initialArticles = await fetchArticlesByOffset(null, 5, false)
     setLoadedArticles(initialArticles)
   }
 

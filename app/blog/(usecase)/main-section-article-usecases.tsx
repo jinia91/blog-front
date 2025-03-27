@@ -16,7 +16,7 @@ export const useMainSectionRenderArticles = (): {
   const [hasMore, setHasMore] = useAtom(hasMoreAtom)
 
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchArticlesByOffset(1, 5, true)
+    const initialArticles = await fetchArticlesByOffset(null, 5, true)
     setLoadedArticles(initialArticles)
     setHasMore(true)
   }
@@ -32,7 +32,7 @@ export const useMainSectionRenderArticles = (): {
   }
 
   const getLatestArticleCursor = (): number => {
-    const sorted = loadedArticles.sort((a, b) => a.id - b.id)
+    const sorted = loadedArticles.sort((a, b) => b.id - a.id)
     return sorted[sorted.length - 1].id
   }
 

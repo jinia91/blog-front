@@ -13,21 +13,19 @@ export default function LatestSection (): React.ReactElement {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
 
-  console.log(loadedArticles)
-
   useEffect(() => {
     void initialLoad()
   }, [])
 
   const loadMorePosts = useCallback(async () => {
-    console.log('hasMore', hasMore)
-    console.log('lastPostRef', lastPostRef.current)
-    console.log('observerRef', observerRef.current)
     if (!hasMore) return
     await renderLatestArticles()
   }, [renderLatestArticles, hasMore])
 
   useEffect(() => {
+    console.log('lastPostRef.current', lastPostRef.current)
+    console.log('observerRef.current', observerRef.current)
+    console.log('hasMore', hasMore)
     if (lastPostRef.current == null || !hasMore) return
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -44,7 +42,7 @@ export default function LatestSection (): React.ReactElement {
         observerRef.current.disconnect()
       }
     }
-  }, [hasMore, lastPostRef.current])
+  }, [hasMore, loadedArticles])
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">

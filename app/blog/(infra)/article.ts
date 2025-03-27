@@ -2,10 +2,12 @@ import { type Article } from '../(domain)/article'
 import { HOST } from '../../(utils)/constants'
 import { withAuthRetry } from '../../login/(infra)/auth-api'
 
-export async function fetchArticlesByOffset (cursor: number, limit: number, isPublish: boolean): Promise<Article[]> {
+export async function fetchArticlesByOffset (cursor: number | null, limit: number, isPublish: boolean): Promise<Article[]> {
   const status = isPublish ? 'PUBLISHED' : 'DRAFT'
+  const refinedCursor = cursor ?? Number.MAX_SAFE_INTEGER - 1
+  console.log('요청 확인', HOST + '/v1/articles/simple?cursor=' + refinedCursor + '&limit=' + limit + '&status=' + status)
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/simple?cursor=' + cursor + '&limit=' + limit + '&status=' + status, {
+    return await fetch(HOST + '/v1/articles/simple?cursor=' + refinedCursor + '&limit=' + limit + '&status=' + status, {
       method: 'GET',
       credentials: 'include',
       cache: 'no-cache'
@@ -16,6 +18,7 @@ export async function fetchArticlesByOffset (cursor: number, limit: number, isPu
     console.error('아티클 조회 실패')
     return []
   }
+
   const data = await response.json()
   return data.map((article: any) => {
     return {
