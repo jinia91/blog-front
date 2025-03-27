@@ -5,7 +5,6 @@ import { withAuthRetry } from '../../login/(infra)/auth-api'
 export async function fetchArticlesByOffset (cursor: number | null, limit: number, isPublish: boolean): Promise<Article[]> {
   const status = isPublish ? 'PUBLISHED' : 'DRAFT'
   const refinedCursor = cursor ?? Number.MAX_SAFE_INTEGER - 1
-  console.log('요청 확인', HOST + '/v1/articles/simple?cursor=' + refinedCursor + '&limit=' + limit + '&status=' + status)
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/articles/simple?cursor=' + refinedCursor + '&limit=' + limit + '&status=' + status, {
       method: 'GET',
@@ -37,7 +36,6 @@ export async function fetchArticlesByOffset (cursor: number | null, limit: numbe
 }
 
 export async function changeStatusArticle (id: string, asIs: string, toBe: string): Promise<boolean> {
-  console.log('changeStatusArticle', id, asIs, toBe)
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/articles/' + id, {
       method: 'PATCH',

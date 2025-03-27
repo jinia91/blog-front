@@ -100,8 +100,6 @@ export const tabBarManager: {
   removeTargetTabAndUpsert (pre: TabBarState, target: number, newTab: Tab): TabBarState {
     const newTabs = pre.tabs.filter((_, idx) => idx !== target)
     const idx = newTabs.findIndex(tab => tab.urlPath === newTab.urlPath)
-    console.log('idx', idx)
-    console.log('newTabs', newTabs)
     if (idx === -1) {
       return { tabs: [...newTabs, newTab], selectedTabIndex: newTabs.length }
     } else {
