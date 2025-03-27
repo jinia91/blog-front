@@ -10,6 +10,8 @@ import { Status } from '../../(domain)/article'
 import { TOC } from '../toc'
 import CommonModal from '../../../(layout)/(components)/(common)/common-modal'
 import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
+import { TagManager } from './tag-manager'
+import { ThumbnailInput } from './article-thumnail-manager'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const [isTOCVisible, setIsTOCVisible] = useState(true)
@@ -18,13 +20,16 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     setArticleTitle,
     articleContent,
     setArticleContent,
-    setArticleTags,
     thumbnail,
     setThumbnail,
     uploadThumbnail,
     uploadImageOnContents,
     status,
-    setStatus
+    setStatus,
+    tags,
+    setTags,
+    addTag,
+    removeTag
   } = useArticleEditSystem()
   const { selectedTabIdx, closeAndNewTab } = useTabBarAndRouter()
 
@@ -34,7 +39,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
       if (article != null) {
         setArticleTitle(article.title)
         setArticleContent(article.content)
-        setArticleTags(article.tags)
+        setTags(article.tags)
         setThumbnail(article.thumbnail)
         article.isPublished ? setStatus(Status.PUBLISHED) : setStatus(Status.DRAFT)
       }
@@ -97,33 +102,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
           </div>
         </div>
       )}
-      <div className="mt-4 mb-4 flex items-center space-x-4 flex-grow w-full">
-        <label htmlFor="file-upload"
-               className="w-1/5 px-4 py-2 font-mono text-sm bg-gray-800 text-green-400 border border-green-400 rounded shadow-lg transition-all hover:bg-green-600 hover:text-gray-200">
-          📂 썸네일 파일 선택
-        </label>
-        <input
-          id="file-upload"
-          type="file"
-          accept="image/*"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
-            if (file != null) {
-              void uploadThumbnail(file)
-            }
-          }}
-          className="hidden"
-        />
-        <input
-          type="text"
-          value={thumbnail}
-          onChange={(e) => {
-            setThumbnail(e.target.value)
-          }}
-          placeholder="썸네일 URL 입력"
-          className="flex p-2 w-full border border-green-500 bg-black text-green-400 placeholder-green-500 rounded w-5/6 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
+      <ThumbnailInput thumbnail={thumbnail} setThumbnail={setThumbnail} uploadThumbnail={uploadThumbnail}/>
       <div
         onPaste={(event) => {
           const items = event.clipboardData.items
@@ -153,6 +132,11 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
           className={'border-2 flex-grow'}
         />
       </div>
+
+      <div className={'mt-4 mb-4'}>
+        <TagManager initialTags={tags} addTag={addTag} removeTag={removeTag}/>
+      </div>
+
       <div className="flex justify-between items-center mt-4 w-full">
         <div className="flex space-x-4">
           <button

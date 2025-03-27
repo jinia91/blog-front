@@ -1,5 +1,5 @@
 import { atom, useAtom } from 'jotai'
-import { fetchArticleCardsByOffset, fetchArticlesByTag, searchArticleByKeyword } from '../(infra)/article-card'
+import { fetchArticleCardsByOffset, fetchArticleCardsByTag, searchArticleCardsByKeyword } from '../(infra)/article-card'
 import { type Tag } from '../(domain)/tag'
 import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
@@ -48,7 +48,7 @@ export const useManageArticleCardViewModels = (): {
       return
     }
 
-    const articleCards = await searchArticleByKeyword(keyword)
+    const articleCards = await searchArticleCardsByKeyword(keyword)
     setLoadedArticles(articleCards)
     setHasMore(false)
   }
@@ -59,7 +59,7 @@ export const useManageArticleCardViewModels = (): {
       return
     }
 
-    const articlesByTag = await fetchArticlesByTag(selectedTag.id)
+    const articlesByTag = await fetchArticleCardsByTag(selectedTag.id)
     setLoadedArticles(articlesByTag)
     setHasMore(false)
   }

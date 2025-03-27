@@ -9,18 +9,20 @@ export const useArticleEditSystem = (): {
   setArticleTitle: (title: string) => void
   articleContent: string
   setArticleContent: (content: string) => void
-  articleTags: Tag[]
-  setArticleTags: (tags: Tag[]) => void
   thumbnail: string
   setThumbnail: (thumbnail: string) => void
   uploadThumbnail: (file: File) => Promise<void>
   uploadImageOnContents: (file: File) => Promise<void>
   status: Status
   setStatus: (status: Status) => void
+  tags: Tag[]
+  setTags: (tags: Tag[]) => void
+  addTag: (tags: Tag) => void
+  removeTag: (tag: Tag) => void
 } => {
   const [articleTitle, setArticleTitle] = useState<string>('')
   const [articleContent, setArticleContent] = useState<string>('')
-  const [articleTags, setArticleTags] = useState<Tag[]>([])
+  const [tags, setArticleTags] = useState<Tag[]>([])
   const [thumbnail, setThumbnail] = useState<string>('')
   const [status, setStatus] = useState<Status>(Status.DRAFT)
 
@@ -47,18 +49,28 @@ export const useArticleEditSystem = (): {
     }
   }
 
+  const addTag = (tag: Tag): void => {
+    setArticleTags([...tags, tag])
+  }
+
+  const removeTag = (tag: Tag): void => {
+    setArticleTags(tags.filter(t => t.id !== tag.id))
+  }
+
   return {
     articleTitle,
     setArticleTitle,
     articleContent,
     setArticleContent,
-    articleTags,
-    setArticleTags,
     thumbnail,
     setThumbnail,
     uploadThumbnail,
     uploadImageOnContents,
     status,
-    setStatus
+    setStatus,
+    tags,
+    setTags: setArticleTags,
+    addTag,
+    removeTag
   }
 }
