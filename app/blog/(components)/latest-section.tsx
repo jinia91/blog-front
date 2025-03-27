@@ -1,27 +1,31 @@
 'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
 import PostCard from './post-card'
-import { useLatestArticles } from '../(usecase)/latest-article-usecases'
+import { useMainSectionRenderArticles } from '../(usecase)/main-section-article-usecases'
 
 export default function LatestSection (): React.ReactElement {
   const {
     initialLoad,
-    getLatestArticleFilteredBySelectedTags,
-    getLatestArticles,
-    selectedTags,
-    hasMore
-  } = useLatestArticles()
+    renderLatestArticles,
+    hasMore,
+    loadedArticles
+  } = useMainSectionRenderArticles()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
+
+  console.log(loadedArticles)
 
   useEffect(() => {
     void initialLoad()
   }, [])
 
   const loadMorePosts = useCallback(async () => {
+    console.log('hasMore', hasMore)
+    console.log('lastPostRef', lastPostRef.current)
+    console.log('observerRef', observerRef.current)
     if (!hasMore) return
-    await getLatestArticles()
-  }, [getLatestArticles, getLatestArticleFilteredBySelectedTags, hasMore])
+    await renderLatestArticles()
+  }, [renderLatestArticles, hasMore])
 
   useEffect(() => {
     if (lastPostRef.current == null || !hasMore) return
@@ -35,31 +39,27 @@ export default function LatestSection (): React.ReactElement {
     )
 
     observerRef.current.observe(lastPostRef.current)
-
     return () => {
       if (observerRef.current != null) {
         observerRef.current.disconnect()
       }
     }
-  }, [loadMorePosts, getLatestArticleFilteredBySelectedTags, hasMore])
+  }, [hasMore, lastPostRef.current])
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">
       <header className="px-2 py-2">
         <div className="flex items-center">
           <div className="flex-grow border-t animate-glow border-green-400"></div>
-          <h1 className="px-2 text-lg font-bold text-green-400">{
-            selectedTags.length > 0
-              ? `#${selectedTags.map(tag => tag.name).join(', #')}`
-              : 'Latest Posts'
-          }</h1>
+          <h1 className="px-2 text-lg font-bold text-green-400">{'Latest Posts'}</h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>
         </div>
       </header>
 
       <main className="flex flex-col gap-2 p-10">
-        {getLatestArticleFilteredBySelectedTags().map((post, index) => (
-          <div key={post.id} ref={index === getLatestArticleFilteredBySelectedTags().length - 1 ? lastPostRef : null}>
+        {loadedArticles.map((post, index) => (
+          <div key={post.id}
+               ref={index === loadedArticles.length - 1 ? lastPostRef : null}>
             <PostCard article={post} isPublished={true}/>
           </div>
         ))}
