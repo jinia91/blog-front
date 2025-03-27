@@ -23,9 +23,6 @@ export default function LatestSection (): React.ReactElement {
   }, [renderLatestArticles, hasMore])
 
   useEffect(() => {
-    console.log('lastPostRef.current', lastPostRef.current)
-    console.log('observerRef.current', observerRef.current)
-    console.log('hasMore', hasMore)
     if (lastPostRef.current == null || !hasMore) return
     observerRef.current = new IntersectionObserver(
       (entries) => {
