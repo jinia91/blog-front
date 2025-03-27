@@ -22,3 +22,36 @@ export async function fetchTopNTags (n: number): Promise<Tag[]> {
   }
   return Array.from(tagMap.entries()).map(([id, name]) => ({ id, name }))
 }
+
+export async function addTagToArticle (articleId: number, tagName: string): Promise<Tag> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/' + articleId + '/tags', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: tagName })
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    throw new Error('태그 추가 실패')
+  }
+  const data = await response.json()
+  return { id: data.id, name: data.name }
+}
+
+export async function removeTagToArticle (articleId: number, tagId: number): Promise<boolean> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/articles/' + articleId + '/tags/' + tagId, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    throw new Error('태그 삭제 실패')
+  }
+  return true
+}

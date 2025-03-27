@@ -16,6 +16,7 @@ import { ThumbnailInput } from './article-thumnail-manager'
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const [isTOCVisible, setIsTOCVisible] = useState(true)
   const {
+    setArticleId,
     articleTitle,
     setArticleTitle,
     articleContent,
@@ -26,10 +27,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     uploadImageOnContents,
     status,
     setStatus,
-    tags,
-    setTags,
-    addTag,
-    removeTag
+    setTags
   } = useArticleEditSystem()
   const { selectedTabIdx, closeAndNewTab } = useTabBarAndRouter()
 
@@ -37,6 +35,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
     async function load (): Promise<void> {
       const article = await fetchArticleById(Number(articleId), Status[Status.DRAFT])
       if (article != null) {
+        setArticleId(article.id)
         setArticleTitle(article.title)
         setArticleContent(article.content)
         setTags(article.tags)
@@ -134,7 +133,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
       </div>
 
       <div className={'mt-4 mb-4'}>
-        <TagManager initialTags={tags} addTag={addTag} removeTag={removeTag}/>
+        <TagManager/>
       </div>
 
       <div className="flex justify-between items-center mt-4 w-full">

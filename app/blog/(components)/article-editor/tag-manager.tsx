@@ -1,43 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { type Tag } from '../../(domain)/tag'
+import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
 
-interface TagManagerProps {
-  initialTags: Tag[]
-  addTag: (tag: Tag) => void
-  removeTag: (tag: Tag) => void
-}
-
-export const TagManager: React.FC<TagManagerProps> = ({ initialTags, addTag, removeTag }): React.ReactElement => {
-  const [tags, setTags] = useState<Tag[]>(initialTags)
+export const TagManager = (): React.ReactElement => {
   const [inputValue, setInputValue] = useState('')
+  const { tags, addTag, removeTag } = useArticleEditSystem()
 
-  useEffect(() => {
-    setTags(initialTags)
-  }, [initialTags])
-
-  const addTag = async (): Promise<void> => {
-    if (inputValue.trim() === '' || tags.includes(inputValue.trim())) return
-    const newTag = inputValue.trim()
-    await addTagApi(newTag)
-    const updatedTags = [...tags, newTag]
-    setTags(updatedTags)
-    onTagsChange(updatedTags)
-    setInputValue('')
+  const addTagCallBack = async (): Promise<void> => {
+    try {
+      const newTagInput = inputValue.trim()
+      await addTag(newTagInput)
+      setInputValue('')
+    } catch (error) {
+      console.error('태그 추가를 실패했습니다')
+    }
   }
 
-  const removeTag = async (tagToRemove: string): Promise<void> => {
-    await removeTagApi(tagToRemove)
-    const updatedTags = tags.filter(tag => tag !== tagToRemove)
-    setTags(updatedTags)
-    onTagsChange(updatedTags)
-  }
-
-  const addTagApi = async (tag: string) => {
-    console.log(`Calling API to add tag: ${tag}`)
-  }
-
-  const removeTagApi = async (tag: string) => {
-    console.log(`Calling API to remove tag: ${tag}`)
+  const removeTagCallBack = async (removeTarget: Tag): Promise<void> => {
+    try {
+      await removeTag(removeTarget)
+    } catch (error) {
+      console.error('태그 삭제를 실패했습니다')
+    }
   }
 
   return (
@@ -46,13 +30,13 @@ export const TagManager: React.FC<TagManagerProps> = ({ initialTags, addTag, rem
         <span className="text-sm text-green-400 font-semibold mr-2">Tags:</span>
         {tags.map((tag) => (
           <span
-            key={tag}
+            key={tag.id}
             className="bg-green-600 text-white px-2 py-1 text-xs rounded flex items-center space-x-1"
           >
-            <span>{tag}</span>
+            <span>{tag.name}</span>
             <button
-              onClick={async () => {
-                await removeTag(tag)
+              onClick={() => {
+                void removeTagCallBack(tag)
               }}
               className="ml-1 text-gray-300 hover:text-red-400"
             >
@@ -73,12 +57,14 @@ export const TagManager: React.FC<TagManagerProps> = ({ initialTags, addTag, rem
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
-              addTag()
+              void addTagCallBack()
             }
           }}
         />
         <button
-          onClick={addTag}
+          onClick={() => {
+            void addTagCallBack()
+          }}
           className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-gray-200 border border-gray-600"
         >
           + Add Tag
