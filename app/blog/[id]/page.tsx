@@ -1,5 +1,5 @@
 import React from 'react'
-import { fetchArticleById } from '../(infra)/article'
+import { fetchArticleById } from '../(infra)/article-card'
 import html from 'remark-html'
 import { notFound } from 'next/navigation'
 import { rehype } from 'rehype'

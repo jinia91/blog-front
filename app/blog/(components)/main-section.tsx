@@ -1,15 +1,15 @@
 'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
-import PostCard from './post-card'
-import { useMainSectionRenderArticles } from '../(usecase)/main-section-article-usecases'
+import ArticleCard from './article-card'
+import { useManageArticleCardViewModels } from '../(usecase)/main-section-article-usecases'
 
 export default function MainSection (): React.ReactElement {
   const {
     initialLoad,
-    renderLatestArticles,
+    renderLatestArticleCards,
     hasMore,
     loadedArticles
-  } = useMainSectionRenderArticles()
+  } = useManageArticleCardViewModels()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
 
@@ -19,8 +19,8 @@ export default function MainSection (): React.ReactElement {
 
   const loadMorePosts = useCallback(async () => {
     if (!hasMore) return
-    await renderLatestArticles()
-  }, [renderLatestArticles, hasMore])
+    await renderLatestArticleCards()
+  }, [renderLatestArticleCards, hasMore])
 
   useEffect(() => {
     if (lastPostRef.current == null || !hasMore) return
@@ -55,7 +55,7 @@ export default function MainSection (): React.ReactElement {
         {loadedArticles.map((post, index) => (
           <div key={post.id}
                ref={index === loadedArticles.length - 1 ? lastPostRef : null}>
-            <PostCard article={post} isPublished={true}/>
+            <ArticleCard article={post} isPublished={true}/>
           </div>
         ))}
       </main>

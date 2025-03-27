@@ -1,9 +1,9 @@
-import { type Article } from '../(domain)/article'
 import React from 'react'
 import TabOpen from '../../(layout)/(components)/(tap-system)/tab-open'
+import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
-export default function PostCard ({ article, isPublished }: {
-  article: Article
+export default function ArticleCard ({ article, isPublished }: {
+  article: ArticleCardViewModel
   isPublished: boolean
 }): React.ReactElement {
   return (

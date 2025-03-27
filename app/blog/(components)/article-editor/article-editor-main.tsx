@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
-import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
 import MDEditor, { bold, comment, hr, italic, table } from '@uiw/react-md-editor'
 import useArticleStompClient from './article-stomp-client'
 import DeleteButton from '../delete-button'
@@ -10,6 +9,7 @@ import { ApplicationType } from '../../../(layout)/(domain)/tab'
 import { Status } from '../../(domain)/article'
 import { TOC } from '../toc'
 import CommonModal from '../../../(layout)/(components)/(common)/common-modal'
+import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
 
 export default function ArticleEditorMain ({ articleId }: { articleId: string }): React.ReactElement {
   const [isTOCVisible, setIsTOCVisible] = useState(true)

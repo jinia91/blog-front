@@ -1,14 +1,14 @@
 'use client'
 import React from 'react'
 import { FiSearch } from 'react-icons/fi'
-import { useMainSectionRenderArticles } from '../../(usecase)/main-section-article-usecases'
+import { useManageArticleCardViewModels } from '../../(usecase)/main-section-article-usecases'
 import { useDebouncedCallback } from 'use-debounce'
 
 export const ArticleSearchInput = (): React.ReactElement => {
-  const { renderPublicArticlesByKeyword } = useMainSectionRenderArticles()
+  const { renderPublicArticleCardsByKeyword } = useManageArticleCardViewModels()
 
   const searchArticleCallback = useDebouncedCallback(async (value: string) => {
-    await renderPublicArticlesByKeyword(value)
+    await renderPublicArticleCardsByKeyword(value)
   }, 500)
 
   const inputRef = React.useRef<HTMLInputElement>(null)

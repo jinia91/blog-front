@@ -1,6 +1,6 @@
 'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
-import PostCard from './post-card'
+import ArticleCard from './article-card'
 import { useLatestDraftArticles } from '../(usecase)/draft-article-usecases'
 
 export default function DraftSection (): React.ReactElement {
@@ -55,7 +55,7 @@ export default function DraftSection (): React.ReactElement {
       <main className="flex flex-col gap-2 p-10">
         {loadedDraftArticles.map((article, index) => (
           <div key={article.id} ref={index === loadedDraftArticles.length - 1 ? lastPostRef : null}>
-            <PostCard article={article} isPublished={false}/>
+            <ArticleCard article={article} isPublished={false}/>
           </div>
         ))}
       </main>
