@@ -65,9 +65,9 @@ export async function searchArticleCardsByKeyword (keyword: string): Promise<Art
   })
 }
 
-export async function fetchArticleCardsByTag (tagId: number): Promise<ArticleCardViewModel[]> {
+export async function fetchArticleCardsByTag (tagName: string): Promise<ArticleCardViewModel[]> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/simple?status=PUBLISHED&tagId=' + tagId, {
+    return await fetch(HOST + '/v1/articles/simple?status=PUBLISHED&tagName=' + tagName, {
       method: 'GET',
       credentials: 'include',
       cache: 'no-cache'

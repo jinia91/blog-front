@@ -52,7 +52,7 @@ export default function AsideSection (): React.ReactElement {
             <h2 className="text-lg font-bold text-green-300 mb-2">Recommended Tags</h2>
             <div className="flex flex-wrap gap-2 text-sm">
               {tags.map(tag => (
-                <TagButton key={tag.id} tag={tag} onClick={handleTagClick}/>
+                <TagButton key={tag.name} tag={tag} onClick={handleTagClick}/>
               ))}
             </div>
           </div>

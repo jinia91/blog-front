@@ -59,7 +59,7 @@ export const useManageArticleCardViewModels = (): {
       return
     }
 
-    const articlesByTag = await fetchArticleCardsByTag(selectedTag.id)
+    const articlesByTag = await fetchArticleCardsByTag(selectedTag.name)
     setLoadedArticles(articlesByTag)
     setHasMore(false)
   }

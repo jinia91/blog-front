@@ -16,11 +16,9 @@ export async function fetchTopNTags (n: number): Promise<Tag[]> {
     return []
   }
   const data = await response.json()
-  const tagMap: Map<number, string> | null = data.tags
-  if (tagMap == null || Object.keys(tagMap).length === 0) {
-    return []
-  }
-  return Array.from(tagMap.entries()).map(([id, name]) => ({ id, name }))
+  const tags: Tag[] = data.tags
+  console.log(tags)
+  return tags
 }
 
 export async function addTagToArticle (articleId: number, tagName: string): Promise<Tag> {
@@ -31,7 +29,7 @@ export async function addTagToArticle (articleId: number, tagName: string): Prom
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ name: tagName })
+      body: JSON.stringify({ tagName })
     })
   }
   const response = await withAuthRetry(apiCall)
@@ -39,12 +37,12 @@ export async function addTagToArticle (articleId: number, tagName: string): Prom
     throw new Error('태그 추가 실패')
   }
   const data = await response.json()
-  return { id: data.id, name: data.name }
+  return { name: data.name }
 }
 
-export async function removeTagToArticle (articleId: number, tagId: number): Promise<boolean> {
+export async function removeTagToArticle (articleId: number, tagName: string): Promise<boolean> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + articleId + '/tags/' + tagId, {
+    return await fetch(HOST + '/v1/articles/' + articleId + '/tags/' + tagName, {
       method: 'DELETE',
       credentials: 'include'
     })
