@@ -21,7 +21,7 @@ export async function fetchTopNTags (n: number): Promise<Tag[]> {
   return tags
 }
 
-export async function addTagToArticle (articleId: number, tagName: string): Promise<Tag> {
+export async function addTagToArticle (articleId: number, tagName: string): Promise<boolean> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/articles/' + articleId + '/tags', {
       method: 'POST',
@@ -36,8 +36,7 @@ export async function addTagToArticle (articleId: number, tagName: string): Prom
   if (!response.ok) {
     throw new Error('태그 추가 실패')
   }
-  const data = await response.json()
-  return { name: data.name }
+  return response.ok
 }
 
 export async function removeTagToArticle (articleId: number, tagName: string): Promise<boolean> {

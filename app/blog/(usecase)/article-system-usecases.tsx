@@ -65,11 +65,8 @@ export const useArticleEditSystem = (): ArticleEditSystem => {
       console.error('이미 존재하는 태그입니다')
       return
     }
-    const tag: Tag = await addTagToArticle(articleId, newTagName)
-    if (tags.length === 0) {
-      setTags([tag])
-      return
-    }
+    await addTagToArticle(articleId, newTagName)
+    const tag: Tag = { name: newTagName }
     setTags([...tags, tag])
   }
 
