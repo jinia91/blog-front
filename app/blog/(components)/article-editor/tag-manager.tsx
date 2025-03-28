@@ -1,18 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { type Tag } from '../../(domain)/tag'
 import { useArticleEditSystem } from '../../(usecase)/article-system-usecases'
+import { fetchTopNTags } from '../../(infra)/tag'
 
 export const TagManager = ({ articleId }: { articleId: number }): React.ReactElement => {
   const [inputValue, setInputValue] = useState('')
   const [suggestedTags, setSuggestedTags] = useState<Tag[]>([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
   const { tags, addTag, removeTag } = useArticleEditSystem()
 
   useEffect(() => {
-    const fetchTags = async () => {
-      const dummyTags: Tag[] = Array.from({ length: 20 }, (_, i) => ({ id: i, name: `tag${i}` }))
-      setSuggestedTags(dummyTags)
+    const fetchTags = async (): Promise<void> => {
+      const tags = await fetchTopNTags(10)
+      setSuggestedTags(tags)
     }
 
     fetchTags().catch(console.error)
@@ -55,13 +54,7 @@ export const TagManager = ({ articleId }: { articleId: number }): React.ReactEle
           className="text-sm px-2 py-1 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           placeholder="Add new tag"
           value={inputValue}
-          ref={inputRef}
-          onFocus={() => {
-            setShowSuggestions(true)
-          }}
-          onBlur={() => setTimeout(() => {
-            setShowSuggestions(false)
-          }, 100)} // delay to allow click
+          list="tag-suggestions"
           onChange={(e) => {
             setInputValue(e.target.value)
           }}
@@ -81,25 +74,13 @@ export const TagManager = ({ articleId }: { articleId: number }): React.ReactEle
           + Add Tag
         </button>
       </div>
-      {showSuggestions && (inputValue !== '') && (
-        <div className="absolute mt-8 bg-gray-800 border border-gray-600 rounded shadow-md z-10 max-h-48 overflow-auto">
-          {suggestedTags
-            .filter(tag => tag.name.includes(inputValue) && !tags.some(t => t.name === tag.name))
-            .map(tag => (
-              <div
-                key={tag.name}
-                onClick={() => {
-                  void addTag(articleId, tag.name)
-                  setInputValue('')
-                  setShowSuggestions(false)
-                }}
-                className="px-3 py-1 text-sm text-white hover:bg-green-600 cursor-pointer"
-              >
-                {tag.name}
-              </div>
-            ))}
-        </div>
-      )}
+      <datalist id="tag-suggestions">
+        {suggestedTags
+          .filter(tag => !tags.some(t => t.name === tag.name))
+          .map(tag => (
+            <option key={tag.name} value={tag.name}/>
+          ))}
+      </datalist>
     </div>
   )
 }

@@ -17,7 +17,6 @@ export async function fetchTopNTags (n: number): Promise<Tag[]> {
   }
   const data = await response.json()
   const tags: Tag[] = data.tags
-  console.log(tags)
   return tags
 }
 
