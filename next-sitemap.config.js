@@ -5,6 +5,7 @@ module.exports = {
   changefreq: 'daily',
   priority: 0.7,
   outDir: './public',
+  exclude: ['/login/oauth2/code/google', '/memo', '/empty'],
   robotsTxtOptions: {
     policies: [
       {
