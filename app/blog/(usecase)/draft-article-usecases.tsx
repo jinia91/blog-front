@@ -1,14 +1,14 @@
 import { atom, useAtom } from 'jotai'
-import { type Article } from '../(domain)/article'
 import { fetchArticleCardsByOffset } from '../(infra)/article-card'
 import { useState } from 'react'
+import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
-const draftArticle = atom<Article[]>([])
+const draftArticle = atom<ArticleCardViewModel[]>([])
 
 export const useLatestDraftArticles = (): {
   initialLoad: () => Promise<void>
   getLatestDraftArticles: () => Promise<void>
-  loadedDraftArticles: Article[]
+  loadedDraftArticles: ArticleCardViewModel[]
   hasMore: boolean
 } => {
   const [loadedArticles, setLoadedArticles] = useAtom(draftArticle)

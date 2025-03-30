@@ -30,7 +30,7 @@ export default function ArticleCard ({ article, isPublished }: {
           {article.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {article.tags.map(tag => (
-                <span key={tag.id} className="px-2 py-1 text-xs font-medium text-gray-300 bg-gray-700 rounded">
+                <span key={tag.name} className="px-2 py-1 text-xs font-medium text-gray-300 bg-gray-700 rounded">
                 #{tag.name}
               </span>
               ))}
