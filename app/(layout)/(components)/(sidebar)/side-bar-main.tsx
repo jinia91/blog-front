@@ -31,7 +31,7 @@ export default function SideBarMain (): React.ReactElement {
 
   return (
     <div className={`
-    transform ${sidebarWidth} transition-width duration-300 ease-in-out`}
+    transform ${sidebarWidth} transition-width duration-300 ease-in-out h-full`}
     >
       <aside className="p-4 h-full">
         <div className={'pt-2 pb-4 mb-4 border-b border-gray-300 flex justify-between items-center truncate'}>

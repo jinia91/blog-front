@@ -54,7 +54,7 @@ export default function MainSection (): React.ReactElement {
         </div>
       </header>
 
-      <main className="flex flex-col gap-2 p-10">
+      <main className="flex flex-col gap-2 sm:p-10 p-1">
         {loadedArticles.map((post, index) => (
           <div key={post.id}
                ref={index === loadedArticles.length - 1 ? lastPostRef : null}>
