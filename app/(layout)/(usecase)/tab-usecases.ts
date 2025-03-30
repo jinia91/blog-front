@@ -102,7 +102,6 @@ export function useTabBarAndRouter (): {
   function setTabBarAndRoute (tabBar: TabBarState): void {
     setTabBar(tabBar)
     route(tabBar)
-    router.refresh()
   }
 
   function setTabBar (tabBar: TabBarState): void {
