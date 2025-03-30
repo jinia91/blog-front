@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "generate-coverage-report": "node generate-coverage-report.js"
+    "generate-coverage-report": "node generate-coverage-report.js",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
