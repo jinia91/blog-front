@@ -1,15 +1,16 @@
 'use client'
 import React, { useCallback, useEffect, useRef } from 'react'
-import PostCard from './post-card'
-import { useMainSectionRenderArticles } from '../(usecase)/main-section-article-usecases'
+import ArticleCard from './article-card'
+import { useManageArticleCardViewModels } from '../(usecase)/main-section-article-usecases'
 
-export default function LatestSection (): React.ReactElement {
+export default function MainSection (): React.ReactElement {
   const {
     initialLoad,
-    renderLatestArticles,
+    renderLatestArticleCards,
     hasMore,
-    loadedArticles
-  } = useMainSectionRenderArticles()
+    loadedArticles,
+    selectedTag
+  } = useManageArticleCardViewModels()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
 
@@ -19,13 +20,10 @@ export default function LatestSection (): React.ReactElement {
 
   const loadMorePosts = useCallback(async () => {
     if (!hasMore) return
-    await renderLatestArticles()
-  }, [renderLatestArticles, hasMore])
+    await renderLatestArticleCards()
+  }, [renderLatestArticleCards, hasMore])
 
   useEffect(() => {
-    console.log('lastPostRef.current', lastPostRef.current)
-    console.log('observerRef.current', observerRef.current)
-    console.log('hasMore', hasMore)
     if (lastPostRef.current == null || !hasMore) return
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -49,7 +47,9 @@ export default function LatestSection (): React.ReactElement {
       <header className="px-2 py-2">
         <div className="flex items-center">
           <div className="flex-grow border-t animate-glow border-green-400"></div>
-          <h1 className="px-2 text-lg font-bold text-green-400">{'Latest Posts'}</h1>
+          <h1 className="px-2 text-lg font-bold text-green-400">{
+            (selectedTag != null) ? `#${selectedTag.name}` : 'Latest Posts'
+          }</h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>
         </div>
       </header>
@@ -58,7 +58,7 @@ export default function LatestSection (): React.ReactElement {
         {loadedArticles.map((post, index) => (
           <div key={post.id}
                ref={index === loadedArticles.length - 1 ? lastPostRef : null}>
-            <PostCard article={post} isPublished={true}/>
+            <ArticleCard article={post} isPublished={true}/>
           </div>
         ))}
       </main>

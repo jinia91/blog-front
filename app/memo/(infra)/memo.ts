@@ -58,7 +58,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.log('메모 조회 실패')
+    console.error('메모 조회 실패')
     return null
   }
   return await response.json()

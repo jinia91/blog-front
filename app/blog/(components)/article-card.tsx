@@ -1,9 +1,9 @@
-import { type Article } from '../(domain)/article'
 import React from 'react'
 import TabOpen from '../../(layout)/(components)/(tap-system)/tab-open'
+import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
-export default function PostCard ({ article, isPublished }: {
-  article: Article
+export default function ArticleCard ({ article, isPublished }: {
+  article: ArticleCardViewModel
   isPublished: boolean
 }): React.ReactElement {
   return (
@@ -30,7 +30,7 @@ export default function PostCard ({ article, isPublished }: {
           {article.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {article.tags.map(tag => (
-                <span key={tag.id} className="px-2 py-1 text-xs font-medium text-gray-300 bg-gray-700 rounded">
+                <span key={tag.name} className="px-2 py-1 text-xs font-medium text-gray-300 bg-gray-700 rounded">
                 #{tag.name}
               </span>
               ))}

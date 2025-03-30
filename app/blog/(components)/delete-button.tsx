@@ -2,8 +2,8 @@
 
 import React, { useCallback } from 'react'
 import { useSession } from '../../login/(usecase)/session-usecases'
-import { deleteArticle } from '../(infra)/article'
 import { useTabBarAndRouter } from '../../(layout)/(usecase)/tab-usecases'
+import { deleteArticle } from '../(infra)/article'
 
 export default function DeleteButton (
   { articleId }: { articleId: string }

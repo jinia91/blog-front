@@ -1,5 +1,4 @@
 import React from 'react'
-import { fetchArticleById } from '../(infra)/article'
 import html from 'remark-html'
 import { notFound } from 'next/navigation'
 import { rehype } from 'rehype'
@@ -10,6 +9,7 @@ import { TOC } from '../(components)/toc'
 import EditButton from '../(components)/edit-button'
 import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
+import { fetchArticleById } from '../(infra)/article'
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
   const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])

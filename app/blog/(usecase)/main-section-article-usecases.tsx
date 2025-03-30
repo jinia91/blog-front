@@ -1,29 +1,35 @@
 import { atom, useAtom } from 'jotai'
-import { type Article } from '../(domain)/article'
-import { fetchArticlesByOffset, searchArticleByKeyword } from '../(infra)/article'
+import { fetchArticleCardsByOffset, fetchArticleCardsByTag, searchArticleCardsByKeyword } from '../(infra)/article-card'
+import { type Tag } from '../(domain)/tag'
+import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
-const articlesAtom = atom<Article[]>([])
+const articleCardVmAtom = atom<ArticleCardViewModel[]>([])
 const hasMoreAtom = atom<boolean>(true)
+const selectedTagAtom = atom<Tag | null>(null)
 
-export const useMainSectionRenderArticles = (): {
+export const useManageArticleCardViewModels = (): {
   initialLoad: () => Promise<void>
-  renderLatestArticles: () => Promise<void>
-  renderPublicArticlesByKeyword: (keyword: string) => Promise<void>
+  renderLatestArticleCards: () => Promise<void>
+  renderPublicArticleCardsByKeyword: (keyword: string) => Promise<void>
   hasMore: boolean
-  loadedArticles: Article[]
+  loadedArticles: ArticleCardViewModel[]
+  renderArticleCardsByTag: (tag: Tag) => Promise<void>
+  selectedTag: Tag | null
 } => {
-  const [loadedArticles, setLoadedArticles] = useAtom(articlesAtom)
+  const [loadedArticles, setLoadedArticles] = useAtom(articleCardVmAtom)
   const [hasMore, setHasMore] = useAtom(hasMoreAtom)
+  const [selectedTag, setSelectedTag] = useAtom(selectedTagAtom)
 
   const initialLoad = async (): Promise<void> => {
-    const initialArticles = await fetchArticlesByOffset(null, 5, true)
+    const initialArticles = await fetchArticleCardsByOffset(null, 5, true)
     setLoadedArticles(initialArticles)
+    setSelectedTag(null)
     setHasMore(true)
   }
 
-  const renderLatestArticles = async (): Promise<void> => {
-    const cursor = getLatestArticleCursor()
-    const needToAdd = await fetchArticlesByOffset(cursor, 5, true)
+  const renderLatestArticleCards = async (): Promise<void> => {
+    const cursor = getLatestArticleCardsCursor()
+    const needToAdd = await fetchArticleCardsByOffset(cursor, 5, true)
     if (needToAdd.length === 0) {
       setHasMore(false)
       return
@@ -31,27 +37,41 @@ export const useMainSectionRenderArticles = (): {
     setLoadedArticles([...loadedArticles, ...needToAdd])
   }
 
-  const getLatestArticleCursor = (): number => {
+  const getLatestArticleCardsCursor = (): number => {
     const sorted = loadedArticles.sort((a, b) => b.id - a.id)
     return sorted[sorted.length - 1].id
   }
 
-  const renderPublicArticlesByKeyword = async (keyword: string): Promise<void> => {
+  const renderPublicArticleCardsByKeyword = async (keyword: string): Promise<void> => {
     if (keyword === '') {
       await initialLoad()
       return
     }
 
-    const articles = await searchArticleByKeyword(keyword)
-    setLoadedArticles(articles)
+    const articleCards = await searchArticleCardsByKeyword(keyword)
+    setLoadedArticles(articleCards)
+    setSelectedTag(null)
+    setHasMore(false)
+  }
+
+  const renderArticleCardsByTag = async (tag: Tag): Promise<void> => {
+    if (tag === selectedTag) {
+      void initialLoad()
+      return
+    }
+    setSelectedTag(tag)
+    const articlesByTag = await fetchArticleCardsByTag(tag.name)
+    setLoadedArticles(articlesByTag)
     setHasMore(false)
   }
 
   return {
     hasMore,
     initialLoad,
-    renderLatestArticles,
-    renderPublicArticlesByKeyword,
-    loadedArticles
+    renderLatestArticleCards,
+    renderPublicArticleCardsByKeyword,
+    loadedArticles,
+    renderArticleCardsByTag,
+    selectedTag
   }
 }
