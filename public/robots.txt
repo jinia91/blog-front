@@ -1,0 +1,15 @@
+# GPTBot
+User-agent: GPTBot
+Disallow: /
+
+# Googlebot
+User-agent: Googlebot
+Allow: /blog
+Allow: /about
+Disallow: /
+
+# Host
+Host: https://jiniaslog.co.kr
+
+# Sitemaps
+Sitemap: https://jiniaslog.co.kr/sitemap.xml
