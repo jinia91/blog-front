@@ -12,9 +12,11 @@ export default function TopNavMain (): React.ReactElement {
       <div className="flex justify-between items-center py-4">
         <SideBarToggle/>
         <TabOpen name={'Home'} href="/">
+          <div className={'sm:inline hidden'}>
           <span className="retro-font-animation text-2xl font-semibold hover:cursor-pointer">
           {"__JINIA'S_LOG__!!"}
           </span>
+          </div>
         </TabOpen>
         <div className="flex items-center space-x-3">
           <SignInAndOutButton/>

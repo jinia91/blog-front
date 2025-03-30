@@ -64,7 +64,7 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
     <div
       className="relative m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 max-w-full mx-auto h-[80vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700">
       <div
-        className="m-4 p-4 text-gray-300 bg-gray-900 mx-auto max-w-7xl">
+        className="sm:m-4 sm:p-4 text-gray-300 bg-gray-900 mx-auto max-w-7xl">
         <div className="relative">
           <img src={article.thumbnail} alt={article.title} className="w-full h-96 object-center opacity-40"/>
 

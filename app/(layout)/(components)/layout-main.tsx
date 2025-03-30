@@ -10,16 +10,16 @@ const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
     <>
       <header className="w-full dark:bg-gray-900 border-b"><TopNavMain/></header>
       <div className="md:flex">
-        <aside className="fixed md:static flex-1 bg-white dark:bg-gray-900 md:border-r"
+        <aside className="fixed md:static flex-1 bg-black dark:bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
         >
           <SideAppBar/>
         </aside>
         <main
-          className="p-1 flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-hidden pb-4"
+          className="flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-screen overflow-hidden pb-4"
           style={{ height: 'calc(100vh - 60px)' }}>
           <TabContextMenu/>
-          <div className="bg-gray-800 p-4">
+          <div className="bg-gray-800 sm:p-4 pt-4">
             <TapBarMain/>
             <RenderApp page={page}/>
           </div>
