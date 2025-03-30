@@ -13,9 +13,7 @@ export const useManageArticleCardViewModels = (): {
   renderPublicArticleCardsByKeyword: (keyword: string) => Promise<void>
   hasMore: boolean
   loadedArticles: ArticleCardViewModel[]
-  selectedTag: Tag | undefined
-  setSelectedTag: (tag: Tag) => void
-  renderTaggedArticleCards: () => Promise<void>
+  renderArticleCardsByTag: (tag: Tag) => Promise<void>
 } => {
   const [loadedArticles, setLoadedArticles] = useAtom(articleCardVmAtom)
   const [hasMore, setHasMore] = useAtom(hasMoreAtom)
@@ -53,13 +51,9 @@ export const useManageArticleCardViewModels = (): {
     setHasMore(false)
   }
 
-  const renderTaggedArticleCards = async (): Promise<void> => {
-    if (selectedTag == null) {
-      await initialLoad()
-      return
-    }
-
-    const articlesByTag = await fetchArticleCardsByTag(selectedTag.name)
+  const renderArticleCardsByTag = async (tag: Tag): Promise<void> => {
+    setSelectedTag(tag)
+    const articlesByTag = await fetchArticleCardsByTag(tag.name)
     setLoadedArticles(articlesByTag)
     setHasMore(false)
   }
@@ -70,8 +64,6 @@ export const useManageArticleCardViewModels = (): {
     renderLatestArticleCards,
     renderPublicArticleCardsByKeyword,
     loadedArticles,
-    setSelectedTag,
-    selectedTag,
-    renderTaggedArticleCards
+    renderArticleCardsByTag
   }
 }

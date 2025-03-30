@@ -8,12 +8,13 @@ import { ArticleSearchInput } from './article-search'
 import { fetchTopNTags } from '../../(infra)/tag'
 import { type Tag } from '../../(domain)/tag'
 import { TagButton } from './tag-button'
+import { useManageArticleCardViewModels } from '../../(usecase)/main-section-article-usecases'
 
 export default function AsideSection (): React.ReactElement {
   const { session } = useSession()
   const { isPublishMode } = useSectionMode()
   const [tags, setTags] = useState<Tag[]>([])
-
+  const { renderArticleCardsByTag } = useManageArticleCardViewModels()
   useEffect(() => {
     const fetchTags = async (): Promise<void> => {
       const tags = await fetchTopNTags(10)
@@ -24,7 +25,7 @@ export default function AsideSection (): React.ReactElement {
   }, [])
 
   const handleTagClick = (tag: Tag): void => {
-    console.log('Clicked tag:', tag)
+    void renderArticleCardsByTag(tag)
   }
 
   return (
