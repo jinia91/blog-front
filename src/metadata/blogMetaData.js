@@ -11,6 +11,7 @@ const blogMetaData = {
   email: 'creee77@gmail.com',
   github: 'https://github.com/jinia91',
   locale: 'ko-KR',
+  socialBanner: '/jiniaslog.png',
   socialLinks: {
     github: 'https://www.github.com/jinia91',
     mail: 'mailto:creee77@gmail.com'
