@@ -8,7 +8,8 @@ export default function MainSection (): React.ReactElement {
     initialLoad,
     renderLatestArticleCards,
     hasMore,
-    loadedArticles
+    loadedArticles,
+    selectedTag
   } = useManageArticleCardViewModels()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
@@ -46,7 +47,9 @@ export default function MainSection (): React.ReactElement {
       <header className="px-2 py-2">
         <div className="flex items-center">
           <div className="flex-grow border-t animate-glow border-green-400"></div>
-          <h1 className="px-2 text-lg font-bold text-green-400">{'Latest Posts'}</h1>
+          <h1 className="px-2 text-lg font-bold text-green-400">{
+            (selectedTag != null) ? `#${selectedTag.name}` : 'Latest Posts'
+          }</h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>
         </div>
       </header>
