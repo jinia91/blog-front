@@ -11,6 +11,39 @@ import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
 import { fetchArticleById } from '../(infra)/article'
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export async function generateMetadata ({ params }: { params: { id: string } }) {
+  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
+
+  if (article == null) return {}
+
+  return {
+    title: article.title,
+    description: article.content.slice(0, 150),
+    openGraph: {
+      title: article.title,
+      description: article.content.slice(0, 150),
+      type: 'article',
+      url: `https://jiniaslog.co.kr/blog/${params.id}`,
+      images: [
+        {
+          url: article.thumbnail,
+          alt: article.title
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.content.slice(0, 150),
+      images: [article.thumbnail]
+    },
+    alternates: {
+      canonical: `https://jiniaslog.co.kr/blog/${params.id}`
+    }
+  }
+}
+
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
   const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
 
