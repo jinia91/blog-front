@@ -30,7 +30,7 @@ export const useLatestDraftArticles = (): {
   }
 
   const getLatestArticleCursor = (): number => {
-    const sorted = loadedArticles.sort((a, b) => a.id - b.id)
+    const sorted = loadedArticles.sort((a, b) => b.id - a.id)
     return sorted[sorted.length - 1].id
   }
 
