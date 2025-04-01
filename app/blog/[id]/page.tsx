@@ -62,9 +62,9 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
 
   return (
     <div
-      className="relative m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 max-w-full mx-auto h-[75vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700">
+      className="relative sm:m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 h-[75vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700 flex justify-center">
       <div
-        className="sm:m-4 sm:p-4 text-gray-300 bg-gray-900 mx-auto max-w-7xl">
+        className="w-full max-w-4xl">
         <div className="relative">
           <img src={article.thumbnail} alt={article.title} className="w-full h-96 object-center opacity-40"/>
 
@@ -89,9 +89,8 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
         </div>
 
         <div className="border-b border-gray-700 mt-6"/>
-
         <div
-          className="lg:fixed lg:top-52 lg:right-12 bg-gray-700 p-5 rounded-lg shadow-lg border border-gray-700 max-h-screen shadow-gray-600 opacity-75">
+          className="2xl:fixed 2xl:top-52 2xl:right-12 bg-gray-700 p-5 rounded-lg shadow-lg border border-gray-700 max-h-screen shadow-gray-600 opacity-75">
           <TOC tocData={article.content}/>
         </div>
         <div className="mt-4 text-gray-200 prose max-w-none prose-invert overflow-y-auto"
