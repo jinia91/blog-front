@@ -14,7 +14,7 @@ export default function SideBarMain (): React.ReactElement {
     setCollapsed: (isCollapsed: boolean) => void
     toggleSideBarCollapse: () => void
   } = useSideBar()
-  const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : 'w-96 md:w-72'
+  const sidebarWidth = isCollapsed ? 'w-0 md:w-20' : ' w-96 md:w-72'
   const overlayStyle = isCollapsed ? 'invisible md:visible opacity-0 md:opacity-100 md:inline' : 'opacity-100'
   const { session } = useSession()
 
@@ -34,7 +34,7 @@ export default function SideBarMain (): React.ReactElement {
     transform ${sidebarWidth} transition-width duration-300 ease-in-out h-full`}
     >
       <aside className="p-4 h-full">
-        <div className={'pt-2 pb-4 mb-4 border-b border-gray-300 flex justify-between items-center truncate'}>
+        <div className={'hidden sm:flex pt-2 pb-4 mb-4 border-b border-gray-300 justify-between items-center truncate'}>
           <div
             className={'cursor-pointer flex pl-1'}
             onClick={toggleSideBarCollapse}
@@ -64,7 +64,7 @@ export default function SideBarMain (): React.ReactElement {
                 return (
                   <div key={name} onClick={() => window.open(href, '_blank')}>
                     <li
-                      className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
+                      className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-4">
                       <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
                       <span
                         className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
@@ -80,7 +80,7 @@ export default function SideBarMain (): React.ReactElement {
                   }}>
                     <TabOpen name={name} href={href} key={name}>
                       <li
-                        className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
+                        className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-4">
                         <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
                         <span
                           className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>

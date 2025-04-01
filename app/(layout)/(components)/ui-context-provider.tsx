@@ -10,7 +10,7 @@ export default function UiContextProvider ({ children }: { children: React.React
 
   return mounted
     ? (
-      <ThemeProvider attribute='class'>
+      <ThemeProvider attribute='class' defaultTheme={'dark'}>
         {children}
       </ThemeProvider>
       )
