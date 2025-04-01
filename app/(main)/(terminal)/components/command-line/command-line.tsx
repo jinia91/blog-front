@@ -41,7 +41,7 @@ export const CommandLine: React.FC<TerminalInputProps> = ({ username, inputRef }
             }))
           }}
           onKeyDown={e => {
-            handleKeyPress(e).catch(console.error)
+            handleKeyPress(e).catch(console.debug)
           }}
           autoFocus
         />

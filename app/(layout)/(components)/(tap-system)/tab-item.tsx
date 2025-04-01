@@ -74,10 +74,11 @@ export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
       </span>
       </Link>
       <button
+        aria-label="탭 닫기"
         onClick={() => {
           closeTab(index)
         }}
-        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-3 h-3"
+        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-4 h-4"
         style={{ transform: 'translate(-50%, 50%)' }}
       />
     </div>

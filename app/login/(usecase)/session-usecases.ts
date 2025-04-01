@@ -22,7 +22,7 @@ export const useSession = (): {
     setSession(null)
     const result = await oAuthLogout()
     if (!result) {
-      console.error(FAIL_TO_LOGOUT)
+      console.debug(FAIL_TO_LOGOUT)
     }
   }
 

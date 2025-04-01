@@ -114,7 +114,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
               }
             }
           } catch (error) {
-            console.error('Error uploading image:', error)
+            console.debug('Error uploading image:', error)
           }
         }}
         className={'flex-grow'}

@@ -62,33 +62,29 @@ export default function SideBarMain (): React.ReactElement {
               (auth === Auth.Admin && session?.roles.values().next().value === Auth.Admin)) {
               if (type === 'link') {
                 return (
-                  <div key={name} onClick={() => window.open(href, '_blank')}>
-                    <li
-                      className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-4">
+                  <li key={name} onClick={() => window.open(href, '_blank')}
+                      className="flex items-center mb-2 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
+                    <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                    <span
+                      className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
+                      {name}
+                    </span>
+                  </li>
+                )
+              } else {
+                return (
+                  <TabOpen name={name} href={href} key={name}>
+                    <li onClick={() => {
+                      setCollapsed(true)
+                    }}
+                        className="flex items-center mb-2 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
                       <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
                       <span
                         className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
                         {name}
                       </span>
                     </li>
-                  </div>
-                )
-              } else {
-                return (
-                  <div key={name} onClick={() => {
-                    setCollapsed(true)
-                  }}>
-                    <TabOpen name={name} href={href} key={name}>
-                      <li
-                        className="flex items-center mb-2 last:mb-0 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-4">
-                        <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
-                        <span
-                          className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
-                          {name}
-                        </span>
-                      </li>
-                    </TabOpen>
-                  </div>
+                  </TabOpen>
                 )
               }
             }

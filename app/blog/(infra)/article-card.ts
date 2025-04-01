@@ -14,7 +14,7 @@ export async function fetchArticleCardsByOffset (cursor: number | null, limit: n
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('아티클 조회 실패')
+    console.debug('아티클 조회 실패')
     return []
   }
 
@@ -45,7 +45,7 @@ export async function searchArticleCardsByKeyword (keyword: string): Promise<Art
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('아티클 조회 실패')
+    console.debug('아티클 조회 실패')
     return []
   }
   const data = await response.json()
@@ -75,7 +75,7 @@ export async function fetchArticleCardsByTag (tagName: string): Promise<ArticleC
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('아티클 조회 실패')
+    console.debug('아티클 조회 실패')
     return []
   }
   const data = await response.json()

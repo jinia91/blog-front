@@ -38,7 +38,7 @@ export async function fetchExpectedStatusArticleById (id: number, expectedStatus
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('아티클 조회 실패')
+    console.debug('아티클 조회 실패')
     return undefined
   }
   const data = await response.json()
@@ -68,7 +68,7 @@ export async function initDraftArticle (): Promise<string | null> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('메모 생성 실패')
+    console.debug('메모 생성 실패')
     return null
   }
   const data = await response.json()

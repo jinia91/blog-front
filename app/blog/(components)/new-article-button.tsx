@@ -12,7 +12,7 @@ const NewArticleButton: React.FC = () => {
     try {
       return await initDraftArticle()
     } catch (error) {
-      console.error('Error creating article:', error)
+      console.debug('Error creating article:', error)
       throw error
     }
   }
@@ -25,7 +25,7 @@ const NewArticleButton: React.FC = () => {
         }
       })
       .catch(error => {
-        console.error('새로운 글 생성 실패:', error)
+        console.debug('새로운 글 생성 실패:', error)
       })
   }, [tabs])
 

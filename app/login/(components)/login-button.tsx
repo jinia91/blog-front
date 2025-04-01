@@ -18,7 +18,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ className, provider, l
   <button
     onClick={() => {
       redirectOAuthLoginPage(provider).catch((err) => {
-        console.error('Error:', err)
+        console.debug('Error:', err)
       })
     }}
     className={className}

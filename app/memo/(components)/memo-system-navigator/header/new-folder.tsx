@@ -12,7 +12,7 @@ export default function NewFolder (): React.ReactElement {
     <div className="tooltip">
       <div onClick={() => {
         createNewFolder().catch((error) => {
-          console.error(error)
+          console.debug(error)
         })
       }}>
         <button

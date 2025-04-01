@@ -53,7 +53,7 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
           }
         })
         .catch((error) => {
-          console.error('error:', error)
+          console.debug('error:', error)
         })
     }
   }, [container, isMermaid, code, id])
@@ -62,7 +62,7 @@ export const Code = ({ inline, children = [], className, ...props }: any): React
     navigator.clipboard.writeText(code).then(() => {
       setCopied(true)
     }).catch((err) => {
-      console.error('Error copying text: ', err)
+      console.debug('Error copying text: ', err)
     })
   }
 

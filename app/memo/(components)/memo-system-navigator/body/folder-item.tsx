@@ -44,7 +44,7 @@ export default function FolderItem ({
   }
   const handleDropCallback = (e: React.DragEvent, targetFolderId: number | null): void => {
     handleDrop(e, targetFolderId).catch(error => {
-      console.error(error)
+      console.debug(error)
     })
   }
   const handleDrop = async (e: React.DragEvent, targetFolderId: number | null): Promise<void> => {

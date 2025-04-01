@@ -39,7 +39,7 @@ export default function SignInAndOutButton (): React.ReactElement {
             alt={'로그아웃'}
             onClick={() => {
               handleLogout().catch((err) => {
-                console.error('Error:', err)
+                console.debug('Error:', err)
               })
             }}
             className="hover:bg-gray-600 h-8 w-8 font-bold rounded-full"

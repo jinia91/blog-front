@@ -19,7 +19,7 @@ export default function NewMemo (): React.ReactElement {
     const handleKeyDown = async (event: KeyboardEvent): Promise<void> => {
       if ((event.ctrlKey && event.key === 'n') || (event.ctrlKey && event.key === 'ㅜ')) {
         event.preventDefault()
-        await createNewMemoAndUpdateTab().catch(console.error)
+        await createNewMemoAndUpdateTab().catch(console.debug)
       }
     }
 
@@ -34,7 +34,7 @@ export default function NewMemo (): React.ReactElement {
   return (
     <div className="tooltip">
       <div onClick={() => {
-        createNewMemoAndUpdateTab().catch(console.error)
+        createNewMemoAndUpdateTab().catch(console.debug)
       }}>
         <button
           className="text-white hover:text-gray-300"
