@@ -9,11 +9,11 @@ import { TOC } from '../(components)/toc'
 import EditButton from '../(components)/edit-button'
 import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
-import { fetchArticleById } from '../(infra)/article'
+import { fetchExpectedStatusArticleById } from '../(infra)/article'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export async function generateMetadata ({ params }: { params: { id: string } }) {
-  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
+  const article = await fetchExpectedStatusArticleById(Number(params.id), Status[Status.PUBLISHED])
 
   if (article == null) return {}
 
@@ -45,7 +45,7 @@ export async function generateMetadata ({ params }: { params: { id: string } }) 
 }
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
-  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
+  const article = await fetchExpectedStatusArticleById(Number(params.id), Status[Status.PUBLISHED])
 
   if (article == null) {
     notFound()
