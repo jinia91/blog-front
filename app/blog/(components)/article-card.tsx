@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import TabOpen from '../../(layout)/(components)/(tap-system)/tab-open'
 import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
@@ -12,11 +13,22 @@ export default function ArticleCard ({ article, isPublished }: {
     >
       <article
         className="flex flex-col sm:flex-row items-start gap-4 p-4 border border-gray-700 rounded-lg shadow-md bg-gray-900 hover:shadow-lg hover:border-green-400 hover:scale-y-105 transition-all duration-300">
-        <img
-          src={article.thumbnail}
-          alt={article.title}
-          className="w-full sm:w-48 h-40 sm:h-40 object-cover rounded-md"
-        />
+        <div className="relative flex-shrink-0 w-full sm:w-48 h-40">
+          {article.thumbnail?.startsWith('http')
+            ? (
+              <Image
+                src={article.thumbnail}
+                alt={article.title}
+                width={192}
+                height={160}
+                className="object-cover rounded-md"
+                style={{ width: '100%', height: '100%' }}
+              />
+              )
+            : (
+              <div className="w-full sm:w-48 h-40 bg-gray-700 rounded-md"/>
+              )}
+        </div>
         <div className="flex flex-col flex-grow">
           <h2 className="text-2xl font-bold text-white hover:text-green-400 transition-colors duration-200">
             {article.title}

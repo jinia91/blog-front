@@ -9,11 +9,12 @@ import { TOC } from '../(components)/toc'
 import EditButton from '../(components)/edit-button'
 import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
-import { fetchArticleById } from '../(infra)/article'
+import { fetchExpectedStatusArticleById } from '../(infra)/article'
+import Image from 'next/image'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export async function generateMetadata ({ params }: { params: { id: string } }) {
-  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
+  const article = await fetchExpectedStatusArticleById(Number(params.id), Status[Status.PUBLISHED])
 
   if (article == null) return {}
 
@@ -45,7 +46,7 @@ export async function generateMetadata ({ params }: { params: { id: string } }) 
 }
 
 export default async function ArticlePage ({ params }: { params: { id: string } }): Promise<React.ReactElement> {
-  const article = await fetchArticleById(Number(params.id), Status[Status.PUBLISHED])
+  const article = await fetchExpectedStatusArticleById(Number(params.id), Status[Status.PUBLISHED])
 
   if (article == null) {
     notFound()
@@ -65,9 +66,14 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
       className="relative sm:m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 h-[75vh] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700 flex justify-center">
       <div
         className="w-full max-w-4xl">
-        <div className="relative">
-          <img src={article.thumbnail} alt={article.title} className="w-full h-96 object-center opacity-40"/>
-
+        <div className="relative w-full sm:h-[400px] h-[240px]">
+          <Image
+            src={article.thumbnail}
+            alt={article.title}
+            width={1200}
+            height={675}
+            className="w-full h-full object-cover opacity-40"
+          />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <h1 className="text-5xl font-bold text-green-400 drop-shadow-lg">{article.title}</h1>
             <p className="text-gray-400 mt-2 text-lg">{new Date(article.createdAt).toLocaleDateString()}</p>

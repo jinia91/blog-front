@@ -28,9 +28,9 @@ export async function deleteArticle (id: string): Promise<boolean> {
   return response.ok
 }
 
-export async function fetchArticleById (id: number, status: string): Promise<Article | undefined> {
+export async function fetchExpectedStatusArticleById (id: number, expectedStatus: string): Promise<Article | undefined> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + '/v1/articles/' + id + '?status=' + status, {
+    return await fetch(HOST + '/v1/articles/' + id + '?expectedStatus=' + expectedStatus, {
       method: 'GET',
       credentials: 'include',
       cache: 'no-cache'

@@ -9,7 +9,7 @@ import { ApplicationType } from '../../../(layout)/(domain)/tab'
 import { Status } from '../../(domain)/article'
 import { TOC } from '../toc'
 import CommonModal from '../../../(layout)/(components)/(common)/common-modal'
-import { changeStatusArticle, fetchArticleById } from '../../(infra)/article'
+import { changeStatusArticle, fetchExpectedStatusArticleById } from '../../(infra)/article'
 import { TagManager } from './tag-manager'
 import { ThumbnailInput } from './article-thumnail-manager'
 
@@ -32,7 +32,7 @@ export default function ArticleEditorMain ({ articleId }: { articleId: string })
 
   useEffect(() => {
     async function load (): Promise<void> {
-      const article = await fetchArticleById(Number(articleId), Status[Status.DRAFT])
+      const article = await fetchExpectedStatusArticleById(Number(articleId), Status[Status.DRAFT])
       if (article != null) {
         setArticleTitle(article.title)
         setArticleContent(article.content)
