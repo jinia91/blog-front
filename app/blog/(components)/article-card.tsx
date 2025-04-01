@@ -36,7 +36,7 @@ export default function ArticleCard ({ article, isPublished }: {
           <p className="text-lg text-gray-400 line-clamp-2 mt-2">
             {article.content}
           </p>
-          <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
+          <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
             <time>{article.createdAt.toLocaleDateString()}</time>
           </div>
           {article.tags.length > 0 && (

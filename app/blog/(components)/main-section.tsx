@@ -64,7 +64,7 @@ export default function MainSection (): React.ReactElement {
       </main>
 
       {!hasMore && (
-        <p className="text-center text-gray-500 p-2 text-lg">No more posts</p>
+        <p className="text-center text-gray-400 p-2 text-lg">No more posts</p>
       )}
     </div>
   )
