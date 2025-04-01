@@ -17,7 +17,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
     initializeFolderAndMemo().then(() => {
       setMounted(true)
     }).catch(error => {
-      console.error(error)
+      console.debug(error)
     })
 
     const handleResize = (): void => {

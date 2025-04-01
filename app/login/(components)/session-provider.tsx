@@ -12,7 +12,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }): Re
       setMounted(true)
     }).catch(error => {
       setMounted(true)
-      console.error('세션 초기화 실패:', error)
+      console.debug('세션 초기화 실패:', error)
     })
   }, [])
   return mounted && !isGlobalPending ? <>{children}</> : null

@@ -83,7 +83,7 @@ export default function MemoSystemNavigatorMain ({ className }: { className?: st
         newFolderName={newFolderName}
         setNewFolderName={setNewFolderName}
         handleSubmitRename={() => {
-          handleSubmitRename().catch(console.error)
+          handleSubmitRename().catch(console.debug)
         }}
       />
     </div>

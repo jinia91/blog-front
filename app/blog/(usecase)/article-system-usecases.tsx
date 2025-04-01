@@ -62,7 +62,7 @@ export const useArticleEditSystem = (): ArticleEditSystem => {
     if (newTagName.trim() === '' ||
       (tags.length > 0 &&
         tags.map(tag => tag.name.toLowerCase()).includes(newTagName.trim().toLowerCase()))) {
-      console.error('이미 존재하는 태그입니다')
+      console.debug('이미 존재하는 태그입니다')
       return
     }
     await addTagToArticle(articleId, newTagName).then(() => {

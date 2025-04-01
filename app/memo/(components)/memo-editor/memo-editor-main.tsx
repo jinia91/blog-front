@@ -44,7 +44,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
           setReferences(fetchedMemo.references)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.debug('Error fetching data:', error)
       }
     }
 
@@ -69,7 +69,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
         }
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.debug('Error uploading image:', error)
     }
   }, [])
 
@@ -95,7 +95,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
       {/* editor */}
       <div className="mb-4 flex-grow"
            onPaste={(e) => {
-             handleImageUpload(e).catch(console.error)
+             handleImageUpload(e).catch(console.debug)
            }}
       >
         <RelatedMemoModal

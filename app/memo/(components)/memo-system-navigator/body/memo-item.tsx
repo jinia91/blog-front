@@ -53,7 +53,7 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
       }}
       onDrop={(e) => {
         handleDrop(e, parentFolderId).catch(error => {
-          console.error(error)
+          console.debug(error)
         })
       }}
       onDragOver={handleDragOver}

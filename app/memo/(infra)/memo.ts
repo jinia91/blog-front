@@ -17,7 +17,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('메모생성에 실패했습니다', response.statusText)
+    console.debug('메모생성에 실패했습니다', response.statusText)
     return null
   }
   return await response.json()
@@ -36,7 +36,7 @@ export async function fetchRelatedMemo (keyword: string, thisId: string): Promis
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('관련 메모 가져오기 실패')
+    console.debug('관련 메모 가져오기 실패')
     return null
   }
   const data = await response.json()
@@ -58,7 +58,7 @@ export async function fetchMemoById (id: string): Promise<Memo | null> {
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('메모 조회 실패')
+    console.debug('메모 조회 실패')
     return null
   }
   return await response.json()
@@ -94,7 +94,7 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('folder memo 가져오기 실패')
+    console.debug('folder memo 가져오기 실패')
     return null
   }
   const data: { folderInfos: Folder[] } = await response.json()
@@ -114,7 +114,7 @@ export async function requestCreateFolder (): Promise<Folder | null> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('폴더 생성에 실패했습니다')
+    console.debug('폴더 생성에 실패했습니다')
     return null
   }
   return await response.json()
@@ -145,7 +145,7 @@ export async function changeFolderName (folderId: string, toBeName: string): Pro
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('폴더 이름 변경에 실패했습니다')
+    console.debug('폴더 이름 변경에 실패했습니다')
     return null
   }
   return await response.json()
@@ -164,7 +164,7 @@ export async function deleteFolderById (folderId: string): Promise<any> {
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('폴더 삭제 api 호출시 에러, 정상 삭제가 되지 않았습니다')
+    console.debug('폴더 삭제 api 호출시 에러, 정상 삭제가 되지 않았습니다')
     return null
   }
   return await response.json()
@@ -184,7 +184,7 @@ export async function makeRelationshipWithFolders (childFolderId: string, parent
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('폴더 관계 설정에 실패했습니다')
+    console.debug('폴더 관계 설정에 실패했습니다')
     return null
   }
   return await response.json()
@@ -204,7 +204,7 @@ export async function makeRelationshipWithMemoAndFolders (memoId: string, folder
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('메모 폴더 관계 설정에 실패했습니다')
+    console.debug('메모 폴더 관계 설정에 실패했습니다')
     return null
   }
   return await response.json()
@@ -223,7 +223,7 @@ export async function uploadImageToServer (imageFile: File): Promise<{ url: stri
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('이미지 업로드에 실패했습니다')
+    console.debug('이미지 업로드에 실패했습니다')
     return null
   }
   return await response.json()
@@ -243,7 +243,7 @@ export async function fetchSearchResults (query: string): Promise<SimpleMemoInfo
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('폴더 검색에 실패했습니다')
+    console.debug('폴더 검색에 실패했습니다')
     return null
   }
   const data = await response.json()
@@ -264,7 +264,7 @@ export async function fetchReferencesByMemoId (memoId: string): Promise<SimpleMe
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('참조 메모 검색에 실패했습니다')
+    console.debug('참조 메모 검색에 실패했습니다')
     return null
   }
   const data = await response.json()
@@ -285,7 +285,7 @@ export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMe
 
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('참조된 메모 검색에 실패했습니다')
+    console.debug('참조된 메모 검색에 실패했습니다')
     return null
   }
   const data = await response.json()

@@ -33,7 +33,7 @@ export default function Page (): React.ReactElement {
     }
 
     handleLogin().catch(error => {
-      console.error('로그인 실패:', error)
+      console.debug('로그인 실패:', error)
     })
   }, [])
   return (

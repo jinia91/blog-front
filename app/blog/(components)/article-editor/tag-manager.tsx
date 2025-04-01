@@ -14,7 +14,7 @@ export const TagManager = ({ articleId }: { articleId: number }): React.ReactEle
       setSuggestedTags(tags)
     }
 
-    fetchTags().catch(console.error)
+    fetchTags().catch(console.debug)
   }, [])
 
   const addTagCallBack = async (): Promise<void> => {

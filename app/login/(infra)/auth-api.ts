@@ -27,7 +27,7 @@ Promise<{
     }
   })
   if (!response.ok) {
-    console.error(response.statusText)
+    console.debug(response.statusText)
     return null
   }
   return await response.json()
@@ -40,7 +40,7 @@ export async function oAuthLogout (): Promise<boolean> {
   })
 
   if (!response.ok) {
-    console.error(response.statusText)
+    console.debug(response.statusText)
     return false
   }
 
@@ -58,7 +58,7 @@ export async function refreshTokens (): Promise<{
     credentials: 'include'
   })
   if (!response.ok) {
-    console.error(response.statusText)
+    console.debug(response.statusText)
     return null
   }
   return await response.json()

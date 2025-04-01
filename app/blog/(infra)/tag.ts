@@ -12,7 +12,7 @@ export async function fetchTopNTags (n: number): Promise<Tag[]> {
   }
   const response = await withAuthRetry(apiCall)
   if (!response.ok) {
-    console.error('사용 상위 태그 조회 실패')
+    console.debug('사용 상위 태그 조회 실패')
     return []
   }
   const data = await response.json()
