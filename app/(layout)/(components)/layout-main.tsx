@@ -7,25 +7,27 @@ import { TapBarMain } from './(tap-system)/tap-bar-main'
 
 const LayoutMain = ({ page }: { page: React.ReactNode }): React.ReactNode => {
   return (
-    <>
+    <main className="h-screen flex flex-col">
       <header className="w-full bg-gray-900 border-b"><TopNavMain/></header>
-      <div className="md:flex">
+      <div className="md:flex flex-grow overflow-hidden">
         <aside className="fixed md:static flex-1 bg-gray-900 md:border-r"
                style={{ zIndex: 100 }}
         >
           <SideAppBar/>
         </aside>
-        <main
-          className="flex-grow bg-gray-800 text-white w-screen overflow-hidden pb-4"
-          style={{ height: 'calc(100vh - 60px)' }}>
+        <div className="flex-grow bg-gray-800 text-white w-screen overflow-hidden pb-4">
           <TabContextMenu/>
-          <div className="bg-gray-800 sm:p-4 pt-4">
-            <TapBarMain/>
-            <RenderApp page={page}/>
+          <div className="flex flex-col h-full">
+            <div className="bg-gray-800 pt-4 flex-shrink-0">
+              <TapBarMain/>
+            </div>
+            <div className="flex-grow overflow-auto">
+              <RenderApp page={page}/>
+            </div>
           </div>
-        </main>
+        </div>
       </div>
-    </>
+    </main>
   )
 }
 export { LayoutMain }
