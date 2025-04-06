@@ -63,7 +63,7 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
 
   return (
     <div
-      className="relative sm:m-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 h-[calc(100vh-200px)] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700 flex justify-center">
+      className="relative sm:mt-4 p-4 text-gray-300 bg-gray-900 border-2 border-green-400 h-[calc(100vh-180px)] overflow-y-auto scrollbar-thumb-green-400 scrollbar-track-gray-700 flex justify-center">
       <div
         className="w-full max-w-4xl">
         <div className="relative w-full sm:h-[400px] h-[240px]">
