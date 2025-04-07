@@ -2,11 +2,6 @@
 
 import React, { useState } from 'react'
 
-function getRandomColor () {
-  const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500']
-  return colors[Math.floor(Math.random() * colors.length)]
-}
-
 const mockComments = [
   {
     id: 1,
@@ -32,7 +27,11 @@ export default function CommentSection (): React.ReactElement {
   const [showReply, setShowReply] = useState(false)
   const [replyNickname, setReplyNickname] = useState('')
   const [replyPassword, setReplyPassword] = useState('')
-  const [avatarColor] = useState(getRandomColor())
+
+  function getRandomColor (): string {
+    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500']
+    return colors[Math.floor(Math.random() * colors.length)]
+  }
 
   return (
     <div className="mt-10 border border-green-400 p-4 bg-gray-950 rounded shadow-inner text-gray-300">

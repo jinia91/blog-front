@@ -21,7 +21,7 @@ export default function Page ({ params }: { params: { id: string } }): React.Rea
   return (
     <main className={'bg-gray-900 text-gray-300 border-green-400 p-4 border-2 overflow-y-scroll'}
           style={{
-            maxHeight: 'calc(100vh - 180px)'
+            maxHeight: 'calc(100vh - 200px)'
           }}>
       <ArticleEditorMain articleId={params.id}/>
     </main>
