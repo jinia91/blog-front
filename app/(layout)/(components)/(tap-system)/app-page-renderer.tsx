@@ -2,6 +2,7 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import MemoSystemMain from '../../../memo/(components)/memo-system-main'
+import { Empty } from '../../../empty/(components)/empty'
 
 export function RenderApp ({ page }: {
   page: React.ReactNode
@@ -37,7 +38,7 @@ export function RenderApp ({ page }: {
   if (isMemo()) {
     return renderMemo()
   } else if (isEmpty()) {
-    return null
+    return (<Empty/>)
   } else {
     return renderOthers()
   }
