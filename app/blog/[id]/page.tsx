@@ -11,6 +11,7 @@ import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
 import { fetchExpectedStatusArticleById } from '../(infra)/article'
 import Image from 'next/image'
+import CommentSection from '../(components)/comments/comment'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export async function generateMetadata ({ params }: { params: { id: string } }) {
@@ -108,9 +109,9 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
           <EditButton articleId={article.id.toString()}/>
           <DeleteButton articleId={article.id.toString()}/>
         </div>
-
         <div className="border-b border-gray-700 mt-6 mb-6"/>
-
+        <CommentSection/>
+        <div className="border-b border-gray-700 mt-6 mb-6"/>
       </div>
     </div>
   )
