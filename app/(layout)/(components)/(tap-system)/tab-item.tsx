@@ -78,9 +78,13 @@ export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
         onClick={() => {
           closeTab(index)
         }}
-        className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center w-4 h-4"
-        style={{ transform: 'translate(-50%, 50%)' }}
-      />
+        className="absolute bottom-6 left-4 flex items-center justify-center hover:opacity-100 group"
+        style={{ transform: 'translate(-50%, 50%)', width: '30px', height: '30px' }}
+      >
+        <div className="bg-red-500 hover:bg-red-600 rounded-full w-3 h-3 flex items-center justify-center">
+          <span className="text-gray-600 text-xs opacity-0 group-hover:opacity-100">X</span>
+        </div>
+      </button>
     </div>
   )
 }
