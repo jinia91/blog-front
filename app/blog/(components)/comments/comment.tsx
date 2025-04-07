@@ -12,13 +12,15 @@ const mockComments = [
     id: 1,
     nickname: '익명1',
     time: '2025-04-07 14:23',
-    content: '정말 멋진 글입니다! 잘 보고 갑니다.'
+    content: '정말 멋진 글입니다! 잘 보고 갑니다.',
+    profileUrl: ''
   },
   {
     id: 2,
     nickname: '익명2',
     time: '2025-04-07 14:25',
-    content: '감사합니다. 좋은 하루 되세요!'
+    content: '감사합니다. 좋은 하루 되세요!',
+    profileUrl: ''
   }
 ]
 
@@ -50,7 +52,9 @@ export default function CommentSection (): React.ReactElement {
             <button className="absolute top-2 right-2 text-xs text-red-400 hover:underline">삭제</button>
             <p className="text-sm text-gray-300 mt-1">{comment.content}</p>
             <button
-              onClick={() => { setShowReply(!showReply) }}
+              onClick={() => {
+                setShowReply(!showReply)
+              }}
               className="text-xs text-green-400 mt-2 hover:underline"
             >
               답글
@@ -60,7 +64,9 @@ export default function CommentSection (): React.ReactElement {
               <div className="mt-2">
                 <textarea
                   value={replyText}
-                  onChange={(e) => { setReplyText(e.target.value) }}
+                  onChange={(e) => {
+                    setReplyText(e.target.value)
+                  }}
                   placeholder="> 여기에 답글을 입력하세요..."
                   className="w-full h-20 p-2 bg-black border border-green-700 text-green-300 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
@@ -68,14 +74,18 @@ export default function CommentSection (): React.ReactElement {
                   <input
                     type="text"
                     value={replyNickname}
-                    onChange={(e) => { setReplyNickname(e.target.value) }}
+                    onChange={(e) => {
+                      setReplyNickname(e.target.value)
+                    }}
                     placeholder="이름"
                     className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
                   />
                   <input
                     type="password"
                     value={replyPassword}
-                    onChange={(e) => { setReplyPassword(e.target.value) }}
+                    onChange={(e) => {
+                      setReplyPassword(e.target.value)
+                    }}
                     placeholder="비밀번호"
                     className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
                   />
@@ -100,25 +110,31 @@ export default function CommentSection (): React.ReactElement {
 
       {/* 댓글 입력창 */}
       <div className="mt-6 space-y-2">
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2">
           <input
             type="text"
             value={nickname}
-            onChange={(e) => { setNickname(e.target.value) }}
+            onChange={(e) => {
+              setNickname(e.target.value)
+            }}
             placeholder="이름"
-            className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
+            className="min-w-0 flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
           />
           <input
             type="password"
             value={password}
-            onChange={(e) => { setPassword(e.target.value) }}
+            onChange={(e) => {
+              setPassword(e.target.value)
+            }}
             placeholder="비밀번호"
-            className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
+            className="min-w-0 flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 font-mono text-sm"
           />
         </div>
         <textarea
           value={text}
-          onChange={(e) => { setText(e.target.value) }}
+          onChange={(e) => {
+            setText(e.target.value)
+          }}
           placeholder="> 여기에 댓글을 입력하세요..."
           className="w-full h-24 p-2 bg-black border border-green-700 text-green-300 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
         />
