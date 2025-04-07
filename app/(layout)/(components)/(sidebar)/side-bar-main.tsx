@@ -63,8 +63,9 @@ export default function SideBarMain (): React.ReactElement {
               if (type === 'link') {
                 return (
                   <li key={name} onClick={() => window.open(href, '_blank')}
-                      className="flex items-center mb-2 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
-                    <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                      className="flex items-center mb-2 overflow-auto truncate cursor-pointer pb-2 group">
+                    <span
+                      className="inline-block text-3xl pl-2 mr-2 transform transition-transform duration-300 group-hover:scale-125"><Icon/></span>
                     <span
                       className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
                       {name}
@@ -77,8 +78,9 @@ export default function SideBarMain (): React.ReactElement {
                     <li onClick={() => {
                       setCollapsed(true)
                     }}
-                        className="flex items-center mb-2 overflow-auto truncate cursor-pointer hover:bg-gray-800 pb-2">
-                      <span className="inline-block text-3xl pl-2 mr-2"><Icon/></span>
+                        className="flex items-center mb-2 overflow-auto truncate cursor-pointer pb-2 group">
+                      <span
+                        className="inline-block text-3xl pl-2 mr-2 transform transition-transform duration-300 group-hover:scale-125"><Icon/></span>
                       <span
                         className={`retro-font inline-block text-2xl transition-all duration-300 ease-in-out ${overlayStyle}`}>
                         {name}
