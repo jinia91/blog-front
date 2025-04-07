@@ -78,7 +78,7 @@ export function TabItem ({ tab, index, isSelected, onDragStart, onDrop }: {
         onClick={() => {
           closeTab(index)
         }}
-        className="absolute bottom-6 left-4 flex items-center justify-center hover:opacity-100 group"
+        className="absolute bottom-7 -right-4 flex items-center justify-center hover:opacity-100 group"
         style={{ transform: 'translate(-50%, 50%)', width: '30px', height: '30px' }}
       >
         <div className="bg-red-500 hover:bg-red-600 rounded-full w-3 h-3 flex items-center justify-center">
