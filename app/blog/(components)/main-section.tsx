@@ -1,83 +1,41 @@
-'use client'
-import React, { useCallback, useEffect, useRef } from 'react'
 import ArticleCard from './article-card'
-import { useManageArticleCardViewModels } from '../(usecase)/main-section-article-usecases'
+import React from 'react'
+import { fetchArticleCardsByOffset } from '../(infra)/article-card'
+import { type ArticleSearchParam } from '../page'
+import { InfinityScrollSection } from './InfinityScrollSection'
 
-export default function MainSection (): React.ReactElement {
-  const {
-    initialLoad,
-    renderLatestArticleCards,
-    hasMore,
-    loadedArticles,
-    selectedTag
-  } = useManageArticleCardViewModels()
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const lastPostRef = useRef<HTMLDivElement | null>(null)
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = React.useState(false)
-
-  useEffect(() => {
-    void (async () => {
-      await initialLoad()
-      setIsInitialLoadComplete(true)
-    })()
-  }, [])
-
-  const loadMorePosts = useCallback(async () => {
-    if (!hasMore) return
-    await renderLatestArticleCards()
-  }, [renderLatestArticleCards, hasMore])
-
-  useEffect(() => {
-    if (lastPostRef.current == null || !hasMore) return
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          void loadMorePosts()
-        }
-      },
-      { threshold: 1.0 }
-    )
-
-    observerRef.current.observe(lastPostRef.current)
-    return () => {
-      if (observerRef.current != null) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [hasMore, loadedArticles])
-
-  if (!isInitialLoadComplete) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-400 border-opacity-50"></div>
-      </div>
-    )
-  }
+export default async function MainSection ({ searchParams }: ArticleSearchParam): Promise<React.ReactElement> {
+  const isPublishMode = (searchParams.mode == null) || searchParams.mode === 'publish'
+  const initialArticles = await fetchArticleCardsByOffset(null, 20, isPublishMode)
+  const lastCursor = initialArticles.length > 0 ? initialArticles[initialArticles.length - 1].id : isPublishMode ? 0 : Number.MAX_SAFE_INTEGER - 1
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">
       <header className="px-2 py-2">
         <div className="flex items-center">
           <div className="flex-grow border-t animate-glow border-green-400"></div>
-          <h1 className="px-2 text-lg font-bold text-green-400">{
-            (selectedTag != null) ? `#${selectedTag.name}` : 'Latest Posts'
-          }</h1>
+          <h1 className="px-2 text-lg font-bold text-green-400">
+            {searchParams.tag != null ? `#${searchParams.tag}` : searchParams.keyword != null ? `#${searchParams.keyword}` : 'Latest Articles'}
+          </h1>
           <div className="flex-grow border-t animate-glow border-green-400"></div>
         </div>
       </header>
 
       <main className="flex flex-col gap-2 sm:p-10 p-1">
-        {loadedArticles.map((post, index) => (
-          <div key={post.id}
-               ref={index === loadedArticles.length - 1 ? lastPostRef : null}>
-            <ArticleCard article={post} isPublished={true}/>
+        {initialArticles.map((post) => (
+          <div key={post.id}>
+            <ArticleCard article={post} isPublished={isPublishMode}/>
           </div>
         ))}
+        <InfinityScrollSection
+          searchParams={searchParams}
+          lastArticleId={lastCursor}
+        />
       </main>
 
-      {!hasMore && (
-        <p className="text-center text-gray-400 p-2 text-lg">No more posts</p>
-      )}
+      {/* {!hasMore && ( */}
+      <p className="text-center text-gray-400 p-2 text-lg">No more posts</p>
+      {/* )} */}
     </div>
   )
 }

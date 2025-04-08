@@ -1,11 +1,16 @@
 import React from 'react'
 import MainSection from './(components)/main-section'
 import AsideSection from './(components)/aside/aside-section'
-import DraftSection from './(components)/draft-section'
 
-export default function Blog ({ searchParams }: {
-  searchParams: { mode?: string }
-}): React.ReactElement {
+export interface ArticleSearchParam {
+  searchParams: {
+    mode?: string
+    tag?: string
+    keyword?: string
+  }
+}
+
+export default function Blog ({ searchParams }: ArticleSearchParam): React.ReactElement {
   const isPublishMode = (searchParams.mode == null) || searchParams.mode === 'publish'
 
   return (
@@ -16,7 +21,7 @@ export default function Blog ({ searchParams }: {
               minHeight: 'calc(100vh - 200px)'
             }}>
         <div className="flex-grow overflow-y-auto">
-          {isPublishMode ? <MainSection/> : <DraftSection/>}
+          <MainSection searchParams={searchParams}/>
         </div>
         <aside className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800 min-w-[250px]">
           <AsideSection isPublishMode={isPublishMode}/>
