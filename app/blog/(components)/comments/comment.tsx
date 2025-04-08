@@ -37,8 +37,10 @@ export const CommentItem = ({
               ? (<img src={comment.profileImageUrl} alt="profile" className="w-full h-full object-cover"/>)
               : ('?')}
           </span>
-          {comment.nickname} - <span
-          className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleString()} </span>
+          {comment.nickname} - <span className="text-xs text-gray-400">
+            <span className="hidden sm:inline">{new Date(comment.createdAt).toLocaleString()}</span>
+            <span className="inline sm:hidden">{new Date(comment.createdAt).toLocaleDateString()}</span>
+          </span>
         </div>
       )}
       <div className="text-gray-300 text-sm whitespace-pre-line">
