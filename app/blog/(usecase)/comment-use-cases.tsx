@@ -22,12 +22,17 @@ export const useComments = (): CommentUseCases => {
 
   const addComment = async (articleId: number, parentId: number | null, nickname: string, password: string, content: string): Promise<void> => {
     const newComment = await postComment(articleId, parentId, nickname, password, content)
-    const appendComment = (comments: Comment[]): Comment[] =>
-      comments.map(comment =>
+    const appendComment = (comments: Comment[]): Comment[] => {
+      if (parentId === null) {
+        return [...comments, newComment]
+      }
+
+      return comments.map(comment =>
         comment.id === parentId
           ? { ...comment, children: [...comment.children, newComment] }
           : { ...comment, children: appendComment(comment.children) }
       )
+    }
     setComments(prev => appendComment(prev))
   }
 
