@@ -61,6 +61,7 @@ export const useComments = (): CommentUseCases => {
   }
 
   const removeComment = async (commentId: number, password: string | null): Promise<void> => {
+    console.log('removeComment', commentId, password)
     const response = await deleteComment(commentId, password)
     if (!response) {
       throw new Error('댓글 삭제 실패')
