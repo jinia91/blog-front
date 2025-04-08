@@ -10,8 +10,6 @@ export default async function MainSection ({ searchParams }: ArticleSearchParam)
   const isDraftMode = searchParams.mode === 'draft' &&
     (searchParams.tag == null && searchParams.keyword == null)
 
-  console.log(searchParams)
-
   const { initialArticles, lastCursor } = await (async () => {
     if (isPublishMode) {
       const articles = await fetchArticleCardsByOffset(null, 20, true)
