@@ -36,10 +36,8 @@ export const ArticleSearchInput = (): React.ReactElement => {
         value={keyword}
         onInput={(e) => {
           const inputValue = e.currentTarget.value
-          const params = new URLSearchParams(searchParams.toString())
-          if (inputValue.trim() === '') {
-            params.delete('keyword')
-          } else {
+          const params = new URLSearchParams()
+          if (inputValue.trim() !== '') {
             params.set('keyword', inputValue)
           }
           router.push(`?${params.toString()}`)

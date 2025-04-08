@@ -34,7 +34,7 @@ export const TagButton = ({ tag }: TagButtonProps): React.ReactElement => {
       }}
       className={
         searchParams.get('tag') === tag.name
-          ? 'bg-green-600 text-green-100 px-2 py-1 rounded-full hover:bg-green-600 transition-colors text-xs'
+          ? 'bg-green-600 text-green-100 px-2 py-1 rounded-full hover:bg-green-600 transition-colors'
           : 'bg-green-800 text-gray-100 px-2 py-1 rounded-full hover:bg-green-600 transition-color'
       }
     >

@@ -16,7 +16,7 @@ export interface InfinityScrollProps {
 
 export const InfinityScrollSection = (
   { searchParams, lastArticleId }: InfinityScrollProps
-): React.ReactElement => {
+): React.ReactElement | null => {
   const [articles, setArticles] = useState<ArticleCardViewModel[]>([])
   const [cursor, setCursor] = useState<number>(lastArticleId ?? 0)
   const [loading, setLoading] = useState(false)
@@ -63,6 +63,10 @@ export const InfinityScrollSection = (
       if (observerRef.current != null) observer.unobserve(observerRef.current)
     }
   }, [hasMore, cursor, searchParams])
+
+  if (articles.length === 0) {
+    return null
+  }
 
   return (
     <>
