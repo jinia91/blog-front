@@ -11,7 +11,8 @@ export default function Blog (): React.ReactElement {
     <div className=" justify-center items-center">
       <main className="flex bg-gray-900 text-gray-300 border-2 border-green-400"
             style={{
-              maxHeight: 'calc(100vh - 200px)'
+              maxHeight: 'calc(100vh - 200px)',
+              minHeight: 'calc(100vh - 200px)'
             }}>
         <div className="flex-grow overflow-y-auto">
           {isPublishMode ? <MainSection/> : <DraftSection/>}

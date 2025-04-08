@@ -13,9 +13,13 @@ export default function MainSection (): React.ReactElement {
   } = useManageArticleCardViewModels()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useRef<HTMLDivElement | null>(null)
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = React.useState(false)
 
   useEffect(() => {
-    void initialLoad()
+    void (async () => {
+      await initialLoad()
+      setIsInitialLoadComplete(true)
+    })()
   }, [])
 
   const loadMorePosts = useCallback(async () => {
@@ -41,6 +45,14 @@ export default function MainSection (): React.ReactElement {
       }
     }
   }, [hasMore, loadedArticles])
+
+  if (!isInitialLoadComplete) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-400 border-opacity-50"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative flex flex-col bg-gray-900 text-gray-300 border-2 animate-glow border-green-400 m-2">
