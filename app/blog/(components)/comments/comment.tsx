@@ -2,26 +2,36 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { type Comment } from '../../(domain)/comment'
-import { fetchComments, postComment } from '../../(infra)/comment'
+import { fetchComments } from '../../(infra)/comment'
+import { useComments } from '../../(usecase)/comment-use-cases'
 
-export const CommentForm = ({
-  onSubmit
-}: {
-  onSubmit: (nickname: string, password: string, content: string) => void
-}): React.ReactElement => {
+export const CommentForm = (
+  {
+    articleId,
+    parentId
+  }: { articleId: number, parentId: number | null }
+): React.ReactElement | null => {
   const nicknameRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLTextAreaElement>(null)
+  const { addComment } = useComments()
+  const [submitted, setSubmitted] = useState(false)
 
   const onClick = (): void => {
     const nickname = nicknameRef.current?.value ?? ''
     const password = passwordRef.current?.value ?? ''
     const content = contentRef.current?.value ?? ''
-    onSubmit(nickname, password, content)
+    void addComment(articleId, parentId, nickname, password, content)
     if (nicknameRef.current != null) nicknameRef.current.value = ''
     if (passwordRef.current != null) passwordRef.current.value = ''
     if (contentRef.current != null) contentRef.current.value = ''
+
+    if (parentId !== null) {
+      setSubmitted(true) // 답글일 때만 닫히게 처리
+    }
   }
+
+  if (submitted) return null
 
   return (
     <div className="space-y-2 mt-2">
@@ -51,12 +61,10 @@ export const CommentForm = ({
 export const CommentItem = ({
   comment,
   articleId,
-  onReply,
   depth = 0
 }: {
   comment: Comment
   articleId: number
-  onReply: (parentId: number, reply: Comment) => void
   depth?: number
 }): React.ReactElement => {
   const [showReplyForm, setShowReplyForm] = useState(false)
@@ -79,59 +87,36 @@ export const CommentItem = ({
       )}
       {showReplyForm && (
         <CommentForm
-          onSubmit={(nickname, password, content) => {
-            void (async () => {
-              const reply = await postComment(articleId, comment.id, nickname, password, content)
-              onReply(comment.id, reply)
-              setShowReplyForm(false)
-            })()
-          }}
+          parentId={comment.id}
+          articleId={articleId}
         />
       )}
       {comment.children.map(child => (
-        <CommentItem key={child.id} comment={child} articleId={articleId} onReply={onReply} depth={depth + 1}/>
+        <CommentItem key={child.id} comment={child} articleId={articleId} depth={depth + 1}/>
       ))}
     </div>
   )
 }
 
 export default function CommentSection ({ articleId }: { articleId: number }): React.ReactElement {
-  const [comments, setComments] = useState<Comment[]>([])
+  const { comments, setComments } = useComments()
 
   useEffect(() => {
     void fetchComments(articleId).then(setComments)
   }, [articleId])
-
-  const addComment = (newComment: Comment): void => {
-    setComments(prev => [...prev, newComment])
-  }
-
-  const addReply = (parentId: number, reply: Comment): void => {
-    const appendReply = (nodes: Comment[]): Comment[] =>
-      nodes.map(node =>
-        node.id === parentId
-          ? { ...node, children: [...node.children, reply] }
-          : { ...node, children: appendReply(node.children) }
-      )
-    setComments(prev => appendReply(prev))
-  }
 
   return (
     <div className="mt-10 border border-green-400 p-4 bg-gray-950 rounded text-gray-300">
       <h2 className="text-green-400 text-xl mb-2 font-mono">[ 댓글 ]</h2>
       <div className="space-y-4">
         {comments.map(comment => (
-          <CommentItem key={comment.id} comment={comment} articleId={articleId} onReply={addReply} depth={0}/>
+          <CommentItem key={comment.id} comment={comment} articleId={articleId} depth={0}/>
         ))}
       </div>
       <div className="mt-6">
         <CommentForm
-          onSubmit={(nickname, password, content) => {
-            void (async () => {
-              const newComment = await postComment(articleId, null, nickname, password, content)
-              addComment(newComment)
-            })
-          }}
+          articleId={articleId}
+          parentId={null}
         />
       </div>
     </div>
