@@ -11,7 +11,7 @@ import DeleteButton from '../(components)/delete-button'
 import { Status } from '../(domain)/article'
 import { fetchExpectedStatusArticleById } from '../(infra)/article'
 import Image from 'next/image'
-import CommentSection from '../(components)/comments/comment'
+import CommentSection from '../(components)/comments/comment-main'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export async function generateMetadata ({ params }: { params: { id: string } }) {

@@ -2,12 +2,11 @@ import { withAuthRetry } from '../../login/(infra)/auth-api'
 import { HOST } from '../../(utils)/constants'
 import type { Comment } from '../(domain)/comment'
 
-export async function createNewComment (
+export async function postComment (
   articleId: number,
-  userId: number | null,
+  parentId: number | null,
   username: string | null,
   password: string | null,
-  parentId: number | null,
   content: string
 ): Promise<number> {
   const apiCall = async (): Promise<Response> => {
@@ -20,8 +19,7 @@ export async function createNewComment (
       body: JSON.stringify({
         refId: articleId,
         refType: 'ARTICLE',
-        userId,
-        username,
+        userName: username,
         password,
         parentId,
         content
@@ -39,17 +37,6 @@ export async function createNewComment (
 
 export async function fetchComments (articleId: number): Promise<Comment[]> {
   return mockComments
-}
-
-export async function postComment (articleId: number, parentId: number | null, nickname: string, password: string, content: string): Promise<Comment> {
-  return {
-    id: Math.floor(Math.random() * 10000),
-    content,
-    nickname,
-    createdAt: new Date(),
-    profileUrl: 'https://example.com/profile.jpg',
-    children: []
-  }
 }
 
 export const mockComments = [

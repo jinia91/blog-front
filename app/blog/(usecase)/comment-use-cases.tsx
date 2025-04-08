@@ -21,7 +21,18 @@ export const useComments = (): CommentUseCases => {
   const [comments, setComments] = useAtom(commentsAtom)
 
   const addComment = async (articleId: number, parentId: number | null, nickname: string, password: string, content: string): Promise<void> => {
-    const newComment = await postComment(articleId, parentId, nickname, password, content)
+    const response = await postComment(articleId, parentId, nickname, password, content)
+    if (response === -1) {
+      throw new Error('댓글 생성 실패')
+    }
+    const newComment: Comment = {
+      id: response,
+      content,
+      nickname,
+      profileUrl: 'https://example.com/profile1.jpg',
+      createdAt: new Date(),
+      children: []
+    }
     const appendComment = (comments: Comment[]): Comment[] => {
       if (parentId === null) {
         return [...comments, newComment]
