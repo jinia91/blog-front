@@ -35,7 +35,8 @@ export const useSession = (): {
       nickName: loginInfo.nickName,
       email: loginInfo.email,
       roles: loginInfo.roles,
-      picUrl: loginInfo.picUrl
+      picUrl: loginInfo.picUrl,
+      userId: loginInfo.userId
     })
   }
 

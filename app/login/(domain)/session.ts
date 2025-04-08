@@ -9,4 +9,5 @@ export interface Session {
   email: string
   roles: Set<string>
   picUrl: string
+  userId: number
 }
