@@ -24,10 +24,6 @@ export const InfinityScrollSection = (
   const observerRef = useRef<HTMLDivElement | null>(null)
   const isPublishMode = (searchParams.mode == null) || searchParams.mode === 'publish'
 
-  if (searchParams.tag != null || searchParams.keyword != null) {
-    return <></>
-  }
-
   useEffect(() => {
     setArticles([])
     setCursor(lastArticleId ?? 0)

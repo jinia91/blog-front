@@ -16,6 +16,8 @@ const DraftModeButton = (): React.ReactElement => {
     const newMode = isPublishMode ? 'draft' : 'publish'
     const params = new URLSearchParams(searchParams.toString())
     params.set('mode', newMode)
+    params.delete('keyword')
+    params.delete('tag')
     router.push(`?${params.toString()}`)
   }
 

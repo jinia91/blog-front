@@ -7,7 +7,7 @@ import { ArticleSearchInput } from './article-search'
 import { fetchTopNTags } from '../../(infra)/tag'
 import { type Tag } from '../../(domain)/tag'
 import { TagButton } from './tag-button'
-import { useManageArticleCardViewModels } from '../../(usecase)/main-section-article-usecases'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function AsideSection (
   { isPublishMode }: {
@@ -17,7 +17,9 @@ export default function AsideSection (
   const { session } = useSession()
 
   const [tags, setTags] = useState<Tag[]>([])
-  const { selectedTag, renderArticleCardsByTag } = useManageArticleCardViewModels()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   useEffect(() => {
     const fetchTags = async (): Promise<void> => {
       const tags = await fetchTopNTags(10)
@@ -26,10 +28,6 @@ export default function AsideSection (
 
     void fetchTags()
   }, [])
-
-  const handleTagClick = (tag: Tag): void => {
-    void renderArticleCardsByTag(tag)
-  }
 
   return (
     <div className="border-2 border-b-green-400 h-full p-2 animate-glow border-green-400">
@@ -56,9 +54,7 @@ export default function AsideSection (
             <h2 className="text-lg font-bold text-green-300 mb-2">Recommended Tags</h2>
             <div className="flex flex-wrap gap-2 text-sm">
               {tags.map(tag => (
-                <TagButton key={tag.name} tag={tag} onClick={handleTagClick} selected={
-                  selectedTag != null && selectedTag.name === tag.name
-                }/>
+                <TagButton key={tag.name} tag={tag}/>
               ))}
             </div>
           </div>
