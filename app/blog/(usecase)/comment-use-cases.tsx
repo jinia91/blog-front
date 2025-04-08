@@ -1,6 +1,6 @@
 import { atom, useAtom } from 'jotai/index'
 import { type Comment } from '../(domain)/comment'
-import { postComment } from '../(infra)/comment'
+import { deleteComment, postComment } from '../(infra)/comment'
 
 const commentsAtom = atom<Comment[]>([])
 
@@ -16,7 +16,7 @@ export interface CommentUseCases {
     userId: number | null
   ) => Promise<void>
   setComments: (comments: Comment[]) => void
-  removeComment: (commentId: number) => void
+  removeComment: (commentId: number, password: string | null) => Promise<void>
 }
 
 export const useComments = (): CommentUseCases => {
@@ -43,7 +43,8 @@ export const useComments = (): CommentUseCases => {
       profileImageUrl,
       createdAt: new Date(),
       children: [],
-      authorId: isRegistered ? null : userId
+      authorId: isRegistered ? null : userId,
+      deleted: false
     }
     const appendComment = (comments: Comment[]): Comment[] => {
       if (parentId === null) {
@@ -59,8 +60,20 @@ export const useComments = (): CommentUseCases => {
     setComments(prev => appendComment(prev))
   }
 
-  const removeComment = (commentId: number): void => {
-    setComments(prev => prev.filter(comment => comment.id !== commentId))
+  const removeComment = async (commentId: number, password: string | null): Promise<void> => {
+    const response = await deleteComment(commentId, password)
+    if (!response) {
+      throw new Error('댓글 삭제 실패')
+    }
+    const markDeleted = (comments: Comment[]): Comment[] => {
+      return comments.map(comment =>
+        comment.id === commentId
+          ? { ...comment, deleted: true }
+          : { ...comment, children: markDeleted(comment.children) }
+      )
+    }
+
+    setComments(prev => markDeleted(prev))
   }
 
   return {

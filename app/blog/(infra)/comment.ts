@@ -57,22 +57,26 @@ export async function fetchComments (articleId: number): Promise<Comment[]> {
   }))
 }
 
-export const mockComments = [
-  {
-    id: 1,
-    content: '최상위 댓글입니다.',
-    nickname: '익명1',
-    profileUrl: 'https://example.com/profile1.jpg',
-    createdAt: new Date('2025-04-07 14:00'),
-    children: [
-      {
-        id: 2,
-        content: '답글입니다.',
-        nickname: '익명2',
-        profileUrl: 'https://example.com/profile1.jpg',
-        createdAt: new Date('2025-04-07 14:05'),
-        children: []
-      }
-    ]
+export async function deleteComment (
+  commentId: number,
+  password: string | null
+): Promise<boolean> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/comments/' + commentId, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        password
+      })
+    })
   }
-]
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.debug('댓글 삭제 실패')
+    return false
+  }
+  return true
+}

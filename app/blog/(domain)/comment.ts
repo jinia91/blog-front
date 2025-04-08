@@ -6,4 +6,5 @@ export interface Comment {
   profileImageUrl: string | null
   createdAt: Date
   children: Comment[]
+  deleted: boolean
 }
