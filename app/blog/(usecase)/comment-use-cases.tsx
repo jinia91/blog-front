@@ -10,8 +10,10 @@ export interface CommentUseCases {
     articleId: number,
     parentId: number | null,
     nickname: string,
-    password: string,
-    content: string
+    password: string | null,
+    profileImageUrl: string | null,
+    content: string,
+    userId: number | null
   ) => Promise<void>
   setComments: (comments: Comment[]) => void
   removeComment: (commentId: number) => void
@@ -20,8 +22,17 @@ export interface CommentUseCases {
 export const useComments = (): CommentUseCases => {
   const [comments, setComments] = useAtom(commentsAtom)
 
-  const addComment = async (articleId: number, parentId: number | null, nickname: string, password: string, content: string): Promise<void> => {
-    const response = await postComment(articleId, parentId, nickname, password, content)
+  const addComment = async (
+    articleId: number,
+    parentId: number | null,
+    nickname: string,
+    password: string | null,
+    profileImageUrl: string | null,
+    content: string,
+    userId: number | null = null
+  ): Promise<void> => {
+    const isRegistered = userId !== null
+    const response = await postComment(articleId, parentId, isRegistered ? null : nickname, password, content)
     if (response === -1) {
       throw new Error('댓글 생성 실패')
     }
@@ -29,9 +40,10 @@ export const useComments = (): CommentUseCases => {
       id: response,
       content,
       nickname,
-      profileUrl: 'https://example.com/profile1.jpg',
+      profileImageUrl,
       createdAt: new Date(),
-      children: []
+      children: [],
+      authorId: isRegistered ? null : userId
     }
     const appendComment = (comments: Comment[]): Comment[] => {
       if (parentId === null) {

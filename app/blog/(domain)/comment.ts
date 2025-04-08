@@ -2,7 +2,8 @@ export interface Comment {
   id: number
   content: string
   nickname: string
-  profileUrl: string
+  authorId: number | null
+  profileImageUrl: string | null
   createdAt: Date
   children: Comment[]
 }

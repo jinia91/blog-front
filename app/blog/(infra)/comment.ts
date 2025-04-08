@@ -36,7 +36,25 @@ export async function postComment (
 }
 
 export async function fetchComments (articleId: number): Promise<Comment[]> {
-  return mockComments
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + '/v1/comments?' + 'refId=' + articleId.toString() + '&refType=ARTICLE', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.debug('댓글 조회 실패')
+    return []
+  }
+  const data = await response.json()
+  return data.comments.map((comment: Comment) => ({
+    ...comment,
+    createdAt: new Date(comment.createdAt)
+  }))
 }
 
 export const mockComments = [

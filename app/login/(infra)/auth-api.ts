@@ -17,6 +17,7 @@ Promise<{
   email: string
   roles: Set<string>
   picUrl: string
+  userId: number
 } | null> {
   const response = await fetch(HOST + `/v1/auth/${provider}/login`, {
     method: 'POST',
@@ -52,6 +53,7 @@ export async function refreshTokens (): Promise<{
   email: string
   roles: Set<string>
   picUrl: string
+  userId: number
 } | null> {
   const response = await fetch(HOST + '/v1/auth/refresh', {
     method: 'POST',

@@ -16,7 +16,7 @@ export default function CommentSection ({ articleId }: { articleId: number }): R
   return (
     <div className="mt-10 border border-green-400 p-4 bg-gray-950 rounded text-gray-300">
       <h2 className="text-green-400 text-xl mb-2 font-mono">[ 댓글 ]</h2>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {comments.map(comment => (
           <CommentItem key={comment.id} comment={comment} articleId={articleId} depth={0}/>
         ))}
