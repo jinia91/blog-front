@@ -1,77 +1,43 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import { type Comment } from '../../(domain)/comment'
+import { fetchComments, postComment } from '../../(infra)/comment'
 
-interface Comment {
-  id: number
-  content: string
-  nickname: string
-  time: string
-  children: Comment[]
-}
-
-async function fetchComments (articleId: number): Promise<Comment[]> {
-  // Replace with real API
-  return await Promise.resolve([
-    {
-      id: 1,
-      content: '최상위 댓글입니다.',
-      nickname: '익명1',
-      time: '2025-04-07 15:00',
-      children: [
-        {
-          id: 2,
-          content: '답글입니다.',
-          nickname: '익명2',
-          time: '2025-04-07 15:01',
-          children: []
-        }
-      ]
-    }
-  ])
-}
-
-async function postComment (articleId: number, parentId: number | null, nickname: string, password: string, content: string): Promise<Comment> {
-  return await Promise.resolve({
-    id: Math.floor(Math.random() * 10000),
-    content,
-    nickname,
-    time: new Date().toISOString(),
-    children: []
-  })
-}
-
-function CommentForm ({
+export const CommentForm = ({
   onSubmit
 }: {
   onSubmit: (nickname: string, password: string, content: string) => void
-}) {
+}): React.ReactElement => {
   const nicknameRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLTextAreaElement>(null)
 
+  const onClick = (): void => {
+    const nickname = nicknameRef.current?.value ?? ''
+    const password = passwordRef.current?.value ?? ''
+    const content = contentRef.current?.value ?? ''
+    onSubmit(nickname, password, content)
+    if (nicknameRef.current != null) nicknameRef.current.value = ''
+    if (passwordRef.current != null) passwordRef.current.value = ''
+    if (contentRef.current != null) contentRef.current.value = ''
+  }
+
   return (
     <div className="space-y-2 mt-2">
-      <div className="flex space-x-2">
+      <div className="flex flex-row flex-wrap gap-2 w-full">
         <input ref={nicknameRef} placeholder="이름"
-               className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 text-sm"/>
+               className="flex-1 min-w-[120px] px-2 py-1 bg-black border border-green-700 text-green-300 text-sm"/>
         <input ref={passwordRef} placeholder="비밀번호" type="password"
-               className="flex-1 px-2 py-1 bg-black border border-green-700 text-green-300 text-sm"/>
+               className="flex-1 min-w-[120px] px-2 py-1 bg-black border border-green-700 text-green-300 text-sm"/>
       </div>
-      <textarea ref={contentRef} placeholder="> 여기에 입력하세요..."
+      <textarea ref={contentRef} placeholder="> 댓글을 남겨주세요..."
                 className="w-full h-20 p-2 bg-black border border-green-700 text-green-300 text-sm"/>
       <div className="flex justify-end">
         <button
           onClick={() => {
-            const nickname = nicknameRef.current?.value || ''
-            const password = passwordRef.current?.value || ''
-            const content = contentRef.current?.value || ''
-            if (nickname && password && content) {
-              onSubmit(nickname, password, content)
-              nicknameRef.current!.value = ''
-              passwordRef.current!.value = ''
-              contentRef.current!.value = ''
-            }
+            if (nicknameRef.current == null || passwordRef.current == null || contentRef.current == null) return
+            onClick()
           }}
           className="px-3 py-1 bg-green-700 text-white text-sm rounded hover:bg-green-500"
         >
@@ -82,54 +48,65 @@ function CommentForm ({
   )
 }
 
-function CommentItem ({
+export const CommentItem = ({
   comment,
   articleId,
-  onReply
+  onReply,
+  depth = 0
 }: {
   comment: Comment
   articleId: number
   onReply: (parentId: number, reply: Comment) => void
-}) {
+  depth?: number
+}): React.ReactElement => {
   const [showReplyForm, setShowReplyForm] = useState(false)
 
   return (
-    <div className="ml-4 mt-4 border-l border-green-800 pl-4">
+    <div
+      className={`${depth > 0 ? 'ml-4 border-l border-green-800 pl-2' : ''} mt-2 p-2 bg-gray-900 border border-gray-700 rounded`}>
       <div className="text-green-300 text-sm">{comment.nickname} - <span
-        className="text-xs text-gray-400">{comment.time}</span></div>
-      <div className="text-gray-300 text-sm">{comment.content}</div>
-      <button onClick={() => { setShowReplyForm(!showReplyForm) }}
-              className="text-xs text-green-500 mt-1 hover:underline">답글
-      </button>
+        className="text-xs text-gray-400">{comment.createdAt.toLocaleString()}</span></div>
+      <div className="text-gray-300 text-sm whitespace-pre-line">{comment.content}</div>
+      {depth < 2 && (
+        <button
+          onClick={() => {
+            setShowReplyForm(!showReplyForm)
+          }}
+          className="text-xs text-green-500 mt-1 hover:underline"
+        >
+          답글
+        </button>
+      )}
       {showReplyForm && (
         <CommentForm
-          onSubmit={async (nickname, password, content) => {
-            const reply = await postComment(articleId, comment.id, nickname, password, content)
-            onReply(comment.id, reply)
-            setShowReplyForm(false)
+          onSubmit={(nickname, password, content) => {
+            void (async () => {
+              const reply = await postComment(articleId, comment.id, nickname, password, content)
+              onReply(comment.id, reply)
+              setShowReplyForm(false)
+            })()
           }}
         />
       )}
       {comment.children.map(child => (
-        <CommentItem key={child.id} comment={child} articleId={articleId} onReply={onReply}/>
+        <CommentItem key={child.id} comment={child} articleId={articleId} onReply={onReply} depth={depth + 1}/>
       ))}
     </div>
   )
 }
 
-export default function CommentSection (): React.ReactElement {
-  const articleId = 1 // assuming articleId is known
+export default function CommentSection ({ articleId }: { articleId: number }): React.ReactElement {
   const [comments, setComments] = useState<Comment[]>([])
 
   useEffect(() => {
-    fetchComments(articleId).then(setComments)
+    void fetchComments(articleId).then(setComments)
   }, [articleId])
 
-  const addComment = (newComment: Comment) => {
+  const addComment = (newComment: Comment): void => {
     setComments(prev => [...prev, newComment])
   }
 
-  const addReply = (parentId: number, reply: Comment) => {
+  const addReply = (parentId: number, reply: Comment): void => {
     const appendReply = (nodes: Comment[]): Comment[] =>
       nodes.map(node =>
         node.id === parentId
@@ -141,17 +118,19 @@ export default function CommentSection (): React.ReactElement {
 
   return (
     <div className="mt-10 border border-green-400 p-4 bg-gray-950 rounded text-gray-300">
-      <h2 className="text-green-400 text-xl mb-4 font-mono">[ 댓글 ]</h2>
+      <h2 className="text-green-400 text-xl mb-2 font-mono">[ 댓글 ]</h2>
       <div className="space-y-4">
         {comments.map(comment => (
-          <CommentItem key={comment.id} comment={comment} articleId={articleId} onReply={addReply}/>
+          <CommentItem key={comment.id} comment={comment} articleId={articleId} onReply={addReply} depth={0}/>
         ))}
       </div>
       <div className="mt-6">
         <CommentForm
-          onSubmit={async (nickname, password, content) => {
-            const newComment = await postComment(articleId, null, nickname, password, content)
-            addComment(newComment)
+          onSubmit={(nickname, password, content) => {
+            void (async () => {
+              const newComment = await postComment(articleId, null, nickname, password, content)
+              addComment(newComment)
+            })
           }}
         />
       </div>

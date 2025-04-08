@@ -110,7 +110,7 @@ export default async function ArticlePage ({ params }: { params: { id: string } 
           <DeleteButton articleId={article.id.toString()}/>
         </div>
         <div className="border-b border-gray-700 mt-6 mb-6"/>
-        <CommentSection/>
+        <CommentSection articleId={article.id}/>
         <div className="border-b border-gray-700 mt-6 mb-6"/>
       </div>
     </div>

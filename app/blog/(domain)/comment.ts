@@ -1,7 +1,8 @@
 export interface Comment {
   id: number
-  nickname: string
   content: string
+  nickname: string
   profileUrl: string
   createdAt: Date
+  children: Comment[]
 }
