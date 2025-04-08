@@ -43,7 +43,7 @@ export const useComments = (): CommentUseCases => {
       profileImageUrl,
       createdAt: new Date(),
       children: [],
-      authorId: isRegistered ? null : userId,
+      authorId: isRegistered ? userId : null,
       deleted: false
     }
     const appendComment = (comments: Comment[]): Comment[] => {
