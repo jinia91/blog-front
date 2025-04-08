@@ -22,7 +22,11 @@ export const CommentItem = ({
   const isOwner = session != null && comment.authorId === session.userId
   const { removeComment } = useComments()
 
-  if (comment.deleted && comment.children.length === 0) {
+  const allChildrenDeletedOrEmpty = comment.children?.every(child =>
+    child.deleted && (child.children.every(grandchild => grandchild.deleted) || child.children.length === 0)
+  )
+
+  if (comment.deleted && allChildrenDeletedOrEmpty) {
     return null
   }
 
@@ -48,7 +52,7 @@ export const CommentItem = ({
       </div>
       {!comment.deleted && (
         <>
-          {depth < 2 && (
+          {depth < 1 && (
             <button
               onClick={() => {
                 setShowReplyForm(!showReplyForm)
