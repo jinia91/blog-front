@@ -7,7 +7,6 @@ import { ArticleSearchInput } from './article-search'
 import { fetchTopNTags } from '../../(infra)/tag'
 import { type Tag } from '../../(domain)/tag'
 import { TagButton } from './tag-button'
-import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function AsideSection (
   { isPublishMode }: {
@@ -17,8 +16,6 @@ export default function AsideSection (
   const { session } = useSession()
 
   const [tags, setTags] = useState<Tag[]>([])
-  const router = useRouter()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     const fetchTags = async (): Promise<void> => {
