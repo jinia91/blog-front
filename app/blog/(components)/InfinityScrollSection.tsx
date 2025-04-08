@@ -64,10 +64,6 @@ export const InfinityScrollSection = (
     }
   }, [hasMore, cursor, searchParams])
 
-  if (articles.length === 0) {
-    return null
-  }
-
   return (
     <>
       {articles.map((post) => (
@@ -75,8 +71,7 @@ export const InfinityScrollSection = (
           <ArticleCard article={post} isPublished={true}/>
         </div>
       ))}
-      <div ref={observerRef} className="h-10"/>
-      {loading && <p className="text-center text-sm text-gray-400">Loading...</p>}
+      <div ref={observerRef}/>
     </>
   )
 }
