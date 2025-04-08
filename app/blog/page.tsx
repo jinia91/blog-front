@@ -23,7 +23,8 @@ export default function Blog ({ searchParams }: ArticleSearchParam): React.React
         <div className="flex-grow overflow-y-auto">
           <MainSection searchParams={searchParams}/>
         </div>
-        <aside className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800 min-w-[250px]">
+        <aside
+          className="hidden sm:block sm:w-64 p-2 border-l border-green-400 bg-gray-800 min-w-[250px] max-w-[250px]">
           <AsideSection isPublishMode={isPublishMode}/>
         </aside>
       </main>
