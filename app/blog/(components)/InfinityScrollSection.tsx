@@ -68,7 +68,7 @@ export const InfinityScrollSection = (
     <>
       {articles.map((post) => (
         <div key={post.id}>
-          <ArticleCard article={post} isPublished={true}/>
+          <ArticleCard article={post} isDraft={false}/>
         </div>
       ))}
       <div ref={observerRef}/>

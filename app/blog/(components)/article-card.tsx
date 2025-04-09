@@ -3,13 +3,13 @@ import Image from 'next/image'
 import TabOpen from '../../(layout)/(components)/(tap-system)/tab-open'
 import { type ArticleCardViewModel } from '../(domain)/article-card-view-model'
 
-export default function ArticleCard ({ article, isPublished }: {
+export default function ArticleCard ({ article, isDraft }: {
   article: ArticleCardViewModel
-  isPublished: boolean
+  isDraft: boolean
 }): React.ReactElement {
   return (
-    <TabOpen name={(article.title === '' && isPublished) ? 'New Article' : article.title}
-             href={isPublished ? `/blog/${article.id}` : `/blog/edit/${article.id}`}
+    <TabOpen name={(article.title === '' && isDraft) ? 'New Article' : article.title}
+             href={isDraft ? `/blog/edit/${article.id}` : `/blog/${article.id}`}
     >
       <article
         className="flex flex-col sm:flex-row items-start gap-4 p-4 border border-gray-700 rounded-lg shadow-md bg-gray-900 hover:shadow-lg hover:border-green-400 hover:scale-y-105 transition-all duration-300">
