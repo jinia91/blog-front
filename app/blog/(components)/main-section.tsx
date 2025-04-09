@@ -53,7 +53,7 @@ export default async function MainSection ({ searchParams }: ArticleSearchParam)
       <main className="flex flex-col gap-2 sm:p-10 p-1">
         {initialArticles.map((post) => (
           <div key={post.id}>
-            <ArticleCard article={post} isPublished={isPublishMode}/>
+            <ArticleCard article={post} isDraft={isDraftMode}/>
           </div>
         ))}
         {(isPublishMode || isDraftMode) && (

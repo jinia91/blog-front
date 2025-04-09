@@ -23,6 +23,7 @@ export const InfinityScrollSection = (
   const [hasMore, setHasMore] = useState(true)
   const observerRef = useRef<HTMLDivElement | null>(null)
   const isPublishMode = (searchParams.mode == null) || searchParams.mode === 'publish'
+  const isDraftMode = searchParams.mode === 'draft' && (searchParams.tag == null && searchParams.keyword == null)
 
   useEffect(() => {
     setArticles([])
@@ -68,7 +69,7 @@ export const InfinityScrollSection = (
     <>
       {articles.map((post) => (
         <div key={post.id}>
-          <ArticleCard article={post} isPublished={true}/>
+          <ArticleCard article={post} isDraft={isDraftMode}/>
         </div>
       ))}
       <div ref={observerRef}/>
