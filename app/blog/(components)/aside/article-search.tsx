@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -8,9 +8,8 @@ export const ArticleSearchInput = (): React.ReactElement => {
   const searchParams = useSearchParams()
   const keyword = searchParams.get('keyword') ?? ''
 
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const isComposingRef = React.useRef(false)
-  const debounceRef = React.useRef<NodeJS.Timeout | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const updateKeyword = (): void => {
     const inputValue = inputRef.current?.value?.trim() ?? ''
@@ -39,7 +38,7 @@ export const ArticleSearchInput = (): React.ReactElement => {
     inputRef.current?.blur()
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         reset()
@@ -59,18 +58,9 @@ export const ArticleSearchInput = (): React.ReactElement => {
         ref={inputRef}
         type="text"
         defaultValue={keyword}
-        onInput={(e) => {
-          if (!isComposingRef.current) {
-            if (debounceRef.current != null) clearTimeout(debounceRef.current)
-            debounceRef.current = setTimeout(updateKeyword, 100)
-          }
-        }}
-        onCompositionStart={() => {
-          isComposingRef.current = true
-        }}
-        onCompositionEnd={() => {
-          isComposingRef.current = false
-          updateKeyword()
+        onInput={() => {
+          if (debounceRef.current != null) clearTimeout(debounceRef.current)
+          debounceRef.current = setTimeout(updateKeyword, 100)
         }}
         placeholder="검색어를 입력하세요..."
         className="w-full pl-10 pr-8 p-2 bg-gray-900 text-white border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 hover:border-green-300 hover:bg-gray-800"
