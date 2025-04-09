@@ -4,9 +4,7 @@ Disallow: /
 
 # Googlebot
 User-agent: Googlebot
-Allow: /blog
-Allow: /about
-Disallow: /
+Disallow:
 
 # Host
 Host: https://jiniaslog.co.kr
