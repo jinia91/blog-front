@@ -35,16 +35,30 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
 }
 
 export const TOC = ({ tocData }: TOCProps): React.ReactElement | null => {
-  const [expanded, setExpanded] = React.useState(true)
+  const isClient = typeof window !== 'undefined'
+  const [expanded, setExpanded] = React.useState(() =>
+    isClient && window.innerWidth >= 1024 ? true : true
+  )
   const toc = getHeadingForTOC(tocData)
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setExpanded(true)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   return (
-    <div className={`relative transition-all duration-500 ease-in-out ${expanded ? 'w-72' : 'w-20'}`}>
+    <div className={`relative transition-all duration-500 ease-in-out ${expanded ? 'lg:w-72' : 'lg:w-20'} w-full`}>
       <button
         onClick={() => {
           setExpanded(!expanded)
         }}
-        className="absolute right-0 mb-10 text-gray-300 hover:text-green-300 text-sm"
+        className="absolute right-0 text-gray-300 hover:text-green-300 text-sm hidden lg:block"
         aria-label="Toggle TOC"
       >
         {expanded ? 'TOC 접기 ▲' : 'TOC 열기 ▼'}
