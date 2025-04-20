@@ -1,7 +1,6 @@
 import { type Command } from '../domain/command'
 
 export const logo = `
-
    ___  _____  _   _  _____   ___
   |_  ||_   _|| \\ | ||_   _| / _ \\
     | |  | |  |  \\| |  | |  / /_\\ \\

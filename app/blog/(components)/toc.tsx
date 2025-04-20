@@ -7,11 +7,14 @@ interface TOCProps {
 const getHeadingForTOC = (source: string): Array<{ level: number, text: string, id: string }> => {
   const idMap = new Map<string, number>()
   return source.split('\n')
-    .filter((line) => line.match(/^#+\s/))
+    .filter((line) => {
+      const match = line.match(/^#+/)
+      return /^#+\s/.test(line) && match !== null && match[0].length <= 2
+    })
     .map((line) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      const level = line.match(/^#+/)[0].length
+      const match = line.match(/^#+/)
+      if (match == null) return null
+      const level = match[0].length
       const text = line.replace(/^#+\s*/, '').trim()
       let id = text.toLowerCase()
         .replace(/[^\w\sㄱ-힣-]/g, '')
@@ -27,7 +30,7 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
       }
 
       return { level, text, id }
-    })
+    }).filter((item): item is { level: number, text: string, id: string } => item !== null)
 }
 export const TOC = ({ tocData }: TOCProps): React.ReactElement => {
   const toc = getHeadingForTOC(tocData)

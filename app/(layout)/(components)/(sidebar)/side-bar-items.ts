@@ -1,5 +1,5 @@
 import { AiFillGithub, AiOutlineFileText } from 'react-icons/ai'
-import { BsPeople, BsTerminalDash } from 'react-icons/bs'
+import { BsTerminalDash } from 'react-icons/bs'
 import { Auth } from '../../../login/(domain)/session'
 import { BlogIcon } from './blog-icon'
 import { RssIcon } from './rss-feed-icon'
@@ -10,13 +10,6 @@ export const sideBarItems = [
     name: 'Home',
     href: '/',
     icon: BsTerminalDash,
-    auth: Auth.Guest,
-    type: 'app'
-  },
-  {
-    name: 'About',
-    href: '/about',
-    icon: BsPeople,
     auth: Auth.Guest,
     type: 'app'
   },
