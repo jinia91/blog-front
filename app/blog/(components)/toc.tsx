@@ -35,9 +35,8 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
 }
 
 export const TOC = ({ tocData }: TOCProps): React.ReactElement | null => {
-  const isClient = typeof window !== 'undefined'
   const [expanded, setExpanded] = React.useState(() =>
-    isClient && window.innerWidth >= 1024 ? true : true
+    window.innerWidth >= 1024 ? true : true
   )
   const toc = getHeadingForTOC(tocData)
   React.useEffect(() => {
