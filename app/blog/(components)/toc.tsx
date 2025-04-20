@@ -35,12 +35,10 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
 }
 
 export const TOC = ({ tocData }: TOCProps): React.ReactElement | null => {
-  const [expanded, setExpanded] = React.useState(() =>
-    window.innerWidth >= 1024 ? true : true
-  )
+  const [expanded, setExpanded] = React.useState(true)
   const toc = getHeadingForTOC(tocData)
   React.useEffect(() => {
-    const handleResize = () => {
+    const handleResize = (): void => {
       if (window.innerWidth < 1024) {
         setExpanded(true)
       }
