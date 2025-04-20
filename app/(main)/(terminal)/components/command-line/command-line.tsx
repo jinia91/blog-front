@@ -31,11 +31,10 @@ export const CommandLine: React.FC<TerminalInputProps> = ({ username, inputRef }
         currentInput: 'whoami',
         isInitialLoad: true
       }))
+      setTimeout(() => {
+        handleCommand(username).catch(console.log)
+      }, 100)
     }
-    // 강제로 일정시간 지연
-    setTimeout(() => {
-      handleCommand(username).catch(console.log)
-    }, 100)
   }, [context.processContext, context.isInitialLoad])
 
   return context.processContext !== null
