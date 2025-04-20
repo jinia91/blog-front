@@ -25,17 +25,23 @@ export const CommandLine: React.FC<TerminalInputProps> = ({ username, inputRef }
   }
 
   useEffect(() => {
-    if (context.processContext === null && !context.isInitialLoad) {
+    if (!context.isInitialLoad) {
       setContext((prevContext) => ({
         ...prevContext,
-        currentInput: 'whoami',
+        currentInput: 'whoami'
+      }))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (context.currentInput === 'whoami' && !context.isInitialLoad) {
+      setContext((prevContext) => ({
+        ...prevContext,
         isInitialLoad: true
       }))
-      setTimeout(() => {
-        handleCommand(username).catch(console.log)
-      }, 100)
+      handleCommand(username).catch(console.error)
     }
-  }, [context.processContext, context.isInitialLoad])
+  }, [context.currentInput])
 
   return context.processContext !== null
     ? null
