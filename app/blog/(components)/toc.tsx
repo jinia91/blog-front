@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 
 interface TOCProps {
@@ -32,20 +33,37 @@ const getHeadingForTOC = (source: string): Array<{ level: number, text: string, 
       return { level, text, id }
     }).filter((item): item is { level: number, text: string, id: string } => item !== null)
 }
-export const TOC = ({ tocData }: TOCProps): React.ReactElement => {
+
+export const TOC = ({ tocData }: TOCProps): React.ReactElement | null => {
+  const [expanded, setExpanded] = React.useState(true)
   const toc = getHeadingForTOC(tocData)
+
   return (
-    <nav className="p-5 bg-gray-700 border border-gray-600 rounded-lg shadow-2xl">
-      <h2 className="text-xl font-bold text-green-400 mb-3 border-b border-gray-700">Table of Contents</h2>
-      <ul className="text-gray-300 space-y-2">
-        {toc.map(({ level, text, id }) => (
-          <li key={id} style={{ marginLeft: `${(level - 1) * 20}px` }}>
-            <a href={`#${id}`} className="text-green-300 hover:text-green-500 transition-colors duration-200">
-              {text}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className={`relative transition-all duration-500 ease-in-out ${expanded ? 'w-72' : 'w-20'}`}>
+      <button
+        onClick={() => {
+          setExpanded(!expanded)
+        }}
+        className="absolute right-0 mb-10 text-gray-300 hover:text-green-300 text-sm"
+        aria-label="Toggle TOC"
+      >
+        {expanded ? 'TOC 접기 ▲' : 'TOC 열기 ▼'}
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${expanded ? 'max-h-[1000px]' : 'max-h-0'}`}
+      >
+        <nav className="p-5 bg-gray-700 border border-gray-600 rounded-lg shadow-2xl mt-8">
+          <ul className="text-gray-300 space-y-2">
+            {toc.map(({ level, text, id }) => (
+              <li key={id} style={{ marginLeft: `${(level - 1) * 20}px` }}>
+                <a href={`#${id}`} className="text-green-300 hover:text-green-500 transition-colors duration-200">
+                  {text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
   )
 }
