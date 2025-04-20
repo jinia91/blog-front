@@ -31,12 +31,14 @@ export const whoami = async (
         clearInterval(intervalId)
         return {
           ...prev,
-          view: [...updatedView]
+          view: [...updatedView],
+          processContext: null
         }
       }
       return {
         ...prev,
-        view: updatedView
+        view: updatedView,
+        processContext: 'null'
       }
     })
   }, 500)
