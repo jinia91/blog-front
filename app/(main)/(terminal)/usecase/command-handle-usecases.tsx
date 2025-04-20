@@ -8,7 +8,8 @@ export const terminalAtom = atom<TerminalContext>({
   view: [logo],
   currentInput: '',
   currentHistoryIndex: null,
-  processContext: null
+  processContext: null,
+  isInitialLoad: false
 })
 
 export const useCommandHandle = (): {

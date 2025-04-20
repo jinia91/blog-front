@@ -4,6 +4,7 @@ export interface TerminalContext {
   currentInput: string
   currentHistoryIndex: number | null
   processContext: any | null
+  isInitialLoad: boolean
 }
 
-export const COMMAND_LINE_DEFAULT = '@jiniaslog:# ~'
+export const COMMAND_LINE_DEFAULT = ':~'
