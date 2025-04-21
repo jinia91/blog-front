@@ -50,12 +50,12 @@ export const TOC = ({ tocData }: TOCProps): React.ReactElement | null => {
   }, [])
 
   return (
-    <div className={`relative transition-all duration-500 ease-in-out ${expanded ? 'lg:w-72' : 'lg:w-20'} w-full`}>
+    <div className={`relative transition-all duration-500 ease-in-out ${expanded ? '2xl:w-72' : '2xl:w-20'} w-full`}>
       <button
         onClick={() => {
           setExpanded(!expanded)
         }}
-        className="absolute right-0 text-gray-300 hover:text-green-300 text-sm hidden lg:block"
+        className="absolute right-0 text-gray-300 hover:text-green-300 text-sm hidden 2xl:block"
         aria-label="Toggle TOC"
       >
         {expanded ? 'TOC 접기 ▲' : 'TOC 열기 ▼'}
