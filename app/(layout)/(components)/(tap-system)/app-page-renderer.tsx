@@ -1,13 +1,26 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import MemoSystemMain from '../../../memo/(components)/memo-system-main'
 import { Empty } from '../../../empty/(components)/empty'
+import { router } from 'next/client'
 
 export function RenderApp ({ page }: {
   page: React.ReactNode
 }): React.ReactElement | null {
   const path = usePathname()
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      window.gtag('config', 'G-P4VL2DXGLB', {
+        page_path: url
+      })
+    }
+
+    router.events.on('routeChangeComplete', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
 
   function isEmpty (): boolean {
     return (path === '/empty')
