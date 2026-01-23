@@ -47,6 +47,7 @@ export const whoami = async (
 export const whoAmICommand: Command = {
   name: 'whoami',
   description: '저에대한 소개를 출력합니다',
+  category: 'util',
   execute: async (setContext) => {
     await whoami(setContext)
   }

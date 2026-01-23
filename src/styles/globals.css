@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Retro CRT Terminal Design System */
+@import '../../app/(main)/(terminal)/styles/terminal.css';
+
 .tooltip {
     position: relative;
     display: inline-block;

@@ -3,6 +3,7 @@ import { type Command } from '../domain/command'
 export const historyCommand: Command = {
   name: 'history',
   description: '히스토리 목록을 출력합니다',
+  category: 'util',
   execute: async (setContext, args): Promise<void> => {
     setContext((prev) => ({
       ...prev,

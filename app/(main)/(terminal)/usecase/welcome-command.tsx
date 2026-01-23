@@ -15,6 +15,7 @@ export const logo = `
 export const welcomeCommand: Command = {
   name: 'welcome',
   description: '프로그램을 시작할 때 화면에 보여질 로고를 불러옵니다',
+  category: 'system',
   execute: async (setContext, args): Promise<void> => {
     setContext((prev) => ({
       ...prev,
