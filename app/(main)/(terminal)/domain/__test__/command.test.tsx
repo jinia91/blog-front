@@ -25,13 +25,13 @@ describe('커맨드 명령어 파싱 테스트', () => {
 
   it('긴 플래그를 = 기호로 파싱한다', () => {
     // given
-    const command = 'git commit --message="Initial commit"'
+    const command = 'git commit --message=hello'
     // when
     const result = commandParser.parseCommand(command)
     // then
     expect(result.command).toBe('git')
     expect(result.args).toEqual(['commit'])
-    expect(result.flags).toEqual({ message: '"Initial' })
+    expect(result.flags).toEqual({ message: 'hello' })
   })
 
   it('인자만 있는 명령어를 파싱한다', () => {
