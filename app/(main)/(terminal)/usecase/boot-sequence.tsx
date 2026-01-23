@@ -39,7 +39,7 @@ export function useBootSequence (): BootSequenceState {
       }
     }, interval)
 
-    return () => clearInterval(timer)
+    return () => { clearInterval(timer) }
   }, [state.isBooting])
 
   return state
