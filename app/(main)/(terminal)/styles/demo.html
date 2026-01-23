@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro CRT Terminal - Design System Demo</title>
+    <link rel="stylesheet" href="terminal.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            padding: 40px 20px;
+        }
+
+        .demo-section {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+        }
+
+        .demo-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .demo-card {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .demo-card-title {
+            background: #222;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #aaa;
+            border-bottom: 1px solid #333;
+        }
+
+        .demo-card-content {
+            padding: 20px;
+            min-height: 150px;
+        }
+
+        .hero-demo {
+            margin-bottom: 60px;
+        }
+
+        code {
+            background: #2a2a2a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <div class="hero-demo">
+        <div class="terminal-bezel-thick">
+            <div class="terminal-screen terminal-theme-green terminal-curved terminal-scanlines terminal-vignette terminal-noise terminal-glow terminal-padded" style="padding: 40px;">
+
+                <!-- Power LED -->
+                <div style="position: absolute; top: 20px; right: 20px;">
+                    <div class="terminal-power-led"></div>
+                </div>
+
+                <!-- Boot sequence -->
+                <div class="terminal-boot-container" style="margin-bottom: 30px;">
+                    <p class="terminal-boot-text">RETRO TERMINAL DESIGN SYSTEM v1.0</p>
+                    <p class="terminal-boot-text" style="animation-delay: 2.5s;">COPYRIGHT 2026 JINN CORP</p>
+                    <p class="terminal-boot-text" style="animation-delay: 4s;">128K RAM SYSTEM READY</p>
+                </div>
+
+                <!-- Terminal content -->
+                <div style="margin-top: 40px;">
+                    <p class="terminal-prompt terminal-text" style="margin-bottom: 15px;">
+                        LOAD "DEMO",8,1<span class="terminal-cursor-block"></span>
+                    </p>
+                    <p class="terminal-text terminal-glow-subtle" style="margin-bottom: 8px;">SEARCHING FOR DEMO</p>
+                    <p class="terminal-text terminal-glow-subtle" style="margin-bottom: 8px;">LOADING</p>
+                    <p class="terminal-text terminal-glow-subtle">READY.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Showcase -->
+    <div class="demo-section">
+        <h2 class="demo-title">Color Themes</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-title">Classic Green</div>
+                <div class="demo-card-content terminal-theme-green terminal-glow terminal-scanlines" style="background: var(--terminal-bg);">
+                    <p class="terminal-text">$ whoami</p>
+                    <p class="terminal-text" style="opacity: 0.8;">root</p>
+                    <p class="terminal-text">$ <span class="terminal-cursor-bar"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Amber Monitor</div>
+                <div class="demo-card-content terminal-theme-amber terminal-glow terminal-scanlines" style="background: var(--terminal-bg);">
+                    <p class="terminal-text">C:\> dir</p>
+                    <p class="terminal-text" style="opacity: 0.8;">Volume in drive C</p>
+                    <p class="terminal-text">C:\> <span class="terminal-cursor-underline"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Commodore Blue</div>
+                <div class="demo-card-content terminal-theme-blue terminal-glow-strong terminal-scanlines" style="background: var(--terminal-bg);">
+                    <p class="terminal-text-bold">**** COMMODORE 64 ****</p>
+                    <p class="terminal-text">64K RAM SYSTEM</p>
+                    <p class="terminal-text">READY.<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Apple II Green</div>
+                <div class="demo-card-content terminal-theme-apple terminal-glow terminal-scanlines-thick" style="background: var(--terminal-bg);">
+                    <p class="terminal-text">]CATALOG</p>
+                    <p class="terminal-text" style="opacity: 0.8;">HELLO</p>
+                    <p class="terminal-text">]<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">White Phosphor</div>
+                <div class="demo-card-content terminal-theme-white terminal-glow-subtle terminal-scanlines" style="background: var(--terminal-bg);">
+                    <p class="terminal-text">LOGIN: admin</p>
+                    <p class="terminal-text">PASSWORD: ****</p>
+                    <p class="terminal-text">AUTHENTICATED<span class="terminal-cursor-bar"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Phosphor Green</div>
+                <div class="demo-card-content terminal-theme-phosphor terminal-glow terminal-scanlines" style="background: var(--terminal-bg);">
+                    <p class="terminal-text">IBM PC BASIC v3.0</p>
+                    <p class="terminal-text">OK</p>
+                    <p class="terminal-text">_<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRT Effects -->
+    <div class="demo-section">
+        <h2 class="demo-title">CRT Effects</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-title">Glow + Scanlines</div>
+                <div class="demo-card-content terminal-theme-green terminal-glow terminal-scanlines" style="background: #0a0a0a;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">PHOSPHOR GLOW</p>
+                    <p class="terminal-text">Authentic CRT text rendering with horizontal scanlines</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Screen Curvature</div>
+                <div class="demo-card-content terminal-theme-amber terminal-glow terminal-curved terminal-scanlines" style="background: #1a0a00;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">BARREL DISTORTION</p>
+                    <p class="terminal-text">Subtle curved edges like real CRT monitors</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Vignette + Bloom</div>
+                <div class="demo-card-content terminal-theme-blue terminal-glow-strong terminal-vignette terminal-bloom terminal-scanlines" style="background: #000a14;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">EDGE FALLOFF</p>
+                    <p class="terminal-text">Darker corners with phosphor bloom effect</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Film Grain</div>
+                <div class="demo-card-content terminal-theme-white terminal-glow terminal-noise terminal-scanlines" style="background: #0a0a0a;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">GRAIN TEXTURE</p>
+                    <p class="terminal-text">Subtle noise overlay for aged monitor feel</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Glass Reflection</div>
+                <div class="demo-card-content terminal-theme-green terminal-glow terminal-reflection terminal-scanlines" style="background: #0a0a0a;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">SCREEN GLASS</p>
+                    <p class="terminal-text">Diagonal light reflection effect</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Flicker (Subtle)</div>
+                <div class="demo-card-content terminal-theme-amber terminal-glow terminal-flicker-subtle terminal-scanlines" style="background: #1a0a00;">
+                    <p class="terminal-text-bold" style="font-size: 18px;">POWER FLUCTUATION</p>
+                    <p class="terminal-text">Gentle brightness variation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cursor Types -->
+    <div class="demo-section">
+        <h2 class="demo-title">Cursor Styles</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-title">Block Cursor</div>
+                <div class="demo-card-content terminal-theme-green terminal-glow" style="background: #0a0a0a;">
+                    <p class="terminal-text">READY<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Underline Cursor</div>
+                <div class="demo-card-content terminal-theme-amber terminal-glow" style="background: #1a0a00;">
+                    <p class="terminal-text">C:\><span class="terminal-cursor-underline"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Bar Cursor</div>
+                <div class="demo-card-content terminal-theme-blue terminal-glow" style="background: #000a14;">
+                    <p class="terminal-text">$ <span class="terminal-cursor-bar"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prompt Styles -->
+    <div class="demo-section">
+        <h2 class="demo-title">Prompt Styles</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-title">Generic Prompt</div>
+                <div class="demo-card-content terminal-theme-green terminal-glow terminal-scanlines" style="background: #0a0a0a;">
+                    <p class="terminal-prompt terminal-text">ls -la</p>
+                    <p class="terminal-prompt terminal-text">cd /home</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">DOS Prompt</div>
+                <div class="demo-card-content terminal-theme-amber terminal-glow terminal-scanlines" style="background: #1a0a00;">
+                    <p class="terminal-prompt-dos terminal-text">dir</p>
+                    <p class="terminal-prompt-dos terminal-text">cd windows</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Unix Prompt</div>
+                <div class="demo-card-content terminal-theme-white terminal-glow terminal-scanlines" style="background: #0a0a0a;">
+                    <p class="terminal-prompt-unix terminal-text">whoami</p>
+                    <p class="terminal-prompt-unix terminal-text">ps aux</p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">Commodore 64 Prompt</div>
+                <div class="demo-card-content terminal-theme-blue terminal-glow-strong terminal-scanlines" style="background: #000a14;">
+                    <p class="terminal-prompt-c64 terminal-text">PRINT "HELLO"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preset Combinations -->
+    <div class="demo-section">
+        <h2 class="demo-title">Preset Combinations</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-title">terminal-classic</div>
+                <div class="demo-card-content terminal-classic" style="padding: 30px;">
+                    <p class="terminal-text-bold" style="margin-bottom: 10px;">CLASSIC IBM PC</p>
+                    <p class="terminal-text">Green phosphor + glow + scanlines + vignette + curve</p>
+                    <p class="terminal-text" style="margin-top: 15px;">$ <span class="terminal-cursor-bar"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">terminal-amber-monitor</div>
+                <div class="demo-card-content terminal-amber-monitor" style="padding: 30px;">
+                    <p class="terminal-text-bold" style="margin-bottom: 10px;">AMBER CRT</p>
+                    <p class="terminal-text">Warm amber with full CRT effects</p>
+                    <p class="terminal-text" style="margin-top: 15px;">C:\> <span class="terminal-cursor-underline"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">terminal-commodore</div>
+                <div class="demo-card-content terminal-commodore" style="padding: 30px;">
+                    <p class="terminal-text-bold" style="margin-bottom: 10px;">COMMODORE 64</p>
+                    <p class="terminal-text">Blue screen with strong glow and border</p>
+                    <p class="terminal-text" style="margin-top: 15px;">READY.<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">terminal-apple-ii</div>
+                <div class="demo-card-content terminal-apple-ii" style="padding: 30px;">
+                    <p class="terminal-text-bold" style="margin-bottom: 10px;">APPLE II</p>
+                    <p class="terminal-text">Bright green with thick scanlines</p>
+                    <p class="terminal-text" style="margin-top: 15px;">]<span class="terminal-cursor-block"></span></p>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-card-title">terminal-modern-retro</div>
+                <div class="demo-card-content terminal-modern-retro" style="padding: 30px;">
+                    <p class="terminal-text-bold" style="margin-bottom: 10px;">MODERN RETRO</p>
+                    <p class="terminal-text">Clean white with subtle effects</p>
+                    <p class="terminal-text" style="margin-top: 15px;">$ <span class="terminal-cursor-bar"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Terminal Example -->
+    <div class="demo-section">
+        <h2 class="demo-title">Complete Terminal Example</h2>
+        <div style="max-width: 800px; margin: 30px auto;">
+            <div class="terminal-bezel">
+                <div style="position: relative;">
+                    <!-- Power LED -->
+                    <div style="position: absolute; top: -25px; right: 10px; z-index: 20;">
+                        <div class="terminal-power-led"></div>
+                    </div>
+
+                    <div class="terminal-screen terminal-theme-green terminal-curved terminal-scanlines terminal-vignette terminal-noise terminal-glow" style="padding: 30px; min-height: 400px;">
+
+                        <!-- System info -->
+                        <div style="margin-bottom: 20px;">
+                            <p class="terminal-text-bold">JINN OPERATING SYSTEM v2.0</p>
+                            <p class="terminal-text" style="opacity: 0.8;">128K RAM DETECTED</p>
+                            <p class="terminal-text" style="opacity: 0.8;">GRAPHICS MODE: 640x480</p>
+                        </div>
+
+                        <!-- File listing -->
+                        <div style="margin-bottom: 20px;">
+                            <p class="terminal-prompt-unix terminal-text">ls -la</p>
+                            <div style="margin-left: 20px; opacity: 0.9;">
+                                <p class="terminal-text">drwxr-xr-x  5 user  staff   160 Jan 23 22:00 .</p>
+                                <p class="terminal-text">drwxr-xr-x  3 user  staff    96 Jan 22 10:30 ..</p>
+                                <p class="terminal-text">-rw-r--r--  1 user  staff  1024 Jan 23 21:45 README.txt</p>
+                                <p class="terminal-text">-rwxr-xr-x  1 user  staff  4096 Jan 23 20:15 app.exe</p>
+                                <p class="terminal-text">drwxr-xr-x  8 user  staff   256 Jan 22 15:20 docs</p>
+                            </div>
+                        </div>
+
+                        <!-- Running command -->
+                        <div style="margin-bottom: 20px;">
+                            <p class="terminal-prompt-unix terminal-text">./app.exe --verbose</p>
+                            <p class="terminal-text terminal-glow-subtle" style="opacity: 0.9;">Starting application...</p>
+                            <p class="terminal-text terminal-glow-subtle" style="opacity: 0.9;">Loading modules: [OK]</p>
+                            <p class="terminal-text terminal-glow-subtle" style="opacity: 0.9;">Initializing system: [OK]</p>
+                            <p class="terminal-text terminal-glow-strong" style="color: var(--terminal-glow);">Application ready!</p>
+                        </div>
+
+                        <!-- Prompt with cursor -->
+                        <p class="terminal-prompt-unix terminal-text">
+                            <span class="terminal-cursor-bar"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 80px; color: #666;">
+        <p>Retro CRT Terminal Design System</p>
+        <p style="margin-top: 10px; font-size: 14px;">Authentic phosphor monitor effects for modern web</p>
+    </div>
+
+</body>
+</html>

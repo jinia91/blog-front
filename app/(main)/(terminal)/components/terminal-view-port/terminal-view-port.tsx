@@ -18,13 +18,12 @@ export default function Viewport (
       {context.view.map((line, index) => {
         const isUsernameLine = line.startsWith(username + COMMAND_LINE_DEFAULT)
         return (
-          <pre key={index} className="whitespace-pre-wrap">
+          <pre key={index} className="whitespace-pre-wrap" style={{ margin: 0 }}>
           {isUsernameLine
             ? (
               <>
                 <span className="text-blue-400">{username}</span>
-                <span
-                  className="text-green-400">{line.replace(username + COMMAND_LINE_DEFAULT, COMMAND_LINE_DEFAULT)}</span>
+                <span className="text-green-400">{line.replace(username + COMMAND_LINE_DEFAULT, COMMAND_LINE_DEFAULT)}</span>
               </>
               )
             : (<span className="text-green-400">{line}</span>)}

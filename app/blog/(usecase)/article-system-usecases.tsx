@@ -28,6 +28,15 @@ const articleTagsAtom = atom<Tag[]>([])
 const thumbnailAtom = atom<string>('')
 const statusAtom = atom<Status>(Status.DRAFT)
 
+// Save status for auto-save indicator
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+const saveStatusAtom = atom<SaveStatus>('idle')
+
+export const useSaveStatus = (): [SaveStatus, (status: SaveStatus) => void] => {
+  const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
+  return [saveStatus, setSaveStatus]
+}
+
 export const useArticleEditSystem = (): ArticleEditSystem => {
   const [articleTitle, setArticleTitle] = useAtom(articleTitleAtom)
   const [articleContent, setArticleContent] = useAtom(articleContentAtom)

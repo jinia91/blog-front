@@ -1,27 +1,66 @@
 'use client'
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { CommandLine } from './command-line/command-line'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 import Viewport from './terminal-view-port/terminal-view-port'
+import { useBootSequence, BootSequence } from '../usecase/boot-sequence'
+import { loadHistory, loadTheme } from '../usecase/terminal-persistence'
+import { useAtom } from 'jotai'
+import { terminalAtom } from '../usecase/command-handle-usecases'
 
 export default function Terminal (): React.ReactElement {
   const { session } = useSession()
   const username = session?.nickName ?? 'guest'
+  const [context, setContext] = useAtom(terminalAtom)
+  const bootSequence = useBootSequence()
 
   const inputRef = useRef<HTMLInputElement>(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
+
   const handleFocusInput = (): void => {
     if (inputRef.current != null) {
       inputRef.current.focus()
     }
   }
 
+  // Auto-scroll to bottom when view changes
+  useEffect(() => {
+    if (terminalRef.current != null) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
+    }
+  }, [context.view])
+
+  // Load persisted data on mount
+  useEffect(() => {
+    const savedHistory = loadHistory()
+    const savedTheme = loadTheme()
+
+    setContext(prev => ({
+      ...prev,
+      commandHistory: savedHistory,
+      theme: savedTheme as 'green' | 'amber' | 'blue' | 'white'
+    }))
+  }, [setContext])
+
+  // Get dynamic theme class
+  const themeClass = `terminal-theme-${context.theme ?? 'green'}`
+
+  // Show boot sequence if booting
+  if (bootSequence.isBooting) {
+    return (
+      <div
+        className={`terminal-container ${themeClass} terminal-scanlines rounded-lg shadow-lg mx-auto font-mono text-sm`}
+        style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
+      >
+        <BootSequence progress={bootSequence.progress} />
+      </div>
+    )
+  }
+
   return (
     <div
-      className="
-      relative before:content-[''] before:absolute before:inset-0
-        before:bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_80%,rgba(0,0,0,0.25)_80%)]
-        before:bg-[length:100%_8px] before:pointer-events-none
-      mx-auto bg-gray-900 rounded-lg shadow-lg font-mono text-sm text-gray-200 overflow-y-auto"
+      ref={terminalRef}
+      className={`terminal-container ${themeClass} terminal-scanlines rounded-lg shadow-lg mx-auto font-mono text-sm`}
       style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
     >
       <div className="p-4">
