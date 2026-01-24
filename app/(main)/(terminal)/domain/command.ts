@@ -11,7 +11,6 @@ import { cdCommand } from '../usecase/cd-command'
 import { catCommand } from '../usecase/cat-command'
 import { dateCommand } from '../usecase/date-command'
 import { echoCommand } from '../usecase/echo-command'
-import { pwdCommand } from '../usecase/pwd-command'
 import { neofetchCommand } from '../usecase/neofetch-command'
 import { matrixCommand } from '../usecase/matrix-command'
 
@@ -58,7 +57,6 @@ export const COMMAND_LIST = [
   lsCommand,
   cdCommand,
   catCommand,
-  pwdCommand,
   dateCommand,
   echoCommand,
   neofetchCommand,
