@@ -21,8 +21,8 @@ export function useBootSequence (): BootSequenceState {
     if (typeof window === 'undefined') return
     if (!state.isBooting) return
 
-    // Fast boot: 1.5초 완료
-    const duration = 1500
+    // Boot animation: 2초 완료
+    const duration = 2000
     const interval = 50
     const steps = duration / interval
     let step = 0

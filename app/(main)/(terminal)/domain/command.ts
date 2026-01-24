@@ -5,6 +5,7 @@ import { helpCommand } from '../usecase/help-command'
 import { historyCommand } from '../usecase/history-command'
 import { githubCommand } from '../usecase/github-command'
 import { snakeCommand } from '../usecase/snake-command'
+import { tetrisCommand } from '../usecase/tetris-command'
 import { whoAmICommand } from '../usecase/whoami-command'
 import { lsCommand } from '../usecase/ls-command'
 import { cdCommand } from '../usecase/cd-command'
@@ -14,6 +15,7 @@ import { echoCommand } from '../usecase/echo-command'
 import { neofetchCommand } from '../usecase/neofetch-command'
 import { matrixCommand } from '../usecase/matrix-command'
 import { weatherCommand } from '../usecase/weather-command'
+import { decodeCommand } from '../usecase/decode-command'
 
 export type SetContextFn = (args: (((prev: TerminalContext) => TerminalContext) | TerminalContext)) => void
 
@@ -54,6 +56,7 @@ export const COMMAND_LIST = [
   historyCommand,
   githubCommand,
   snakeCommand,
+  tetrisCommand,
   whoAmICommand,
   lsCommand,
   cdCommand,
@@ -62,7 +65,8 @@ export const COMMAND_LIST = [
   echoCommand,
   neofetchCommand,
   matrixCommand,
-  weatherCommand
+  weatherCommand,
+  decodeCommand
 ]
 
 export interface ParseResult {
