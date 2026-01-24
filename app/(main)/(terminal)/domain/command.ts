@@ -16,6 +16,8 @@ import { neofetchCommand } from '../usecase/neofetch-command'
 import { matrixCommand } from '../usecase/matrix-command'
 import { weatherCommand } from '../usecase/weather-command'
 import { decodeCommand } from '../usecase/decode-command'
+import { base64Command } from '../usecase/base64-command'
+import { timestampCommand } from '../usecase/timestamp-command'
 
 export type SetContextFn = (args: (((prev: TerminalContext) => TerminalContext) | TerminalContext)) => void
 
@@ -66,7 +68,9 @@ export const COMMAND_LIST = [
   neofetchCommand,
   matrixCommand,
   weatherCommand,
-  decodeCommand
+  decodeCommand,
+  base64Command,
+  timestampCommand
 ]
 
 export interface ParseResult {
