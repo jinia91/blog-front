@@ -5,17 +5,20 @@ export const catCommand: Command = {
   name: 'cat',
   description: '블로그 포스트의 미리보기를 출력합니다',
   category: 'navigation',
-  usage: 'cat <article-id>',
+  usage: 'cat <article-id> (예: cat #123 또는 cat 123)',
   execute: async (setContext, args): Promise<void> => {
-    const articleId = args[0]
+    const rawArticleId = args[0]
 
-    if (articleId === undefined || articleId === '') {
+    if (rawArticleId === undefined || rawArticleId === '') {
       setContext((prev) => ({
         ...prev,
-        view: [...prev.view, '오류: 아티클 ID를 입력해주세요.', '사용법: cat <article-id>']
+        view: [...prev.view, '오류: 아티클 ID를 입력해주세요.', '사용법: cat <article-id> (예: cat #123 또는 cat 123)', '💡 ls blog 명령으로 아티클 ID 목록을 확인하세요']
       }))
       return
     }
+
+    // Remove # prefix if present
+    const articleId = rawArticleId.startsWith('#') ? rawArticleId.slice(1) : rawArticleId
 
     setContext((prev) => ({
       ...prev,

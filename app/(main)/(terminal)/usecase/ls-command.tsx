@@ -22,10 +22,12 @@ export const lsCommand: Command = {
         const articles = await fetchArticleCardsByOffset(null, 10, true)
         if (articles.length > 0) {
           lines.push('\n[Blog Posts]')
-          articles.forEach((article, index) => {
+          articles.forEach((article) => {
             const date = article.createdAt.toLocaleDateString('ko-KR')
-            lines.push(`  ${index + 1}. ${article.title} (${date})`)
+            const idStr = `#${article.id}`.padEnd(6)
+            lines.push(`  ${idStr} ${article.title.padEnd(40)} ${date}`)
           })
+          lines.push('\n💡 cat #<id> 명령으로 글 미리보기 (예: cat #123)')
         } else {
           lines.push('\n[Blog Posts]')
           lines.push('  게시글이 없습니다.')
@@ -39,7 +41,8 @@ export const lsCommand: Command = {
           folders.forEach((folder) => {
             lines.push(`  📁 ${folder.name}`)
             folder.memos.forEach((memo) => {
-              lines.push(`    - ${memo.title !== '' && memo.title !== undefined && memo.title !== null ? memo.title : 'Untitled'}`)
+              const title = memo.title !== '' && memo.title !== undefined && memo.title !== null ? memo.title : 'Untitled'
+              lines.push(`    #${memo.id}  ${title}`)
             })
           })
         } else {
