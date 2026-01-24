@@ -9,7 +9,7 @@ export const decodeCommand: Command = {
   execute: async (setContext, args): Promise<void> => {
     const input = args.join(' ')
 
-    if (!input) {
+    if (input === '') {
       setContext((prev) => ({
         ...prev,
         view: [...prev.view, '오류: 디코딩할 문자열을 입력하세요', '사용법: decode %ED%95%9C%EA%B8%80']
