@@ -18,6 +18,11 @@ export default function MemoItem ({ memo, parentFolderId, handleContextMenu, dep
   const { makeRelationshipAndRefresh } = useFolderAndMemo()
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
+    // Also set memo-link data for editor drop
+    e.dataTransfer.setData('application/memo-link', JSON.stringify({
+      id: memo.id,
+      title: memo.title
+    }))
     e.dataTransfer.effectAllowed = 'move'
   }
   const handleDrop = async (e: React.DragEvent, targetFolderId: number | null): Promise<void> => {

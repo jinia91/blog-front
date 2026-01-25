@@ -8,19 +8,28 @@ import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 import { NavigatorContextType } from '../../../(domain)/memo-system-navigator-context'
 
 export default function ReferenceSystem (): React.ReactElement {
-  const { searchReferenceMemos } = useFolderAndMemo()
+  const { searchReferenceMemos, refreshFolders } = useFolderAndMemo()
   const { navigatorContext, memoEditorSharedContext, toggleReferenceMode } = useMemoSystem()
+
   useEffect(() => {
     if (navigatorContext.type === NavigatorContextType.REFERENCE_MODE) {
       void searchReferenceMemos(memoEditorSharedContext.id)
     }
   }, [navigatorContext, memoEditorSharedContext])
 
+  const handleToggle = (): void => {
+    // 참조모드에서 전체모드로 돌아갈 때 폴더 새로고침
+    if (navigatorContext.type === NavigatorContextType.REFERENCE_MODE) {
+      toggleReferenceMode()
+      void refreshFolders()
+    } else {
+      toggleReferenceMode()
+    }
+  }
+
   return (
     <div className="tooltip">
-      <div onClick={() => {
-        toggleReferenceMode()
-      }}>
+      <div onClick={handleToggle}>
         <button
           className="text-white hover:text-gray-300 ml-2"
           aria-label='reference-system'

@@ -20,6 +20,7 @@ export const useFolderAndMemo = (): {
   folders: Folder[]
   setFolders: (folders: Folder[]) => void
   initializeFolderAndMemo: () => Promise<void>
+  refreshFolders: () => Promise<void>
   createNewFolder: () => Promise<void>
   searchMemosByKeyword: (value: string) => Promise<void>
   deleteFolder: (folderId: string) => Promise<Folder[]>
@@ -36,6 +37,10 @@ export const useFolderAndMemo = (): {
   }
 
   const initializeFolderAndMemo = async (): Promise<void> => {
+    await fetchAndSetFolders()
+  }
+
+  const refreshFolders = async (): Promise<void> => {
     await fetchAndSetFolders()
   }
 
@@ -126,6 +131,7 @@ export const useFolderAndMemo = (): {
 
   return {
     initializeFolderAndMemo,
+    refreshFolders,
     folders,
     setFolders,
     createNewFolder,
