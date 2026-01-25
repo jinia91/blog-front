@@ -22,6 +22,7 @@ import useMemoStompClient from './memo-edit-websocket'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { Code, timestamp } from './memo-editor-plugins'
 import { createReferenceLinkCommand } from './memo-reference-link'
+import { ConnectionStatusIndicator } from '../connection-status-indicator'
 
 export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
   const { memoEditorSharedContext, setMemoEditorSharedContext } = useMemoSystem()
@@ -93,11 +94,15 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
     <>
       <MemoTitleInput/>
       {/* editor */}
-      <div className="mb-4 flex-grow"
+      <div className="mb-4 flex-grow relative"
            onPaste={(e) => {
              handleImageUpload(e).catch(console.debug)
            }}
       >
+        {/* Connection Status - floating bottom right */}
+        <div className="absolute bottom-3 right-3 z-10">
+          <ConnectionStatusIndicator/>
+        </div>
         <RelatedMemoModal
           isOpen={isModalOpen}
           onClose={() => {
