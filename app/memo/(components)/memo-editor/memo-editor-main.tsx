@@ -200,12 +200,12 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
   }
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <MemoBreadcrumb/>
       <MemoTitleInput/>
       {/* editor */}
       <div
-        className={`mb-4 flex-grow relative ${isDragOver ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}
+        className={`flex-1 min-h-0 relative ${isDragOver ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}
         onPaste={(e) => {
           handleImageUpload(e).catch(console.debug)
         }}
@@ -250,8 +250,8 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
             }
           }}
           visibleDragbar={true}
-          height="65vh"
-          className={'border-2 flex-grow'}
+          height="100%"
+          className={'border-2 h-full'}
           previewOptions={{
             components: {
               code: Code
@@ -269,6 +269,6 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
           position={wikiLinkState.popupPosition}
         />
       </div>
-    </>
+    </div>
   )
 }

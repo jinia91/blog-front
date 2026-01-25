@@ -10,7 +10,12 @@ import NavigatorHeader from './header/navigator-header'
 import { useMemoFolderWithTabRouter } from '../../(usecase)/memo-folder-tab-usecases'
 import { useOpenFolders } from '../../(usecase)/memo-navigator-usecases'
 
-export default function MemoSystemNavigatorMain ({ className, onToggleNavigator }: { className?: string, onToggleNavigator?: () => void }): React.ReactElement {
+export default function MemoSystemNavigatorMain ({ className, onToggleNavigator, onToggleBacklinks, backlinksVisible }: {
+  className?: string
+  onToggleNavigator?: () => void
+  onToggleBacklinks?: () => void
+  backlinksVisible?: boolean
+}): React.ReactElement {
   const { folders, setFolders, writeNewMemoTitle } = useFolderAndMemo()
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
@@ -75,7 +80,12 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator 
 
   return (
     <div className={className}>
-      <NavigatorHeader onCollapseAll={collapseAll} onToggleNavigator={onToggleNavigator} />
+      <NavigatorHeader
+        onCollapseAll={collapseAll}
+        onToggleNavigator={onToggleNavigator}
+        onToggleBacklinks={onToggleBacklinks}
+        backlinksVisible={backlinksVisible}
+      />
       {MemoFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
       <FolderAndMemo
         folders={folders}
