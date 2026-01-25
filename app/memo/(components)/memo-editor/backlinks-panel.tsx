@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { type SimpleMemoInfo } from '../../(domain)/memo'
 import { fetchReferencedByMemoId, fetchReferencesByMemoId } from '../../(infra)/memo'
+import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import Link from 'next/link'
 
 interface BacklinksPanelProps {
@@ -10,6 +11,7 @@ interface BacklinksPanelProps {
 }
 
 export function BacklinksPanel ({ memoId }: BacklinksPanelProps): React.ReactElement {
+  const { navigatorContext } = useMemoSystem()
   const [outgoingLinks, setOutgoingLinks] = useState<SimpleMemoInfo[]>([])
   const [backlinks, setBacklinks] = useState<SimpleMemoInfo[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -32,7 +34,7 @@ export function BacklinksPanel ({ memoId }: BacklinksPanelProps): React.ReactEle
     }
 
     void fetchLinks()
-  }, [memoId])
+  }, [memoId, navigatorContext.refreshTrigger])
 
   if (memoId === '') {
     return (

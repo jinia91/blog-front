@@ -166,12 +166,13 @@ const useMemoStompClient = (
           destination: '/memo/updateReferences',
           body: JSON.stringify(command)
         })
+        refreshReference()
       } catch (error) {
         console.debug('참조 업데이트 전송 실패:', error)
         setError('참조 저장에 실패했습니다. 연결을 확인해주세요.')
       }
     }
-  }, 3000)
+  }, 500)
 }
 
 export default useMemoStompClient
