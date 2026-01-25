@@ -23,6 +23,7 @@ import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { Code, timestamp } from './memo-editor-plugins'
 import { createReferenceLinkCommand } from './memo-reference-link'
 import { ConnectionStatusIndicator } from '../connection-status-indicator'
+import { MemoBreadcrumb } from './memo-breadcrumb'
 
 export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }): React.ReactElement {
   const { memoEditorSharedContext, setMemoEditorSharedContext } = useMemoSystem()
@@ -92,6 +93,7 @@ export default function MemoEditorMain ({ pageMemoId }: { pageMemoId: string }):
 
   return (
     <>
+      <MemoBreadcrumb/>
       <MemoTitleInput/>
       {/* editor */}
       <div className="mb-4 flex-grow relative"

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import FolderItem from './folder-item'
 import TabOpen from '../../../../(layout)/(components)/(tap-system)/tab-open'
 import MemoItem from './memo-item'
@@ -7,6 +7,7 @@ import { type ContextMenuProps } from './memo-folder-context-menu'
 import { ApplicationType } from '../../../../(layout)/(domain)/tab'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 import { type Folder, folderFinder } from '../../../(domain)/folder'
+import { useOpenFolders } from '../../../(usecase)/memo-navigator-usecases'
 
 export function FolderAndMemo ({
   folders,
@@ -27,12 +28,11 @@ export function FolderAndMemo ({
 }): React.ReactElement {
   const { memoEditorSharedContext } = useMemoSystem()
   const listRef = useRef<HTMLUListElement>(null)
-  const getInitialOpenFolders = (): Set<any> => {
-    const storedOpenFolders = localStorage.getItem('openFolders')
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return (storedOpenFolders != null) ? new Set(JSON.parse(storedOpenFolders)) : new Set()
-  }
-  const [openFolders, setOpenFolders] = useState(getInitialOpenFolders)
+  const { openFolders, toggleFolder, openFolder, initializeFromStorage } = useOpenFolders()
+
+  useEffect(() => {
+    initializeFromStorage()
+  }, [])
   const scrollToViewIfNeeded = (): void => {
     if (listRef?.current != null) {
       const container = listRef.current
@@ -60,26 +60,10 @@ export function FolderAndMemo ({
     const id = memoEditorSharedContext.id
     const folderIds = folderFinder.findFolderIdsPathToMemoId(folders, id)
     folderIds.forEach(folderId => {
-      openFolders.has(parseInt(folderId)) || toggleFolder(parseInt(folderId))
+      openFolder(parseInt(folderId))
     })
     scrollToViewIfNeeded()
   }, [memoEditorSharedContext])
-
-  useEffect(() => {
-    localStorage.setItem('openFolders', JSON.stringify(Array.from(openFolders)))
-  }, [openFolders])
-
-  const toggleFolder = (folderId: number): void => {
-    setOpenFolders(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(folderId)) {
-        newSet.delete(folderId)
-      } else {
-        newSet.add(folderId)
-      }
-      return newSet
-    })
-  }
 
   const renderItems = (folders: Folder[], depth: number): React.ReactNode => {
     return folders.map((folder) => {

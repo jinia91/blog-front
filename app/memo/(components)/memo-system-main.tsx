@@ -6,12 +6,28 @@ import SignInPage from '../../login/(components)/sign-in-page'
 import { useSession } from '../../login/(usecase)/session-usecases'
 import { useFolderAndMemo } from '../(usecase)/memo-folder-usecases'
 
+const NAVIGATOR_VISIBLE_KEY = 'memo-navigator-visible'
+
 export default function MemoSystemMain ({ children }: { children: React.ReactNode }): React.ReactElement {
   const { session } = useSession()
   const { initializeFolderAndMemo } = useFolderAndMemo()
   const [mounted, setMounted] = useState(false)
   type Direction = 'horizontal' | 'vertical'
   const [direction, setDirection] = useState<Direction>('horizontal')
+  const [navigatorVisible, setNavigatorVisible] = useState(true)
+
+  useEffect(() => {
+    const stored = localStorage.getItem(NAVIGATOR_VISIBLE_KEY)
+    if (stored !== null) {
+      setNavigatorVisible(stored === 'true')
+    }
+  }, [])
+
+  const toggleNavigator = (): void => {
+    const newValue = !navigatorVisible
+    setNavigatorVisible(newValue)
+    localStorage.setItem(NAVIGATOR_VISIBLE_KEY, String(newValue))
+  }
 
   useEffect(() => {
     initializeFolderAndMemo().then(() => {
@@ -43,11 +59,11 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
             className="bg-red-500 text-white text-center">{'메모 앱은 저의 개인 데이터 관리 프로젝트로, 일반 유저의 데이터는 매주 월요일 삭제됩니다'}</div>}
         <PanelGroup
           direction={direction}
-          className="dos-font"
+          className="dos-font relative"
           style={{ height: '75vh', overflowY: 'auto' }}
         >
           <Panel
-            defaultSizePercentage={70}
+            defaultSizePercentage={navigatorVisible ? 70 : 100}
             className={'bg-black text-green-400 font-mono p-2 flex flex-grow border-4 overflow-auto'}
             minSizePercentage={20}
           >
@@ -56,15 +72,34 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
               : children}
           </Panel>
 
-          <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
+          {navigatorVisible && (
+            <>
+              <PanelResizeHandle className="md:w-2 md:h-full h-2 w-full hover:bg-blue-800"/>
 
-          <Panel
-            defaultSizePercentage={30}
-            className="flex flex-1 overflow-auto"
-            minSizePercentage={20}
-          >{<MemoSystemNavigatorMain
-            className="flex flex-1 min-w-0 flex-col"/>}
-          </Panel>
+              <Panel
+                defaultSizePercentage={30}
+                className="flex flex-1 overflow-auto"
+                minSizePercentage={20}
+              >
+                <MemoSystemNavigatorMain className="flex flex-1 min-w-0 flex-col" onToggleNavigator={toggleNavigator}/>
+              </Panel>
+            </>
+          )}
+
+          {/* Floating overlay button when navigator is hidden */}
+          {!navigatorVisible && (
+            <button
+              onClick={toggleNavigator}
+              className="absolute right-2 top-2 z-30 text-gray-400 hover:text-green-400 p-1.5 bg-gray-800 border border-gray-600 rounded hover:border-green-400 transition-colors"
+              title="탐색기 열기"
+              type="button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="11 17 6 12 11 7"></polyline>
+                <polyline points="18 17 13 12 18 7"></polyline>
+              </svg>
+            </button>
+          )}
         </PanelGroup>
       </div>
       )

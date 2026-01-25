@@ -8,10 +8,16 @@ export interface Folder {
   memos: SimpleMemoInfo[]
 }
 
+export interface BreadcrumbItem {
+  id: number | null
+  name: string
+}
+
 export const folderFinder: {
   findFolderById: (folders: Folder[], folderId: number) => Folder | null
   findMemoIdsInFolderRecursively: (folder: Folder) => string[]
   findFolderIdsPathToMemoId: (folders: Folder[], memoId: string) => string[]
+  findFolderPathToMemoId: (folders: Folder[], memoId: string) => BreadcrumbItem[]
   findUnCategorizedFolder: (folders: Folder[]) => Folder | null
 } = {
   findFolderById (folders: Folder[], folderId: number): Folder | null {
@@ -66,6 +72,35 @@ export const folderFinder: {
     })
 
     return result
+  },
+
+  findFolderPathToMemoId (folders: Folder[], memoId: string): BreadcrumbItem[] {
+    let isFound = false
+    const findPathToMemo = (folder: Folder, memoId: string, result: BreadcrumbItem[]): void => {
+      if (isFound) return
+
+      if (folder.memos.some(memo => memo.id.toString() === memoId)) {
+        isFound = true
+        result.push({ id: folder.id, name: folder.name })
+        return
+      }
+
+      folder.children.forEach(childFolder => {
+        findPathToMemo(childFolder, memoId, result)
+      })
+
+      if (isFound) {
+        result.push({ id: folder.id, name: folder.name })
+      }
+    }
+
+    const result: BreadcrumbItem[] = []
+    folders.forEach(folder => {
+      if (result.length > 0) return
+      findPathToMemo(folder, memoId, result)
+    })
+
+    return result.reverse()
   },
 
   findUnCategorizedFolder (folders: Folder[]): Folder | null {
