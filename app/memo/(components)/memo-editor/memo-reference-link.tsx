@@ -6,7 +6,7 @@ import { fetchRelatedMemo } from '../../(infra)/memo'
 interface ReferenceLinkCommandProps {
   pageMemoId: string
   setRecommendations: React.Dispatch<React.SetStateAction<Memo[]>>
-  openModalWithSelection: () => Promise<any>
+  openModalWithSelection: (initialQuery?: string) => Promise<any>
 }
 
 export function createReferenceLinkCommand ({
@@ -38,13 +38,22 @@ export function createReferenceLinkCommand ({
         suffix: state.command.suffix
       })
       const selectedWord = api.setSelectionRange(newSelectionRange)
-      if (selectedWord.selectedText.length === 0) return
-      const recommendedArr = await fetchRelatedMemo(selectedWord.selectedText, pageMemoId)
-      if (recommendedArr === null) return
-      setRecommendations(recommendedArr)
+      const selectedText = selectedWord.selectedText
 
-      const selectedValue: any = await openModalWithSelection()
-      const finalText = `<!-- reference: ${selectedValue.memoId} -->\n${'Reference: ' + selectedValue.title}`
+      // If text is selected, search for it; otherwise open modal with empty search
+      if (selectedText.length > 0) {
+        const recommendedArr = await fetchRelatedMemo(selectedText, pageMemoId)
+        if (recommendedArr !== null) {
+          setRecommendations(recommendedArr)
+        }
+      } else {
+        setRecommendations([])
+      }
+
+      const selectedValue: any = await openModalWithSelection(selectedText)
+      if (selectedValue === null) return
+
+      const finalText = `[[${selectedValue.title !== '' ? selectedValue.title : 'Untitled'}]]<!-- reference: ${selectedValue.memoId} -->`
       api.replaceSelection(finalText)
     }
   }
