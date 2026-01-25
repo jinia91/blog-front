@@ -18,7 +18,9 @@ export default function Terminal (): React.ReactElement {
   const terminalRef = useRef<HTMLDivElement>(null)
 
   const handleFocusInput = (): void => {
-    if (inputRef.current != null) {
+    const selection = window.getSelection()
+    const hasSelection = selection !== null && selection.toString().length > 0
+    if (!hasSelection && inputRef.current != null) {
       inputRef.current.focus()
     }
   }
