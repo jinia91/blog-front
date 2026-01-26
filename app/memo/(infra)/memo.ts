@@ -4,7 +4,7 @@ import { type Memo, type SimpleMemoInfo } from '../(domain)/memo'
 import { type Folder } from '../(domain)/folder'
 import { withAuthRetry } from '../../login/(infra)/auth-api'
 
-export async function createMemo (): Promise<{ memoId: number } | null> {
+export async function createMemo (parentFolderId?: number): Promise<{ memoId: number } | null> {
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/memos', {
       method: 'POST',
@@ -12,7 +12,7 @@ export async function createMemo (): Promise<{ memoId: number } | null> {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({ parentFolderId: parentFolderId ?? null })
     })
   }
   const response = await withAuthRetry(apiCall)
@@ -101,7 +101,7 @@ export async function fetchFolderAndMemo (): Promise<Folder[] | null> {
   return data.folderInfos
 }
 
-export async function requestCreateFolder (): Promise<Folder | null> {
+export async function requestCreateFolder (parentId?: number): Promise<Folder | null> {
   noStore()
   const apiCall = async (): Promise<Response> => {
     return await fetch(HOST + '/v1/folders', {
@@ -109,7 +109,8 @@ export async function requestCreateFolder (): Promise<Folder | null> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(parentId !== undefined ? { parentId } : {})
     })
   }
   const response = await withAuthRetry(apiCall)

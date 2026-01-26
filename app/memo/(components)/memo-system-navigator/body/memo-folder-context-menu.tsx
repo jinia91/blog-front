@@ -12,12 +12,16 @@ export default function MemoFolderContextMenu ({
   contextMenu,
   closeContextMenu,
   handleDeleteClick,
-  handleRenameClick
+  handleRenameClick,
+  handleCreateSubfolder,
+  handleCreateMemoInFolder
 }: {
   contextMenu: ContextMenuProps | null
   closeContextMenu: any
   handleDeleteClick: any
   handleRenameClick: any
+  handleCreateSubfolder: () => void
+  handleCreateMemoInFolder: () => void
 }): React.ReactElement | null | undefined {
   if (contextMenu === null) return null
   const onRenameClick = (): void => {
@@ -77,6 +81,8 @@ export default function MemoFolderContextMenu ({
           }}
         >
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={onRenameClick}>이름변경하기</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={handleCreateSubfolder}>하위 폴더 추가</li>
+          <li className={'hover:bg-gray-700 p-1 list-none'} onClick={handleCreateMemoInFolder}>메모 추가</li>
           <li className={'hover:bg-gray-700 p-1 list-none'} onClick={handleDeleteClick}>삭제하기</li>
         </ul>
       </>

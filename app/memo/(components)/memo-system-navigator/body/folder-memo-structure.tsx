@@ -16,7 +16,9 @@ export function FolderAndMemo ({
   renamingFolderId,
   newFolderName,
   setNewFolderName,
-  handleSubmitRename
+  handleSubmitRename,
+  onCreateSubfolder,
+  onCreateMemoInFolder
 }: {
   folders: Folder[]
   handleContextMenu: (e: React.MouseEvent<HTMLLIElement>, memoId?: string, folderId?: string, folderName?: string) => void
@@ -25,6 +27,8 @@ export function FolderAndMemo ({
   newFolderName: string
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
+  onCreateSubfolder?: (folderId: number) => void
+  onCreateMemoInFolder?: (folderId: number) => void
 }): React.ReactElement {
   const { memoEditorSharedContext } = useMemoSystem()
   const listRef = useRef<HTMLUListElement>(null)
@@ -81,6 +85,8 @@ export function FolderAndMemo ({
             setNewFolderName={setNewFolderName}
             handleSubmitRename={handleSubmitRename}
             isOpen={isOpen}
+            onCreateSubfolder={onCreateSubfolder}
+            onCreateMemoInFolder={onCreateMemoInFolder}
           />
           {isOpen && (
             <>

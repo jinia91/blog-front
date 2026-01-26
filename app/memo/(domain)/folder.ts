@@ -110,9 +110,11 @@ export const folderFinder: {
 
 export const folderManager: {
   rebuildFoldersAtCreatingNewMemo: (folders: Folder[], memo: SimpleMemoInfo) => Folder[]
+  rebuildFoldersAtCreatingMemoInFolder: (folders: Folder[], parentFolderId: number, memo: SimpleMemoInfo) => Folder[]
   rebuildFoldersAtUpdatingMemoTitle: (folders: Folder[], memoId: string, newTitle: string) => Folder[]
   rebuildFoldersAtDeletingMemo: (folders: Folder[], deletedMemoId: string) => Folder[]
   rebuildFoldersAtCreatingNewFolder: (folders: Folder[], newFolder: Folder) => Folder[]
+  rebuildFoldersAtCreatingSubfolder: (folders: Folder[], parentId: number, newFolder: Folder) => Folder[]
   rebuildFoldersAtUpdatingFolderTitle: (folders: Folder[], folderId: string, newName: string) => Folder[]
   buildReferenceFolders: (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]) => Folder[]
   buildSearchResultFolders: (resultMemos: SimpleMemoInfo[] | null) => Folder[]
@@ -124,6 +126,18 @@ export const folderManager: {
       ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
       : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
     return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
+  },
+
+  rebuildFoldersAtCreatingMemoInFolder (folders: Folder[], parentFolderId: number, memo: SimpleMemoInfo): Folder[] {
+    const addToFolder = (folderList: Folder[]): Folder[] => {
+      return folderList.map(folder => {
+        if (folder.id === parentFolderId) {
+          return { ...folder, memos: [...folder.memos, memo] }
+        }
+        return { ...folder, children: addToFolder(folder.children) }
+      })
+    }
+    return addToFolder(folders)
   },
 
   rebuildFoldersAtUpdatingMemoTitle (folders: Folder[], memoId: string, newTitle: string): Folder[] {
@@ -160,6 +174,17 @@ export const folderManager: {
     const newFolders = [...folders.filter((folder) => folder.id !== null), newFolder]
     newFolders.push(unCategorizedFolder)
     return newFolders
+  },
+  rebuildFoldersAtCreatingSubfolder (folders: Folder[], parentId: number, newFolder: Folder): Folder[] {
+    const addToParent = (folderList: Folder[]): Folder[] => {
+      return folderList.map(folder => {
+        if (folder.id === parentId) {
+          return { ...folder, children: [...folder.children, newFolder] }
+        }
+        return { ...folder, children: addToParent(folder.children) }
+      })
+    }
+    return addToParent(folders)
   },
   buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {
     const referenceFolderInfo = {

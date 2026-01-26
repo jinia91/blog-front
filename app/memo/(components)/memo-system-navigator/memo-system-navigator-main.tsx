@@ -9,6 +9,7 @@ import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import NavigatorHeader from './header/navigator-header'
 import { useMemoFolderWithTabRouter } from '../../(usecase)/memo-folder-tab-usecases'
 import { useOpenFolders } from '../../(usecase)/memo-navigator-usecases'
+import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 
 export default function MemoSystemNavigatorMain ({ className, onToggleNavigator, onToggleBacklinks, backlinksVisible }: {
   className?: string
@@ -16,11 +17,12 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
   onToggleBacklinks?: () => void
   backlinksVisible?: boolean
 }): React.ReactElement {
-  const { folders, setFolders, writeNewMemoTitle } = useFolderAndMemo()
+  const { folders, setFolders, writeNewMemoTitle, createNewFolder, createNewMemo } = useFolderAndMemo()
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const { memoEditorSharedContext } = useMemoSystem()
-  const { collapseAll } = useOpenFolders()
+  const { collapseAll, openFolder } = useOpenFolders()
+  const { upsertAndSelectTab } = useTabBarAndRouter()
 
   useEffect(() => {
     writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)
@@ -78,6 +80,36 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
     }
   }
 
+  const handleCreateSubfolder = async (): Promise<void> => {
+    if (memoContextMenu?.folderId != null) {
+      const folderId = Number(memoContextMenu.folderId)
+      await createNewFolder(folderId)
+      openFolder(folderId)
+      closeContextMenu()
+    }
+  }
+
+  const handleCreateSubfolderFromHover = async (folderId: number): Promise<void> => {
+    await createNewFolder(folderId)
+    openFolder(folderId)
+  }
+
+  const handleCreateMemoInFolder = async (): Promise<void> => {
+    if (memoContextMenu?.folderId != null) {
+      const folderId = Number(memoContextMenu.folderId)
+      const memoId = await createNewMemo(folderId)
+      openFolder(folderId)
+      upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
+      closeContextMenu()
+    }
+  }
+
+  const handleCreateMemoInFolderFromHover = async (folderId: number): Promise<void> => {
+    const memoId = await createNewMemo(folderId)
+    openFolder(folderId)
+    upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
+  }
+
   return (
     <div className={className}>
       <NavigatorHeader
@@ -86,7 +118,18 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
         onToggleBacklinks={onToggleBacklinks}
         backlinksVisible={backlinksVisible}
       />
-      {MemoFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
+      {MemoFolderContextMenu({
+        contextMenu: memoContextMenu,
+        closeContextMenu,
+        handleDeleteClick,
+        handleRenameClick,
+        handleCreateSubfolder: () => {
+          handleCreateSubfolder().catch(console.debug)
+        },
+        handleCreateMemoInFolder: () => {
+          handleCreateMemoInFolder().catch(console.debug)
+        }
+      })}
       <FolderAndMemo
         folders={folders}
         handleContextMenu={handleContextMenu}
@@ -96,6 +139,12 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
         setNewFolderName={setNewFolderName}
         handleSubmitRename={() => {
           handleSubmitRename().catch(console.debug)
+        }}
+        onCreateSubfolder={(folderId) => {
+          handleCreateSubfolderFromHover(folderId).catch(console.debug)
+        }}
+        onCreateMemoInFolder={(folderId) => {
+          handleCreateMemoInFolderFromHover(folderId).catch(console.debug)
         }}
       />
     </div>
