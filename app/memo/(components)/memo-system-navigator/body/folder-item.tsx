@@ -17,7 +17,9 @@ export default function FolderItem ({
   newFolderName,
   setNewFolderName,
   handleSubmitRename,
-  isOpen
+  isOpen,
+  onCreateSubfolder,
+  onCreateMemoInFolder
 }: {
   folder: Folder
   toggleFolder: (folderId: number) => void
@@ -29,10 +31,13 @@ export default function FolderItem ({
   setNewFolderName: (newFolderName: string) => void
   handleSubmitRename: () => void
   isOpen: boolean
+  onCreateSubfolder?: (folderId: number) => void
+  onCreateMemoInFolder?: (folderId: number) => void
 }): React.ReactElement {
   const { makeRelationshipAndRefresh } = useFolderAndMemo()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
     e.dataTransfer.setData('application/reactflow', JSON.stringify(draggedItem))
@@ -134,6 +139,8 @@ export default function FolderItem ({
         }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
+        onMouseEnter={() => { setIsHovered(true) }}
+        onMouseLeave={() => { setIsHovered(false) }}
         className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500
         ${isDragOver ? 'bg-gray-500' : ''}
       ${isOnContextMenu ? 'bg-gray-600' : ''}`}
@@ -149,7 +156,7 @@ export default function FolderItem ({
         }}
       >
         <div
-          className={'flex items-center'}
+          className={'flex items-center flex-grow'}
           style={{ marginLeft: `${depth * 20}px` }}
         >
           <Image
@@ -160,6 +167,34 @@ export default function FolderItem ({
           />
           <span className="ml-2">{folder.name}</span>
         </div>
+        {isHovered && folder.id !== null && (
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              className="p-1 hover:bg-gray-600 rounded text-gray-400 hover:text-white text-xs"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (folder.id !== null) {
+                  onCreateMemoInFolder?.(folder.id)
+                }
+              }}
+              title="메모 추가"
+            >
+              +M
+            </button>
+            <button
+              className="p-1 hover:bg-gray-600 rounded text-gray-400 hover:text-white text-xs"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (folder.id !== null) {
+                  onCreateSubfolder?.(folder.id)
+                }
+              }}
+              title="하위 폴더 추가"
+            >
+              +F
+            </button>
+          </div>
+        )}
       </li>
     )
   }

@@ -16,7 +16,7 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
   onToggleBacklinks?: () => void
   backlinksVisible?: boolean
 }): React.ReactElement {
-  const { folders, setFolders, writeNewMemoTitle } = useFolderAndMemo()
+  const { folders, setFolders, writeNewMemoTitle, createNewFolder, createNewMemo } = useFolderAndMemo()
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const { memoEditorSharedContext } = useMemoSystem()
@@ -78,6 +78,28 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
     }
   }
 
+  const handleCreateSubfolder = async (): Promise<void> => {
+    if (memoContextMenu?.folderId != null) {
+      await createNewFolder(Number(memoContextMenu.folderId))
+      closeContextMenu()
+    }
+  }
+
+  const handleCreateSubfolderFromHover = async (folderId: number): Promise<void> => {
+    await createNewFolder(folderId)
+  }
+
+  const handleCreateMemoInFolder = async (): Promise<void> => {
+    if (memoContextMenu?.folderId != null) {
+      await createNewMemo(Number(memoContextMenu.folderId))
+      closeContextMenu()
+    }
+  }
+
+  const handleCreateMemoInFolderFromHover = async (folderId: number): Promise<void> => {
+    await createNewMemo(folderId)
+  }
+
   return (
     <div className={className}>
       <NavigatorHeader
@@ -86,7 +108,18 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
         onToggleBacklinks={onToggleBacklinks}
         backlinksVisible={backlinksVisible}
       />
-      {MemoFolderContextMenu({ contextMenu: memoContextMenu, closeContextMenu, handleDeleteClick, handleRenameClick })}
+      {MemoFolderContextMenu({
+        contextMenu: memoContextMenu,
+        closeContextMenu,
+        handleDeleteClick,
+        handleRenameClick,
+        handleCreateSubfolder: () => {
+          handleCreateSubfolder().catch(console.debug)
+        },
+        handleCreateMemoInFolder: () => {
+          handleCreateMemoInFolder().catch(console.debug)
+        }
+      })}
       <FolderAndMemo
         folders={folders}
         handleContextMenu={handleContextMenu}
@@ -96,6 +129,12 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
         setNewFolderName={setNewFolderName}
         handleSubmitRename={() => {
           handleSubmitRename().catch(console.debug)
+        }}
+        onCreateSubfolder={(folderId) => {
+          handleCreateSubfolderFromHover(folderId).catch(console.debug)
+        }}
+        onCreateMemoInFolder={(folderId) => {
+          handleCreateMemoInFolderFromHover(folderId).catch(console.debug)
         }}
       />
     </div>

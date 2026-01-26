@@ -21,11 +21,11 @@ export const useFolderAndMemo = (): {
   setFolders: (folders: Folder[]) => void
   initializeFolderAndMemo: () => Promise<void>
   refreshFolders: () => Promise<void>
-  createNewFolder: () => Promise<void>
+  createNewFolder: (parentId?: number) => Promise<void>
   searchMemosByKeyword: (value: string) => Promise<void>
   deleteFolder: (folderId: string) => Promise<Folder[]>
   searchReferenceMemos: (targetMemoId: string) => Promise<void>
-  createNewMemo: () => Promise<string>
+  createNewMemo: (parentFolderId?: number) => Promise<string>
   writeNewMemoTitle: (memoId: string, newTitle: string) => void
   makeRelationshipAndRefresh: ({ id, type }: { id: number, type: string }, targetFolderId: number | null) => Promise<void>
   deleteMemo: (memoId: string) => Promise<void>
@@ -44,13 +44,18 @@ export const useFolderAndMemo = (): {
     await fetchAndSetFolders()
   }
 
-  const createNewFolder = async (): Promise<void> => {
-    const newFolder = await requestCreateFolder()
+  const createNewFolder = async (parentId?: number): Promise<void> => {
+    const newFolder = await requestCreateFolder(parentId)
     if (newFolder === null) {
       throw new Error('폴더 생성에 실패했습니다.')
     }
-    const newFolders = folderManager.rebuildFoldersAtCreatingNewFolder(folders, newFolder)
-    setFolders(newFolders)
+    if (parentId !== undefined) {
+      const newFolders = folderManager.rebuildFoldersAtCreatingSubfolder(folders, parentId, newFolder)
+      setFolders(newFolders)
+    } else {
+      const newFolders = folderManager.rebuildFoldersAtCreatingNewFolder(folders, newFolder)
+      setFolders(newFolders)
+    }
   }
 
   const searchMemosByKeyword = async (value: string): Promise<void> => {
@@ -83,14 +88,19 @@ export const useFolderAndMemo = (): {
     setFolders(newFolders)
   }
 
-  const createNewMemo = async (): Promise<string> => {
-    const memo = await createMemo()
+  const createNewMemo = async (parentFolderId?: number): Promise<string> => {
+    const memo = await createMemo(parentFolderId)
     if (memo === null) {
       throw new Error('메모 생성에 실패했습니다.')
     }
     const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
-    const newFolders = folderManager.rebuildFoldersAtCreatingNewMemo(folders, newMemo)
-    setFolders(newFolders)
+    if (parentFolderId !== undefined) {
+      const newFolders = folderManager.rebuildFoldersAtCreatingMemoInFolder(folders, parentFolderId, newMemo)
+      setFolders(newFolders)
+    } else {
+      const newFolders = folderManager.rebuildFoldersAtCreatingNewMemo(folders, newMemo)
+      setFolders(newFolders)
+    }
     return memo.memoId.toString()
   }
 
