@@ -9,6 +9,7 @@ import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import NavigatorHeader from './header/navigator-header'
 import { useMemoFolderWithTabRouter } from '../../(usecase)/memo-folder-tab-usecases'
 import { useOpenFolders } from '../../(usecase)/memo-navigator-usecases'
+import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 
 export default function MemoSystemNavigatorMain ({ className, onToggleNavigator, onToggleBacklinks, backlinksVisible }: {
   className?: string
@@ -20,7 +21,8 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
   const { deleteFolderAndUpdateTabs, deleteMemoAndUpdateTabs } = useMemoFolderWithTabRouter()
   const [memoContextMenu, setMemoContextMenu] = useState<ContextMenuProps | null>(null)
   const { memoEditorSharedContext } = useMemoSystem()
-  const { collapseAll } = useOpenFolders()
+  const { collapseAll, openFolder } = useOpenFolders()
+  const { upsertAndSelectTab } = useTabBarAndRouter()
 
   useEffect(() => {
     writeNewMemoTitle(memoEditorSharedContext.id, memoEditorSharedContext.title)
@@ -80,24 +82,32 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
 
   const handleCreateSubfolder = async (): Promise<void> => {
     if (memoContextMenu?.folderId != null) {
-      await createNewFolder(Number(memoContextMenu.folderId))
+      const folderId = Number(memoContextMenu.folderId)
+      await createNewFolder(folderId)
+      openFolder(folderId)
       closeContextMenu()
     }
   }
 
   const handleCreateSubfolderFromHover = async (folderId: number): Promise<void> => {
     await createNewFolder(folderId)
+    openFolder(folderId)
   }
 
   const handleCreateMemoInFolder = async (): Promise<void> => {
     if (memoContextMenu?.folderId != null) {
-      await createNewMemo(Number(memoContextMenu.folderId))
+      const folderId = Number(memoContextMenu.folderId)
+      const memoId = await createNewMemo(folderId)
+      openFolder(folderId)
+      upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
       closeContextMenu()
     }
   }
 
   const handleCreateMemoInFolderFromHover = async (folderId: number): Promise<void> => {
-    await createNewMemo(folderId)
+    const memoId = await createNewMemo(folderId)
+    openFolder(folderId)
+    upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
   }
 
   return (
