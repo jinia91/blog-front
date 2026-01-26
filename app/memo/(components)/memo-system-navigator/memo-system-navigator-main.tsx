@@ -80,6 +80,11 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
     }
   }
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
   const handleCreateSubfolder = async (): Promise<void> => {
     if (memoContextMenu?.folderId != null) {
       const folderId = Number(memoContextMenu.folderId)
@@ -99,7 +104,11 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
       const folderId = Number(memoContextMenu.folderId)
       const memoId = await createNewMemo(folderId)
       openFolder(folderId)
+<<<<<<< Updated upstream
       upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
+=======
+      upsertAndSelectTab({ name: '새 메모', urlPath: `/memo/${memoId}` })
+>>>>>>> Stashed changes
       closeContextMenu()
     }
   }
@@ -107,9 +116,16 @@ export default function MemoSystemNavigatorMain ({ className, onToggleNavigator,
   const handleCreateMemoInFolderFromHover = async (folderId: number): Promise<void> => {
     const memoId = await createNewMemo(folderId)
     openFolder(folderId)
+<<<<<<< Updated upstream
     upsertAndSelectTab({ name: '', urlPath: `/memo/${memoId}` })
   }
 
+=======
+    upsertAndSelectTab({ name: '새 메모', urlPath: `/memo/${memoId}` })
+  }
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
   return (
     <div className={className}>
       <NavigatorHeader
