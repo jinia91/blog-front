@@ -43,7 +43,7 @@ export default function MemoFolderContextMenu ({
         <ul
           className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
           style={{
-            position: 'absolute',
+            position: 'fixed',
             left: contextMenu.xPos,
             top: contextMenu.yPos,
             zIndex: 1000
@@ -70,7 +70,7 @@ export default function MemoFolderContextMenu ({
         <ul
           className="p-3 context-menu bg-gray-800 text-white rounded-md shadow-lg overflow-hidden cursor-pointer"
           style={{
-            position: 'absolute',
+            position: 'fixed',
             left: contextMenu.xPos,
             top: contextMenu.yPos,
             zIndex: 1000
