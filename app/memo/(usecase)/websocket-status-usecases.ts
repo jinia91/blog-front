@@ -1,4 +1,5 @@
 import { atom, useAtom } from 'jotai'
+import { useCallback } from 'react'
 import { ConnectionStatus, initialWebSocketState, type WebSocketState } from '../(domain)/websocket-status'
 
 const websocketStatusAtom = atom<WebSocketState>(initialWebSocketState)
@@ -19,52 +20,52 @@ export interface WebSocketStatusActions {
 export const useWebSocketStatus = (): WebSocketStatusActions => {
   const [state, setState] = useAtom(websocketStatusAtom)
 
-  const setConnecting = (): void => {
+  const setConnecting = useCallback((): void => {
     setState(prev => ({
       ...prev,
       status: ConnectionStatus.CONNECTING,
       lastError: null
     }))
-  }
+  }, [setState])
 
-  const setConnected = (): void => {
+  const setConnected = useCallback((): void => {
     setState({
       status: ConnectionStatus.CONNECTED,
       lastError: null,
       reconnectAttempts: 0,
       lastConnectedAt: new Date()
     })
-  }
+  }, [setState])
 
-  const setDisconnected = (): void => {
+  const setDisconnected = useCallback((): void => {
     setState(prev => ({
       ...prev,
       status: ConnectionStatus.DISCONNECTED
     }))
-  }
+  }, [setState])
 
-  const setReconnecting = (): void => {
+  const setReconnecting = useCallback((): void => {
     setState(prev => ({
       ...prev,
       status: ConnectionStatus.RECONNECTING,
       reconnectAttempts: prev.reconnectAttempts + 1
     }))
-  }
+  }, [setState])
 
-  const setError = (message: string): void => {
+  const setError = useCallback((message: string): void => {
     setState(prev => ({
       ...prev,
       status: ConnectionStatus.ERROR,
       lastError: message
     }))
-  }
+  }, [setState])
 
-  const resetReconnectAttempts = (): void => {
+  const resetReconnectAttempts = useCallback((): void => {
     setState(prev => ({
       ...prev,
       reconnectAttempts: 0
     }))
-  }
+  }, [setState])
 
   return {
     status: state.status,

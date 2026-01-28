@@ -1,4 +1,5 @@
 import { atom, useAtom } from 'jotai'
+import { useCallback } from 'react'
 import { type MemoSystemNavigatorContext, NavigatorContextType } from '../(domain)/memo-system-navigator-context'
 import { type MemoEditorSharedContext } from '../(domain)/memo-editor-shared-context'
 
@@ -20,34 +21,31 @@ export const useMemoSystem = (): {
   const [navigatorContext, setNavigatorContext] = useAtom(memoSystemContextAtom)
   const [memoEditorSharedContext, setMemoEditorSharedContextAtom] = useAtom(memoEditorContextAtom)
 
-  const toggleReferenceMode = (): void => {
-    const toggledContext = {
-      type: navigatorContext.type === NavigatorContextType.REFERENCE_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.REFERENCE_MODE,
-      refreshTrigger: navigatorContext.refreshTrigger
-    }
-    setNavigatorContext(toggledContext)
-  }
+  const toggleReferenceMode = useCallback((): void => {
+    setNavigatorContext(prev => ({
+      type: prev.type === NavigatorContextType.REFERENCE_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.REFERENCE_MODE,
+      refreshTrigger: prev.refreshTrigger
+    }))
+  }, [setNavigatorContext])
 
-  const toggleSearchMode = (): void => {
-    const toggledContext = {
-      type: navigatorContext.type === NavigatorContextType.SEARCH_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.SEARCH_MODE,
-      refreshTrigger: navigatorContext.refreshTrigger
-    }
-    setNavigatorContext(toggledContext)
-  }
+  const toggleSearchMode = useCallback((): void => {
+    setNavigatorContext(prev => ({
+      type: prev.type === NavigatorContextType.SEARCH_MODE ? NavigatorContextType.NORMAL_MODE : NavigatorContextType.SEARCH_MODE,
+      refreshTrigger: prev.refreshTrigger
+    }))
+  }, [setNavigatorContext])
 
-  const refreshReference = (): void => {
-    const refreshTrigger = navigatorContext.refreshTrigger + 1
-    setNavigatorContext({ ...navigatorContext, refreshTrigger })
-  }
+  const refreshReference = useCallback((): void => {
+    setNavigatorContext(prev => ({ ...prev, refreshTrigger: prev.refreshTrigger + 1 }))
+  }, [setNavigatorContext])
 
-  const setMemoTitle = (title: string): void => {
-    setMemoEditorSharedContext({ ...memoEditorSharedContext, title })
-  }
+  const setMemoTitle = useCallback((title: string): void => {
+    setMemoEditorSharedContextAtom(prev => ({ ...prev, title }))
+  }, [setMemoEditorSharedContextAtom])
 
-  const setMemoEditorSharedContext = (context: MemoEditorSharedContext): void => {
+  const setMemoEditorSharedContext = useCallback((context: MemoEditorSharedContext): void => {
     setMemoEditorSharedContextAtom(context)
-  }
+  }, [setMemoEditorSharedContextAtom])
 
   return {
     navigatorContext,
