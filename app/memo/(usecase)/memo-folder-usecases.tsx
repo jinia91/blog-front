@@ -11,8 +11,11 @@ import {
   fetchSearchResults,
   makeRelationshipWithFolders,
   makeRelationshipWithMemoAndFolders,
-  requestCreateFolder
+  requestCreateFolder,
+  reorderFolder,
+  reorderMemo
 } from '../(infra)/memo'
+import { generateLexoRank } from '../(domain)/lexorank'
 
 const folderAtom = atom<Folder[]>([])
 
@@ -29,6 +32,8 @@ export const useFolderAndMemo = (): {
   writeNewMemoTitle: (memoId: string, newTitle: string) => void
   makeRelationshipAndRefresh: ({ id, type }: { id: number, type: string }, targetFolderId: number | null) => Promise<void>
   deleteMemo: (memoId: string) => Promise<void>
+  reorderFolderItem: (folderId: number, prevSequence: string | null, nextSequence: string | null) => Promise<void>
+  reorderMemoItem: (memoId: number, prevSequence: string | null, nextSequence: string | null) => Promise<void>
 } => {
   const [folders, setFoldersAtom] = useAtom(folderAtom)
 
@@ -93,7 +98,7 @@ export const useFolderAndMemo = (): {
     if (memo === null) {
       throw new Error('메모 생성에 실패했습니다.')
     }
-    const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', references: [] }
+    const newMemo: SimpleMemoInfo = { id: memo.memoId, title: '', sequence: '', references: [] }
     if (parentFolderId !== undefined) {
       const newFolders = folderManager.rebuildFoldersAtCreatingMemoInFolder(folders, parentFolderId, newMemo)
       setFolders(newFolders)
@@ -139,6 +144,24 @@ export const useFolderAndMemo = (): {
     setFolders(newFolderStructure)
   }
 
+  const reorderFolderItem = async (folderId: number, prevSequence: string | null, nextSequence: string | null): Promise<void> => {
+    const newSequence = generateLexoRank(prevSequence, nextSequence)
+    const result = await reorderFolder(folderId, newSequence)
+    if (result === null) {
+      throw new Error('폴더 순서 변경에 실패했습니다.')
+    }
+    await fetchAndSetFolders()
+  }
+
+  const reorderMemoItem = async (memoId: number, prevSequence: string | null, nextSequence: string | null): Promise<void> => {
+    const newSequence = generateLexoRank(prevSequence, nextSequence)
+    const result = await reorderMemo(memoId, newSequence)
+    if (result === null) {
+      throw new Error('메모 순서 변경에 실패했습니다.')
+    }
+    await fetchAndSetFolders()
+  }
+
   return {
     initializeFolderAndMemo,
     refreshFolders,
@@ -151,6 +174,8 @@ export const useFolderAndMemo = (): {
     createNewMemo,
     writeNewMemoTitle,
     makeRelationshipAndRefresh,
-    deleteMemo
+    deleteMemo,
+    reorderFolderItem,
+    reorderMemoItem
   }
 }

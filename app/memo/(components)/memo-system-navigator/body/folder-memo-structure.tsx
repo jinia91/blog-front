@@ -8,6 +8,7 @@ import { ApplicationType } from '../../../../(layout)/(domain)/tab'
 import { useMemoSystem } from '../../../(usecase)/memo-system-usecases'
 import { type Folder, folderFinder } from '../../../(domain)/folder'
 import { useOpenFolders } from '../../../(usecase)/memo-navigator-usecases'
+import { compareBySequenceAndId } from '../../../(domain)/lexorank'
 
 export function FolderAndMemo ({
   folders,
@@ -69,9 +70,16 @@ export function FolderAndMemo ({
     scrollToViewIfNeeded()
   }, [memoEditorSharedContext])
 
-  const renderItems = (folders: Folder[], depth: number): React.ReactNode => {
-    return folders.map((folder) => {
+  const sortBySequence = <T extends { sequence?: string, id: number | null }>(items: T[]): T[] => {
+    return [...items].sort(compareBySequenceAndId)
+  }
+
+  const renderItems = (folders: Folder[], depth: number, parentFolderId: number | null = null): React.ReactNode => {
+    const sortedFolders = sortBySequence(folders)
+    return sortedFolders.map((folder) => {
       const isOpen = openFolders.has(folder.id ?? 0)
+      const sortedMemos = sortBySequence(folder.memos)
+      const sortedChildren = sortBySequence(folder.children)
       return (
         <React.Fragment key={folder.id}>
           <FolderItem
@@ -87,10 +95,12 @@ export function FolderAndMemo ({
             isOpen={isOpen}
             onCreateSubfolder={onCreateSubfolder}
             onCreateMemoInFolder={onCreateMemoInFolder}
+            siblingFolders={sortedFolders}
+            parentFolderId={parentFolderId}
           />
           {isOpen && (
             <>
-              {folder.memos.map((memo) => (
+              {sortedMemos.map((memo, index) => (
                 <TabOpen key={memo.id}
                          href={`/memo/${memo.id}`}
                          name={memo.title !== '' ? memo.title : `/memo/${memo.id}`}
@@ -102,10 +112,12 @@ export function FolderAndMemo ({
                     handleContextMenu={handleContextMenu}
                     contextMenu={contextMenu}
                     depth={depth}
+                    siblingMemos={sortedMemos}
+                    memoIndex={index}
                   />
                 </TabOpen>
               ))}
-              {folder.children.length > 0 && renderItems(folder.children, depth + 1)}
+              {sortedChildren.length > 0 && renderItems(sortedChildren, depth + 1, folder.id)}
             </>
           )}
         </React.Fragment>
