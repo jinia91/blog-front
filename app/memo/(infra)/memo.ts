@@ -123,6 +123,7 @@ export async function requestCreateFolder (parentId?: number): Promise<Folder | 
       const result: Folder | null = {
         id: data.folder.id,
         name: data.folder.name,
+        sequence: data.folder.sequence ?? '',
         memos: [],
         children: [],
         parent: null
@@ -291,4 +292,42 @@ export async function fetchReferencedByMemoId (memoId: string): Promise<SimpleMe
   }
   const data = await response.json()
   return data.referenceds
+}
+
+export async function reorderFolder (folderId: number, sequence: string): Promise<{ folderId: number, sequence: string } | null> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + `/v1/folders/${folderId}/sequence`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sequence })
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.debug('폴더 순서 변경에 실패했습니다')
+    return null
+  }
+  return await response.json()
+}
+
+export async function reorderMemo (memoId: number, sequence: string): Promise<{ memoId: number, sequence: string } | null> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + `/v1/memos/${memoId}/sequence`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sequence })
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.debug('메모 순서 변경에 실패했습니다')
+    return null
+  }
+  return await response.json()
 }

@@ -132,6 +132,7 @@ describe('폴더 생성 유즈케이스', () => {
       {
         id: 3,
         name: '테스트 폴더3',
+        sequence: '',
         memos: [],
         parent: null,
         children: []
@@ -441,7 +442,7 @@ describe('메모 생성 유즈케이스', () => {
 
     // then
     expect(result.current.folders[2].memos).toEqual(
-      [{ id: 3, title: '', references: [] }]
+      [{ id: 3, title: '', sequence: '', references: [] }]
     )
   })
 })

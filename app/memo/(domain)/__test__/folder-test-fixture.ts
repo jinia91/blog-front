@@ -13,6 +13,7 @@ export const folderTestFixture = {
     return {
       id,
       name: '폴더1',
+      sequence: 'm',
       parent: null,
       children: [],
       memos: []
@@ -23,12 +24,13 @@ export const folderTestFixture = {
     return {
       id,
       name: '폴더2',
+      sequence: 'm',
       parent: null,
       children: [],
       memos: [
-        { id: 1, title: '메모1', references: [] },
-        { id: 2, title: '메모2', references: [] },
-        { id: 3, title: '메모3', references: [] }
+        { id: 1, title: '메모1', sequence: 'g', references: [] },
+        { id: 2, title: '메모2', sequence: 'm', references: [] },
+        { id: 3, title: '메모3', sequence: 't', references: [] }
       ]
     }
   },
@@ -37,6 +39,7 @@ export const folderTestFixture = {
     return {
       id: null,
       name: 'uncategorized',
+      sequence: '',
       parent: null,
       children: [],
       memos: []

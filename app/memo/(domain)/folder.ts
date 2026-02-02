@@ -3,6 +3,7 @@ import { type SimpleMemoInfo } from './memo'
 export interface Folder {
   id: number | null
   name: string
+  sequence?: string // 디폴트: '' (빈 문자열), 백엔드에서 없을 수 있음
   parent: Folder | null
   children: Folder[]
   memos: SimpleMemoInfo[]
@@ -124,7 +125,7 @@ export const folderManager: {
     const unCategoryFolder = folderFinder.findUnCategorizedFolder(folders)
     const newUnCategoryFolder: Folder = (unCategoryFolder != null)
       ? { ...unCategoryFolder, memos: [...unCategoryFolder.memos, memo] }
-      : { id: null, name: 'unCategory', parent: null, memos: [memo], children: [] }
+      : { id: null, name: 'unCategory', sequence: '', parent: null, memos: [memo], children: [] }
     return [...folders.filter((folder) => folder.id !== null), newUnCategoryFolder]
   },
 
@@ -187,16 +188,18 @@ export const folderManager: {
     return addToParent(folders)
   },
   buildReferenceFolders (references: SimpleMemoInfo[], referenced: SimpleMemoInfo[]): Folder[] {
-    const referenceFolderInfo = {
+    const referenceFolderInfo: Folder = {
       id: 1,
       name: '참조중',
+      sequence: '',
       parent: null,
       memos: references,
       children: []
     }
-    const referencedFolderInfo = {
+    const referencedFolderInfo: Folder = {
       id: 2,
       name: '참조됨',
+      sequence: '',
       parent: null,
       memos: referenced,
       children: []
@@ -208,6 +211,7 @@ export const folderManager: {
       {
         id: null,
         name: '검색결과',
+        sequence: '',
         parent: null,
         memos: resultMemos ?? [],
         children: []

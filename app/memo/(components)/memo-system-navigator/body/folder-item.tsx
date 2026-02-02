@@ -7,6 +7,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { type ContextMenuProps } from './memo-folder-context-menu'
 import { useFolderAndMemo } from '../../../(usecase)/memo-folder-usecases'
 
+type DropPosition = 'before' | 'inside' | 'after' | null
+
 export default function FolderItem ({
   folder,
   toggleFolder,
@@ -19,7 +21,9 @@ export default function FolderItem ({
   handleSubmitRename,
   isOpen,
   onCreateSubfolder,
-  onCreateMemoInFolder
+  onCreateMemoInFolder,
+  siblingFolders,
+  parentFolderId
 }: {
   folder: Folder
   toggleFolder: (folderId: number) => void
@@ -33,10 +37,12 @@ export default function FolderItem ({
   isOpen: boolean
   onCreateSubfolder?: (folderId: number) => void
   onCreateMemoInFolder?: (folderId: number) => void
+  siblingFolders?: Folder[]
+  parentFolderId?: number | null
 }): React.ReactElement {
-  const { makeRelationshipAndRefresh } = useFolderAndMemo()
+  const { makeRelationshipAndRefresh, reorderFolderItem } = useFolderAndMemo()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [isDragOver, setIsDragOver] = useState(false)
+  const [dropPosition, setDropPosition] = useState<DropPosition>(null)
   const [isHovered, setIsHovered] = useState(false)
 
   const handleDragStart = (e: React.DragEvent, draggedItem: any): void => {
@@ -47,26 +53,96 @@ export default function FolderItem ({
   const handleUnCategorizedContextMenu = (e: React.MouseEvent<HTMLLIElement>): void => {
     e.preventDefault()
   }
+
+  const getDropPosition = (e: React.DragEvent): DropPosition => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    const height = rect.height
+    const threshold = height * 0.25
+
+    if (y < threshold) return 'before'
+    if (y > height - threshold) return 'after'
+    return 'inside'
+  }
+
   const handleDropCallback = (e: React.DragEvent, targetFolderId: number | null): void => {
     handleDrop(e, targetFolderId).catch(error => {
       console.debug(error)
     })
   }
+
   const handleDrop = async (e: React.DragEvent, targetFolderId: number | null): Promise<void> => {
     e.preventDefault()
-    setIsDragOver(false)
-    const draggedItem: { id: number, type: string } = JSON.parse(e.dataTransfer.getData('application/reactflow'))
-    await makeRelationshipAndRefresh(draggedItem, targetFolderId)
+    e.stopPropagation()
+
+    // 드롭 시점에 위치 직접 계산 (상태 의존 X)
+    const currentDropPosition = getDropPosition(e)
+    setDropPosition(null)
+
+    const data = e.dataTransfer.getData('application/reactflow')
+    if (data === '') return
+
+    const draggedItem: { id: number, type: string } = JSON.parse(data)
+
+    // 자기 자신에게 드롭 방지
+    if (draggedItem.type === 'folder' && draggedItem.id === folder.id) {
+      return
+    }
+
+    // 폴더 중앙에 드롭 → 폴더 안으로 이동
+    if (currentDropPosition === 'inside') {
+      await makeRelationshipAndRefresh(draggedItem, targetFolderId)
+      return
+    }
+
+    // 폴더 위/아래에 드롭
+    if (currentDropPosition === 'before' || currentDropPosition === 'after') {
+      if (draggedItem.type === 'folder' && siblingFolders !== undefined) {
+        // 같은 레벨의 폴더인지 확인
+        const isSameLevel = siblingFolders.some(f => f.id === draggedItem.id)
+
+        if (isSameLevel) {
+          // 같은 레벨 내 순서 변경
+          // 드래그된 폴더를 제외한 리스트에서 prev/next 계산
+          const foldersWithoutDragged = siblingFolders.filter(f => f.id !== draggedItem.id)
+          const targetIndexInFiltered = foldersWithoutDragged.findIndex(f => f.id === folder.id)
+
+          if (targetIndexInFiltered === -1) {
+            // 타겟을 찾지 못한 경우 (비정상 상황)
+            return
+          }
+
+          const prevFolder = currentDropPosition === 'before'
+            ? foldersWithoutDragged[targetIndexInFiltered - 1]
+            : foldersWithoutDragged[targetIndexInFiltered]
+          const nextFolder = currentDropPosition === 'before'
+            ? foldersWithoutDragged[targetIndexInFiltered]
+            : foldersWithoutDragged[targetIndexInFiltered + 1]
+
+          const prevSequence = prevFolder?.sequence ?? null
+          const nextSequence = nextFolder?.sequence ?? null
+
+          await reorderFolderItem(draggedItem.id, prevSequence, nextSequence)
+        } else {
+          // 다른 레벨의 폴더 → 부모 폴더로 이동
+          await makeRelationshipAndRefresh(draggedItem, parentFolderId ?? null)
+        }
+      } else if (draggedItem.type === 'memo') {
+        // 메모를 폴더 위/아래로 드래그 → 부모 폴더로 이동 (같은 레벨에 배치)
+        await makeRelationshipAndRefresh(draggedItem, parentFolderId ?? null)
+      }
+    }
   }
 
   const handleDragOver = (e: React.DragEvent): void => {
     e.preventDefault()
-    setIsDragOver(true)
+    const position = getDropPosition(e)
+    setDropPosition(position)
   }
 
   const handleDragLeave = (e: React.DragEvent): void => {
     e.preventDefault()
-    setIsDragOver(false)
+    setDropPosition(null)
   }
 
   useEffect(() => {
@@ -91,6 +167,34 @@ export default function FolderItem ({
 
   function hasChild (): boolean {
     return folder.children.length > 0 || folder.memos.length > 0
+  }
+
+  const getDropIndicatorStyle = (): { className: string, style?: React.CSSProperties } => {
+    if (dropPosition === 'before') {
+      return {
+        className: 'border-t-2 border-green-400',
+        style: {
+          background: 'linear-gradient(to bottom, rgba(74, 222, 128, 0.25) 0%, rgba(74, 222, 128, 0.1) 50%, transparent 50%)'
+        }
+      }
+    }
+    if (dropPosition === 'after') {
+      return {
+        className: 'border-b-2 border-green-400',
+        style: {
+          background: 'linear-gradient(to top, rgba(74, 222, 128, 0.25) 0%, rgba(74, 222, 128, 0.1) 50%, transparent 50%)'
+        }
+      }
+    }
+    if (dropPosition === 'inside') {
+      return {
+        className: 'border-2 border-blue-400',
+        style: {
+          background: 'rgba(96, 165, 250, 0.3)'
+        }
+      }
+    }
+    return { className: '' }
   }
 
   if (folder.id?.toString() === renamingFolderId) {
@@ -128,6 +232,7 @@ export default function FolderItem ({
     )
   } else {
     const isOnContextMenu = ((contextMenu?.folderId) != null) && contextMenu.folderId === folder.id?.toString()
+    const dropIndicator = getDropIndicatorStyle()
     return (
       <li
         draggable={true}
@@ -141,9 +246,10 @@ export default function FolderItem ({
         onDragLeave={handleDragLeave}
         onMouseEnter={() => { setIsHovered(true) }}
         onMouseLeave={() => { setIsHovered(false) }}
-        className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500
-        ${isDragOver ? 'bg-gray-500' : ''}
+        className={`pl-2 flex items-center pr-2 py-1 rounded cursor-pointer truncate h-8 hover:bg-gray-500 transition-all
+        ${dropIndicator.className}
       ${isOnContextMenu ? 'bg-gray-600' : ''}`}
+        style={dropIndicator.style}
         onContextMenu={(e) => {
           folder.id === null
             ? handleUnCategorizedContextMenu(e)
@@ -198,4 +304,4 @@ export default function FolderItem ({
       </li>
     )
   }
-};
+}
