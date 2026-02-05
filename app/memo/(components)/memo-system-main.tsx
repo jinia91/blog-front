@@ -178,7 +178,7 @@ export default function MemoSystemMain ({ children }: { children: React.ReactNod
 
           {/* Floating overlay buttons when panels are hidden */}
           {!isSidePanelVisible && (
-            <div className="absolute right-2 top-2 z-30 flex flex-col gap-1">
+            <div className="absolute right-2 top-2 z-[10000] flex flex-col gap-1">
               <button
                 onClick={toggleNavigator}
                 className="text-gray-400 hover:text-green-400 p-1.5 bg-gray-800 border border-gray-600 rounded hover:border-green-400 transition-colors"

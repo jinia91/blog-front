@@ -18,12 +18,13 @@ export default function AiChatPanel ({ onClose }: AiChatPanelProps): React.React
     messages,
     pendingMessages,
     isLoading,
-    isLoadingMore,
-    hasNext,
+    messagesHasNext,
+    isLoadingMoreMessages,
     loadSessions,
-    loadMoreSessions,
     createNewSession,
+    deleteSessionById,
     selectSession,
+    loadMoreMessages,
     sendMessage
   } = useAiChat()
 
@@ -88,13 +89,12 @@ export default function AiChatPanel ({ onClose }: AiChatPanelProps): React.React
     })()
   }
 
-  const handleLoadMoreSessions = (): void => {
-    if (session?.userId === undefined) return
+  const handleDeleteSession = (sessionId: number): void => {
     void (async () => {
       try {
-        await loadMoreSessions(session.userId)
+        await deleteSessionById(sessionId)
       } catch (error) {
-        console.error('Failed to load more sessions:', error)
+        console.error('Failed to delete session:', error)
       }
     })()
   }
@@ -146,11 +146,9 @@ export default function AiChatPanel ({ onClose }: AiChatPanelProps): React.React
           <SessionSidebar
             sessions={sessions}
             currentSessionId={currentSessionId}
-            hasNext={hasNext}
-            isLoadingMore={isLoadingMore}
             onSelectSession={handleSelectSession}
             onNewSession={handleNewSession}
-            onLoadMore={handleLoadMoreSessions}
+            onDeleteSession={handleDeleteSession}
           />
 
           {/* Chat Area */}
@@ -166,6 +164,12 @@ export default function AiChatPanel ({ onClose }: AiChatPanelProps): React.React
                   <ChatMessageList
                     messages={messages}
                     pendingMessages={pendingMessages}
+                    messagesHasNext={messagesHasNext}
+                    isLoadingMoreMessages={isLoadingMoreMessages}
+                    onLoadMoreMessages={() => {
+                      if (session?.userId === undefined) return
+                      void loadMoreMessages(session.userId)
+                    }}
                   />
                   <ChatInput
                     onSend={handleSendMessage}

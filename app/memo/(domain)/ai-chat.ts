@@ -40,9 +40,9 @@ export interface PendingMessage {
   createdAt: string
 }
 
-// Sessions page response type for pagination
-export interface SessionsPageResponse {
-  sessions: ChatSession[]
+// Chat history page response type for pagination
+export interface ChatHistoryResponse {
+  messages: ChatMessage[]
   hasNext: boolean
   nextCursor: number | null
 }

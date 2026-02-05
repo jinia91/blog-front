@@ -7,7 +7,10 @@ interface ChatMessageListProps {
   pendingMessages: PendingMessage[]
   sessions?: ChatSession[]
   currentSessionId?: number | null
+  messagesHasNext?: boolean
+  isLoadingMoreMessages?: boolean
   onSelectSession?: (sessionId: number) => void
+  onLoadMoreMessages?: () => void
 }
 
 export default function ChatMessageList ({
@@ -15,7 +18,10 @@ export default function ChatMessageList ({
   pendingMessages,
   sessions,
   currentSessionId,
-  onSelectSession
+  messagesHasNext,
+  isLoadingMoreMessages,
+  onSelectSession,
+  onLoadMoreMessages
 }: ChatMessageListProps): React.ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -27,6 +33,20 @@ export default function ChatMessageList ({
 
   return (
     <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 dos-font text-sm bg-black">
+      {/* Load more messages button */}
+      {messagesHasNext === true && (
+        <div className="text-center mb-4">
+          <button
+            onClick={onLoadMoreMessages}
+            disabled={isLoadingMoreMessages}
+            className="text-xs text-gray-500 hover:text-green-400 border border-gray-700 hover:border-green-400/50 px-3 py-1 transition-colors disabled:opacity-50"
+            type="button"
+          >
+            {isLoadingMoreMessages === true ? '[로딩...]' : '[이전 메시지 더 보기]'}
+          </button>
+        </div>
+      )}
+
       {/* Welcome message if empty */}
       {messages.length === 0 && pendingMessages.length === 0 && (
         <div className="text-gray-500 mb-4">

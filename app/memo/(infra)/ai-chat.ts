@@ -1,24 +1,15 @@
 import { HOST } from '../../(utils)/constants'
 import { withAuthRetry } from '../../login/(infra)/auth-api'
 import {
-  type ChatMessage,
+  type ChatSession,
   type AiChatResponse,
   type RecommendedMemo,
-  type SessionsPageResponse
+  type ChatHistoryResponse
 } from '../(domain)/ai-chat'
 
-export async function fetchSessions (
-  userId: number,
-  cursor?: number,
-  size: number = 20
-): Promise<SessionsPageResponse | null> {
-  const params = new URLSearchParams({ userId: userId.toString(), size: size.toString() })
-  if (cursor !== undefined) {
-    params.append('cursor', cursor.toString())
-  }
-
+export async function fetchSessions (userId: number): Promise<ChatSession[] | null> {
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + `/ai/sessions?${params.toString()}`, {
+    return await fetch(HOST + '/ai/sessions', {
       method: 'GET',
       credentials: 'include',
       cache: 'no-store',
@@ -54,9 +45,19 @@ export async function createSession (userId: number, title?: string): Promise<{ 
   return await response.json()
 }
 
-export async function fetchSessionMessages (sessionId: number, userId: number): Promise<ChatMessage[] | null> {
+export async function fetchSessionMessages (
+  sessionId: number,
+  userId: number,
+  cursor?: number,
+  size: number = 50
+): Promise<ChatHistoryResponse | null> {
+  const params = new URLSearchParams({ size: size.toString() })
+  if (cursor !== undefined) {
+    params.append('cursor', cursor.toString())
+  }
+
   const apiCall = async (): Promise<Response> => {
-    return await fetch(HOST + `/ai/sessions/${sessionId}/messages?userId=${userId}`, {
+    return await fetch(HOST + `/ai/sessions/${sessionId}/messages?${params.toString()}`, {
       method: 'GET',
       credentials: 'include',
       cache: 'no-store',
@@ -71,6 +72,24 @@ export async function fetchSessionMessages (sessionId: number, userId: number): 
     return null
   }
   return await response.json()
+}
+
+export async function deleteSession (sessionId: number): Promise<boolean> {
+  const apiCall = async (): Promise<Response> => {
+    return await fetch(HOST + `/ai/sessions/${sessionId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  const response = await withAuthRetry(apiCall)
+  if (!response.ok) {
+    console.debug('세션 삭제에 실패했습니다')
+    return false
+  }
+  return true
 }
 
 export async function sendChatMessage (sessionId: number, message: string, userId: number): Promise<AiChatResponse | null> {

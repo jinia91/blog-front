@@ -5,21 +5,17 @@ import { type ChatSession } from '../../(domain)/ai-chat'
 interface SessionSidebarProps {
   sessions: ChatSession[]
   currentSessionId: number | null
-  hasNext: boolean
-  isLoadingMore: boolean
   onSelectSession: (sessionId: number) => void
   onNewSession: () => void
-  onLoadMore: () => void
+  onDeleteSession: (sessionId: number) => void
 }
 
 export default function SessionSidebar ({
   sessions,
   currentSessionId,
-  hasNext,
-  isLoadingMore,
   onSelectSession,
   onNewSession,
-  onLoadMore
+  onDeleteSession
 }: SessionSidebarProps): React.ReactElement {
   return (
     <div className="w-48 bg-black border-l-2 border-green-400 flex flex-col dos-font">
@@ -48,35 +44,39 @@ export default function SessionSidebar ({
             minute: '2-digit'
           })
           return (
-            <button
+            <div
               key={session.sessionId}
-              onClick={() => { onSelectSession(session.sessionId) }}
-              className={`w-full text-left p-2 mb-1 border transition-colors ${
+              className={`relative w-full text-left p-2 mb-1 border transition-colors group ${
                 isSelected
                   ? 'border-2 border-green-400 bg-green-400/10 terminal-glow'
                   : 'border border-gray-700 hover:border-green-400/50'
               }`}
-              type="button"
             >
-              <div className={`truncate text-sm ${isSelected ? 'text-green-400' : 'text-gray-400'}`}>
-                {'>'} {session.title}
-              </div>
-              <div className="text-xs text-gray-600 mt-1 ml-2">
-                {date}
-              </div>
-            </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDeleteSession(session.sessionId)
+                }}
+                className="absolute top-1 right-1 text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                type="button"
+              >
+                ✕
+              </button>
+              <button
+                onClick={() => { onSelectSession(session.sessionId) }}
+                className="w-full text-left"
+                type="button"
+              >
+                <div className={`truncate text-sm pr-4 ${isSelected ? 'text-green-400' : 'text-gray-400'}`}>
+                  {'>'} {session.title}
+                </div>
+                <div className="text-xs text-gray-600 mt-1 ml-2">
+                  {date}
+                </div>
+              </button>
+            </div>
           )
         })}
-        {hasNext && (
-          <button
-            onClick={onLoadMore}
-            disabled={isLoadingMore}
-            className="w-full mt-2 px-2 py-1 text-xs text-gray-500 hover:text-green-400 border border-gray-700 hover:border-green-400/50 transition-colors disabled:opacity-50"
-            type="button"
-          >
-            {isLoadingMore ? '[로딩...]' : '[더 보기]'}
-          </button>
-        )}
       </div>
     </div>
   )

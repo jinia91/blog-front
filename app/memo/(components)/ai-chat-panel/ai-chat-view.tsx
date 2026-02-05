@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useAiChat } from '../../(usecase)/ai-chat-usecases'
+import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useSession } from '../../../login/(usecase)/session-usecases'
 import ChatMessageList from './chat-message-list'
 import ChatInput from './chat-input'
@@ -14,20 +15,22 @@ const SESSION_LIST_VISIBLE_KEY = 'ai-chat-session-list-visible'
 
 export default function AiChatView ({ onToggleView }: AiChatViewProps): React.ReactElement {
   const { session } = useSession()
+  const { refreshFolders } = useFolderAndMemo()
   const {
     sessions,
     currentSessionId,
     messages,
     pendingMessages,
     isLoading,
-    isLoadingMore,
-    hasNext,
+    messagesHasNext,
+    isLoadingMoreMessages,
     error,
     clearError,
     loadSessions,
-    loadMoreSessions,
     createNewSession,
+    deleteSessionById,
     selectSession,
+    loadMoreMessages,
     sendMessage,
     clearCurrentSession
   } = useAiChat()
@@ -61,17 +64,11 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
       // If sessions exist and no session is selected, select the first one
       if (sessions.length > 0 && currentSessionId === null) {
         await selectSession(sessions[0].sessionId, session.userId)
-      } else if (sessions.length === 0) {
-        // If no sessions exist, create and select a new one
-        const newSessionId = await createNewSession(session.userId, '새 대화')
-        if (newSessionId !== null) {
-          await selectSession(newSessionId, session.userId)
-        }
       }
     }
 
     void autoSelectFirstSession()
-  }, [initialized, sessions, session?.userId, currentSessionId, selectSession, createNewSession])
+  }, [initialized, sessions, session?.userId, currentSessionId, selectSession])
 
   const handleSelectSession = (sessionId: number): void => {
     if (session?.userId === undefined) return
@@ -85,12 +82,25 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
     })()
   }
 
+  const handleDeleteSession = (sessionId: number): void => {
+    void (async () => {
+      try {
+        await deleteSessionById(sessionId)
+      } catch (error) {
+        console.error('Failed to delete session:', error)
+      }
+    })()
+  }
+
   const handleSendMessage = (message: string): void => {
     if (session?.userId === undefined) return
 
     void (async () => {
       try {
-        await sendMessage(message, session.userId)
+        const createdMemoId = await sendMessage(message, session.userId)
+        if (createdMemoId !== undefined) {
+          await refreshFolders()
+        }
       } catch (error) {
         console.error('Failed to send message:', error)
       }
@@ -140,27 +150,63 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
     })()
   }
 
-  const handleLoadMoreSessions = (): void => {
-    if (session?.userId === undefined) return
-    void (async () => {
-      try {
-        await loadMoreSessions(session.userId)
-      } catch (error) {
-        console.error('Failed to load more sessions:', error)
-      }
-    })()
-  }
-
   const toggleSessionList = (): void => {
     const newValue = !sessionListVisible
     setSessionListVisible(newValue)
     localStorage.setItem(SESSION_LIST_VISIBLE_KEY, String(newValue))
   }
 
+  const renderChatContent = (): React.ReactElement => {
+    if (!initialized) {
+      return (
+        <div className="flex-1 flex items-center justify-center dos-font">
+          <div className="text-center">
+            <div className="text-green-400 terminal-glow animate-pulse mb-2">■ 초기화 중...</div>
+            <div className="text-gray-600 text-sm">세션 목록을 불러오고 있습니다</div>
+          </div>
+        </div>
+      )
+    }
+
+    if (currentSessionId === null) {
+      return (
+        <div className="flex-1 flex items-center justify-center dos-font">
+          <div className="text-center">
+            <div className="text-green-400 terminal-glow mb-4">■ 세컨드 브레인</div>
+            <div className="text-gray-500 mb-4">선택된 세션이 없습니다</div>
+            <button
+              onClick={handleNewSession}
+              className="text-green-400 border border-green-400 px-4 py-2 hover:bg-green-400 hover:text-black transition-colors"
+              type="button"
+            >
+              [새 대화 시작]
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <ChatMessageList
+        messages={messages}
+        pendingMessages={pendingMessages}
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        messagesHasNext={messagesHasNext}
+        isLoadingMoreMessages={isLoadingMoreMessages}
+        onSelectSession={handleSelectSession}
+        onLoadMoreMessages={() => {
+          if (session?.userId === undefined) return
+          void loadMoreMessages(session.userId)
+        }}
+      />
+    )
+  }
+
   return (
     <div className="w-full h-full bg-black flex flex-col terminal-container terminal-scanlines">
       {/* Terminal Header */}
-      <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2" style={{ zIndex: 9999 }}>
+      <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2 relative z-10">
         <button onClick={onToggleView} className="text-green-400 hover:bg-green-400 hover:text-black text-xs border border-green-400/50 px-2 py-0.5 transition-colors shrink-0" type="button">
           [그래프]
         </button>
@@ -180,13 +226,7 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
       <div className="flex flex-1 overflow-hidden">
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
-          <ChatMessageList
-            messages={messages}
-            pendingMessages={pendingMessages}
-            sessions={sessions}
-            currentSessionId={currentSessionId}
-            onSelectSession={handleSelectSession}
-          />
+          {renderChatContent()}
 
           {/* Error Display */}
           {error !== null && (
@@ -196,11 +236,13 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
             </div>
           )}
 
-          <ChatInput
-            onSend={handleSendMessage}
-            onCommand={handleCommand}
-            disabled={isLoading}
-          />
+          {initialized && currentSessionId !== null && (
+            <ChatInput
+              onSend={handleSendMessage}
+              onCommand={handleCommand}
+              disabled={isLoading}
+            />
+          )}
         </div>
 
         {/* Session Sidebar - Right side, collapsible */}
@@ -208,11 +250,9 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
           <SessionSidebar
             sessions={sessions}
             currentSessionId={currentSessionId}
-            hasNext={hasNext}
-            isLoadingMore={isLoadingMore}
             onSelectSession={handleSelectSession}
             onNewSession={handleNewSession}
-            onLoadMore={handleLoadMoreSessions}
+            onDeleteSession={handleDeleteSession}
           />
         )}
       </div>

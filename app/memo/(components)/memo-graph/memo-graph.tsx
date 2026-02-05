@@ -79,7 +79,7 @@ export default function MemoGraph ({ onToggleView }: MemoGraphProps): React.Reac
   return (
     <div className="w-full h-full flex flex-col bg-black dos-font">
       {/* Header */}
-      <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2" style={{ zIndex: 9999 }}>
+      <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2 relative z-10">
         <button
           onClick={onToggleView}
           className="text-green-400 hover:bg-green-400 hover:text-black text-xs border border-green-400/50 px-2 py-0.5 transition-colors shrink-0"
