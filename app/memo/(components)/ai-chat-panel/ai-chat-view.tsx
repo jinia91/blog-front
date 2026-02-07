@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useAiChat } from '../../(usecase)/ai-chat-usecases'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useSession } from '../../../login/(usecase)/session-usecases'
+import { Auth } from '../../../login/(domain)/session'
 import { syncMemoEmbeddings } from '../../(infra)/ai-chat'
 import ChatMessageList from './chat-message-list'
 import ChatInput from './chat-input'
@@ -43,6 +44,8 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
     return saved === null ? true : saved === 'true'
   })
   const [isSyncing, setIsSyncing] = useState(false)
+
+  const isAdmin = session?.roles.values().next().value === Auth.Admin
 
   useEffect(() => {
     const initializeChat = async (): Promise<void> => {
@@ -217,6 +220,27 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
           void loadMoreMessages(session.userId)
         }}
       />
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="w-full h-full bg-black flex flex-col terminal-container terminal-scanlines">
+        <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2 relative z-10">
+          <button onClick={onToggleView} className="text-green-400 hover:bg-green-400 hover:text-black text-xs border border-green-400/50 px-2 py-0.5 transition-colors shrink-0" type="button">
+            [그래프]
+          </button>
+          <span className="text-gray-600">|</span>
+          <span className="text-green-400 terminal-glow">■</span>
+          <span className="text-green-400 terminal-glow text-sm">세컨드 브레인</span>
+        </div>
+        <div className="flex-1 flex items-center justify-center dos-font">
+          <div className="text-center">
+            <div className="text-red-500 mb-2">■ ACCESS DENIED</div>
+            <div className="text-gray-500 text-sm">관리자만 사용할 수 있습니다</div>
+          </div>
+        </div>
+      </div>
     )
   }
 
