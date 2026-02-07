@@ -9,7 +9,11 @@ import { useRouter } from 'next/navigation'
 import { useMemoSystem } from '../../(usecase)/memo-system-usecases'
 import { FOLDER_MEMO_GROUP_SEPARATOR, memoGraphUtils } from './memo-graph-utils'
 
-export default function MemoGraph (): React.ReactElement | null {
+interface MemoGraphProps {
+  onToggleView?: () => void
+}
+
+export default function MemoGraph ({ onToggleView }: MemoGraphProps): React.ReactElement | null {
   const { folders } = useFolderAndMemo()
   const { setMemoEditorSharedContext } = useMemoSystem()
   const router = useRouter()
@@ -73,20 +77,36 @@ export default function MemoGraph (): React.ReactElement | null {
   }
 
   return (
-    <div>
-      <ForceGraph2D
-        graphData={graphData}
-        nodeId="id"
-        nodeLabel="name"
-        nodeAutoColorBy="group"
-        linkColor={() => 'red'}
-        linkWidth={1}
-        linkCurvature={0}
-        linkDirectionalParticles={2}
-        linkDirectionalArrowLength={3}
-        nodeCanvasObject={nodeCanvasObject}
-        onNodeClick={handleNodeClick}
-      />
+    <div className="w-full h-full flex flex-col bg-black dos-font">
+      {/* Header */}
+      <div className="border-b border-green-400/50 bg-black px-2 py-1 dos-font shrink-0 flex items-center gap-2 relative z-10">
+        <button
+          onClick={onToggleView}
+          className="text-green-400 hover:bg-green-400 hover:text-black text-xs border border-green-400/50 px-2 py-0.5 transition-colors shrink-0"
+          title="챗봇으로 전환"
+          type="button"
+        >
+          [챗봇]
+        </button>
+        <span className="text-green-400 terminal-glow">■</span>
+        <span className="text-green-400 terminal-glow text-sm">메모 그래프</span>
+      </div>
+      {/* Graph */}
+      <div className="flex-1 overflow-hidden" style={{ position: 'relative' }}>
+        <ForceGraph2D
+          graphData={graphData}
+          nodeId="id"
+          nodeLabel="name"
+          nodeAutoColorBy="group"
+          linkColor={() => 'red'}
+          linkWidth={1}
+          linkCurvature={0}
+          linkDirectionalParticles={2}
+          linkDirectionalArrowLength={3}
+          nodeCanvasObject={nodeCanvasObject}
+          onNodeClick={handleNodeClick}
+        />
+      </div>
     </div>
   )
 }
