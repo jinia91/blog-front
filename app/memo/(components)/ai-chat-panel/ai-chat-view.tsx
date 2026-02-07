@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useAiChat } from '../../(usecase)/ai-chat-usecases'
 import { useFolderAndMemo } from '../../(usecase)/memo-folder-usecases'
 import { useSession } from '../../../login/(usecase)/session-usecases'
+import { syncMemoEmbeddings } from '../../(infra)/ai-chat'
 import ChatMessageList from './chat-message-list'
 import ChatInput from './chat-input'
 import SessionSidebar from './session-sidebar'
@@ -41,6 +42,7 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
     const saved = localStorage.getItem(SESSION_LIST_VISIBLE_KEY)
     return saved === null ? true : saved === 'true'
   })
+  const [isSyncing, setIsSyncing] = useState(false)
 
   useEffect(() => {
     const initializeChat = async (): Promise<void> => {
@@ -156,6 +158,21 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
     localStorage.setItem(SESSION_LIST_VISIBLE_KEY, String(newValue))
   }
 
+  const handleSync = (): void => {
+    if (session?.userId === undefined) return
+    void (async () => {
+      try {
+        setIsSyncing(true)
+        await syncMemoEmbeddings(session.userId)
+        console.log('메모 임베딩 동기화 완료')
+      } catch (error) {
+        console.error('Failed to sync embeddings:', error)
+      } finally {
+        setIsSyncing(false)
+      }
+    })()
+  }
+
   const renderChatContent = (): React.ReactElement => {
     if (!initialized) {
       return (
@@ -216,6 +233,14 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
           type="button"
         >
           {sessionListVisible ? '[세션]' : '[세션+]'}
+        </button>
+        <button
+          onClick={handleSync}
+          disabled={!initialized || isSyncing}
+          className="text-green-400 hover:bg-green-400 hover:text-black text-xs border border-green-400/50 px-2 py-0.5 transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+        >
+          {isSyncing ? '[동기화중...]' : '[동기화]'}
         </button>
         <span className="text-gray-600">|</span>
         <span className="text-green-400 terminal-glow">■</span>
