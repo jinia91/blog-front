@@ -23,7 +23,11 @@ export async function fetchSessions (userId: number): Promise<ChatSession[] | nu
     console.debug('세션 목록 조회에 실패했습니다')
     return null
   }
-  return await response.json()
+  const data = await response.json()
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.sessions)) return data.sessions
+  if (Array.isArray(data?.content)) return data.content
+  return []
 }
 
 export async function createSession (userId: number, title?: string): Promise<{ sessionId: number, title: string } | null> {

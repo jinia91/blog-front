@@ -30,12 +30,12 @@ export default function SessionSidebar ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
-        {sessions.length === 0 && (
+        {(!Array.isArray(sessions) || sessions.length === 0) && (
           <div className="text-gray-600 text-sm text-center p-4">
             대화 내역이 없습니다
           </div>
         )}
-        {sessions.map((session) => {
+        {Array.isArray(sessions) && sessions.map((session) => {
           const isSelected = session.sessionId === currentSessionId
           const date = new Date(session.updatedAt).toLocaleDateString('ko-KR', {
             month: 'short',

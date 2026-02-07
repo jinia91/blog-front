@@ -219,7 +219,6 @@ export const useAiChat = (): {
   }
 
   const clearCurrentSession = (): void => {
-    setCurrentSessionId(null)
     setMessages([])
     setPendingMessages([])
   }
