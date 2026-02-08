@@ -3,14 +3,16 @@ import React from 'react'
 import { usePathname } from 'next/navigation'
 import MemoSystemMain from '../../../memo/(components)/memo-system-main'
 import { Empty } from '../../../empty/(components)/empty'
+import { useTabBarAndRouter } from '../../../(layout)/(usecase)/tab-usecases'
 
 export function RenderApp ({ page }: {
   page: React.ReactNode
 }): React.ReactElement | null {
   const path = usePathname()
+  const { tabs } = useTabBarAndRouter()
 
   function isEmpty (): boolean {
-    return (path === '/empty')
+    return (path === '/empty') || tabs.length === 0
   }
 
   function renderOthers (): React.ReactElement | null {
