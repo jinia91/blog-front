@@ -192,8 +192,21 @@ export default function AiChatView ({ onToggleView }: AiChatViewProps): React.Re
       return (
         <div className="flex-1 flex items-center justify-center dos-font">
           <div className="text-center">
-            <div className="text-green-400 terminal-glow mb-4">■ 세컨드 브레인</div>
-            <div className="text-gray-500 mb-4">선택된 세션이 없습니다</div>
+            <pre className="text-green-400 terminal-glow text-xs leading-tight mb-4">{
+`         _---~~(~~-_.
+       _{        )   )
+     ,   ) -~~- ( ,-' )_
+    (  '-,_..'-., )--'_,)
+   ( ' _)  (  -~( -_ ',  }
+   (_-  _  ~_-'~~'~',  ,' )
+     '~ -^(    __;-,(((~))
+           ~~~~ {_ -_(())
+                  '{  }
+                    { }`
+            }</pre>
+            <div className="text-green-400 terminal-glow mb-2 text-lg">세컨드 브레인</div>
+            <div className="text-gray-500 mb-1">AI 기반 지식 관리 비서</div>
+            <div className="text-gray-600 text-xs mb-4">메모를 입력하고, 질문하고, 지식을 연결하세요</div>
             <button
               onClick={handleNewSession}
               className="text-green-400 border border-green-400 px-4 py-2 hover:bg-green-400 hover:text-black transition-colors"

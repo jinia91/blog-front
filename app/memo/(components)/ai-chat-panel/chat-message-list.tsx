@@ -50,8 +50,16 @@ export default function ChatMessageList ({
       {/* Welcome message if empty */}
       {messages.length === 0 && pendingMessages.length === 0 && (
         <div className="text-gray-500 mb-4">
+          <pre className="text-green-400 terminal-glow text-xs leading-tight mb-3">{
+`      _---~~(~~-_.
+    _{        )   )
+  ,   ) -~~- ( ,-' )_
+ (_-  _  ~_-~~~~', ,' )
+   '~ -^(   __;-,((()))
+         ~~~~ {_ -_(())`
+          }</pre>
           <div className="text-green-400 terminal-glow mb-2">세컨드 브레인에 오신 것을 환영합니다</div>
-          <div>AI 기반 메모리 어시스턴트입니다.</div>
+          <div>AI 기반 지식 관리 비서입니다.</div>
           <div className="mt-2">• 아무 내용이나 입력하면 메모로 저장됩니다</div>
           <div>• 질문하면 기존 메모를 검색하여 답변합니다</div>
           <div>• /help 명령어로 도움말을 볼 수 있습니다</div>

@@ -14,7 +14,7 @@ export const sideBarItems = [
     type: 'app'
   },
   {
-    name: 'Memo',
+    name: 'Second Brain',
     href: '/memo',
     icon: AiOutlineFileText,
     auth: Auth.User,
