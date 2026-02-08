@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { type ChatMessage, type PendingMessage, type ChatSession } from '../../(domain)/ai-chat'
 
 interface ChatMessageListProps {
@@ -24,6 +24,14 @@ export default function ChatMessageList ({
   onLoadMoreMessages
 }: ChatMessageListProps): React.ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
+
+  const handleCopy = (messageId: number, text: string): void => {
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(messageId)
+      setTimeout(() => { setCopiedId(null) }, 1500)
+    })
+  }
 
   useEffect(() => {
     if (scrollRef.current !== null) {
@@ -136,7 +144,7 @@ export default function ChatMessageList ({
 
         if (msg.role === 'USER') {
           return (
-            <div key={msg.messageId} className="mb-3">
+            <div key={msg.messageId} className="mb-3 group relative">
               <div className="text-green-400">
                 <span className="text-cyan-400">user@brain</span>
                 <span className="text-white">:</span>
@@ -144,11 +152,18 @@ export default function ChatMessageList ({
                 <span className="text-white">$ </span>
                 <span className="text-gray-200">{msg.content}</span>
               </div>
+              <button
+                onClick={() => { handleCopy(msg.messageId, msg.content) }}
+                className="absolute top-0 right-0 text-xs px-1.5 py-0.5 border border-gray-700 text-gray-500 hover:text-green-400 hover:border-green-400/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                type="button"
+              >
+                {copiedId === msg.messageId ? 'copied' : 'copy'}
+              </button>
             </div>
           )
         } else if (msg.role === 'ASSISTANT') {
           return (
-            <div key={msg.messageId} className="mb-3">
+            <div key={msg.messageId} className="mb-3 group relative">
               <div className="text-gray-300 pl-2 border-l border-cyan-400/30 ml-2 mt-1">
                 {msg.content.split('\n').map((line, i) => (
                   <div key={i} className="flex">
@@ -157,6 +172,13 @@ export default function ChatMessageList ({
                   </div>
                 ))}
               </div>
+              <button
+                onClick={() => { handleCopy(msg.messageId, msg.content) }}
+                className="absolute top-0 right-0 text-xs px-1.5 py-0.5 border border-gray-700 text-gray-500 hover:text-green-400 hover:border-green-400/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                type="button"
+              >
+                {copiedId === msg.messageId ? 'copied' : 'copy'}
+              </button>
             </div>
           )
         } else {
