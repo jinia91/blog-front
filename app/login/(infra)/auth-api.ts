@@ -66,10 +66,15 @@ export async function refreshTokens (): Promise<{
   return await response.json()
 }
 
+let refreshPromise: ReturnType<typeof refreshTokens> | null = null
+
 export async function withAuthRetry (apiFunction: () => Promise<Response>): Promise<Response> {
   const response = await apiFunction()
   if (response.status === 401) {
-    const refreshResult = await refreshTokens()
+    if (refreshPromise === null) {
+      refreshPromise = refreshTokens().finally(() => { refreshPromise = null })
+    }
+    const refreshResult = await refreshPromise
     if (refreshResult === null) {
       return response
     }
