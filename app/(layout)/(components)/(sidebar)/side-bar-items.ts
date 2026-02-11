@@ -2,6 +2,7 @@ import { AiFillGithub, AiOutlineFileText } from 'react-icons/ai'
 import { BsTerminalDash } from 'react-icons/bs'
 import { Auth } from '../../../login/(domain)/session'
 import { BlogIcon } from './blog-icon'
+import { RoguelikeIcon } from './roguelike-icon'
 import { RssIcon } from './rss-feed-icon'
 import { HOST } from '../../../(utils)/constants'
 
@@ -10,6 +11,13 @@ export const sideBarItems = [
     name: 'Home',
     href: '/',
     icon: BsTerminalDash,
+    auth: Auth.Guest,
+    type: 'app'
+  },
+  {
+    name: 'Roguelike',
+    href: '/roguelike',
+    icon: RoguelikeIcon,
     auth: Auth.Guest,
     type: 'app'
   },

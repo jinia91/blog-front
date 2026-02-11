@@ -18,6 +18,10 @@ import { weatherCommand } from '../usecase/weather-command'
 import { decodeCommand } from '../usecase/decode-command'
 import { base64Command } from '../usecase/base64-command'
 import { timestampCommand } from '../usecase/timestamp-command'
+import { jsonCommand } from '../usecase/json-command'
+import { cronCommand } from '../usecase/cron-command'
+import { ipCommand } from '../usecase/ip-command'
+import { fortuneCommand } from '../usecase/fortune-command'
 
 export type SetContextFn = (args: (((prev: TerminalContext) => TerminalContext) | TerminalContext)) => void
 
@@ -70,7 +74,11 @@ export const COMMAND_LIST = [
   weatherCommand,
   decodeCommand,
   base64Command,
-  timestampCommand
+  timestampCommand,
+  jsonCommand,
+  cronCommand,
+  ipCommand,
+  fortuneCommand
 ]
 
 export interface ParseResult {

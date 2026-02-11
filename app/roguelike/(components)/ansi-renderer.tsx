@@ -1,12 +1,5 @@
 'use client'
 import React from 'react'
-import { useAtom } from 'jotai/index'
-import { COMMAND_LINE_DEFAULT } from '../../domain/terminal-context'
-import { terminalAtom } from '../../usecase/command-handle-usecases'
-
-interface ViewportProps {
-  username: string
-}
 
 interface AnsiSegment {
   text: string
@@ -42,7 +35,6 @@ function parseAnsi (line: string): AnsiSegment[] {
   let lastIndex = 0
   let currentColor: string | null = null
   let match = regex.exec(line)
-
   while (match !== null) {
     if (match.index > lastIndex) {
       segments.push({ text: line.slice(lastIndex, match.index), color: currentColor })
@@ -51,54 +43,25 @@ function parseAnsi (line: string): AnsiSegment[] {
     lastIndex = regex.lastIndex
     match = regex.exec(line)
   }
-
   if (lastIndex < line.length) {
     segments.push({ text: line.slice(lastIndex), color: currentColor })
   }
-
   return segments
 }
 
-function renderColoredLine (line: string, defaultClass: string): React.ReactNode {
+export function AnsiLine ({ line }: { line: string }): React.ReactElement {
   // eslint-disable-next-line no-control-regex
   if (!line.includes('\x1b[')) {
-    return <span className={defaultClass}>{line}</span>
+    return <span>{line}</span>
   }
-
   const segments = parseAnsi(line)
   return (
     <>
       {segments.map((seg, i) => (
         seg.color !== null
           ? <span key={i} style={{ color: seg.color }}>{seg.text}</span>
-          : <span key={i} className={defaultClass}>{seg.text}</span>
+          : <span key={i}>{seg.text}</span>
       ))}
     </>
-  )
-}
-
-export default function Viewport (
-  { username }: ViewportProps
-): React.ReactElement<ViewportProps> {
-  const [context] = useAtom(terminalAtom)
-
-  return (
-    <div className="viewport overflow-y-auto">
-      {context.view.map((line, index) => {
-        const isUsernameLine = line.startsWith(username + COMMAND_LINE_DEFAULT)
-        return (
-          <pre key={index} className="whitespace-pre-wrap" style={{ margin: 0 }}>
-          {isUsernameLine
-            ? (
-              <>
-                <span className="text-blue-400">{username}</span>
-                <span className="text-green-400">{line.replace(username + COMMAND_LINE_DEFAULT, COMMAND_LINE_DEFAULT)}</span>
-              </>
-              )
-            : renderColoredLine(line, 'text-green-400')}
-        </pre>
-        )
-      })}
-    </div>
   )
 }
