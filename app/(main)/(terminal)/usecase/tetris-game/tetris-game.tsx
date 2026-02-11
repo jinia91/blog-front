@@ -48,13 +48,13 @@ const TETROMINOS: Record<string, Tetromino[]> = {
 
 const TETROMINO_TYPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
 const TETROMINO_COLORS = {
-  I: '🟦',
-  O: '🟨',
-  T: '🟪',
-  S: '🟩',
-  Z: '🟥',
-  J: '🟫',
-  L: '🟧'
+  I: '██',
+  O: '▓▓',
+  T: '▒▒',
+  S: '░░',
+  Z: '██',
+  J: '▓▓',
+  L: '▒▒'
 }
 
 interface GameState {
@@ -322,11 +322,11 @@ export const startTetrisGame = async (
       if (y === 0) {
         row += '│  TETRIS      │'
       } else if (y === 2) {
-        row += `│  Score: ${score.toString().padStart(5, ' ')} │`
+        row += `│  Score:${score.toString().padStart(5, ' ')} │`
       } else if (y === 3) {
-        row += `│  Level: ${level.toString().padStart(5, ' ')} │`
+        row += `│  Level:${level.toString().padStart(5, ' ')} │`
       } else if (y === 4) {
-        row += `│  Lines: ${lines.toString().padStart(5, ' ')} │`
+        row += `│  Lines:${lines.toString().padStart(5, ' ')} │`
       } else if (y === 6) {
         row += '│  Next:       │'
       } else if (y === 7 || y === 8) {

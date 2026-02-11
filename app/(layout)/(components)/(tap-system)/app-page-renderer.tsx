@@ -12,6 +12,7 @@ export function RenderApp ({ page }: {
   const { tabs } = useTabBarAndRouter()
 
   function isEmpty (): boolean {
+    if (path.startsWith('/login/')) return false
     return (path === '/empty') || tabs.length === 0
   }
 
