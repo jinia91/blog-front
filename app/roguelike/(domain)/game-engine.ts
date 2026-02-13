@@ -493,39 +493,55 @@ function getCamera (px: number, py: number): { cx: number, cy: number } {
   return { cx, cy }
 }
 
-export function renderGame (state: GameState): string[] {
+export function renderGame (state: GameState, compact: boolean = false): string[] {
   const output: string[] = []
-  const totalWidth = VIEW_WIDTH + 1 + PANEL_WIDTH
-  const logWidth = totalWidth
 
   const headerLabel = ' ' + C.cyan + 'DUNGEON' + C.reset + ' ' + C.yellow + 'B' + state.floor + 'F' + C.reset + ' '
   const headerLabelLen = displayWidth(headerLabel)
   const mapDashes = VIEW_WIDTH - headerLabelLen - 1
-  const header = '\u250C\u2500' + headerLabel + '\u2500'.repeat(Math.max(0, mapDashes)) + '\u252C' + '\u2500'.repeat(PANEL_WIDTH) + '\u2510'
-  output.push(header)
 
-  const panelLines = buildPanel(state)
+  if (compact) {
+    const header = '\u250C\u2500' + headerLabel + '\u2500'.repeat(Math.max(0, mapDashes)) + '\u2510'
+    output.push(header)
+  } else {
+    const header = '\u250C\u2500' + headerLabel + '\u2500'.repeat(Math.max(0, mapDashes)) + '\u252C' + '\u2500'.repeat(PANEL_WIDTH) + '\u2510'
+    output.push(header)
+  }
+
+  const panelLines = compact ? [] : buildPanel(state)
 
   if (state.over) {
     const mapLines = renderGameOver(state)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
-      const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
-      output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      if (compact) {
+        output.push('\u2502' + padMap(mapStr) + '\u2502')
+      } else {
+        const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
+        output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      }
     }
   } else if (state.won) {
     const mapLines = renderVictory(state)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
-      const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
-      output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      if (compact) {
+        output.push('\u2502' + padMap(mapStr) + '\u2502')
+      } else {
+        const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
+        output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      }
     }
   } else if (state.invOpen) {
     const mapLines = renderInventory(state)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
-      const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
-      output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      if (compact) {
+        output.push('\u2502' + padMap(mapStr) + '\u2502')
+      } else {
+        const panel = row < panelLines.length ? panelLines[row] : ' '.repeat(PANEL_WIDTH)
+        output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      }
     }
   } else {
     const { cx, cy } = getCamera(state.player.pos.x, state.player.pos.y)
@@ -555,24 +571,34 @@ export function renderGame (state: GameState): string[] {
           mapStr += ' '
         }
       }
-      const panel = viewRow < panelLines.length ? panelLines[viewRow] : ' '.repeat(PANEL_WIDTH)
-      output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      if (compact) {
+        output.push('\u2502' + padMap(mapStr) + '\u2502')
+      } else {
+        const panel = viewRow < panelLines.length ? panelLines[viewRow] : ' '.repeat(PANEL_WIDTH)
+        output.push('\u2502' + padMap(mapStr) + '\u2502' + padPanel(panel) + '\u2502')
+      }
     }
   }
 
-  const midBar = '\u251C' + '\u2500'.repeat(VIEW_WIDTH) + '\u2534' + '\u2500'.repeat(PANEL_WIDTH) + '\u2524'
-  output.push(midBar)
+  if (compact) {
+    const bottomBar = '\u2514' + '\u2500'.repeat(VIEW_WIDTH) + '\u2518'
+    output.push(bottomBar)
+  } else {
+    const bottomBar = '\u2514' + '\u2500'.repeat(VIEW_WIDTH) + '\u2534' + '\u2500'.repeat(PANEL_WIDTH) + '\u2518'
+    output.push(bottomBar)
 
-  const logStart = Math.max(0, state.log.length - 2)
-  const recentLogs = state.log.slice(logStart)
-  for (let i = 0; i < 2; i++) {
-    const msg = i < recentLogs.length ? ' ' + recentLogs[i] : ''
-    output.push('\u2502' + padEndDisplay(msg, logWidth) + '\u2502')
+    const logStart = Math.max(0, state.log.length - 4)
+    const recentLogs = state.log.slice(logStart)
+    for (let i = 0; i < 4; i++) {
+      if (i < recentLogs.length) {
+        output.push(' ' + recentLogs[i])
+      } else {
+        output.push('')
+      }
+    }
+
+    output.push('WASD:Move | I:Inventory | >:Stairs | Q:Quit')
   }
-
-  const footer = '\u2514' + '\u2500'.repeat(logWidth) + '\u2518'
-  output.push(footer)
-  output.push('WASD:Move | I:Inventory | >:Stairs | Q:Quit')
 
   return output
 }
