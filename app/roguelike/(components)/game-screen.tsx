@@ -1,12 +1,15 @@
 'use client'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { type GameState, Tile } from '../(domain)/types'
-import { initFloor, movePlayer, descend, useItem, renderGame } from '../(domain)/game-engine'
+import { initFloor, movePlayer, descend, useItem, buyShopItem, resolveEvent, cancelEvent, renderGame } from '../(domain)/game-engine'
+import { getEventById } from '../(domain)/events'
 import { AnsiLine } from './ansi-renderer'
 import TouchDpad from './touch-dpad'
 import ActionButtons from './action-buttons'
 import MobileHud from './mobile-hud'
 import TouchInventory from './touch-inventory'
+import TouchStats from './touch-stats'
+import TouchEvent from './touch-event'
 
 export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.ReactElement {
   const initialState = initFloor(1, null)
@@ -62,6 +65,10 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     initialState.map.tiles[initialState.player.pos.y][initialState.player.pos.x] === Tile.Stairs
   )
   const [isInvOpen, setIsInvOpen] = useState(false)
+  const [isStatsOpen, setIsStatsOpen] = useState(false)
+  const [isShopOpen, setIsShopOpen] = useState(false)
+  const [isOnShopTile, setIsOnShopTile] = useState(false)
+  const [isEventActive, setIsEventActive] = useState(false)
 
   // --- Shared action callbacks ---
 
@@ -70,11 +77,14 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setViewLines(renderGame(newState, isMobileRef.current))
     setCanDescend(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Stairs)
     setIsInvOpen(newState.invOpen)
+    setIsShopOpen(newState.shopOpen)
+    setIsOnShopTile(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Shop)
+    setIsEventActive(newState.activeEvent !== null)
   }, [])
 
   const handleMove = useCallback((dx: number, dy: number): void => {
     const current = gameStateRef.current
-    if (current.over || current.won || current.invOpen) return
+    if (current.over || current.won || current.invOpen || current.activeEvent !== null) return
     const newState = movePlayer(current, dx, dy)
     if (newState !== null) updateState(newState)
   }, [updateState])
@@ -99,9 +109,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const handleUseItemAction = useCallback((idx: number): void => {
     const current = gameStateRef.current
     let newState = useItem(current, idx)
-    if (newState.player.inventory.length === 0) {
-      newState = { ...newState, invOpen: false, invIdx: 0 }
-    } else if (newState.invIdx >= newState.player.inventory.length) {
+    if (newState.player.inventory.length > 0 && newState.invIdx >= newState.player.inventory.length) {
       newState = { ...newState, invIdx: newState.player.inventory.length - 1 }
     }
     updateState(newState)
@@ -116,9 +124,56 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     onQuitRef.current()
   }, [])
 
-  // D-pad wrapper: handles inventory navigation when inv is open
+  const handleStatsToggle = useCallback((): void => {
+    setIsStatsOpen(prev => !prev)
+  }, [])
+
+  const handleEventSelect = useCallback((idx: number): void => {
+    const current = gameStateRef.current
+    if (current.activeEvent === null) return
+    updateState({ ...current, eventIdx: idx })
+  }, [updateState])
+
+  const handleEventConfirm = useCallback((): void => {
+    const current = gameStateRef.current
+    if (current.activeEvent === null) return
+    updateState(resolveEvent(current))
+  }, [updateState])
+
+  const handleEventCancel = useCallback((): void => {
+    const current = gameStateRef.current
+    if (current.activeEvent === null) return
+    updateState(cancelEvent(current))
+  }, [updateState])
+
+  // D-pad wrapper: handles shop/inventory navigation when open
   const handleDpadMove = useCallback((dx: number, dy: number): void => {
     const current = gameStateRef.current
+    if (current.activeEvent !== null) {
+      const eventDef = getEventById(current.activeEvent.eventId)
+      if (eventDef === undefined) return
+      const choiceCount = eventDef.choices.length
+      if (dy === -1) {
+        const newIdx = current.eventIdx > 0 ? current.eventIdx - 1 : choiceCount - 1
+        updateState({ ...current, eventIdx: newIdx })
+      } else if (dy === 1) {
+        const newIdx = current.eventIdx < choiceCount - 1 ? current.eventIdx + 1 : 0
+        updateState({ ...current, eventIdx: newIdx })
+      }
+      return
+    }
+    if (current.shopOpen) {
+      const shopLen = current.shopItems.length
+      if (shopLen === 0) return
+      if (dy === -1) {
+        const newIdx = current.shopIdx > 0 ? current.shopIdx - 1 : shopLen - 1
+        updateState({ ...current, shopIdx: newIdx })
+      } else if (dy === 1) {
+        const newIdx = current.shopIdx < shopLen - 1 ? current.shopIdx + 1 : 0
+        updateState({ ...current, shopIdx: newIdx })
+      }
+      return
+    }
     if (current.invOpen) {
       const invLen = current.player.inventory.length
       if (invLen === 0) return
@@ -141,12 +196,26 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
       onQuitRef.current()
       return
     }
+    if (current.activeEvent !== null) {
+      updateState(resolveEvent(current))
+      return
+    }
+    if (current.shopOpen) {
+      const newState = buyShopItem(current, current.shopIdx)
+      updateState(newState)
+      return
+    }
     if (current.invOpen) {
       handleUseItemAction(current.invIdx)
       return
     }
+    // If on shop tile and not in shop, open shop
+    if (current.map.tiles[current.player.pos.y][current.player.pos.x] === Tile.Shop) {
+      updateState({ ...current, shopOpen: true, shopIdx: 0 })
+      return
+    }
     handleDescend()
-  }, [handleDescend, handleUseItemAction])
+  }, [handleDescend, handleUseItemAction, updateState])
 
   // Swipe gesture handling on map area
   const touchStartRef = useRef<{ x: number, y: number } | null>(null)
@@ -184,6 +253,82 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
       return
     }
 
+    if (current.activeEvent !== null) {
+      const eventDef = getEventById(current.activeEvent.eventId)
+      if (eventDef === undefined) return
+      const choiceCount = eventDef.choices.length
+
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'w':
+          e.preventDefault()
+          updateState({
+            ...current,
+            eventIdx: current.eventIdx > 0 ? current.eventIdx - 1 : choiceCount - 1
+          })
+          break
+        case 'ArrowDown':
+        case 's':
+          e.preventDefault()
+          updateState({
+            ...current,
+            eventIdx: current.eventIdx < choiceCount - 1 ? current.eventIdx + 1 : 0
+          })
+          break
+        case 'Enter':
+          e.preventDefault()
+          updateState(resolveEvent(current))
+          break
+        case 'Escape':
+          e.preventDefault()
+          updateState(cancelEvent(current))
+          break
+        default:
+          return
+      }
+      return
+    }
+
+    if (current.shopOpen) {
+      let newState = current
+      const shopLen = current.shopItems.length
+
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'w':
+          e.preventDefault()
+          if (shopLen > 0) {
+            const newIdx = current.shopIdx > 0 ? current.shopIdx - 1 : shopLen - 1
+            newState = { ...current, shopIdx: newIdx }
+          }
+          break
+        case 'ArrowDown':
+          e.preventDefault()
+          if (shopLen > 0) {
+            const newIdx = current.shopIdx < shopLen - 1 ? current.shopIdx + 1 : 0
+            newState = { ...current, shopIdx: newIdx }
+          }
+          break
+        case 'Enter':
+          e.preventDefault()
+          if (shopLen > 0) {
+            newState = buyShopItem(current, current.shopIdx)
+          }
+          break
+        case 's':
+        case 'S':
+        case 'Escape':
+          e.preventDefault()
+          newState = { ...current, shopOpen: false }
+          break
+        default:
+          return
+      }
+
+      updateState(newState)
+      return
+    }
+
     if (current.invOpen) {
       let newState = current
       const invLen = current.player.inventory.length
@@ -209,9 +354,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           e.preventDefault()
           if (invLen > 0) {
             newState = useItem(current, current.invIdx)
-            if (newState.player.inventory.length === 0) {
-              newState = { ...newState, invOpen: false, invIdx: 0 }
-            } else if (newState.invIdx >= newState.player.inventory.length) {
+            if (newState.player.inventory.length > 0 && newState.invIdx >= newState.player.inventory.length) {
               newState = { ...newState, invIdx: newState.player.inventory.length - 1 }
             }
           }
@@ -227,6 +370,19 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
       }
 
       updateState(newState)
+      return
+    }
+
+    // Shop key: uppercase S to open shop when on shop tile
+    if (e.key === 'S') {
+      e.preventDefault()
+      if (current.map.tiles[current.player.pos.y][current.player.pos.x] === Tile.Shop) {
+        updateState({ ...current, shopOpen: true, shopIdx: 0 })
+      } else {
+        // Treat as normal 's' movement
+        const newState = movePlayer(current, 0, 1)
+        if (newState !== null) updateState(newState)
+      }
       return
     }
 
@@ -303,6 +459,8 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           player={gameStateRef.current.player}
           floor={gameStateRef.current.floor}
           log={gameStateRef.current.log}
+          themeName={gameStateRef.current.currentTheme.name}
+          themeIcon={gameStateRef.current.currentTheme.icon}
         />
       )}
 
@@ -313,8 +471,13 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           <ActionButtons
             onAction={handleAction}
             onInventory={handleInventoryToggle}
+            onStats={handleStatsToggle}
             canDescend={canDescend}
             isInventoryOpen={isInvOpen}
+            isStatsOpen={isStatsOpen}
+            isOnShopTile={isOnShopTile}
+            isShopOpen={isShopOpen}
+            isEventActive={isEventActive}
           />
         </>
       )}
@@ -330,6 +493,31 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
         />
       )}
 
+      {/* Touch Stats - overlay on mobile when stats is open */}
+      {isMobile && isStatsOpen && (
+        <TouchStats
+          player={gameStateRef.current.player}
+          floor={gameStateRef.current.floor}
+          turns={gameStateRef.current.turns}
+          kills={gameStateRef.current.kills}
+          themeName={gameStateRef.current.currentTheme.name}
+          themeIcon={gameStateRef.current.currentTheme.icon}
+          onClose={handleStatsToggle}
+        />
+      )}
+
+      {/* Touch Event - overlay on mobile when event is active */}
+      {isMobile && isEventActive && gameStateRef.current.activeEvent !== null && (
+        <TouchEvent
+          eventId={gameStateRef.current.activeEvent.eventId}
+          selectedIdx={gameStateRef.current.eventIdx}
+          player={gameStateRef.current.player}
+          onSelectChoice={handleEventSelect}
+          onConfirm={handleEventConfirm}
+          onCancel={handleEventCancel}
+        />
+      )}
+
       {/* Game Over/Victory touch support on mobile */}
       {isMobile && (gameStateRef.current.over || gameStateRef.current.won) && (
         <div
@@ -337,7 +525,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           onClick={handleQuit}
         >
           <div className="bg-gray-800 border border-gray-600 px-6 py-3 rounded-lg animate-pulse cursor-pointer">
-            <span className="text-green-400 font-mono text-sm">TAP TO EXIT</span>
+            <span className="text-green-400 font-mono text-sm">탭하여 나가기</span>
           </div>
         </div>
       )}

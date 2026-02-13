@@ -4,22 +4,30 @@ import React, { useState, useEffect, useCallback } from 'react'
 type Phase = 'booting' | 'title'
 
 const BOOT_LINES = [
-  '> INITIALIZING DUNGEON CORE...',
-  '> LOADING MONSTERS... [████████] OK',
-  '> GENERATING MAPS... [████████] OK',
-  '> ALL SYSTEMS READY.',
+  '> 어비스 OS 초기화 중...',
+  '> 몬스터 로딩... [████] OK',
+  '> 심연 생성 중... [████] OK',
+  '> 모든 시스템 준비 완료.',
   '',
-  '> PRESS ANY KEY TO CONTINUE...'
+  '> 아무 키나 눌러 계속...'
 ]
 
-const FLAME_FRAMES = ['( )', '{*}', '(+)', '{ }', '(*)', '{ }']
+const FLAME_FRAMES = ['(~)', '{x}', '(*)', '{~}', '(x)', '{*}']
 
 const TITLE_ART = [
-  ' ____   ___   ____ _   _ _____',
-  '|  _ \\ / _ \\ / ___| | | | ____|',
-  '| |_) | | | | |  _| | | |  _|',
-  '|  _ <| |_| | |_| | |_| | |___',
-  '|_| \\_\\\\___/ \\____|\\___/|_____|'
+  '      ,---.',
+  '     / x x \\',
+  '    |  ___  |',
+  '     \\ |=| /',
+  '      \'---\'',
+  '    /|     |\\',
+  '   d-+-----+-b',
+  '',
+  '  ╔════════════╗',
+  '  ║ 심 연 탐 색 ║',
+  '  ║ 크 롤 러   ║',
+  '  ╚════════════╝',
+  '  .:;:..:;:..:;:.'
 ]
 
 export default function TitleScreen ({ onStart }: { onStart: () => void }): React.ReactElement {
@@ -98,23 +106,32 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
 
   if (phase === 'booting') {
     return (
-      <div className="font-mono text-xs leading-tight select-none cursor-pointer" style={{ padding: '16px' }} onClick={skipBoot}>
-        <pre style={{ margin: 0, color: '#00ff00', marginBottom: '8px' }}>
-          {'═'.repeat(40)}
+      <div
+        className="font-mono text-xs leading-tight select-none cursor-pointer"
+        style={{
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+        onClick={skipBoot}
+      >
+        <pre style={{ margin: 0, color: '#009900', marginBottom: '8px', textAlign: 'center' }}>
+          {'═'.repeat(30)}
         </pre>
-        <pre style={{ margin: 0, color: '#ffaa00', marginBottom: '12px' }}>
-          {'  '}DUNGEON CORE SYSTEM v1.0
+        <pre style={{ margin: 0, color: '#883333', marginBottom: '12px', textAlign: 'center' }}>
+          {'  '}어비스 OS v0.1
         </pre>
-        <pre style={{ margin: 0, color: '#00ff00', marginBottom: '12px' }}>
-          {'═'.repeat(40)}
+        <pre style={{ margin: 0, color: '#009900', marginBottom: '12px', textAlign: 'center' }}>
+          {'═'.repeat(30)}
         </pre>
         {BOOT_LINES.slice(0, bootLine).map((line, i) => (
-          <pre key={i} style={{ margin: 0, color: '#00ff00', marginBottom: '2px' }}>
+          <pre key={i} style={{ margin: 0, color: '#009900', marginBottom: '2px', textAlign: 'center' }}>
             {line}
           </pre>
         ))}
         {bootLine < BOOT_LINES.length && (
-          <pre style={{ margin: 0, color: '#00ff00' }}>
+          <pre style={{ margin: 0, color: '#009900', textAlign: 'center' }}>
             {cursorBlink ? '█' : ' '}
           </pre>
         )}
@@ -123,58 +140,68 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
   }
 
   const flame = FLAME_FRAMES[flameFrame]
-  const startButtonColor = blink ? '#ffffff' : '#444444'
+  const startButtonColor = blink ? '#cc6666' : '#333333'
 
   return (
-    <div className="font-mono text-xs leading-tight select-none" style={{ padding: '10px' }}>
-      <div style={{ marginBottom: '8px' }}>
+    <div
+      className="font-mono text-xs leading-tight select-none"
+      style={{
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}
+    >
+      <div style={{ marginBottom: '12px' }}>
         {TITLE_ART.map((line, i) => (
-          <pre key={i} style={{ margin: 0, color: '#ff4444' }}>
+          <pre key={i} style={{ margin: 0, color: i <= 6 ? '#777766' : i >= 8 && i <= 10 ? '#aa0000' : '#444444', textAlign: 'center' }}>
             {line}
           </pre>
         ))}
       </div>
 
-      <pre style={{ margin: 0, color: '#ffcc00', textAlign: 'center', marginBottom: '8px' }}>
-        {flame} DUNGEON CRAWLER {flame}
+      <pre style={{ margin: 0, color: '#993333', textAlign: 'center', marginBottom: '8px' }}>
+        {flame} 어둠 속으로 내려가라 {flame}
       </pre>
 
-      <pre style={{ margin: 0, color: '#888888', textAlign: 'center', marginBottom: '4px' }}>
-        ─── 10 FLOORS OF DARKNESS ───
+      <pre style={{ margin: 0, color: '#555555', textAlign: 'center', marginBottom: '4px' }}>
+        ─── 죽음의 10개 층 ───
       </pre>
-      <pre style={{ margin: 0, color: '#888888', textAlign: 'center', marginBottom: '12px' }}>
-        SLAY THE DRAGON · CLAIM GLORY
+      <pre style={{ margin: 0, color: '#337733', textAlign: 'center', marginBottom: '12px' }}>
+        살아 돌아온 자 없다
       </pre>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
         <div className="cursor-pointer" onClick={onStart}>
-          <pre style={{ margin: 0, color: '#666666' }}>
-            ╔══════════════════════════╗
+          <pre style={{ margin: 0, color: '#444444', textAlign: 'center' }}>
+            ╔═══════════════════╗
           </pre>
           <pre style={{ margin: 0, color: startButtonColor, textAlign: 'center' }}>
-            ║ ▶ TAP OR PRESS ENTER ║
+            ║ ▶ 탭 또는 엔터  ║
           </pre>
-          <pre style={{ margin: 0, color: '#666666' }}>
-            ╚══════════════════════════╝
+          <pre style={{ margin: 0, color: '#444444', textAlign: 'center' }}>
+            ╚═══════════════════╝
           </pre>
         </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
           <pre style={{ margin: 0, color: '#555555' }}>
-            [WASD/Swipe] Move
+            [WASD/스와이프] 이동
           </pre>
           <pre style={{ margin: 0, color: '#555555' }}>
-            [I/Tap] Inventory
-          </pre>
-          <pre style={{ margin: 0, color: '#555555' }}>
-            [Q] Quit
+            [I/탭] 인벤토리
           </pre>
         </div>
-        <pre style={{ margin: 0, color: '#555555', textAlign: 'center' }}>
-          [Tap] Use/Attack/Pickup
-        </pre>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+          <pre style={{ margin: 0, color: '#555555' }}>
+            [탭] 사용/공격/줍기
+          </pre>
+          <pre style={{ margin: 0, color: '#555555' }}>
+            {'[>] 내려가기'}
+          </pre>
+        </div>
       </div>
     </div>
   )

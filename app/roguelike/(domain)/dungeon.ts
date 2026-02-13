@@ -8,14 +8,19 @@ import {
   type Room,
   type Enemy,
   type MapItem,
-  ENEMY_TABLE,
+  type FloorTheme,
+  type EnemyDef,
+  type InvItem,
   createEnemy,
   enemyCountForFloor,
   itemCountForFloor,
   weaponForFloor,
   armorForFloor,
-  potionForFloor
+  potionForFloor,
+  scaleEnemyStats,
+  scaleBossStats
 } from './types'
+import { selectEventsForFloor } from './events'
 
 interface BSPNode {
   x: number
@@ -197,7 +202,7 @@ function manhattanDist (a: Position, b: Position): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 }
 
-export function generateDungeon (floor: number): {
+export function generateDungeon (floor: number, theme: FloorTheme): {
   map: DungeonMap
   playerPos: Position
   enemies: Enemy[]
@@ -240,8 +245,7 @@ export function generateDungeon (floor: number): {
 
   const enemies: Enemy[] = []
   const enemyCount = enemyCountForFloor(floor)
-  const enemyTableIdx = Math.min(floor - 1, ENEMY_TABLE.length - 1)
-  const enemyDefs = ENEMY_TABLE[enemyTableIdx]
+  const enemyDefs = theme.monsters
 
   for (let i = 0; i < enemyCount; i++) {
     let placed = false
@@ -250,14 +254,28 @@ export function generateDungeon (floor: number): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const def = enemyDefs[Math.floor(Math.random() * enemyDefs.length)]
-        enemies.push(createEnemy(def, pos))
+        const baseDef = enemyDefs[Math.floor(Math.random() * enemyDefs.length)]
+        const scaledStats = scaleEnemyStats(baseDef.stats, floor)
+        const scaledXp = Math.floor(baseDef.xp * (1 + (floor - 1) * 0.15))
+        const scaledDef: EnemyDef = { ...baseDef, stats: scaledStats, xp: scaledXp }
+        enemies.push(createEnemy(scaledDef, pos, false))
         occupied.add(`${pos.x},${pos.y}`)
         placed = true
         break
       }
     }
     if (!placed) break
+  }
+
+  // Spawn boss in the stairs room
+  const bossPos = randomFloorPos(map, stairsRoom, occupied)
+  if (bossPos !== null) {
+    const bossDef = theme.boss
+    const bossStats = scaleBossStats(bossDef.stats, floor)
+    const bossXp = Math.floor(bossDef.xp * 5 * (1 + (floor - 1) * 0.15))
+    const scaledBossDef: EnemyDef = { ...bossDef, stats: bossStats, xp: bossXp }
+    enemies.push(createEnemy(scaledBossDef, bossPos, true))
+    occupied.add(`${bossPos.x},${bossPos.y}`)
   }
 
   const items: MapItem[] = []
@@ -275,13 +293,13 @@ export function generateDungeon (floor: number): {
         if (roll < 0.3) {
           item = {
             pos,
-            item: { kind: 'weapon', data: weaponForFloor(floor) },
+            item: { kind: 'weapon', data: weaponForFloor(floor, theme.id) },
             ch: '/'
           }
         } else if (roll < 0.55) {
           item = {
             pos,
-            item: { kind: 'armor', data: armorForFloor(floor) },
+            item: { kind: 'armor', data: armorForFloor(floor, theme.id) },
             ch: ']'
           }
         } else if (roll < 0.8) {
@@ -305,6 +323,146 @@ export function generateDungeon (floor: number): {
       }
     }
     if (!placed) break
+  }
+
+  // Spawn treasure chests (1-2 per floor)
+  const chestCount = 1 + (Math.random() < 0.5 ? 1 : 0)
+  for (let i = 0; i < chestCount; i++) {
+    let placed = false
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
+      const room = map.rooms[randomRoomIdx]
+      const pos = randomFloorPos(map, room, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: 'chest', healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: 'C' })
+        occupied.add(`${pos.x},${pos.y}`)
+        placed = true
+        break
+      }
+    }
+    if (!placed) break
+  }
+
+  // Spawn special objects
+  // Fountain (30% chance, ch: '~')
+  if (Math.random() < 0.3) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
+      const room = map.rooms[randomRoomIdx]
+      const pos = randomFloorPos(map, room, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: 'fountain', healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: '~' })
+        occupied.add(`${pos.x},${pos.y}`)
+        break
+      }
+    }
+  }
+
+  // Shrine (20% chance, ch: '^')
+  if (Math.random() < 0.2) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
+      const room = map.rooms[randomRoomIdx]
+      const pos = randomFloorPos(map, room, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: 'shrine', healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: '^' })
+        occupied.add(`${pos.x},${pos.y}`)
+        break
+      }
+    }
+  }
+
+  // Cursed altar (25% chance, ch: '?')
+  if (Math.random() < 0.25) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
+      const room = map.rooms[randomRoomIdx]
+      const pos = randomFloorPos(map, room, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: 'cursed', healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: '?' })
+        occupied.add(`${pos.x},${pos.y}`)
+        break
+      }
+    }
+  }
+
+  // Spawn theme-specific object
+  if (theme.themeObject !== undefined && Math.random() < theme.themeObject.spawnChance) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
+      const room = map.rooms[randomRoomIdx]
+      const pos = randomFloorPos(map, room, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: `themeObj:${theme.id}`, healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: theme.themeObject.ch })
+        occupied.add(`${pos.x},${pos.y}`)
+        break
+      }
+    }
+  }
+
+  // Spawn shop tile (30% chance, not in player or stairs room)
+  if (Math.random() < 0.3 && map.rooms.length > 2) {
+    const eligibleRooms = map.rooms.filter((room, idx) => {
+      if (idx === 0) return false // player start room
+      const c = roomCenter(room)
+      if (c.x === stairsPos.x && c.y === stairsPos.y) return false // stairs room
+      return true
+    })
+    if (eligibleRooms.length > 0) {
+      const shopRoom = eligibleRooms[Math.floor(Math.random() * eligibleRooms.length)]
+      const shopPos = randomFloorPos(map, shopRoom, occupied)
+      if (shopPos !== null) {
+        map.tiles[shopPos.y][shopPos.x] = Tile.Shop
+        occupied.add(`${shopPos.x},${shopPos.y}`)
+      }
+    }
+  }
+
+  // Spawn special room item (if theme has specialRoomDesc)
+  if (theme.specialRoomDesc !== undefined && Math.random() < 0.4 && map.rooms.length > 2) {
+    const specialEligible = map.rooms.filter((room, idx) => {
+      if (idx === 0) return false
+      const c = roomCenter(room)
+      if (c.x === stairsPos.x && c.y === stairsPos.y) return false
+      if (map.tiles[c.y][c.x] === Tile.Shop) return false
+      return true
+    })
+    if (specialEligible.length > 0) {
+      const specialRoom = specialEligible[Math.floor(Math.random() * specialEligible.length)]
+      const pos = randomFloorPos(map, specialRoom, occupied)
+      if (pos !== null) {
+        const dummyItem: InvItem = { kind: 'potion', data: { name: `specialRoom:${theme.id}`, healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: '★' })
+        occupied.add(`${pos.x},${pos.y}`)
+      }
+    }
+  }
+
+  // Spawn events (1-2 per floor)
+  const selectedEvents = selectEventsForFloor(floor, theme.id)
+  const eligibleEventRooms = map.rooms.filter((room, idx) => {
+    if (idx === 0) return false // player start room
+    const c = roomCenter(room)
+    if (c.x === stairsPos.x && c.y === stairsPos.y) return false // stairs room
+    if (map.tiles[c.y][c.x] === Tile.Shop) return false // shop room
+    return true
+  })
+
+  const shuffledEventRooms = [...eligibleEventRooms].sort(() => Math.random() - 0.5)
+
+  for (let i = 0; i < selectedEvents.length && i < shuffledEventRooms.length; i++) {
+    const room = shuffledEventRooms[i]
+    const pos = randomFloorPos(map, room, occupied)
+    if (pos !== null) {
+      const dummyItem: InvItem = { kind: 'potion', data: { name: `event:${selectedEvents[i].id}`, healType: 'hp', value: 0 } }
+      items.push({ pos, item: dummyItem, ch: '!' })
+      occupied.add(`${pos.x},${pos.y}`)
+    }
   }
 
   return { map, playerPos, enemies, items }

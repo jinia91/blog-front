@@ -88,7 +88,7 @@ export default function TouchInventory ({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-cyan-400 dos-font">INVENTORY</h2>
+          <h2 className="text-xl font-bold text-cyan-400 dos-font">인벤토리</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
@@ -103,28 +103,28 @@ export default function TouchInventory ({
           <div className="flex items-center gap-3 px-3 py-2 bg-gray-800 rounded">
             <span className="text-xl text-amber-400">⚔</span>
             <div className="flex-1">
-              <div className="text-xs text-gray-500">WEAPON</div>
+              <div className="text-xs text-gray-500">무기</div>
               <div className="text-sm text-white">
-                {player.weapon !== null ? `${player.weapon.name} ATK+${player.weapon.atk}` : 'None'}
+                {player.weapon !== null ? `${player.weapon.name} ATK+${player.weapon.atk}` : '없음'}
               </div>
             </div>
             {player.weapon !== null && (
               <span className="text-xs text-cyan-400 border border-cyan-400/50 px-2 py-0.5 rounded">
-                EQUIPPED
+                장착중
               </span>
             )}
           </div>
           <div className="flex items-center gap-3 px-3 py-2 bg-gray-800 rounded">
             <span className="text-xl text-blue-400">🛡</span>
             <div className="flex-1">
-              <div className="text-xs text-gray-500">ARMOR</div>
+              <div className="text-xs text-gray-500">방어구</div>
               <div className="text-sm text-white">
-                {player.armor !== null ? `${player.armor.name} DEF+${player.armor.def}` : 'None'}
+                {player.armor !== null ? `${player.armor.name} DEF+${player.armor.def}` : '없음'}
               </div>
             </div>
             {player.armor !== null && (
               <span className="text-xs text-cyan-400 border border-cyan-400/50 px-2 py-0.5 rounded">
-                EQUIPPED
+                장착중
               </span>
             )}
           </div>
@@ -159,14 +159,18 @@ export default function TouchInventory ({
                     {renderItemText(item)}
                   </div>
                   {equipped && (
-                    <div className="text-xs text-cyan-400 mt-0.5">EQUIPPED</div>
+                    <div className="text-xs text-cyan-400 mt-0.5">장착중</div>
                   )}
                 </div>
 
-                {/* Use Button */}
-                {isSelected && !isEmpty && !equipped && (
-                  <div className="px-3 py-1 text-xs font-bold text-cyan-400 border border-cyan-400 rounded hover:bg-cyan-400/10">
-                    USE
+                {/* Use/Unequip Button */}
+                {isSelected && !isEmpty && (
+                  <div className={`px-3 py-1 text-xs font-bold border rounded ${
+                    equipped
+                      ? 'text-orange-400 border-orange-400 hover:bg-orange-400/10'
+                      : 'text-cyan-400 border-cyan-400 hover:bg-cyan-400/10'
+                  }`}>
+                    {equipped ? '해제' : '사용'}
                   </div>
                 )}
               </button>
@@ -176,7 +180,7 @@ export default function TouchInventory ({
 
         {/* Footer */}
         <div className="px-4 py-3 border-t border-gray-700 text-center text-xs text-gray-400">
-          Tap to select, tap again to use
+          탭하여 선택, 다시 탭하여 사용
         </div>
       </div>
     </div>
