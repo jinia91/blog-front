@@ -98,7 +98,7 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
 
   if (phase === 'booting') {
     return (
-      <div className="font-mono text-xs leading-tight select-none" style={{ padding: '16px' }}>
+      <div className="font-mono text-xs leading-tight select-none cursor-pointer" style={{ padding: '16px' }} onClick={skipBoot}>
         <pre style={{ margin: 0, color: '#00ff00', marginBottom: '8px' }}>
           {'═'.repeat(40)}
         </pre>
@@ -147,12 +147,12 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
       </pre>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-        <div>
+        <div className="cursor-pointer" onClick={onStart}>
           <pre style={{ margin: 0, color: '#666666' }}>
             ╔══════════════════════════╗
           </pre>
           <pre style={{ margin: 0, color: startButtonColor, textAlign: 'center' }}>
-            ║   ▶ PRESS ENTER TO START  ║
+            ║ ▶ TAP OR PRESS ENTER ║
           </pre>
           <pre style={{ margin: 0, color: '#666666' }}>
             ╚══════════════════════════╝
@@ -160,15 +160,20 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
-        <pre style={{ margin: 0, color: '#555555' }}>
-          [WASD] Move
-        </pre>
-        <pre style={{ margin: 0, color: '#555555' }}>
-          [I] Inventory
-        </pre>
-        <pre style={{ margin: 0, color: '#555555' }}>
-          [Q] Quit
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+          <pre style={{ margin: 0, color: '#555555' }}>
+            [WASD/Swipe] Move
+          </pre>
+          <pre style={{ margin: 0, color: '#555555' }}>
+            [I/Tap] Inventory
+          </pre>
+          <pre style={{ margin: 0, color: '#555555' }}>
+            [Q] Quit
+          </pre>
+        </div>
+        <pre style={{ margin: 0, color: '#555555', textAlign: 'center' }}>
+          [Tap] Use/Attack/Pickup
         </pre>
       </div>
     </div>
