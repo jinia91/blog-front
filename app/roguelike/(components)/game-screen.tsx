@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { type GameState, Tile } from '../(domain)/types'
-import { initFloor, movePlayer, descend, useItem, buyShopItem, resolveEvent, cancelEvent, renderGame } from '../(domain)/game-engine'
+import { initFloor, movePlayer, descend, useItem, dropItem, rangedAttack, buyShopItem, resolveEvent, cancelEvent, renderGame } from '../(domain)/game-engine'
 import { getEventById } from '../(domain)/events'
 import { AnsiLine } from './ansi-renderer'
 import TouchDpad from './touch-dpad'
@@ -48,8 +48,9 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     const calcFontSize = (): void => {
       if (window.innerWidth < 768) {
         // 34 chars total width in compact mode (VIEW_WIDTH + 2 borders = 34)
-        const charWidth = (window.innerWidth - 16) / 34
-        const fs = Math.min(Math.max(charWidth * 1.6, 6), 14)
+        const viewportWidth = Math.max(320, window.innerWidth)
+        const charWidth = (viewportWidth - 20) / 34
+        const fs = Math.min(Math.max(charWidth * 1.32, 5.5), 11.5)
         setFontSize(`${fs}px`)
       } else {
         setFontSize('12px')
@@ -69,6 +70,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isOnShopTile, setIsOnShopTile] = useState(false)
   const [isEventActive, setIsEventActive] = useState(false)
+  const [hasRangedWeapon, setHasRangedWeapon] = useState((initialState.player.weapon?.range ?? 1) > 1)
 
   // --- Shared action callbacks ---
 
@@ -80,6 +82,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setIsShopOpen(newState.shopOpen)
     setIsOnShopTile(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Shop)
     setIsEventActive(newState.activeEvent !== null)
+    setHasRangedWeapon((newState.player.weapon?.range ?? 1) > 1)
   }, [])
 
   const handleMove = useCallback((dx: number, dy: number): void => {
@@ -118,6 +121,23 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const handleSelectItem = useCallback((idx: number): void => {
     const current = gameStateRef.current
     updateState({ ...current, invIdx: idx })
+  }, [updateState])
+
+  const handleDropItemAction = useCallback((idx: number): void => {
+    const current = gameStateRef.current
+    let newState = dropItem(current, idx)
+    if (newState.player.inventory.length === 0) {
+      newState = { ...newState, invIdx: 0 }
+    } else if (newState.invIdx >= newState.player.inventory.length) {
+      newState = { ...newState, invIdx: newState.player.inventory.length - 1 }
+    }
+    updateState(newState)
+  }, [updateState])
+
+  const handleRangedAction = useCallback((): void => {
+    const current = gameStateRef.current
+    if (current.over || current.won || current.invOpen || current.shopOpen || current.activeEvent !== null) return
+    updateState(rangedAttack(current))
   }, [updateState])
 
   const handleQuit = useCallback((): void => {
@@ -359,6 +379,19 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
             }
           }
           break
+        case 'x':
+        case 'X':
+        case 'Delete':
+          e.preventDefault()
+          if (invLen > 0) {
+            newState = dropItem(current, current.invIdx)
+            if (newState.player.inventory.length === 0) {
+              newState = { ...newState, invIdx: 0 }
+            } else if (newState.invIdx >= newState.player.inventory.length) {
+              newState = { ...newState, invIdx: newState.player.inventory.length - 1 }
+            }
+          }
+          break
         case 'i':
         case 'I':
         case 'Escape':
@@ -414,6 +447,11 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
         e.preventDefault()
         newState = { ...current, invOpen: true, invIdx: 0 }
         break
+      case 'f':
+      case 'F':
+        e.preventDefault()
+        newState = rangedAttack(current)
+        break
       case '>':
       case 'Enter':
         e.preventDefault()
@@ -442,7 +480,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
       {/* ANSI Game View */}
       <div
         className="font-mono leading-tight select-none"
-        style={{ fontSize, touchAction: 'none' }}
+        style={{ fontSize, touchAction: 'none', maxWidth: '100vw', overflowX: 'hidden', paddingInline: '2px' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -470,9 +508,11 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           <TouchDpad onMove={handleDpadMove} />
           <ActionButtons
             onAction={handleAction}
+            onRanged={handleRangedAction}
             onInventory={handleInventoryToggle}
             onStats={handleStatsToggle}
             canDescend={canDescend}
+            hasRangedWeapon={hasRangedWeapon}
             isInventoryOpen={isInvOpen}
             isStatsOpen={isStatsOpen}
             isOnShopTile={isOnShopTile}
@@ -489,6 +529,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           selectedIdx={gameStateRef.current.invIdx}
           onSelectItem={handleSelectItem}
           onUseItem={handleUseItemAction}
+          onDropItem={handleDropItemAction}
           onClose={handleInventoryToggle}
         />
       )}

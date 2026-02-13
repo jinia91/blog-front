@@ -18,11 +18,11 @@ export const RARITY_MULTIPLIER: Record<ItemRarity, number> = {
 }
 
 export const RARITY_DROP_RATE: Record<ItemRarity, number> = {
-  common: 0.60,
-  uncommon: 0.25,
-  rare: 0.10,
-  epic: 0.04,
-  legendary: 0.01
+  common: 0.74,
+  uncommon: 0.19,
+  rare: 0.055,
+  epic: 0.013,
+  legendary: 0.002
 }
 
 export const RARITY_NAMES: Record<ItemRarity, string> = {
@@ -80,6 +80,7 @@ export interface WeaponData {
   atk: number
   rarity?: ItemRarity
   range?: number // 1=melee, 2-3=mid, 4-5=ranged
+  speed?: number // attacks every N turns (lower is faster)
 }
 
 export interface ArmorData {
@@ -121,6 +122,7 @@ export interface Player {
   weapon: WeaponData | null
   armor: ArmorData | null
   inventory: InvItem[]
+  nextAttackTurn: number
 }
 
 export interface Enemy {
@@ -132,6 +134,8 @@ export interface Enemy {
   alive: boolean
   isBoss: boolean
   range: number
+  attackSpeed: number
+  nextAttackTurn: number
 }
 
 export interface EnemyDef {
@@ -140,6 +144,7 @@ export interface EnemyDef {
   stats: Stats
   xp: number
   range?: number // 1=melee, 2-3=mid, 4-5=ranged
+  attackSpeed?: number
 }
 
 export interface FloorTheme {
@@ -160,6 +165,7 @@ export interface FloorTheme {
 export type ThemeObjectEffect = 'heal30' | 'heal50' | 'fullHeal' | 'buffStr' | 'buffDef' | 'buffMaxHp' | 'gold' | 'xp' | 'gamble' | 'randomItem' | 'teleport'
 
 export interface ThemeObject {
+  id?: string
   name: string
   ch: string
   color: string
@@ -167,6 +173,12 @@ export interface ThemeObject {
   effectType: ThemeObjectEffect
   effectValue?: number
   logMessage: string
+}
+
+export interface ProjectileTrail {
+  path: Position[]
+  ch: string
+  color: 'yellow' | 'cyan' | 'red'
 }
 
 export type EventCategory = 'choice' | 'trap' | 'npc' | 'puzzle'
@@ -228,14 +240,15 @@ export interface GameState {
   usedObjects: string[]
   activeEvent: ActiveEvent | null
   eventIdx: number
+  projectile: ProjectileTrail | null
 }
 
 export const WEAPONS: WeaponData[][] = [
-  [{ name: '단검', atk: 4 }, { name: '촉수 채찍', atk: 3, range: 2 }, { name: '단궁', atk: 2, range: 4 }],
-  [{ name: '장검', atk: 6 }, { name: '공허의 단도', atk: 7 }, { name: '석궁', atk: 5, range: 4 }],
-  [{ name: '전투 도끼', atk: 9 }, { name: '엘더 사인 철퇴', atk: 8 }, { name: '엘더 룬활', atk: 7, range: 5 }],
-  [{ name: '화염검', atk: 12 }, { name: '크툴루 삼지창', atk: 13, range: 2 }, { name: '화염 투창', atk: 10, range: 3 }],
-  [{ name: '용살자', atk: 16 }, { name: '네크로노미콘 검', atk: 17 }, { name: '심연의 지팡이', atk: 14, range: 5 }]
+  [{ name: '단검', atk: 4, speed: 1 }, { name: '촉수 채찍', atk: 3, range: 2, speed: 2 }, { name: '단궁', atk: 2, range: 4, speed: 3 }],
+  [{ name: '장검', atk: 6, speed: 2 }, { name: '공허의 단도', atk: 7, speed: 1 }, { name: '석궁', atk: 5, range: 4, speed: 3 }],
+  [{ name: '전투 도끼', atk: 9, speed: 3 }, { name: '엘더 사인 철퇴', atk: 8, speed: 2 }, { name: '엘더 룬활', atk: 7, range: 5, speed: 3 }],
+  [{ name: '화염검', atk: 12, speed: 2 }, { name: '크툴루 삼지창', atk: 13, range: 2, speed: 2 }, { name: '화염 투창', atk: 10, range: 3, speed: 3 }],
+  [{ name: '용살자', atk: 16, speed: 3 }, { name: '네크로노미콘 검', atk: 17, speed: 2 }, { name: '심연의 지팡이', atk: 14, range: 5, speed: 4 }]
 ]
 
 export const ARMORS: ArmorData[][] = [
@@ -247,11 +260,11 @@ export const ARMORS: ArmorData[][] = [
 ]
 
 export const LEGENDARY_WEAPONS: WeaponData[] = [
-  { name: '영혼 포식자', atk: 25, rarity: 'legendary' },
-  { name: '별의 파편', atk: 22, rarity: 'legendary', range: 5 },
-  { name: '심연의 이빨', atk: 28, rarity: 'legendary' },
-  { name: '시간의 검', atk: 24, rarity: 'legendary' },
-  { name: '혼돈의 지팡이', atk: 26, rarity: 'legendary', range: 5 }
+  { name: '영혼 포식자', atk: 25, rarity: 'legendary', speed: 2 },
+  { name: '별의 파편', atk: 22, rarity: 'legendary', range: 5, speed: 3 },
+  { name: '심연의 이빨', atk: 28, rarity: 'legendary', speed: 3 },
+  { name: '시간의 검', atk: 24, rarity: 'legendary', speed: 1 },
+  { name: '혼돈의 지팡이', atk: 26, rarity: 'legendary', range: 5, speed: 4 }
 ]
 
 export const LEGENDARY_ARMORS: ArmorData[] = [
@@ -832,15 +845,37 @@ export const FLOOR_THEMES: FloorTheme[] = [
   }
 ]
 
-export function rollRarity (): ItemRarity {
+const RARITY_ORDER: ItemRarity[] = ['common', 'uncommon', 'rare', 'epic', 'legendary']
+
+function maxRarityForFloor (floor: number): ItemRarity {
+  if (floor <= 2) return 'uncommon'
+  if (floor <= 4) return 'rare'
+  if (floor <= 7) return 'epic'
+  return 'legendary'
+}
+
+function clampRarityByFloor (rarity: ItemRarity, floor: number): ItemRarity {
+  const maxRarity = maxRarityForFloor(floor)
+  const maxIdx = RARITY_ORDER.indexOf(maxRarity)
+  const idx = RARITY_ORDER.indexOf(rarity)
+  if (idx <= maxIdx) return rarity
+  return RARITY_ORDER[maxIdx]
+}
+
+function tierForFloor (floor: number, tiers: number): number {
+  return Math.min(Math.floor((Math.max(1, floor) - 1) / 3), tiers - 1)
+}
+
+export function rollRarity (floor: number = 1): ItemRarity {
   const roll = Math.random()
   let cumulative = 0
-  const rarities: ItemRarity[] = ['common', 'uncommon', 'rare', 'epic', 'legendary']
-  for (const r of rarities) {
+  for (const r of RARITY_ORDER) {
     cumulative += RARITY_DROP_RATE[r]
-    if (roll < cumulative) return r
+    if (roll < cumulative) {
+      return clampRarityByFloor(r, floor)
+    }
   }
-  return 'common'
+  return clampRarityByFloor('common', floor)
 }
 
 export function generateShopItems (floor: number): ShopItem[] {
@@ -869,24 +904,33 @@ export function generateShopItems (floor: number): ShopItem[] {
 }
 
 export function weaponForFloor (floor: number, themeId?: string): WeaponData {
+  const adjustedFloor = Math.max(1, floor)
+
   if (themeId !== undefined && Math.random() < 0.2) {
     const theme = FLOOR_THEMES.find(t => t.id === themeId)
     if (theme?.uniqueWeapons !== undefined && theme.uniqueWeapons.length > 0) {
       const base = theme.uniqueWeapons[Math.floor(Math.random() * theme.uniqueWeapons.length)]
-      const rarity = rollRarity()
+      const rarity = rollRarity(adjustedFloor)
       if (rarity === 'legendary') {
         return LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)]
       }
       const mult = RARITY_MULTIPLIER[rarity]
       const prefix = rarity !== 'common' ? `[${RARITY_NAMES[rarity]}] ` : ''
-      return { name: prefix + base.name, atk: Math.floor(base.atk * mult * (1 + (floor - 1) * 0.15)), rarity, range: base.range }
+      const speed = base.speed ?? (base.range !== undefined && base.range >= 4 ? 3 : base.range !== undefined && base.range >= 2 ? 2 : 2)
+      return {
+        name: prefix + base.name,
+        atk: Math.floor(base.atk * mult * (1 + (adjustedFloor - 1) * 0.08)),
+        rarity,
+        range: base.range,
+        speed
+      }
     }
   }
-  const rarity = rollRarity()
+  const rarity = rollRarity(adjustedFloor)
   if (rarity === 'legendary') {
     return LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)]
   }
-  const tier = Math.min(Math.floor((floor - 1) / 2), WEAPONS.length - 1)
+  const tier = tierForFloor(adjustedFloor, WEAPONS.length)
   const pool = WEAPONS[tier]
   const base = pool[Math.floor(Math.random() * pool.length)]
   const mult = RARITY_MULTIPLIER[rarity]
@@ -895,29 +939,32 @@ export function weaponForFloor (floor: number, themeId?: string): WeaponData {
     name: prefix + base.name,
     atk: Math.floor(base.atk * mult),
     rarity,
-    range: base.range
+    range: base.range,
+    speed: base.speed
   }
 }
 
 export function armorForFloor (floor: number, themeId?: string): ArmorData {
+  const adjustedFloor = Math.max(1, floor)
+
   if (themeId !== undefined && Math.random() < 0.2) {
     const theme = FLOOR_THEMES.find(t => t.id === themeId)
     if (theme?.uniqueArmors !== undefined && theme.uniqueArmors.length > 0) {
       const base = theme.uniqueArmors[Math.floor(Math.random() * theme.uniqueArmors.length)]
-      const rarity = rollRarity()
+      const rarity = rollRarity(adjustedFloor)
       if (rarity === 'legendary') {
         return LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)]
       }
       const mult = RARITY_MULTIPLIER[rarity]
       const prefix = rarity !== 'common' ? `[${RARITY_NAMES[rarity]}] ` : ''
-      return { name: prefix + base.name, def: Math.floor(base.def * mult * (1 + (floor - 1) * 0.15)), rarity }
+      return { name: prefix + base.name, def: Math.floor(base.def * mult * (1 + (adjustedFloor - 1) * 0.08)), rarity }
     }
   }
-  const rarity = rollRarity()
+  const rarity = rollRarity(adjustedFloor)
   if (rarity === 'legendary') {
     return LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)]
   }
-  const tier = Math.min(Math.floor((floor - 1) / 2), ARMORS.length - 1)
+  const tier = tierForFloor(adjustedFloor, ARMORS.length)
   const pool = ARMORS[tier]
   const base = pool[Math.floor(Math.random() * pool.length)]
   const mult = RARITY_MULTIPLIER[rarity]
@@ -943,7 +990,24 @@ export function potionForFloor (floor: number): PotionData {
 }
 
 export function xpForLevel (level: number): number {
-  return level * 25 + 15
+  return Math.floor(30 + (level * level * 14) + (level * 10))
+}
+
+export function weaponAttackSpeed (weapon: WeaponData | null): number {
+  if (weapon === null) return 2
+  if (weapon.speed !== undefined) return Math.max(1, weapon.speed)
+  const range = weapon.range ?? 1
+  if (range >= 4) return 3
+  if (range >= 2) return 2
+  return 2
+}
+
+export function enemyAttackSpeed (def: EnemyDef): number {
+  if (def.attackSpeed !== undefined) return Math.max(1, def.attackSpeed)
+  const range = def.range ?? 1
+  if (range >= 4) return 3
+  if (range >= 2) return 2
+  return 1
 }
 
 export function createPlayer (pos: Position): Player {
@@ -954,13 +1018,15 @@ export function createPlayer (pos: Position): Player {
     xp: 0,
     xpNext: xpForLevel(1),
     gold: 0,
-    weapon: { name: '녹슨 단도', atk: 2 },
+    weapon: { name: '녹슨 단도', atk: 2, speed: 1 },
     armor: null,
-    inventory: []
+    inventory: [],
+    nextAttackTurn: 0
   }
 }
 
 export function createEnemy (def: EnemyDef, pos: Position, isBoss: boolean = false): Enemy {
+  const atkSpeed = enemyAttackSpeed(def)
   return {
     pos,
     stats: { ...def.stats },
@@ -969,7 +1035,9 @@ export function createEnemy (def: EnemyDef, pos: Position, isBoss: boolean = fal
     xp: def.xp,
     alive: true,
     isBoss,
-    range: def.range ?? 1
+    range: def.range ?? 1,
+    attackSpeed: atkSpeed,
+    nextAttackTurn: 0
   }
 }
 
@@ -989,8 +1057,8 @@ export function scaleEnemyStats (base: Stats, floor: number): Stats {
   return {
     hp: Math.floor(base.hp * multiplier),
     maxHp: Math.floor(base.maxHp * multiplier),
-    str: Math.floor(base.str * (1 + (floor - 1) * 0.14)),
-    def: Math.floor(base.def * (1 + (floor - 1) * 0.12))
+    str: Math.floor(base.str * (1 + (floor - 1) * 0.16)),
+    def: Math.floor(base.def * (1 + (floor - 1) * 0.14))
   }
 }
 
@@ -1004,6 +1072,45 @@ export function scaleBossStats (base: Stats, floor: number): Stats {
     str: Math.floor(base.str * strMult),
     def: Math.floor(base.def * defMult)
   }
+}
+
+const THEME_OBJECT_VARIANTS: Record<string, ThemeObject[]> = {
+  cave: [{ name: '종유석', ch: '⌃', color: 'gray', spawnChance: 0.24, effectType: 'buffDef', effectValue: 1, logMessage: '단단한 종유석 파편을 주워 방어가 강화됐다.' }],
+  sewer: [{ name: '녹슨 격자', ch: '#', color: 'darkGreen', spawnChance: 0.2, effectType: 'gold', effectValue: 8, logMessage: '격자 틈에서 동전을 건졌다.' }],
+  forest: [{ name: '빛나는 포자', ch: '*', color: 'green', spawnChance: 0.24, effectType: 'heal30', logMessage: '포자가 상처를 감싸며 회복됐다.' }],
+  crypt: [{ name: '향로', ch: 'n', color: 'darkYellow', spawnChance: 0.2, effectType: 'xp', effectValue: 18, logMessage: '향로의 연기가 기억을 깨운다.' }],
+  swamp: [{ name: '늪 진주', ch: 'o', color: 'darkGreen', spawnChance: 0.2, effectType: 'gold', effectValue: 10, logMessage: '늪 바닥에서 진주를 건져냈다.' }],
+  lava: [{ name: '화산 유리', ch: 'v', color: 'red', spawnChance: 0.18, effectType: 'buffStr', effectValue: 1, logMessage: '뜨거운 유리가 무기를 날카롭게 만든다.' }],
+  ice: [{ name: '서리 꽃', ch: '*', color: 'cyan', spawnChance: 0.2, effectType: 'buffDef', effectValue: 1, logMessage: '서리 꽃의 한기가 몸을 단단하게 했다.' }],
+  abyss: [{ name: '심연의 눈', ch: 'o', color: 'magenta', spawnChance: 0.16, effectType: 'xp', effectValue: 22, logMessage: '눈동자와 마주치자 지식이 밀려왔다.' }],
+  sunken_temple: [{ name: '산호 제단', ch: 'T', color: 'darkCyan', spawnChance: 0.2, effectType: 'buffMaxHp', effectValue: 6, logMessage: '산호 제단의 축복으로 생명력이 늘었다.' }],
+  eldritch_depths: [{ name: '왜곡 수정', ch: 'x', color: 'darkMagenta', spawnChance: 0.16, effectType: 'gamble', effectValue: 45, logMessage: '수정이 파동을 내뿜는다...' }],
+  rlyeh: [{ name: '봉인 석판', ch: '=', color: 'darkGreen', spawnChance: 0.18, effectType: 'teleport', logMessage: '석판의 문양이 공간을 비틀었다.' }],
+  machine_factory: [{ name: '윤활 캔', ch: 'u', color: 'darkYellow', spawnChance: 0.24, effectType: 'heal30', logMessage: '응급 윤활제로 몸을 정비했다.' }],
+  fuel_mine: [{ name: '압축 연료', ch: 'f', color: 'darkRed', spawnChance: 0.18, effectType: 'buffStr', effectValue: 1, logMessage: '연료 폭발력이 힘을 끌어올렸다.' }],
+  iron_fortress: [{ name: '강철 리벳', ch: 'r', color: 'gray', spawnChance: 0.2, effectType: 'buffDef', effectValue: 1, logMessage: '리벳으로 장비를 고정해 방어가 올랐다.' }],
+  wasteland: [{ name: '정화 주사기', ch: 'i', color: 'green', spawnChance: 0.2, effectType: 'heal50', logMessage: '해독 주사기가 체력을 되돌렸다.' }],
+  ruins: [{ name: '생존자 캐시', ch: 'c', color: 'darkYellow', spawnChance: 0.2, effectType: 'randomItem', logMessage: '숨겨진 보급품을 발견했다.' }],
+  bunker: [{ name: '탄약 상자', ch: 'a', color: 'darkCyan', spawnChance: 0.2, effectType: 'randomItem', logMessage: '탄약 상자에서 장비를 꺼냈다.' }],
+  cyber_server: [{ name: '백업 노드', ch: 'B', color: 'cyan', spawnChance: 0.2, effectType: 'xp', effectValue: 24, logMessage: '백업 노드에서 전술 데이터를 추출했다.' }],
+  deep_sea: [{ name: '심해 산호', ch: 'c', color: 'blue', spawnChance: 0.2, effectType: 'heal30', logMessage: '산호 점액이 상처를 봉합했다.' }],
+  yokai_shrine: [{ name: '부적 더미', ch: '+', color: 'red', spawnChance: 0.2, effectType: 'buffDef', effectValue: 2, logMessage: '부적의 가호가 몸을 감쌌다.' }],
+  pharaoh_tomb: [{ name: '황금 매듭', ch: '8', color: 'yellow', spawnChance: 0.18, effectType: 'gold', effectValue: 12, logMessage: '황금 매듭을 풀어 보물을 얻었다.' }],
+  casino_hell: [{ name: '룰렛 칩', ch: '@', color: 'yellow', spawnChance: 0.24, effectType: 'gamble', effectValue: 58, logMessage: '칩을 던지자 운명의 룰렛이 돈다.' }],
+  mutation_lab: [{ name: '안정화 혈청', ch: 's', color: 'green', spawnChance: 0.2, effectType: 'buffMaxHp', effectValue: 8, logMessage: '혈청이 세포를 안정화했다.' }],
+  crystal_cavern: [{ name: '수정 파편', ch: '/', color: 'magenta', spawnChance: 0.2, effectType: 'xp', effectValue: 20, logMessage: '수정 파편이 기억을 각성시켰다.' }],
+  fungal_garden: [{ name: '약용 균핵', ch: 'm', color: 'darkMagenta', spawnChance: 0.2, effectType: 'heal50', logMessage: '약용 균핵이 깊은 상처를 봉합했다.' }],
+  clocktower: [{ name: '추시계 진자', ch: 'p', color: 'darkYellow', spawnChance: 0.18, effectType: 'teleport', logMessage: '진자가 흔들리며 시간이 튀었다.' }],
+  void_library: [{ name: '주석 사본', ch: 'p', color: 'white', spawnChance: 0.2, effectType: 'xp', effectValue: 22, logMessage: '사본의 주석에서 전술 지식을 얻었다.' }]
+}
+
+export function getThemeObjects (theme: FloorTheme): ThemeObject[] {
+  const baseObjects = theme.themeObject !== undefined ? [{ ...theme.themeObject }] : []
+  const extraObjects = THEME_OBJECT_VARIANTS[theme.id] ?? []
+  return [...baseObjects, ...extraObjects].map((obj, idx) => ({
+    ...obj,
+    id: obj.id ?? `${theme.id}_obj_${idx}`
+  }))
 }
 
 export function selectThemeForFloor (floor: number, usedThemeIds: string[]): FloorTheme {

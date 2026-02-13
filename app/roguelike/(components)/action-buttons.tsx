@@ -3,9 +3,11 @@ import React, { useCallback } from 'react'
 
 interface ActionButtonsProps {
   onAction: () => void
+  onRanged: () => void
   onInventory: () => void
   onStats: () => void
   canDescend: boolean
+  hasRangedWeapon: boolean
   isInventoryOpen: boolean
   isStatsOpen: boolean
   isOnShopTile?: boolean
@@ -15,9 +17,11 @@ interface ActionButtonsProps {
 
 export default function ActionButtons ({
   onAction,
+  onRanged,
   onInventory,
   onStats,
   canDescend,
+  hasRangedWeapon,
   isInventoryOpen,
   isStatsOpen,
   isOnShopTile = false,
@@ -45,7 +49,10 @@ export default function ActionButtons ({
   }, [])
 
   return (
-    <div className="fixed bottom-[68px] right-3 z-50">
+    <div
+      className="fixed right-2 z-50 md:right-3"
+      style={{ bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
+    >
       {/* Diamond layout like SNES controller */}
       <div className="relative" style={{ width: '120px', height: '120px' }}>
         {/* Top: Stats button */}
@@ -106,6 +113,24 @@ export default function ActionButtons ({
           aria-label={canDescend ? 'Descend stairs' : isEventActive ? 'Confirm event choice' : isShopOpen ? 'Buy item' : isInventoryOpen ? 'Use item' : isOnShopTile ? 'Open shop' : 'Action'}
         >
           {canDescend ? '\u25BC' : isEventActive ? '✓' : isShopOpen ? '$' : isOnShopTile ? '\u25A0' : '\u25B6'}
+        </button>
+
+        {/* Bottom: Ranged attack */}
+        <button
+          onTouchEnd={makeTouchEnd(onRanged)}
+          onClick={makeClick(onRanged)}
+          disabled={!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive}
+          className={`absolute left-1/2 -translate-x-1/2 bottom-0
+                      w-10 h-10 rounded-full border-2
+                      active:scale-90 transition-all duration-100
+                      flex items-center justify-center text-[10px] font-bold
+                      ${!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive
+                        ? 'bg-gray-800/80 border-gray-600 text-gray-500'
+                        : 'bg-cyan-700/90 border-cyan-400 text-cyan-100 shadow-cyan-400/40 shadow-md'}
+                      `}
+          aria-label="Ranged attack"
+        >
+          FR
         </button>
       </div>
 

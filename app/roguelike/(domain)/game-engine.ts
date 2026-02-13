@@ -1,8 +1,9 @@
 import {
-  type GameState, type Player, type InvItem, type MapItem, type Enemy, type ItemRarity,
+  type GameState, type Player, type InvItem, type MapItem, type Enemy, type ItemRarity, type WeaponData, type ArmorData, type ThemeObject,
   Tile, MAP_WIDTH, MAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT, PANEL_WIDTH, MAX_INVENTORY, TOTAL_FLOORS,
   LEGENDARY_WEAPONS, LEGENDARY_ARMORS,
   createPlayer, xpForLevel, selectThemeForFloor, weaponForFloor, armorForFloor, potionForFloor,
+  weaponAttackSpeed, getThemeObjects,
   generateShopItems
 } from './types'
 import { generateDungeon, computeFOV } from './dungeon'
@@ -40,6 +41,14 @@ function rarityColor (rarity: ItemRarity | undefined): string {
 function stripAnsi (str: string): string {
   // eslint-disable-next-line no-control-regex
   return str.replace(/\x1b\[\d+m/g, '')
+}
+
+function sanitizeLogLine (str: string): string {
+  // Allow only SGR ANSI escapes and strip other control chars to avoid broken mobile logs.
+  // eslint-disable-next-line no-control-regex
+  const noUnsafeEsc = str.replace(/\x1b(?!\[[0-9;]*m)/g, '')
+  // eslint-disable-next-line no-control-regex
+  return noUnsafeEsc.replace(/[\u0000-\u0008\u000B-\u001A\u001C-\u001F\u007F]/g, '')
 }
 
 function charWidth (ch: string): number {
@@ -147,7 +156,8 @@ export function initFloor (floor: number, existingPlayer: Player | null, usedThe
     shopIdx: 0,
     usedObjects: [],
     activeEvent: null,
-    eventIdx: 0
+    eventIdx: 0,
+    projectile: null
   }
 }
 
@@ -159,9 +169,9 @@ function checkLevelUp (state: GameState): GameState {
   while (p.xp >= p.xpNext) {
     p.xp -= p.xpNext
     p.level += 1
-    const hpGain = 7 + Math.floor(Math.random() * 8)
-    const strGain = 1 + Math.floor(Math.random() * 3)
-    const defGain = Math.floor(Math.random() * 3)
+    const hpGain = 4 + Math.floor(Math.random() * 4) + Math.floor(p.level / 8)
+    const strGain = (p.level % 3 === 0 ? 1 : 0) + (Math.random() < 0.35 ? 1 : 0)
+    const defGain = (p.level % 4 === 0 ? 1 : 0) + (Math.random() < 0.3 ? 1 : 0)
     p.stats.maxHp += hpGain
     p.stats.str += strGain
     p.stats.def += defGain
@@ -177,10 +187,114 @@ function checkLevelUp (state: GameState): GameState {
   return state
 }
 
-function attackEnemy (state: GameState, enemyIdx: number, isRanged: boolean = false): GameState {
+function clearProjectile (state: GameState): GameState {
+  if (state.projectile === null) return state
+  return { ...state, projectile: null }
+}
+
+function rarityRank (rarity: ItemRarity | undefined): number {
+  if (rarity === undefined) return 0
+  if (rarity === 'common') return 0
+  if (rarity === 'uncommon') return 1
+  if (rarity === 'rare') return 2
+  if (rarity === 'epic') return 3
+  return 4
+}
+
+function rollWeaponByRarity (floor: number, themeId: string, minRank: number): WeaponData {
+  let best = weaponForFloor(floor, themeId)
+  for (let i = 0; i < 10; i++) {
+    if (rarityRank(best.rarity) >= minRank) return best
+    const cand = weaponForFloor(floor, themeId)
+    if (rarityRank(cand.rarity) > rarityRank(best.rarity)) best = cand
+  }
+  return best
+}
+
+function rollArmorByRarity (floor: number, themeId: string, minRank: number): ArmorData {
+  let best = armorForFloor(floor, themeId)
+  for (let i = 0; i < 10; i++) {
+    if (rarityRank(best.rarity) >= minRank) return best
+    const cand = armorForFloor(floor, themeId)
+    if (rarityRank(cand.rarity) > rarityRank(best.rarity)) best = cand
+  }
+  return best
+}
+
+function findThemeObjectByToken (state: GameState, token: string): ThemeObject | undefined {
+  const objects = getThemeObjects(state.currentTheme)
+  return objects.find(obj => obj.id === token)
+}
+
+function buildProjectilePath (
+  state: GameState,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  maxRange: number
+): Array<{ x: number, y: number }> {
+  const path: Array<{ x: number, y: number }> = []
+  const dx = Math.abs(x1 - x0)
+  const dy = Math.abs(y1 - y0)
+  const sx = x0 < x1 ? 1 : -1
+  const sy = y0 < y1 ? 1 : -1
+  let err = dx - dy
+  let x = x0
+  let y = y0
+  let traveled = 0
+
+  while (!(x === x1 && y === y1) && traveled < maxRange + 1) {
+    const e2 = 2 * err
+    if (e2 > -dy) {
+      err -= dy
+      x += sx
+    }
+    if (e2 < dx) {
+      err += dx
+      y += sy
+    }
+    traveled += 1
+
+    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) break
+    path.push({ x, y })
+    if (state.map.tiles[y][x] === Tile.Wall) break
+  }
+
+  return path
+}
+
+function projectileGlyph (weapon: WeaponData | null): { ch: string, color: 'yellow' | 'cyan' | 'red' } {
+  const range = weapon?.range ?? 1
+  if (range >= 4) return { ch: '→', color: 'cyan' }
+  if (range >= 2) return { ch: '•', color: 'yellow' }
+  return { ch: '*', color: 'red' }
+}
+
+function playerAttackReady (state: GameState): boolean {
+  return state.turns >= state.player.nextAttackTurn
+}
+
+function nextPlayerAttackTurn (state: GameState): number {
+  const delay = weaponAttackSpeed(state.player.weapon)
+  return state.turns + delay
+}
+
+function enemyAttackReady (state: GameState, enemy: Enemy): boolean {
+  return state.turns >= enemy.nextAttackTurn
+}
+
+function attackEnemy (
+  state: GameState,
+  enemyIdx: number,
+  isRanged: boolean = false,
+  projectilePath: Array<{ x: number, y: number }> = []
+): GameState {
   const enemy = { ...state.enemies[enemyIdx], stats: { ...state.enemies[enemyIdx].stats } }
   const player = { ...state.player, stats: { ...state.player.stats } }
   const newLog = [...state.log]
+  const nextAttackTurn = nextPlayerAttackTurn(state)
+  player.nextAttackTurn = nextAttackTurn
 
   const atkPower = player.stats.str + (player.weapon !== null ? player.weapon.atk : 0)
   const rangePenalty = isRanged ? 0.85 : 1.0
@@ -239,17 +353,20 @@ function attackEnemy (state: GameState, enemyIdx: number, isRanged: boolean = fa
   const newEnemies = state.enemies.map((e, i) => i === enemyIdx ? enemy : e)
 
   let newItems = state.items
-  // Boss drop: guaranteed high-tier weapon or armor, 10% legendary
+  // Boss drop: guaranteed upgrade but low-floor overpowered drops are suppressed.
   if (enemy.stats.hp <= 0 && enemy.isBoss) {
     let drop: MapItem
-    if (Math.random() < 0.1) {
+    const legendaryChance = state.floor >= 8 ? 0.03 : 0
+    if (Math.random() < legendaryChance) {
       // Legendary drop
       drop = Math.random() < 0.5
         ? { pos: { ...enemy.pos }, item: { kind: 'weapon', data: LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)] }, ch: '/' }
         : { pos: { ...enemy.pos }, item: { kind: 'armor', data: LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)] }, ch: ']' }
       newLog.push(`★ 환상의 ${drop.item.data.name}을(를) 발견했다! ★`)
     } else {
-      const dropFloor = Math.min(state.floor + 2, TOTAL_FLOORS)
+      const baseBoost = state.floor >= 6 ? 1 : 0
+      const rareBoost = Math.random() < (state.floor >= 5 ? 0.30 : 0.12) ? 1 : 0
+      const dropFloor = Math.min(state.floor + baseBoost + rareBoost, TOTAL_FLOORS)
       drop = Math.random() < 0.5
         ? { pos: { ...enemy.pos }, item: { kind: 'weapon', data: weaponForFloor(dropFloor, state.currentTheme.id) }, ch: '/' }
         : { pos: { ...enemy.pos }, item: { kind: 'armor', data: armorForFloor(dropFloor, state.currentTheme.id) }, ch: ']' }
@@ -257,14 +374,27 @@ function attackEnemy (state: GameState, enemyIdx: number, isRanged: boolean = fa
     newItems = [...state.items, drop]
   }
 
-  let result: GameState = { ...state, player, enemies: newEnemies, items: newItems, log: newLog, kills: newKills }
+  const projectile = isRanged && projectilePath.length > 0
+    ? { path: projectilePath, ...projectileGlyph(player.weapon) }
+    : null
+
+  let result: GameState = {
+    ...state,
+    player,
+    enemies: newEnemies,
+    items: newItems,
+    log: newLog,
+    kills: newKills,
+    projectile
+  }
   result = checkLevelUp(result)
   return result
 }
 
 function enemyAttackPlayer (state: GameState, enemyIdx: number, isRanged: boolean = false): GameState {
-  const enemy = state.enemies[enemyIdx]
+  const enemy = { ...state.enemies[enemyIdx] }
   if (!enemy.alive) return state
+  if (!enemyAttackReady(state, enemy)) return state
 
   const player = { ...state.player, stats: { ...state.player.stats } }
   const newLog = [...state.log]
@@ -309,7 +439,10 @@ function enemyAttackPlayer (state: GameState, enemyIdx: number, isRanged: boolea
     newLog.push('\uB2F9\uC2E0\uC740 \uC4F0\uB7EC\uC84C\uB2E4...')
   }
 
-  return { ...state, player, log: newLog, over }
+  enemy.nextAttackTurn = state.turns + enemy.attackSpeed
+  const enemies = state.enemies.map((e, i) => i === enemyIdx ? enemy : e)
+
+  return { ...state, player, enemies, log: newLog, over }
 }
 
 function hasRangedLineOfSight (state: GameState, x0: number, y0: number, x1: number, y1: number): boolean {
@@ -384,11 +517,12 @@ function processEnemyTurns (state: GameState): GameState {
     const dist = Math.abs(enemy.pos.x - current.player.pos.x) + Math.abs(enemy.pos.y - current.player.pos.y)
     const isVisible = current.map.visible[enemy.pos.y][enemy.pos.x]
     const enemyRange = enemy.range
+    const canAttack = enemyAttackReady(current, enemy)
 
     if (dist <= Math.max(5, enemyRange + 1) && isVisible) {
       if (enemyRange >= 4) {
         // Ranged enemy: attack from distance, try to maintain distance
-        if (dist <= enemyRange && hasRangedLineOfSight(current, enemy.pos.x, enemy.pos.y, current.player.pos.x, current.player.pos.y)) {
+        if (canAttack && dist <= enemyRange && hasRangedLineOfSight(current, enemy.pos.x, enemy.pos.y, current.player.pos.x, current.player.pos.y)) {
           current = enemyAttackPlayer(current, i, true)
         } else if (dist < 3) {
           // Too close, try to retreat
@@ -398,9 +532,9 @@ function processEnemyTurns (state: GameState): GameState {
         }
       } else if (enemyRange >= 2) {
         // Mid-range enemy: attack from mid distance
-        if (dist <= enemyRange && dist >= 2 && hasRangedLineOfSight(current, enemy.pos.x, enemy.pos.y, current.player.pos.x, current.player.pos.y)) {
+        if (canAttack && dist <= enemyRange && dist >= 2 && hasRangedLineOfSight(current, enemy.pos.x, enemy.pos.y, current.player.pos.x, current.player.pos.y)) {
           current = enemyAttackPlayer(current, i, true)
-        } else if (dist === 1) {
+        } else if (dist === 1 && canAttack) {
           // Adjacent: melee attack
           current = enemyAttackPlayer(current, i, false)
         } else {
@@ -408,7 +542,7 @@ function processEnemyTurns (state: GameState): GameState {
         }
       } else {
         // Melee enemy: original behavior
-        if (dist === 1) {
+        if (dist === 1 && canAttack) {
           current = enemyAttackPlayer(current, i, false)
         } else {
           current = moveEnemyToward(current, i)
@@ -457,7 +591,8 @@ function moveEnemyToward (state: GameState, idx: number): GameState {
   const ny = enemy.pos.y + moveY
 
   if (nx === state.player.pos.x && ny === state.player.pos.y) {
-    return enemyAttackPlayer(state, idx)
+    if (enemyAttackReady(state, enemy)) return enemyAttackPlayer(state, idx)
+    return state
   }
 
   if (!isBlocked(state, nx, ny, idx)) {
@@ -474,7 +609,8 @@ function moveEnemyToward (state: GameState, idx: number): GameState {
   const altNy = enemy.pos.y + (moveX !== 0 ? (dy > 0 ? 1 : dy < 0 ? -1 : 0) : 0)
 
   if (altNx === state.player.pos.x && altNy === state.player.pos.y) {
-    return enemyAttackPlayer(state, idx)
+    if (enemyAttackReady(state, enemy)) return enemyAttackPlayer(state, idx)
+    return state
   }
 
   if (!isBlocked(state, altNx, altNy, idx)) {
@@ -557,7 +693,7 @@ function moveEnemyAway (state: GameState, idx: number): GameState {
 
   // Can't retreat, just attack if in range
   const dist = Math.abs(enemy.pos.x - state.player.pos.x) + Math.abs(enemy.pos.y - state.player.pos.y)
-  if (dist <= enemy.range) {
+  if (dist <= enemy.range && enemyAttackReady(state, enemy)) {
     return enemyAttackPlayer(state, idx, dist > 1)
   }
 
@@ -606,8 +742,8 @@ function pickUpItems (state: GameState): GameState {
     const newUsedObjects = [...state.usedObjects, posKey]
     const newItems = state.items.filter((_, i) => i !== found)
     const player = { ...state.player, stats: { ...state.player.stats } }
-    const theme = state.currentTheme
-    const obj = theme.themeObject
+    const token = mapItem.item.data.name.slice(9)
+    const obj = findThemeObjectByToken(state, token)
     if (obj === undefined) return state
 
     newLog.push(obj.logMessage)
@@ -760,7 +896,7 @@ function pickUpItems (state: GameState): GameState {
     const roll = Math.random()
     if (roll < 0.5) {
       // Higher tier weapon or armor
-      const dropFloor = Math.min(state.floor + 1, TOTAL_FLOORS)
+      const dropFloor = Math.min(state.floor + (state.floor >= 5 ? 1 : 0), TOTAL_FLOORS)
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const wpn = weaponForFloor(dropFloor, state.currentTheme.id)
@@ -783,10 +919,7 @@ function pickUpItems (state: GameState): GameState {
       // Rare+ equipment (force uncommon or better)
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
-        let wpn = weaponForFloor(state.floor, state.currentTheme.id)
-        while (wpn.rarity === 'common' || wpn.rarity === undefined) {
-          wpn = weaponForFloor(state.floor, state.currentTheme.id)
-        }
+        const wpn = rollWeaponByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
           player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
           newLog.push(`${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 획득!`)
@@ -794,10 +927,7 @@ function pickUpItems (state: GameState): GameState {
           newLog.push('인벤토리가 가득 찼다')
         }
       } else {
-        let arm = armorForFloor(state.floor, state.currentTheme.id)
-        while (arm.rarity === 'common' || arm.rarity === undefined) {
-          arm = armorForFloor(state.floor, state.currentTheme.id)
-        }
+        const arm = rollArmorByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
           player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
           newLog.push(`${rarityColor(arm.rarity)}${arm.name}${C.reset} 획득!`)
@@ -823,8 +953,9 @@ function pickUpItems (state: GameState): GameState {
         newLog.push(`${pot2.name} 획득!`)
       }
     }
-    // 5% chance of legendary from chest
-    if (Math.random() < 0.05 && player.inventory.length < MAX_INVENTORY) {
+    // Legendary drops are late-floor only.
+    const chestLegendChance = state.floor >= 8 ? 0.03 : state.floor >= 6 ? 0.01 : 0
+    if (Math.random() < chestLegendChance && player.inventory.length < MAX_INVENTORY) {
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const leg = LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)]
@@ -881,10 +1012,7 @@ function pickUpItems (state: GameState): GameState {
       // Reward: rare+ item
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
-        let wpn = weaponForFloor(state.floor, state.currentTheme.id)
-        while (wpn.rarity === 'common' || wpn.rarity === undefined) {
-          wpn = weaponForFloor(state.floor, state.currentTheme.id)
-        }
+        const wpn = rollWeaponByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
           player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
           newLog.push(`저주 제단에서 보상이! ${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 획득!`)
@@ -892,10 +1020,7 @@ function pickUpItems (state: GameState): GameState {
           newLog.push('인벤토리가 가득 찼다')
         }
       } else {
-        let arm = armorForFloor(state.floor, state.currentTheme.id)
-        while (arm.rarity === 'common' || arm.rarity === undefined) {
-          arm = armorForFloor(state.floor, state.currentTheme.id)
-        }
+        const arm = rollArmorByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
           player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
           newLog.push(`저주 제단에서 보상이! ${rarityColor(arm.rarity)}${arm.name}${C.reset} 획득!`)
@@ -1000,7 +1125,17 @@ export function useItem (state: GameState, idx: number): GameState {
     }
   }
 
-  return { ...state, player, log: newLog }
+  return { ...state, player, log: newLog, projectile: null }
+}
+
+export function dropItem (state: GameState, idx: number): GameState {
+  if (idx < 0 || idx >= state.player.inventory.length) return state
+
+  const item = state.player.inventory[idx]
+  const player = { ...state.player, inventory: state.player.inventory.filter((_, i) => i !== idx) }
+  const newLog = [...state.log, `${getItemName(item)} 버리기`]
+
+  return { ...state, player, log: newLog, projectile: null }
 }
 
 export function buyShopItem (state: GameState, idx: number): GameState {
@@ -1030,7 +1165,7 @@ export function buyShopItem (state: GameState, idx: number): GameState {
     i === idx ? { ...si, sold: true } : si
   )
 
-  return { ...state, player, shopItems: newShopItems, log: newLog }
+  return { ...state, player, shopItems: newShopItems, log: newLog, projectile: null }
 }
 
 export function resolveEvent (state: GameState): GameState {
@@ -1095,7 +1230,8 @@ export function resolveEvent (state: GameState): GameState {
     player,
     log: newLog,
     activeEvent: null,
-    eventIdx: 0
+    eventIdx: 0,
+    projectile: null
   }
 
   // Teleport to random room
@@ -1122,53 +1258,77 @@ export function resolveEvent (state: GameState): GameState {
 
 export function cancelEvent (state: GameState): GameState {
   if (state.activeEvent === null) return state
-  return { ...state, activeEvent: null, eventIdx: 0 }
+  return { ...state, activeEvent: null, eventIdx: 0, projectile: null }
+}
+
+function consumeTurn (state: GameState, logMessage?: string): GameState {
+  let next = state
+  if (logMessage !== undefined) {
+    next = { ...next, log: [...next.log, logMessage] }
+  }
+  next = { ...next, turns: next.turns + 1 }
+  next = processEnemyTurns(next)
+  computeFOV(next.map, next.player.pos.x, next.player.pos.y)
+  return next
 }
 
 export function movePlayer (state: GameState, dx: number, dy: number): GameState {
-  const nx = state.player.pos.x + dx
-  const ny = state.player.pos.y + dy
+  const baseState = clearProjectile(state)
+  const nx = baseState.player.pos.x + dx
+  const ny = baseState.player.pos.y + dy
 
   if (nx < 0 || nx >= MAP_WIDTH || ny < 0 || ny >= MAP_HEIGHT) {
     // Try ranged attack even if can't move
-    const rangedTarget = findRangedTarget(state, dx, dy)
+    const rangedTarget = findRangedTarget(baseState, dx, dy)
     if (rangedTarget !== -1) {
-      let result = attackEnemy(state, rangedTarget, true)
-      result = { ...result, turns: result.turns + 1 }
-      result = processEnemyTurns(result)
-      computeFOV(result.map, result.player.pos.x, result.player.pos.y)
+      if (!playerAttackReady(baseState)) {
+        const waitTurns = Math.max(0, baseState.player.nextAttackTurn - baseState.turns)
+        return consumeTurn(baseState, `공격 재정비 중... (${waitTurns}턴)`)
+      }
+      const target = baseState.enemies[rangedTarget]
+      const range = baseState.player.weapon?.range ?? 1
+      const projectilePath = buildProjectilePath(baseState, baseState.player.pos.x, baseState.player.pos.y, target.pos.x, target.pos.y, range)
+      let result = attackEnemy(baseState, rangedTarget, true, projectilePath)
+      result = consumeTurn(result)
       return result
     }
-    return state
+    return baseState
   }
 
   // Melee attack on adjacent enemy
-  for (let i = 0; i < state.enemies.length; i++) {
-    const e = state.enemies[i]
+  for (let i = 0; i < baseState.enemies.length; i++) {
+    const e = baseState.enemies[i]
     if (e.alive && e.pos.x === nx && e.pos.y === ny) {
-      let result = attackEnemy(state, i, false)
-      result = { ...result, turns: result.turns + 1 }
-      result = processEnemyTurns(result)
-      computeFOV(result.map, result.player.pos.x, result.player.pos.y)
+      if (!playerAttackReady(baseState)) {
+        const waitTurns = Math.max(0, baseState.player.nextAttackTurn - baseState.turns)
+        return consumeTurn(baseState, `공격 재정비 중... (${waitTurns}턴)`)
+      }
+      let result = attackEnemy(baseState, i, false)
+      result = consumeTurn(result)
       return result
     }
   }
 
   // Can't move into wall - try ranged attack
-  if (state.map.tiles[ny][nx] === Tile.Wall) {
-    const rangedTarget = findRangedTarget(state, dx, dy)
+  if (baseState.map.tiles[ny][nx] === Tile.Wall) {
+    const rangedTarget = findRangedTarget(baseState, dx, dy)
     if (rangedTarget !== -1) {
-      let result = attackEnemy(state, rangedTarget, true)
-      result = { ...result, turns: result.turns + 1 }
-      result = processEnemyTurns(result)
-      computeFOV(result.map, result.player.pos.x, result.player.pos.y)
+      if (!playerAttackReady(baseState)) {
+        const waitTurns = Math.max(0, baseState.player.nextAttackTurn - baseState.turns)
+        return consumeTurn(baseState, `공격 재정비 중... (${waitTurns}턴)`)
+      }
+      const target = baseState.enemies[rangedTarget]
+      const range = baseState.player.weapon?.range ?? 1
+      const projectilePath = buildProjectilePath(baseState, baseState.player.pos.x, baseState.player.pos.y, target.pos.x, target.pos.y, range)
+      let result = attackEnemy(baseState, rangedTarget, true, projectilePath)
+      result = consumeTurn(result)
       return result
     }
-    return state
+    return baseState
   }
 
-  const newPlayer = { ...state.player, pos: { x: nx, y: ny } }
-  let result: GameState = { ...state, player: newPlayer, turns: state.turns + 1 }
+  const newPlayer = { ...baseState.player, pos: { x: nx, y: ny } }
+  let result: GameState = { ...baseState, player: newPlayer, turns: baseState.turns + 1 }
 
   result = pickUpItems(result)
 
@@ -1180,6 +1340,51 @@ export function movePlayer (state: GameState, dx: number, dy: number): GameState
   result = processEnemyTurns(result)
   computeFOV(result.map, result.player.pos.x, result.player.pos.y)
 
+  return result
+}
+
+function findNearestRangedTarget (state: GameState): number {
+  const weaponRange = state.player.weapon?.range ?? 1
+  if (weaponRange <= 1) return -1
+
+  let bestIdx = -1
+  let bestDist = Infinity
+  for (let i = 0; i < state.enemies.length; i++) {
+    const enemy = state.enemies[i]
+    if (!enemy.alive) continue
+    const dist = Math.abs(enemy.pos.x - state.player.pos.x) + Math.abs(enemy.pos.y - state.player.pos.y)
+    if (dist < 2 || dist > weaponRange) continue
+    if (!state.map.visible[enemy.pos.y][enemy.pos.x]) continue
+    if (!hasRangedLineOfSight(state, state.player.pos.x, state.player.pos.y, enemy.pos.x, enemy.pos.y)) continue
+    if (dist < bestDist) {
+      bestDist = dist
+      bestIdx = i
+    }
+  }
+  return bestIdx
+}
+
+export function rangedAttack (state: GameState): GameState {
+  const baseState = clearProjectile(state)
+  const weaponRange = baseState.player.weapon?.range ?? 1
+  if (weaponRange <= 1) {
+    return { ...baseState, log: [...baseState.log, '현재 장비로는 원거리 공격 불가'] }
+  }
+
+  if (!playerAttackReady(baseState)) {
+    const waitTurns = Math.max(0, baseState.player.nextAttackTurn - baseState.turns)
+    return consumeTurn(baseState, `공격 재정비 중... (${waitTurns}턴)`)
+  }
+
+  const targetIdx = findNearestRangedTarget(baseState)
+  if (targetIdx === -1) {
+    return consumeTurn(baseState, '사거리 내 원거리 표적이 없다')
+  }
+
+  const target = baseState.enemies[targetIdx]
+  const projectilePath = buildProjectilePath(baseState, baseState.player.pos.x, baseState.player.pos.y, target.pos.x, target.pos.y, weaponRange)
+  let result = attackEnemy(baseState, targetIdx, true, projectilePath)
+  result = consumeTurn(result)
   return result
 }
 
@@ -1353,6 +1558,14 @@ export function renderGame (state: GameState, compact: boolean = false): string[
           mapStr += ' '
         } else if (state.player.pos.x === col && state.player.pos.y === row) {
           mapStr += C.cyan + '@' + C.reset
+        } else if (hasProjectileAt(state, col, row)) {
+          const projectile = state.projectile
+          if (projectile !== null) {
+            const color = projectile.color === 'cyan' ? C.cyan : projectile.color === 'red' ? C.red : C.yellow
+            mapStr += color + projectile.ch + C.reset
+          } else {
+            mapStr += C.yellow + '•' + C.reset
+          }
         } else if (hasVisibleEnemy(state, col, row)) {
           const enemyAtPos = getEnemyAtPos(state, col, row)
           if (enemyAtPos !== null && enemyAtPos.isBoss) {
@@ -1362,6 +1575,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
           }
         } else if (hasVisibleItem(state, col, row)) {
           const ch = getItemChar(state, col, row)
+          const themeObjColor = themeObjectColorByChar(state, ch)
           if (ch === '$') {
             mapStr += C.darkYellow + ch + C.reset
           } else if (ch === 'C') {
@@ -1376,9 +1590,8 @@ export function renderGame (state: GameState, compact: boolean = false): string[
             mapStr += C.magenta + ch + C.reset
           } else if (ch === '★') {
             mapStr += C.yellow + ch + C.reset
-          } else if (state.currentTheme.themeObject !== undefined && ch === state.currentTheme.themeObject.ch) {
-            const objColor = (C as Record<string, string>)[state.currentTheme.themeObject.color] ?? C.cyan
-            mapStr += objColor + ch + C.reset
+          } else if (themeObjColor !== null) {
+            mapStr += themeObjColor + ch + C.reset
           } else {
             mapStr += C.yellow + ch + C.reset
           }
@@ -1410,13 +1623,13 @@ export function renderGame (state: GameState, compact: boolean = false): string[
     const recentLogs = state.log.slice(logStart)
     for (let i = 0; i < 4; i++) {
       if (i < recentLogs.length) {
-        output.push(' ' + recentLogs[i])
+        output.push(' ' + sanitizeLogLine(recentLogs[i]))
       } else {
         output.push('')
       }
     }
 
-    output.push('WASD:이동 | I:인벤토리 | >:계단 | Q:종료')
+    output.push('WASD:이동 | F:원거리 | I:인벤토리 | X:버리기 | >:계단 | Q:종료')
   }
 
   return output
@@ -1472,6 +1685,19 @@ function getItemChar (state: GameState, x: number, y: number): string {
   return '?'
 }
 
+function themeObjectColorByChar (state: GameState, ch: string): string | null {
+  const objects = getThemeObjects(state.currentTheme)
+  const found = objects.find(obj => obj.ch === ch)
+  if (found === undefined) return null
+  return (C as Record<string, string>)[found.color] ?? C.cyan
+}
+
+function hasProjectileAt (state: GameState, x: number, y: number): boolean {
+  if (state.projectile === null) return false
+  if (!state.map.visible[y][x]) return false
+  return state.projectile.path.some(p => p.x === x && p.y === y)
+}
+
 function buildPanel (state: GameState): string[] {
   const p = state.player
   const lines: string[] = []
@@ -1494,12 +1720,12 @@ function buildPanel (state: GameState): string[] {
   const defVal = p.stats.def + (p.armor !== null ? p.armor.def : 0)
   lines.push(padEndDisplay(` ${C.red}STR${C.reset}:${strVal} ${C.blue}DEF${C.reset}:${defVal}`, PANEL_WIDTH))
 
-  lines.push(' '.repeat(PANEL_WIDTH))
-
   const wpnName = p.weapon !== null ? p.weapon.name : '없음'
   const wpnRange = p.weapon !== null ? (p.weapon.range ?? 1) : 0
+  const wpnSpeed = weaponAttackSpeed(p.weapon)
   const rangeTag = wpnRange >= 4 ? `${C.cyan}(원)${C.reset}` : wpnRange >= 2 ? `${C.green}(중)${C.reset}` : ''
   lines.push(padEndDisplay(` 무기:${C.yellow}${wpnName}${C.reset}${rangeTag}`, PANEL_WIDTH))
+  lines.push(padEndDisplay(` 속도:${C.white}${wpnSpeed}턴${C.reset} 주기`, PANEL_WIDTH))
 
   const armName = p.armor !== null ? p.armor.name : '없음'
   lines.push(padEndDisplay(` 방어:${C.blue}${armName}${C.reset}`, PANEL_WIDTH))
@@ -1548,7 +1774,7 @@ function renderInventory (state: GameState): string[] {
   }
 
   lines.push('')
-  lines.push('  방향키:선택 Enter:사용')
+  lines.push('  방향키:선택 Enter:사용 X:버리기')
   lines.push('  I:닫기')
 
   while (lines.length < VIEW_HEIGHT) {
@@ -1597,7 +1823,8 @@ function getItemInfo (item: InvItem): string {
   if (item.kind === 'weapon') {
     const range = item.data.range ?? 1
     const rangeStr = range >= 4 ? ' 원거리' : range >= 2 ? ' 중거리' : ''
-    return `ATK+${item.data.atk}${rangeStr}`
+    const speed = weaponAttackSpeed(item.data)
+    return `ATK+${item.data.atk}${rangeStr} SPD:${speed}`
   }
   if (item.kind === 'armor') return `DEF+${item.data.def}`
   if (item.data.healType === 'hp') return `HP+${item.data.value}`

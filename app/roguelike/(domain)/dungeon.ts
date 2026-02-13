@@ -17,6 +17,7 @@ import {
   weaponForFloor,
   armorForFloor,
   potionForFloor,
+  getThemeObjects,
   scaleEnemyStats,
   scaleBossStats
 } from './types'
@@ -272,7 +273,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
   if (bossPos !== null) {
     const bossDef = theme.boss
     const bossStats = scaleBossStats(bossDef.stats, floor)
-    const bossXp = Math.floor(bossDef.xp * 5 * (1 + (floor - 1) * 0.15))
+    const bossXp = Math.floor(bossDef.xp * 3.2 * (1 + (floor - 1) * 0.12))
     const scaledBossDef: EnemyDef = { ...bossDef, stats: bossStats, xp: bossXp }
     enemies.push(createEnemy(scaledBossDef, bossPos, true))
     occupied.add(`${bossPos.x},${bossPos.y}`)
@@ -390,15 +391,17 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
     }
   }
 
-  // Spawn theme-specific object
-  if (theme.themeObject !== undefined && Math.random() < theme.themeObject.spawnChance) {
+  // Spawn theme objects (base + per-theme variants)
+  const themeObjects = getThemeObjects(theme)
+  for (const obj of themeObjects) {
+    if (Math.random() >= obj.spawnChance) continue
     for (let attempt = 0; attempt < 50; attempt++) {
       const randomRoomIdx = 1 + Math.floor(Math.random() * (map.rooms.length - 1))
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: `themeObj:${theme.id}`, healType: 'hp', value: 0 } }
-        items.push({ pos, item: dummyItem, ch: theme.themeObject.ch })
+        const dummyItem: InvItem = { kind: 'potion', data: { name: `themeObj:${obj.id ?? theme.id}`, healType: 'hp', value: 0 } }
+        items.push({ pos, item: dummyItem, ch: obj.ch })
         occupied.add(`${pos.x},${pos.y}`)
         break
       }

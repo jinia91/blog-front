@@ -34,6 +34,7 @@ function getDeltas (dir: Direction): [number, number] {
 
 export default function TouchDpad ({ onMove, disabled = false }: TouchDpadProps): React.ReactElement {
   const [activeDir, setActiveDir] = useState<Direction>(null)
+  const [padSize, setPadSize] = useState(132)
   const padRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -53,6 +54,16 @@ export default function TouchDpad ({ onMove, disabled = false }: TouchDpadProps)
   useEffect(() => {
     return () => { clearTimers() }
   }, [clearTimers])
+
+  useEffect(() => {
+    const updatePadSize = (): void => {
+      const size = Math.max(112, Math.min(140, Math.floor(window.innerWidth * 0.32)))
+      setPadSize(size)
+    }
+    updatePadSize()
+    window.addEventListener('resize', updatePadSize)
+    return () => { window.removeEventListener('resize', updatePadSize) }
+  }, [])
 
   const fireDirection = useCallback((dir: Direction) => {
     if (dir === null || disabled) return
@@ -137,14 +148,17 @@ export default function TouchDpad ({ onMove, disabled = false }: TouchDpadProps)
   }
 
   return (
-    <div className="fixed bottom-[68px] left-3 z-50">
+    <div
+      className="fixed left-2 z-50 md:left-3"
+      style={{ bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
+    >
       <div
         ref={padRef}
         className={`relative select-none rounded-full
           bg-gray-900/90 backdrop-blur-sm border-2 border-gray-600/80
           shadow-lg shadow-black/50
           ${disabled ? 'opacity-50' : ''}`}
-        style={{ width: '144px', height: '144px', touchAction: 'none' }}
+        style={{ width: `${padSize}px`, height: `${padSize}px`, touchAction: 'none' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

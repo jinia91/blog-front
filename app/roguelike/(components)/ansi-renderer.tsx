@@ -31,20 +31,32 @@ function ansiToColor (code: number): string | null {
 function parseAnsi (line: string): AnsiSegment[] {
   const segments: AnsiSegment[] = []
   // eslint-disable-next-line no-control-regex
-  const regex = /\x1b\[(\d+)m/g
+  const regex = /\x1b\[([0-9;]*)m/g
   let lastIndex = 0
   let currentColor: string | null = null
   let match = regex.exec(line)
   while (match !== null) {
     if (match.index > lastIndex) {
-      segments.push({ text: line.slice(lastIndex, match.index), color: currentColor })
+      const text = line.slice(lastIndex, match.index)
+      // eslint-disable-next-line no-control-regex
+      const cleaned = text.replace(/[\u0000-\u001F\u007F]/g, '')
+      segments.push({ text: cleaned, color: currentColor })
     }
-    currentColor = ansiToColor(parseInt(match[1], 10))
+    const codes = match[1].split(';').map(code => parseInt(code, 10)).filter(code => !Number.isNaN(code))
+    for (const code of codes) {
+      const nextColor = ansiToColor(code)
+      if (nextColor !== null || code === 0) {
+        currentColor = nextColor
+      }
+    }
     lastIndex = regex.lastIndex
     match = regex.exec(line)
   }
   if (lastIndex < line.length) {
-    segments.push({ text: line.slice(lastIndex), color: currentColor })
+    const tail = line.slice(lastIndex)
+    // eslint-disable-next-line no-control-regex
+    const cleaned = tail.replace(/[\u0000-\u001F\u007F]/g, '')
+    segments.push({ text: cleaned, color: currentColor })
   }
   return segments
 }

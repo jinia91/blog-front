@@ -8,6 +8,7 @@ interface TouchInventoryProps {
   selectedIdx: number
   onSelectItem: (idx: number) => void
   onUseItem: (idx: number) => void
+  onDropItem: (idx: number) => void
   onClose: () => void
 }
 
@@ -16,6 +17,7 @@ export default function TouchInventory ({
   selectedIdx,
   onSelectItem,
   onUseItem,
+  onDropItem,
   onClose
 }: TouchInventoryProps): React.ReactElement {
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
@@ -48,7 +50,7 @@ export default function TouchInventory ({
   const renderItemText = (item: InvItem | null): string => {
     if (item === null) return '---'
     switch (item.kind) {
-      case 'weapon': return `${item.data.name} ATK+${item.data.atk}`
+      case 'weapon': return `${item.data.name} ATK+${item.data.atk} SPD${item.data.speed ?? (item.data.range !== undefined && item.data.range >= 4 ? 3 : 2)}`
       case 'armor': return `${item.data.name} DEF+${item.data.def}`
       case 'potion': return `${item.data.name} ${item.data.healType.toUpperCase()}+${item.data.value}`
     }
@@ -138,10 +140,18 @@ export default function TouchInventory ({
             const equipped = isEquipped(idx)
 
             return (
-              <button
+              <div
                 key={idx}
+                role="button"
+                tabIndex={isEmpty ? -1 : 0}
                 onClick={() => { if (!isEmpty) handleItemClick(idx) }}
-                disabled={isEmpty}
+                onKeyDown={(e) => {
+                  if (isEmpty) return
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleItemClick(idx)
+                  }
+                }}
                 className={`
                   w-full min-h-[48px] flex items-center gap-3 px-3 py-2 rounded transition-all
                   ${isEmpty ? 'bg-gray-800/50 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700 active:bg-gray-600'}
@@ -165,22 +175,34 @@ export default function TouchInventory ({
 
                 {/* Use/Unequip Button */}
                 {isSelected && !isEmpty && (
-                  <div className={`px-3 py-1 text-xs font-bold border rounded ${
-                    equipped
-                      ? 'text-orange-400 border-orange-400 hover:bg-orange-400/10'
-                      : 'text-cyan-400 border-cyan-400 hover:bg-cyan-400/10'
-                  }`}>
-                    {equipped ? '해제' : '사용'}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDropItem(idx)
+                      }}
+                      className="px-2 py-1 text-xs font-bold border rounded text-red-300 border-red-400 hover:bg-red-400/15"
+                    >
+                      버리기
+                    </button>
+                    <div className={`px-3 py-1 text-xs font-bold border rounded ${
+                      equipped
+                        ? 'text-orange-400 border-orange-400 hover:bg-orange-400/10'
+                        : 'text-cyan-400 border-cyan-400 hover:bg-cyan-400/10'
+                    }`}>
+                      {equipped ? '해제' : '사용'}
+                    </div>
                   </div>
                 )}
-              </button>
+              </div>
             )
           })}
         </div>
 
         {/* Footer */}
         <div className="px-4 py-3 border-t border-gray-700 text-center text-xs text-gray-400">
-          탭하여 선택, 다시 탭하여 사용
+          탭하여 선택, 다시 탭하여 사용, 선택 후 버리기 가능
         </div>
       </div>
     </div>

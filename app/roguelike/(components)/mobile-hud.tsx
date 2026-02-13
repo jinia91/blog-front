@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import type { Player } from '../(domain)/types'
 
 interface MobileHudProps {
@@ -12,6 +12,13 @@ interface MobileHudProps {
 }
 
 export default function MobileHud ({ player, floor, log, themeName, themeIcon }: MobileHudProps): React.ReactElement {
+  const sanitizeLog = useCallback((msg: string): string => {
+    // eslint-disable-next-line no-control-regex
+    const noAnsi = msg.replace(/\x1b\[[0-9;]*m/g, '')
+    // eslint-disable-next-line no-control-regex
+    return noAnsi.replace(/[\u0000-\u001F\u007F]/g, '')
+  }, [])
+
   const hpPercent = useMemo(() => {
     return (player.stats.hp / player.stats.maxHp) * 100
   }, [player.stats.hp, player.stats.maxHp])
@@ -24,8 +31,8 @@ export default function MobileHud ({ player, floor, log, themeName, themeIcon }:
 
   const recentLogs = useMemo(() => {
     const start = Math.max(0, log.length - 3)
-    return log.slice(start)
-  }, [log])
+    return log.slice(start).map(sanitizeLog)
+  }, [log, sanitizeLog])
 
   const weaponName = player.weapon !== null ? player.weapon.name : '---'
   const armorName = player.armor !== null ? player.armor.name : '---'
@@ -50,6 +57,7 @@ export default function MobileHud ({ player, floor, log, themeName, themeIcon }:
           <span className="text-cyan-400 shrink-0">Lv.{player.level}</span>
           <div className="w-px h-3 bg-gray-600 shrink-0" />
           <span className="shrink-0">{themeIcon}</span>
+          <span className="text-gray-400 truncate max-w-[64px]">{themeName}</span>
           <span className="text-yellow-400 shrink-0">B{floor}F</span>
         </div>
         {/* Row 2: Equipment + Gold */}
