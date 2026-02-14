@@ -10,6 +10,12 @@ interface TouchStatsProps {
   kills: number
   themeName: string
   themeIcon: string
+  relation: {
+    survivor: number
+    cultist: number
+    betrayal: number
+  }
+  activeRouteTag: string | null
   onClose: () => void
 }
 
@@ -20,6 +26,8 @@ export default function TouchStats ({
   kills,
   themeName,
   themeIcon,
+  relation,
+  activeRouteTag,
   onClose
 }: TouchStatsProps): React.ReactElement {
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
@@ -169,6 +177,29 @@ export default function TouchStats ({
                 <div className="text-sm text-yellow-400 font-bold">{player.gold}</div>
               </div>
             </div>
+
+            {/* Narrative relation */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-gray-800 rounded px-2 py-2 text-center">
+                <div className="text-xs text-gray-500">생존자</div>
+                <div className="text-sm text-green-400 font-bold">{relation.survivor}</div>
+              </div>
+              <div className="bg-gray-800 rounded px-2 py-2 text-center">
+                <div className="text-xs text-gray-500">광신도</div>
+                <div className="text-sm text-purple-400 font-bold">{relation.cultist}</div>
+              </div>
+              <div className="bg-gray-800 rounded px-2 py-2 text-center">
+                <div className="text-xs text-gray-500">배신</div>
+                <div className="text-sm text-red-400 font-bold">{relation.betrayal}</div>
+              </div>
+            </div>
+
+            {activeRouteTag !== null && (
+              <div className="bg-gray-800 rounded px-3 py-2">
+                <div className="text-xs text-gray-500">활성 연쇄</div>
+                <div className="text-sm text-cyan-300 font-bold break-all">{activeRouteTag}</div>
+              </div>
+            )}
           </div>
         </div>
 

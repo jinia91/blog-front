@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { type GameState, Tile } from '../(domain)/types'
 import { initFloor, movePlayer, descend, useItem, dropItem, rangedAttack, buyShopItem, resolveEvent, cancelEvent, renderGame } from '../(domain)/game-engine'
 import { getEventById } from '../(domain)/events'
+import { findLatestRouteTag } from '../(domain)/narrative'
 import { AnsiLine } from './ansi-renderer'
 import TouchDpad from './touch-dpad'
 import ActionButtons from './action-buttons'
@@ -15,6 +16,8 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const initialState = initFloor(1, null)
   const gameStateRef = useRef<GameState>(initialState)
   const [viewLines, setViewLines] = useState<string[]>(() => renderGame(gameStateRef.current))
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const narrativeAudioEnabled = process.env.NEXT_PUBLIC_NARRATIVE_AUDIO !== 'off'
 
   const onQuitRef = useRef(onQuit)
   useEffect(() => {
@@ -73,8 +76,34 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const [hasRangedWeapon, setHasRangedWeapon] = useState((initialState.player.weapon?.range ?? 1) > 1)
 
   // --- Shared action callbacks ---
+  const playNarrativeCue = useCallback((type: 'omen' | 'boss' | 'reaper'): void => {
+    if (!narrativeAudioEnabled || typeof window === 'undefined') return
+    const Ctx = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+    if (Ctx === undefined) return
+    if (audioCtxRef.current === null) {
+      audioCtxRef.current = new Ctx()
+    }
+    const ctx = audioCtxRef.current
+    const now = ctx.currentTime
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    const filter = ctx.createBiquadFilter()
+    filter.type = type === 'reaper' ? 'lowpass' : 'bandpass'
+    filter.frequency.value = type === 'omen' ? 180 : type === 'boss' ? 320 : 140
+    osc.type = type === 'boss' ? 'sawtooth' : 'triangle'
+    osc.frequency.value = type === 'omen' ? 72 : type === 'boss' ? 240 : 58
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(type === 'omen' ? 0.05 : 0.08, now + 0.05)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + (type === 'reaper' ? 0.9 : 0.45))
+    osc.connect(filter)
+    filter.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start(now)
+    osc.stop(now + (type === 'reaper' ? 0.95 : 0.5))
+  }, [narrativeAudioEnabled])
 
   const updateState = useCallback((newState: GameState): void => {
+    const prevState = gameStateRef.current
     gameStateRef.current = newState
     setViewLines(renderGame(newState, isMobileRef.current))
     setCanDescend(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Stairs)
@@ -83,7 +112,16 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setIsOnShopTile(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Shop)
     setIsEventActive(newState.activeEvent !== null)
     setHasRangedWeapon((newState.player.weapon?.range ?? 1) > 1)
-  }, [])
+    if (newState.narrative.omenStage > prevState.narrative.omenStage) {
+      playNarrativeCue('omen')
+    }
+    if (newState.grimReaperTriggered && !prevState.grimReaperTriggered) {
+      playNarrativeCue('reaper')
+    }
+    if (prevState.activeEvent?.eventId !== 'boss_phase_decision' && newState.activeEvent?.eventId === 'boss_phase_decision') {
+      playNarrativeCue('boss')
+    }
+  }, [playNarrativeCue])
 
   const handleMove = useCallback((dx: number, dy: number): void => {
     const current = gameStateRef.current
@@ -475,6 +513,15 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     return () => { window.removeEventListener('keydown', handleKeyDown) }
   }, [handleKeyDown])
 
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current !== null) {
+        void audioCtxRef.current.close()
+        audioCtxRef.current = null
+      }
+    }
+  }, [])
+
   return (
     <div className="flex flex-col items-center w-full relative">
       {/* ANSI Game View */}
@@ -543,6 +590,8 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           kills={gameStateRef.current.kills}
           themeName={gameStateRef.current.currentTheme.name}
           themeIcon={gameStateRef.current.currentTheme.icon}
+          relation={gameStateRef.current.narrative.relation}
+          activeRouteTag={findLatestRouteTag(gameStateRef.current.narrative)}
           onClose={handleStatsToggle}
         />
       )}

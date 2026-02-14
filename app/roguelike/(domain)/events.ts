@@ -1,11 +1,51 @@
 import {
-  type EventDef, type EventOutcome, type GameState, type InvItem,
+  type EventDef, type EventOutcome, type GameState, type InvItem, type ThemeRiskProfile,
   weaponForFloor, armorForFloor, potionForFloor
 } from './types'
 
 function skillCheck (playerStat: number, difficulty: number): boolean {
   return playerStat + Math.floor(Math.random() * 6) >= difficulty
 }
+
+const SYSTEM_EVENTS: EventDef[] = [
+  {
+    id: 'boss_phase_decision',
+    name: '결전의 갈림길',
+    category: 'choice',
+    description: [
+      '보스가 2페이즈로 전환하며 전장이 요동친다.',
+      '지금 단 하나의 선택만 허용된다.'
+    ],
+    choices: [
+      { label: '전술 후퇴', description: '위치를 재정비하고 생존을 우선한다' },
+      { label: '소모품 강화', description: '즉시 전투 지속력을 끌어올린다' },
+      { label: '위험 감수', description: '큰 힘을 얻고 더 큰 위협을 부른다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) {
+        return {
+          log: ['전열을 재정비했다. 숨을 고르며 틈을 찾는다.'],
+          hpChange: Math.floor(state.player.stats.maxHp * 0.2),
+          defChange: 1,
+          teleport: true
+        }
+      }
+      if (choiceIdx === 1) {
+        return {
+          log: ['응급 전투 키트를 전개했다.'],
+          giveItem: { kind: 'potion', data: potionForFloor(Math.max(1, state.floor + 1)) },
+          hpChange: Math.floor(state.player.stats.maxHp * 0.12),
+          strChange: 1
+        }
+      }
+      return {
+        log: ['심연의 힘을 받아들였다. 대가가 따를 것이다.'],
+        strChange: 3,
+        hpChange: -Math.floor(state.player.stats.maxHp * 0.15)
+      }
+    }
+  }
+]
 
 export const EVENT_REGISTRY: EventDef[] = [
   // ─── CHOICE EVENTS (6) ───────────────────────────────────────────
@@ -28,8 +68,8 @@ export const EVENT_REGISTRY: EventDef[] = [
       if (choiceIdx === 0) {
         if (Math.random() < 0.7) {
           const item: InvItem = Math.random() < 0.5
-            ? { kind: 'weapon', data: weaponForFloor(floor + 1) }
-            : { kind: 'armor', data: armorForFloor(floor + 1) }
+            ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+            : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
           return { log: ['상자에서 보물을 발견했다!'], giveItem: item }
         }
         return {
@@ -39,8 +79,8 @@ export const EVENT_REGISTRY: EventDef[] = [
       }
       if (choiceIdx === 1) {
         const item: InvItem = Math.random() < 0.5
-          ? { kind: 'weapon', data: weaponForFloor(floor) }
-          : { kind: 'armor', data: armorForFloor(floor) }
+          ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+          : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         return { log: ['안전하게 상자를 열었다.'], giveItem: item }
       }
       return { log: ['현명한 선택이다.'], goldChange: floor * 10 }
@@ -77,8 +117,8 @@ export const EVENT_REGISTRY: EventDef[] = [
           return { log: ['골드가 부족하다.'] }
         }
         const item: InvItem = Math.random() < 0.5
-          ? { kind: 'weapon', data: weaponForFloor(floor + 1) }
-          : { kind: 'armor', data: armorForFloor(floor + 1) }
+          ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+          : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         return { log: ['제단이 보물을 내려주었다!'], goldChange: -cost, giveItem: item }
       }
       if (Math.random() < 0.5) {
@@ -225,7 +265,7 @@ export const EVENT_REGISTRY: EventDef[] = [
       if (choiceIdx === 1) {
         return {
           log: ['쓸만한 물건을 찾았다.'],
-          giveItem: { kind: 'weapon', data: weaponForFloor(floor) }
+          giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
         }
       }
       return { log: ['서재를 불태웠다. 경험치를 얻었다.'], xpChange: floor * 15 }
@@ -297,7 +337,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.str, 4 + floor)) {
           return {
             log: ['독을 이겨내고 장비를 발견했다!'],
-            giveItem: { kind: 'armor', data: armorForFloor(floor) }
+            giveItem: { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
           }
         }
         return {
@@ -340,7 +380,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.str, 6 + floor)) {
           return {
             log: ['전력질주로 반대편에 도착! 보물을 발견했다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) },
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
             goldChange: floor * 10
           }
         }
@@ -388,7 +428,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.str, 8 + floor)) {
           return {
             log: ['문을 부수고 보물을 획득했다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) }
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
           }
         }
         return { log: ['마법 반격!'], hpChange: -(floor * 4) }
@@ -397,7 +437,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.def, 6 + floor)) {
           return {
             log: ['룬을 해독하여 문을 열었다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) },
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
             goldChange: floor * 15
           }
         }
@@ -430,8 +470,8 @@ export const EVENT_REGISTRY: EventDef[] = [
           return { log: ['골드가 부족하다.'] }
         }
         const item: InvItem = Math.random() < 0.5
-          ? { kind: 'weapon', data: weaponForFloor(floor + 2) }
-          : { kind: 'armor', data: armorForFloor(floor + 2) }
+          ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+          : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         return { log: ['상인에게서 물건을 구매했다!'], goldChange: -cost, giveItem: item }
       }
       if (choiceIdx === 1) {
@@ -506,7 +546,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         return {
           log: ['대장장이가 새 무기를 건네줬다!'],
           goldChange: -cost,
-          giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) }
+          giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
         }
       }
       if (choiceIdx === 1) {
@@ -517,7 +557,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         return {
           log: ['대장장이가 새 방어구를 건네줬다!'],
           goldChange: -cost,
-          giveItem: { kind: 'armor', data: armorForFloor(floor + 1) }
+          giveItem: { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         }
       }
       const cost = floor * 5
@@ -588,8 +628,8 @@ export const EVENT_REGISTRY: EventDef[] = [
           return { log: ['HP가 부족하다.'] }
         }
         const item: InvItem = Math.random() < 0.5
-          ? { kind: 'weapon', data: weaponForFloor(floor + 1) }
-          : { kind: 'armor', data: armorForFloor(floor + 1) }
+          ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+          : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         return {
           log: ['모험가가 감사의 보물을 건넸다.'],
           hpChange: -15,
@@ -600,7 +640,7 @@ export const EVENT_REGISTRY: EventDef[] = [
       if (choiceIdx === 1) {
         return {
           log: ['모험가의 눈에서 빛이 사라졌다...'],
-          giveItem: { kind: 'weapon', data: weaponForFloor(floor) },
+          giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
           xpChange: -(floor * 5)
         }
       }
@@ -631,7 +671,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (str > 10 + floor) {
           return {
             log: ['정답이다! 보물이 나타났다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) }
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
           }
         }
         return { log: ['틀렸다... 함정이 작동했다!'], hpChange: -(floor * 3) }
@@ -701,8 +741,8 @@ export const EVENT_REGISTRY: EventDef[] = [
       if (choiceIdx === 0) {
         if (Math.random() < 0.6) {
           const item: InvItem = Math.random() < 0.5
-            ? { kind: 'weapon', data: weaponForFloor(floor + 1) }
-            : { kind: 'armor', data: armorForFloor(floor + 1) }
+            ? { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
+            : { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
           return { log: ['거울 뒤에서 보물을 발견했다!'], giveItem: item }
         }
         return { log: ['거울 파편이 날아왔다!'], hpChange: -(floor * 3) }
@@ -736,7 +776,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (Math.random() < 0.6) {
           return {
             log: ['물자 속에서 무기를 발견했다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) }
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) }
           }
         }
         return { log: ['함정이었다! 폭발에 휘말렸다!'], hpChange: -(floor * 3) }
@@ -746,7 +786,7 @@ export const EVENT_REGISTRY: EventDef[] = [
           return {
             log: ['함정을 해제하고 은신처를 안전하게 수색했다!'],
             goldChange: floor * 15,
-            giveItem: { kind: 'armor', data: armorForFloor(floor) }
+            giveItem: { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
           }
         }
         return { log: ['조사 중 함정이 작동했다!'], hpChange: -(floor * 2) }
@@ -811,7 +851,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         return {
           log: ['생존자를 치료해줬다. 감사의 보답!'],
           hpChange: -10,
-          giveItem: { kind: 'weapon', data: weaponForFloor(floor + 1) },
+          giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
           goldChange: floor * 8
         }
       }
@@ -819,7 +859,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         return {
           log: ['물물교환 성공!'],
           goldChange: floor * 10,
-          giveItem: { kind: 'armor', data: armorForFloor(floor) }
+          giveItem: { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
         }
       }
       return { log: ['서로 경계하며 헤어졌다.'], xpChange: floor * 3 }
@@ -846,7 +886,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.def, 7 + floor)) {
           return {
             log: ['해킹 성공! 보안 금고가 열렸다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 2) },
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
             goldChange: floor * 20
           }
         }
@@ -1004,7 +1044,7 @@ export const EVENT_REGISTRY: EventDef[] = [
         if (skillCheck(state.player.stats.str, 7 + floor)) {
           return {
             log: ['저주를 이겨내고 파라오의 보물을 획득했다!'],
-            giveItem: { kind: 'weapon', data: weaponForFloor(floor + 2) },
+            giveItem: { kind: 'weapon', data: weaponForFloor(floor, state.currentTheme.id) },
             goldChange: floor * 20
           }
         }
@@ -1174,7 +1214,7 @@ export const EVENT_REGISTRY: EventDef[] = [
       return {
         log: ['수정 조각을 캤다.'],
         goldChange: floor * 12,
-        giveItem: { kind: 'armor', data: armorForFloor(floor) }
+        giveItem: { kind: 'armor', data: armorForFloor(floor, state.currentTheme.id) }
       }
     }
   },
@@ -1306,23 +1346,218 @@ export const EVENT_REGISTRY: EventDef[] = [
       }
       return { log: ['현명한 선택이다.'], xpChange: floor * 5 }
     }
+  },
+
+  {
+    id: 'set_sunk_prophecy_omen_archive',
+    name: '침잠한 예언 기록고',
+    category: 'puzzle',
+    minFloor: 4,
+    requiredNarrativeTags: ['set_sunk_prophecy'],
+    description: [
+      '젖은 석판에 르뤼에의 좌표가 새겨져 있다.',
+      '낙인의 공명이 기록고를 열었다.'
+    ],
+    choices: [
+      { label: '해독한다', description: '심연 좌표를 해독한다' },
+      { label: '봉인한다', description: '기록을 닫아 안전을 택한다' },
+      { label: '헌납한다', description: '피와 금으로 기록을 각인한다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['침잠 기록 해독 성공.'], xpChange: state.floor * 18, strChange: 1 }
+      if (choiceIdx === 1) return { log: ['기록고 봉인. 심박이 안정된다.'], defChange: 2, hpChange: 6 }
+      return { log: ['피의 헌납으로 금단 보상을 얻었다.'], hpChange: -8, goldChange: state.floor * 20 }
+    }
+  },
+  {
+    id: 'set_rot_covenant_spore_oath',
+    name: '부패 맹약 포자',
+    category: 'npc',
+    minFloor: 4,
+    requiredNarrativeTags: ['set_rot_covenant'],
+    description: [
+      '균사체 사제가 맹약 갱신을 요구한다.',
+      '낙인이 반응하며 포자가 빛난다.'
+    ],
+    choices: [
+      { label: '동맹 유지', description: '포자 동맹을 이어간다' },
+      { label: '약탈', description: '포자 물자를 강탈한다' },
+      { label: '정화', description: '맹약을 끊고 정화한다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['동맹이 강화됐다.'], hpChange: 8, defChange: 1 }
+      if (choiceIdx === 1) return { log: ['약탈 성공. 추격의 징조가 따른다.'], goldChange: state.floor * 18, strChange: 1 }
+      return { log: ['정화 성공.'], xpChange: state.floor * 14, fullHeal: true }
+    }
+  },
+  {
+    id: 'set_iron_protocol_firewall',
+    name: '철의 프로토콜 방화벽',
+    category: 'puzzle',
+    minFloor: 5,
+    requiredNarrativeTags: ['set_iron_protocol'],
+    description: [
+      '보안 코어가 당신의 낙인을 관리자 권한으로 인식했다.',
+      '프로토콜 재기동을 승인할지 선택하라.'
+    ],
+    choices: [
+      { label: '재기동', description: '공격 시스템을 해제한다' },
+      { label: '안정화', description: '방어 계층을 우선한다' },
+      { label: '오버클록', description: '리스크를 감수하고 과부하시킨다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['공격 모듈 재기동.'], strChange: 2, xpChange: state.floor * 10 }
+      if (choiceIdx === 1) return { log: ['방어 계층 안정화.'], defChange: 2, hpChange: 10 }
+      return { log: ['오버클록 성공, 반동 발생.'], strChange: 3, hpChange: -Math.floor(state.player.stats.maxHp * 0.18) }
+    }
+  },
+  {
+    id: 'set_frozen_time_crack',
+    name: '동결 시간 균열',
+    category: 'trap',
+    minFloor: 5,
+    requiredNarrativeTags: ['set_frozen_time'],
+    description: [
+      '초침이 멈춘 공간 균열이 앞을 가로막는다.',
+      '잘못 건드리면 시간이 되감긴다.'
+    ],
+    choices: [
+      { label: '정지장 통과', description: '시간 틈을 뚫고 통과한다' },
+      { label: '지연장 전개', description: '시간을 느리게 고정한다' },
+      { label: '파괴', description: '균열을 강제로 깨부순다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['정확히 통과했다.'], xpChange: state.floor * 15, strChange: 1 }
+      if (choiceIdx === 1) return { log: ['지연장 성공.'], defChange: 2, hpChange: 5 }
+      return { log: ['균열 파괴 반동.'], goldChange: state.floor * 16, hpChange: -10 }
+    }
+  },
+  {
+    id: 'set_furnace_oath_core',
+    name: '화로 맹세의 핵',
+    category: 'choice',
+    minFloor: 5,
+    requiredNarrativeTags: ['set_furnace_oath'],
+    description: [
+      '용광 핵이 당신의 낙인에 반응해 과열된다.',
+      '출력을 어디에 쓸지 정해야 한다.'
+    ],
+    choices: [
+      { label: '화력 강화', description: '공격력을 극대화한다' },
+      { label: '열갑주 형성', description: '방어막을 둘러쓴다' },
+      { label: '연료 회수', description: '핵 에너지를 환전한다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['화력 회로 점화.'], strChange: 3, hpChange: -6 }
+      if (choiceIdx === 1) return { log: ['열갑주 형성.'], defChange: 3, hpChange: 6 }
+      return { log: ['연료 회수 성공.'], goldChange: state.floor * 24, xpChange: state.floor * 8 }
+    }
+  },
+  {
+    id: 'set_abyssal_call_chorus',
+    name: '심연 합창',
+    category: 'npc',
+    minFloor: 6,
+    requiredNarrativeTags: ['set_abyssal_call'],
+    description: [
+      '심연의 합창단이 낙인을 확인하고 길을 연다.',
+      '헌신, 약탈, 침묵 중 하나를 선택하라.'
+    ],
+    choices: [
+      { label: '헌신', description: '의식을 돕고 축복을 받는다' },
+      { label: '약탈', description: '공물 상자를 빼앗는다' },
+      { label: '침묵', description: '개입하지 않고 지나간다' }
+    ],
+    resolve (choiceIdx: number, state: GameState): EventOutcome {
+      if (choiceIdx === 0) return { log: ['합창의 축복이 내려왔다.'], fullHeal: true, defChange: 1 }
+      if (choiceIdx === 1) return { log: ['공물을 강탈했다.'], goldChange: state.floor * 26, strChange: 2, hpChange: -12 }
+      return { log: ['침묵 속 통과.'], xpChange: state.floor * 12 }
+    }
   }
 ]
 
 export function getEventById (id: string): EventDef | undefined {
-  return EVENT_REGISTRY.find(e => e.id === id)
+  return EVENT_REGISTRY.find(e => e.id === id) ?? SYSTEM_EVENTS.find(e => e.id === id)
 }
 
-export function selectEventsForFloor (floor: number, themeId: string): EventDef[] {
+interface EventSelectionOptions {
+  count?: number
+  riskProfile?: ThemeRiskProfile
+  difficulty?: number
+  sequenceTags?: string[]
+  relation?: {
+    survivor: number
+    cultist: number
+    betrayal: number
+  }
+}
+
+function clamp (v: number, min: number, max: number): number {
+  if (v < min) return min
+  if (v > max) return max
+  return v
+}
+
+function eventCategoryWeight (
+  category: EventDef['category'],
+  riskProfile: ThemeRiskProfile,
+  difficulty: number,
+  relation?: EventSelectionOptions['relation']
+): number {
+  const danger = Math.max(0, difficulty - 2)
+  let weight = 1
+  if (riskProfile === 'safe') {
+    if (category === 'choice') weight = 1.35
+    else if (category === 'npc') weight = 1.2
+    else if (category === 'trap') weight = 0.7
+    else weight = 0.85
+  } else if (riskProfile === 'risky') {
+    if (category === 'trap') weight = 1.2 + danger * 0.08
+    else if (category === 'puzzle') weight = 1.05 + danger * 0.04
+    else if (category === 'npc') weight = 0.9
+    else weight = 0.95
+  } else if (riskProfile === 'deadly') {
+    if (category === 'trap') weight = 1.35 + danger * 0.1
+    else if (category === 'puzzle') weight = 1.15 + danger * 0.06
+    else if (category === 'npc') weight = 0.75
+    else weight = 0.8
+  } else {
+    weight = category === 'trap' ? (1 + danger * 0.05) : 1
+  }
+
+  if (relation === undefined) return weight
+  const supportScore = relation.survivor - relation.betrayal
+  const ambushScore = relation.cultist + relation.betrayal
+  if (category === 'npc') {
+    weight *= clamp(1 + supportScore * 0.14 - ambushScore * 0.06, 0.5, 2.2)
+  } else if (category === 'choice') {
+    weight *= clamp(1 + supportScore * 0.09 - relation.cultist * 0.03, 0.65, 1.8)
+  } else if (category === 'trap') {
+    weight *= clamp(1 + ambushScore * 0.11 - supportScore * 0.05, 0.55, 2.4)
+  } else if (category === 'puzzle') {
+    weight *= clamp(1 + relation.cultist * 0.08 + supportScore * 0.04, 0.65, 2.0)
+  }
+  return weight
+}
+
+export function selectEventsForFloor (floor: number, themeId: string, options: EventSelectionOptions = {}): EventDef[] {
+  const sequenceTags = options.sequenceTags ?? []
   const eligible = EVENT_REGISTRY.filter(e => {
     if (e.minFloor !== undefined && floor < e.minFloor) return false
+    if (e.requiredNarrativeTags !== undefined && e.requiredNarrativeTags.length > 0) {
+      const matched = e.requiredNarrativeTags.every(tag => sequenceTags.includes(tag))
+      if (!matched) return false
+    }
     return true
   })
 
-  const themeSpecific = eligible.filter(e =>
-    e.themeIds !== undefined && e.themeIds.includes(themeId)
-  )
-  const general = eligible.filter(e => e.themeIds === undefined)
+  const riskProfile = options.riskProfile ?? 'balanced'
+  const difficulty = options.difficulty ?? 2
+  const relation = options.relation
+  const desiredCount = Math.max(1, Math.min(3, options.count ?? 2))
+  const latestRouteTag = [...sequenceTags]
+    .reverse()
+    .find(tag => tag === 'sunk_prophecy' || tag === 'rot_covenant' || tag === 'iron_protocol' || tag === 'frozen_time' || tag === 'furnace_oath' || tag === 'abyssal_call') ?? null
 
   const shuffle = <T>(arr: T[]): T[] => {
     const copy = [...arr]
@@ -1335,19 +1570,60 @@ export function selectEventsForFloor (floor: number, themeId: string): EventDef[
     return copy
   }
 
+  const pool = shuffle(eligible)
   const result: EventDef[] = []
 
-  if (themeSpecific.length > 0) {
-    const shuffledTheme = shuffle(themeSpecific)
-    result.push(shuffledTheme[0])
-    if (general.length > 0) {
-      const shuffledGeneral = shuffle(general)
-      result.push(shuffledGeneral[0])
+  while (result.length < desiredCount && pool.length > 0) {
+    const weighted = pool.map(ev => {
+      let weight = eventCategoryWeight(ev.category, riskProfile, difficulty, relation)
+      if (latestRouteTag === 'sunk_prophecy') {
+        if (ev.category === 'puzzle') weight *= 1.18
+        if (ev.category === 'trap') weight *= 1.07
+      } else if (latestRouteTag === 'rot_covenant') {
+        if (ev.category === 'npc') weight *= 1.22
+      } else if (latestRouteTag === 'iron_protocol') {
+        if (ev.category === 'puzzle') weight *= 1.25
+      } else if (latestRouteTag === 'frozen_time') {
+        if (ev.category === 'trap') weight *= 1.16
+      } else if (latestRouteTag === 'furnace_oath') {
+        if (ev.category === 'choice') weight *= 1.12
+        if (ev.category === 'trap') weight *= 1.1
+      } else if (latestRouteTag === 'abyssal_call') {
+        if (ev.category === 'npc') weight *= 0.88
+        if (ev.category === 'trap') weight *= 1.2
+      }
+      if (ev.themeIds !== undefined) {
+        if (ev.themeIds.includes(themeId)) {
+          weight *= 1.35
+        } else {
+          weight *= 0.45
+        }
+      }
+      return { ev, weight: Math.max(0.01, weight) }
+    })
+    const total = weighted.reduce((sum, x) => sum + x.weight, 0)
+    if (total <= 0) break
+    let roll = Math.random() * total
+    let picked: EventDef | null = null
+    for (const entry of weighted) {
+      roll -= entry.weight
+      if (roll <= 0) {
+        picked = entry.ev
+        break
+      }
     }
-  } else {
-    const shuffledGeneral = shuffle(general)
-    result.push(...shuffledGeneral.slice(0, 2))
+    if (picked === null) break
+    const selected = picked
+    result.push(selected)
+    const idx = pool.findIndex(e => e.id === selected.id)
+    if (idx !== -1) {
+      pool.splice(idx, 1)
+    }
   }
 
   return shuffle(result)
+}
+
+export function getBossPhaseDecisionEvent (): EventDef {
+  return SYSTEM_EVENTS[0]
 }

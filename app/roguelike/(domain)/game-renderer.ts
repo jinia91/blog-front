@@ -15,6 +15,31 @@ import {
 } from './types'
 import { getEventById } from './events'
 import { C, rarityColor, sanitizeLogLine, padEndDisplay, displayWidth } from './game-text'
+import { findLatestRouteTag } from './narrative'
+
+const ROUTE_ENDING_TEXT: Record<string, string> = {
+  sunk_prophecy: '침잠한 예언이 완성됐다.',
+  rot_covenant: '부패한 계약이 봉인됐다.',
+  iron_protocol: '강철 프로토콜이 재기동했다.',
+  frozen_time: '얼어붙은 시간이 다시 흐른다.',
+  furnace_oath: '용광의 맹세가 마침내 식었다.',
+  abyssal_call: '심연의 부름이 잦아들었다.',
+  set_sunk_prophecy: '낙인 세트: 침잠의 예언 각성',
+  set_rot_covenant: '낙인 세트: 부패의 맹약 각성',
+  set_iron_protocol: '낙인 세트: 철의 프로토콜 각성',
+  set_frozen_time: '낙인 세트: 동결된 시간 각성',
+  set_furnace_oath: '낙인 세트: 화로의 맹세 각성',
+  set_abyssal_call: '낙인 세트: 심연의 호출 각성'
+}
+
+const ROUTE_ENDING_DETAIL: Record<string, string[]> = {
+  sunk_prophecy: ['파도의 기억이 폐허를 덮었다.', '당신의 이름은 심해 기록에 새겨진다.'],
+  rot_covenant: ['부패는 멈췄지만 냄새는 남는다.', '살아남은 자들이 조용히 횃불을 든다.'],
+  iron_protocol: ['강철 문서가 재서명되었다.', '기계의 심장은 다시 규율에 복종한다.'],
+  frozen_time: ['멈춘 초침이 마지막으로 진동했다.', '얼음 밑에 묻힌 시간이 천천히 흐른다.'],
+  furnace_oath: ['용광의 분노가 재로 눕는다.', '붉은 열기 위로 서늘한 숨이 올라온다.'],
+  abyssal_call: ['심연은 침묵하지 않았고, 잠시 물러섰다.', '다음 부름의 주파수를 당신이 기억한다.']
+}
 
 function colorTile (tile: Tile, visible: boolean, wallColor: string, floorColor: string): string {
   const ch = tileChar(tile)
@@ -26,6 +51,10 @@ function colorTile (tile: Tile, visible: boolean, wallColor: string, floorColor:
   if (tile === Tile.Door) return C.darkYellow + ch + C.reset
   if (tile === Tile.Stairs) return C.magenta + ch + C.reset
   if (tile === Tile.Shop) return C.yellow + 'S' + C.reset
+  if (tile === Tile.ShallowWater) return C.cyan + ch + C.reset
+  if (tile === Tile.Bramble) return C.darkGreen + ch + C.reset
+  if (tile === Tile.HealingMoss) return C.green + ch + C.reset
+  if (tile === Tile.ArcaneField) return C.magenta + ch + C.reset
   return ch
 }
 
@@ -252,6 +281,10 @@ function tileChar (tile: Tile): string {
   if (tile === Tile.Door) return '+'
   if (tile === Tile.Stairs) return '>'
   if (tile === Tile.Shop) return 'S'
+  if (tile === Tile.ShallowWater) return '~'
+  if (tile === Tile.Bramble) return 'x'
+  if (tile === Tile.HealingMoss) return '%'
+  if (tile === Tile.ArcaneField) return '*'
   return ' '
 }
 
@@ -342,9 +375,26 @@ function buildPanel (state: GameState): string[] {
   lines.push(padEndDisplay(` 층: ${state.floor}/${TOTAL_FLOORS}`, PANEL_WIDTH))
   lines.push(padEndDisplay(` ${state.currentTheme.icon} ${state.currentTheme.name}`, PANEL_WIDTH))
   lines.push(padEndDisplay(` 골드: ${C.yellow}${p.gold}${C.reset}`, PANEL_WIDTH))
-  lines.push(padEndDisplay(` XP:${p.xp}/${p.xpNext}`, PANEL_WIDTH))
-  lines.push(padEndDisplay(` 처치: ${state.kills}`, PANEL_WIDTH))
-  lines.push(padEndDisplay(` 턴:   ${state.turns}`, PANEL_WIDTH))
+  const markKinds = Object.keys(state.narrative.marks).length
+  const markTotal = Object.values(state.narrative.marks).reduce((sum, count) => sum + count, 0)
+  lines.push(padEndDisplay(` XP:${p.xp}/${p.xpNext} 낙:${markKinds}/${markTotal}`, PANEL_WIDTH))
+  lines.push(padEndDisplay(` 처치:${state.kills} 턴:${state.turns}`, PANEL_WIDTH))
+  lines.push(padEndDisplay(` 관:S${state.narrative.relation.survivor} C${state.narrative.relation.cultist} B${state.narrative.relation.betrayal}`, PANEL_WIDTH))
+  const omenStage = state.narrative.omenStage
+  const omenLabel = state.grimReaperTriggered
+    ? `${C.red}사신${C.reset}`
+    : omenStage >= 3
+      ? `${C.red}폭풍${C.reset}`
+      : omenStage >= 2
+        ? `${C.yellow}위기${C.reset}`
+        : omenStage >= 1
+          ? `${C.magenta}전조${C.reset}`
+          : `${C.green}안정${C.reset}`
+  lines.push(padEndDisplay(` 징조: ${omenLabel}`, PANEL_WIDTH))
+  const activeRoute = findLatestRouteTag(state.narrative)
+  if (activeRoute !== null) {
+    lines.push(padEndDisplay(` 연쇄:${activeRoute}`, PANEL_WIDTH))
+  }
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push(' '.repeat(PANEL_WIDTH))
@@ -386,6 +436,22 @@ function renderInventory (state: GameState): string[] {
     }
   }
 
+  lines.push('')
+  lines.push(`  ${C.magenta}낙인 패널${C.reset}`)
+  const sortedMarks = Object.entries(state.narrative.marks)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+  if (sortedMarks.length === 0) {
+    lines.push('  - 없음')
+  } else {
+    for (const [markId, count] of sortedMarks) {
+      lines.push(`  - ${markId}: ${count}`)
+    }
+  }
+  const activeSet = [...state.narrative.sequenceTags].reverse().find(tag => tag.startsWith('set_'))
+  if (activeSet !== undefined) {
+    lines.push(`  세트: ${C.yellow}${activeSet}${C.reset}`)
+  }
   lines.push('')
   lines.push('  방향키:선택 Enter:사용 X:버리기')
   lines.push('  I:닫기')
@@ -454,6 +520,15 @@ function renderGameOver (state: GameState): string[] {
   lines.push(`${pad}  층: ${state.floor}  레벨: ${state.player.level}`)
   lines.push(`${pad}  처치: ${state.kills}  턴: ${state.turns}`)
   lines.push(`${pad}  골드: ${C.yellow}${state.player.gold}${C.reset}`)
+  const endingTag = [...state.narrative.sequenceTags].reverse().find(tag => ROUTE_ENDING_TEXT[tag] !== undefined)
+  if (endingTag !== undefined) {
+    lines.push(`${pad}  ${ROUTE_ENDING_TEXT[endingTag]}`)
+    const details = ROUTE_ENDING_DETAIL[endingTag] ?? []
+    for (const detail of details.slice(0, 2)) {
+      lines.push(`${pad}  ${detail}`)
+    }
+    lines.push(`${pad}  코드: DEFEAT:${endingTag}:F${state.floor}`)
+  }
   lines.push('')
   lines.push(`${pad}  Q키로 나가기`)
 
@@ -474,6 +549,15 @@ function renderVictory (state: GameState): string[] {
   lines.push(`${pad}  층: ${state.floor}  레벨: ${state.player.level}`)
   lines.push(`${pad}  처치: ${state.kills}  턴: ${state.turns}`)
   lines.push(`${pad}  골드: ${C.yellow}${state.player.gold}${C.reset}`)
+  const endingTag = [...state.narrative.sequenceTags].reverse().find(tag => ROUTE_ENDING_TEXT[tag] !== undefined)
+  if (endingTag !== undefined) {
+    lines.push(`${pad}  ${ROUTE_ENDING_TEXT[endingTag]}`)
+    const details = ROUTE_ENDING_DETAIL[endingTag] ?? []
+    for (const detail of details.slice(0, 2)) {
+      lines.push(`${pad}  ${detail}`)
+    }
+    lines.push(`${pad}  코드: VICTORY:${endingTag}:F${state.floor}`)
+  }
   lines.push('')
   lines.push(`${pad}  Q키로 나가기`)
 

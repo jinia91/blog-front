@@ -7,6 +7,7 @@ import {
   Tile,
   MAP_WIDTH,
   MAP_HEIGHT,
+  MAX_HERO_LEVEL,
   xpForLevel,
   weaponForFloor,
   armorForFloor,
@@ -19,7 +20,7 @@ export function checkLevelUp (state: GameState): GameState {
   const newLog = [...state.log]
   let changed = false
 
-  while (p.xp >= p.xpNext) {
+  while (p.level < MAX_HERO_LEVEL && p.xp >= p.xpNext) {
     p.xp -= p.xpNext
     p.level += 1
     const hpGain = 4 + Math.floor(Math.random() * 4) + Math.floor(p.level / 8)
@@ -32,6 +33,12 @@ export function checkLevelUp (state: GameState): GameState {
     p.xpNext = xpForLevel(p.level)
     newLog.push(`레벨 업! Lv.${p.level} (HP+${hpGain} STR+${strGain} DEF+${defGain})`)
     changed = true
+  }
+
+  if (p.level >= MAX_HERO_LEVEL) {
+    p.level = MAX_HERO_LEVEL
+    p.xp = 0
+    p.xpNext = xpForLevel(MAX_HERO_LEVEL)
   }
 
   if (changed) {

@@ -1,7 +1,5 @@
 import {
   type ItemRarity,
-  type WeaponData,
-  type ArmorData,
   type FloorTheme,
   type ThemeObject
 } from './model'
@@ -38,39 +36,77 @@ export const RARITY_PRICE: Record<ItemRarity, number> = {
   legendary: 200
 }
 
-export const WEAPONS: WeaponData[][] = [
-  [{ name: '단검', atk: 4, speed: 1 }, { name: '촉수 채찍', atk: 3, range: 2, speed: 2 }, { name: '단궁', atk: 2, range: 4, speed: 3 }],
-  [{ name: '장검', atk: 6, speed: 2 }, { name: '공허의 단도', atk: 7, speed: 1 }, { name: '석궁', atk: 5, range: 4, speed: 3 }],
-  [{ name: '전투 도끼', atk: 9, speed: 3 }, { name: '엘더 사인 철퇴', atk: 8, speed: 2 }, { name: '엘더 룬활', atk: 7, range: 5, speed: 3 }],
-  [{ name: '화염검', atk: 12, speed: 2 }, { name: '크툴루 삼지창', atk: 13, range: 2, speed: 2 }, { name: '화염 투창', atk: 10, range: 3, speed: 3 }],
-  [{ name: '용살자', atk: 16, speed: 3 }, { name: '네크로노미콘 검', atk: 17, speed: 2 }, { name: '심연의 지팡이', atk: 14, range: 5, speed: 4 }]
-]
+const THEME_ITEM_REFS: Record<string, { uniqueWeaponIds: string[], uniqueArmorIds: string[] }> = {
+  cave: { uniqueWeaponIds: ['cave_stalagmite_club', 'cave_web_snare'], uniqueArmorIds: ['cave_stonehide_vest'] },
+  sewer: { uniqueWeaponIds: ['sewer_rust_pipe'], uniqueArmorIds: ['sewer_slime_shell', 'sewer_sewer_plate'] },
+  forest: { uniqueWeaponIds: ['forest_thorn_staff'], uniqueArmorIds: ['forest_bark_armor'] },
+  crypt: { uniqueWeaponIds: ['crypt_bone_blade', 'crypt_cursed_dagger'], uniqueArmorIds: ['crypt_skeleton_shield'] },
+  swamp: { uniqueWeaponIds: ['swamp_poison_sting'], uniqueArmorIds: ['swamp_toad_hide'] },
+  lava: { uniqueWeaponIds: ['lava_obsidian_axe'], uniqueArmorIds: ['lava_flame_scale_armor'] },
+  ice: { uniqueWeaponIds: ['ice_spear'], uniqueArmorIds: ['ice_frost_armor'] },
+  abyss: { uniqueWeaponIds: ['abyss_shadow_dagger'], uniqueArmorIds: ['abyss_dark_robe'] },
+  sunken_temple: { uniqueWeaponIds: ['sunken_coral_trident'], uniqueArmorIds: ['sunken_deep_scale'] },
+  eldritch_depths: { uniqueWeaponIds: ['eldritch_tentacle_whip_plus'], uniqueArmorIds: ['eldritch_outer_god_hide'] },
+  rlyeh: { uniqueWeaponIds: ['rlyeh_cthulhu_claw'], uniqueArmorIds: ['rlyeh_elder_sign_armor'] },
+  machine_factory: { uniqueWeaponIds: ['machine_steam_blade', 'machine_gear_shuriken'], uniqueArmorIds: ['machine_steel_overall'] },
+  fuel_mine: { uniqueWeaponIds: ['fuel_drill_spear', 'fuel_dynamite'], uniqueArmorIds: ['fuel_miner_helmet'] },
+  iron_fortress: { uniqueWeaponIds: ['iron_steam_hammer'], uniqueArmorIds: ['iron_mech_plate', 'iron_steam_shield'] },
+  wasteland: { uniqueWeaponIds: ['wasteland_radiation_club', 'wasteland_raider_gun'], uniqueArmorIds: ['wasteland_radiation_suit'] },
+  ruins: { uniqueWeaponIds: ['ruins_broken_glass_knife', 'ruins_pipe_sniper'], uniqueArmorIds: ['ruins_scrap_armor'] },
+  bunker: { uniqueWeaponIds: ['bunker_laser_pistol', 'bunker_electric_club'], uniqueArmorIds: ['bunker_bulletproof_vest'] },
+  cyber_server: { uniqueWeaponIds: ['cyber_electric_whip', 'cyber_virus_injector'], uniqueArmorIds: ['cyber_firewall_shield'] },
+  deep_sea: { uniqueWeaponIds: ['deepsea_pressure_cannon'], uniqueArmorIds: ['deepsea_diving_suit', 'deepsea_titanium_exoskeleton'] },
+  yokai_shrine: { uniqueWeaponIds: ['yokai_exorcism_blade', 'yokai_flame_fan'], uniqueArmorIds: ['yokai_oni_mask'] },
+  pharaoh_tomb: { uniqueWeaponIds: ['pharaoh_cobra_staff'], uniqueArmorIds: ['pharaoh_mask', 'pharaoh_mummy_wrap_armor'] },
+  casino_hell: { uniqueWeaponIds: ['casino_sharp_cards', 'casino_chip_bundle'], uniqueArmorIds: ['casino_lucky_tuxedo'] },
+  mutation_lab: { uniqueWeaponIds: ['mutation_mutant_tentacle', 'mutation_syringe_blade'], uniqueArmorIds: ['mutation_mutant_exoskeleton'] },
+  crystal_cavern: { uniqueWeaponIds: ['crystal_lance'], uniqueArmorIds: ['crystal_armor'] },
+  fungal_garden: { uniqueWeaponIds: ['fungal_spore_sprayer'], uniqueArmorIds: ['fungal_mycelium_armor'] },
+  clocktower: { uniqueWeaponIds: ['clockwork_spring_sword', 'clockwork_hourglass'], uniqueArmorIds: ['clocktower_clockwork_armor'] },
+  void_library: { uniqueWeaponIds: ['void_knowledge_staff'], uniqueArmorIds: ['void_grimoire_binding'] }
+}
 
-export const ARMORS: ArmorData[][] = [
-  [{ name: '가죽 갑옷', def: 2 }, { name: '광신도 로브', def: 1 }],
-  [{ name: '사슬 갑옷', def: 4 }, { name: '심해인 가죽', def: 3 }],
-  [{ name: '판금 갑옷', def: 6 }, { name: '별돌 갑옷', def: 7 }],
-  [{ name: '미스릴 갑옷', def: 9 }, { name: '엘더 판금', def: 10 }],
-  [{ name: '용린 갑옷', def: 12 }, { name: '크툴루 외골격', def: 13 }]
-]
+type FloorThemeBase = Omit<FloorTheme, 'difficulty' | 'riskProfile' | 'lootBias' | 'eventBias' | 'objectBias'>
 
-export const LEGENDARY_WEAPONS: WeaponData[] = [
-  { name: '영혼 포식자', atk: 25, rarity: 'legendary', speed: 2 },
-  { name: '별의 파편', atk: 22, rarity: 'legendary', range: 5, speed: 3 },
-  { name: '심연의 이빨', atk: 28, rarity: 'legendary', speed: 3 },
-  { name: '시간의 검', atk: 24, rarity: 'legendary', speed: 1 },
-  { name: '혼돈의 지팡이', atk: 26, rarity: 'legendary', range: 5, speed: 4 }
-]
+interface ThemeBalance {
+  difficulty: number
+  riskProfile: FloorTheme['riskProfile']
+  lootBias: number
+  eventBias: number
+  objectBias: number
+}
 
-export const LEGENDARY_ARMORS: ArmorData[] = [
-  { name: '시간의 갑옷', def: 20, rarity: 'legendary' },
-  { name: '별의 외피', def: 18, rarity: 'legendary' },
-  { name: '불멸의 로브', def: 22, rarity: 'legendary' },
-  { name: '심연의 껍질', def: 19, rarity: 'legendary' },
-  { name: '혼돈의 갑주', def: 21, rarity: 'legendary' }
-]
+const THEME_BALANCE: Record<string, ThemeBalance> = {
+  cave: { difficulty: 1.0, riskProfile: 'safe', lootBias: -0.04, eventBias: 0.05, objectBias: 0.06 },
+  sewer: { difficulty: 1.2, riskProfile: 'balanced', lootBias: -0.02, eventBias: 0.04, objectBias: 0.05 },
+  forest: { difficulty: 1.3, riskProfile: 'balanced', lootBias: -0.01, eventBias: 0.05, objectBias: 0.06 },
+  crypt: { difficulty: 1.5, riskProfile: 'balanced', lootBias: 0.00, eventBias: 0.03, objectBias: 0.04 },
+  swamp: { difficulty: 1.7, riskProfile: 'risky', lootBias: 0.01, eventBias: 0.02, objectBias: 0.03 },
+  lava: { difficulty: 2.2, riskProfile: 'risky', lootBias: 0.04, eventBias: 0.01, objectBias: 0.00 },
+  ice: { difficulty: 2.1, riskProfile: 'balanced', lootBias: 0.03, eventBias: 0.02, objectBias: 0.01 },
+  abyss: { difficulty: 2.6, riskProfile: 'risky', lootBias: 0.05, eventBias: 0.03, objectBias: -0.02 },
+  sunken_temple: { difficulty: 2.4, riskProfile: 'balanced', lootBias: 0.04, eventBias: 0.04, objectBias: 0.00 },
+  eldritch_depths: { difficulty: 3.0, riskProfile: 'deadly', lootBias: 0.08, eventBias: 0.06, objectBias: -0.05 },
+  rlyeh: { difficulty: 3.3, riskProfile: 'deadly', lootBias: 0.10, eventBias: 0.08, objectBias: -0.06 },
+  machine_factory: { difficulty: 2.0, riskProfile: 'balanced', lootBias: 0.02, eventBias: 0.03, objectBias: 0.04 },
+  fuel_mine: { difficulty: 2.3, riskProfile: 'risky', lootBias: 0.03, eventBias: 0.02, objectBias: 0.01 },
+  iron_fortress: { difficulty: 2.7, riskProfile: 'risky', lootBias: 0.05, eventBias: 0.01, objectBias: -0.02 },
+  wasteland: { difficulty: 2.8, riskProfile: 'risky', lootBias: 0.05, eventBias: 0.03, objectBias: -0.01 },
+  ruins: { difficulty: 2.5, riskProfile: 'balanced', lootBias: 0.03, eventBias: 0.05, objectBias: 0.02 },
+  bunker: { difficulty: 3.0, riskProfile: 'risky', lootBias: 0.06, eventBias: 0.04, objectBias: -0.03 },
+  cyber_server: { difficulty: 3.1, riskProfile: 'deadly', lootBias: 0.07, eventBias: 0.06, objectBias: -0.04 },
+  deep_sea: { difficulty: 3.2, riskProfile: 'risky', lootBias: 0.06, eventBias: 0.05, objectBias: -0.02 },
+  yokai_shrine: { difficulty: 2.9, riskProfile: 'balanced', lootBias: 0.05, eventBias: 0.07, objectBias: 0.03 },
+  pharaoh_tomb: { difficulty: 3.0, riskProfile: 'risky', lootBias: 0.06, eventBias: 0.05, objectBias: 0.01 },
+  casino_hell: { difficulty: 3.1, riskProfile: 'risky', lootBias: 0.08, eventBias: 0.10, objectBias: 0.00 },
+  mutation_lab: { difficulty: 3.4, riskProfile: 'deadly', lootBias: 0.09, eventBias: 0.08, objectBias: -0.05 },
+  crystal_cavern: { difficulty: 3.2, riskProfile: 'balanced', lootBias: 0.07, eventBias: 0.06, objectBias: 0.02 },
+  fungal_garden: { difficulty: 3.3, riskProfile: 'risky', lootBias: 0.08, eventBias: 0.07, objectBias: -0.01 },
+  clocktower: { difficulty: 3.5, riskProfile: 'deadly', lootBias: 0.10, eventBias: 0.09, objectBias: -0.04 },
+  void_library: { difficulty: 3.8, riskProfile: 'deadly', lootBias: 0.12, eventBias: 0.10, objectBias: -0.05 }
+}
 
-export const FLOOR_THEMES: FloorTheme[] = [
+const BASE_FLOOR_THEMES: FloorThemeBase[] = [
   {
     id: 'cave',
     name: '동굴',
@@ -87,8 +123,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '동굴거미', ch: 'x', stats: { hp: 8, maxHp: 8, str: 3, def: 1 }, xp: 5 }
     ],
     boss: { name: '동굴 트롤', ch: 'T', stats: { hp: 20, maxHp: 20, str: 5, def: 3 }, xp: 15 },
-    uniqueWeapons: [{ name: '석순 곤봉', atk: 3 }, { name: '거미줄 올가미', atk: 2, range: 3 }],
-    uniqueArmors: [{ name: '돌가죽 조끼', def: 2 }],
     themeObject: { name: '물웅덩이', ch: 'o', color: 'cyan', spawnChance: 0.4, effectType: 'heal30', logMessage: '물웅덩이에서 물을 마셨다. HP 회복!' },
     specialRoomDesc: '반짝이는 수정이 가득한 방이다.'
   },
@@ -108,8 +142,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '하수도 쥐', ch: 'r', stats: { hp: 7, maxHp: 7, str: 3, def: 1 }, xp: 4 }
     ],
     boss: { name: '하수도 왕', ch: 'K', stats: { hp: 22, maxHp: 22, str: 6, def: 2 }, xp: 18, range: 2 },
-    uniqueWeapons: [{ name: '녹슨 파이프', atk: 4 }],
-    uniqueArmors: [{ name: '슬라임 외피', def: 1 }, { name: '하수도 쇠갑옷', def: 3 }],
     themeObject: { name: '하수도 밸브', ch: 'V', color: 'darkGreen', spawnChance: 0.35, effectType: 'gamble', effectValue: 65, logMessage: '밸브를 돌렸다...' },
     specialRoomDesc: '거대한 정화 탱크가 있는 방이다.'
   },
@@ -129,8 +161,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '나무정령', ch: 't', stats: { hp: 12, maxHp: 12, str: 3, def: 3 }, xp: 6, range: 3 }
     ],
     boss: { name: '고대 나무정령', ch: 'E', stats: { hp: 25, maxHp: 25, str: 5, def: 5 }, xp: 20, range: 4 },
-    uniqueWeapons: [{ name: '가시나무 지팡이', atk: 5, range: 2 }],
-    uniqueArmors: [{ name: '나무 껍질 갑옷', def: 3 }],
     themeObject: { name: '거대 버섯', ch: 'Y', color: 'green', spawnChance: 0.4, effectType: 'gamble', effectValue: 70, logMessage: '거대 버섯을 먹었다...' },
     specialRoomDesc: '고대 나무의 뿌리가 방을 뒤덮고 있다.'
   },
@@ -150,8 +180,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '유령', ch: 'g', stats: { hp: 6, maxHp: 6, str: 5, def: 1 }, xp: 6, range: 4 }
     ],
     boss: { name: '리치', ch: 'L', stats: { hp: 18, maxHp: 18, str: 8, def: 3 }, xp: 22, range: 5 },
-    uniqueWeapons: [{ name: '뼈 검', atk: 5 }, { name: '저주받은 단도', atk: 6 }],
-    uniqueArmors: [{ name: '해골 방패', def: 4 }],
     themeObject: { name: '묘비', ch: '†', color: 'gray', spawnChance: 0.35, effectType: 'xp', effectValue: 20, logMessage: '묘비의 비문을 읽었다. 지식을 얻었다!' },
     specialRoomDesc: '봉인된 석관이 놓인 비밀의 방이다.'
   },
@@ -171,8 +199,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '나가', ch: 'N', stats: { hp: 10, maxHp: 10, str: 4, def: 2 }, xp: 6, range: 4 }
     ],
     boss: { name: '히드라', ch: 'H', stats: { hp: 28, maxHp: 28, str: 6, def: 4 }, xp: 24, range: 3 },
-    uniqueWeapons: [{ name: '독침', atk: 4, range: 3 }],
-    uniqueArmors: [{ name: '독두꺼비 가죽', def: 2 }],
     themeObject: { name: '독버섯 군락', ch: '%', color: 'darkGreen', spawnChance: 0.35, effectType: 'gamble', effectValue: 60, logMessage: '독버섯을 먹어보았다...' },
     specialRoomDesc: '거대한 늪지 연못이 고여 있는 방이다.'
   },
@@ -192,8 +218,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '용암 골렘', ch: 'G', stats: { hp: 14, maxHp: 14, str: 4, def: 4 }, xp: 7 }
     ],
     boss: { name: '화룡', ch: 'D', stats: { hp: 30, maxHp: 30, str: 7, def: 5 }, xp: 28, range: 5 },
-    uniqueWeapons: [{ name: '흑요석 도끼', atk: 8 }],
-    uniqueArmors: [{ name: '화염 비늘 갑옷', def: 5 }],
     themeObject: { name: '용암 결정', ch: '♦', color: 'red', spawnChance: 0.3, effectType: 'buffStr', effectValue: 2, logMessage: '용암 결정을 흡수했다! STR+2!' },
     specialRoomDesc: '용암 호수 한가운데 작은 섬이 있는 방이다.'
   },
@@ -213,8 +237,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '예티', ch: 'Y', stats: { hp: 13, maxHp: 13, str: 4, def: 4 }, xp: 7 }
     ],
     boss: { name: '서리 거인', ch: 'F', stats: { hp: 32, maxHp: 32, str: 7, def: 6 }, xp: 30, range: 3 },
-    uniqueWeapons: [{ name: '얼음 창', atk: 7, range: 2 }],
-    uniqueArmors: [{ name: '서리 갑옷', def: 6 }],
     themeObject: { name: '얼음 결정', ch: '◆', color: 'cyan', spawnChance: 0.3, effectType: 'buffDef', effectValue: 2, logMessage: '얼음 결정을 흡수했다! DEF+2!' },
     specialRoomDesc: '얼어붙은 호수 위에 세워진 방이다.'
   },
@@ -234,8 +256,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '그림자', ch: 'S', stats: { hp: 8, maxHp: 8, str: 6, def: 3 }, xp: 7, range: 2 }
     ],
     boss: { name: '심연의 군주', ch: 'A', stats: { hp: 35, maxHp: 35, str: 8, def: 6 }, xp: 35, range: 5 },
-    uniqueWeapons: [{ name: '그림자 단검', atk: 8 }],
-    uniqueArmors: [{ name: '어둠의 로브', def: 5 }],
     themeObject: { name: '차원 균열', ch: '⊕', color: 'magenta', spawnChance: 0.25, effectType: 'teleport', logMessage: '차원 균열에 빨려들어갔다!' },
     specialRoomDesc: '현실이 비틀려 공간이 뒤섞인 방이다.'
   },
@@ -255,8 +275,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '별의 자손', ch: '*', stats: { hp: 14, maxHp: 14, str: 4, def: 4 }, xp: 8, range: 5 }
     ],
     boss: { name: '다곤', ch: 'Q', stats: { hp: 36, maxHp: 36, str: 9, def: 5 }, xp: 32, range: 3 },
-    uniqueWeapons: [{ name: '산호 삼지창', atk: 7, range: 2 }],
-    uniqueArmors: [{ name: '심해인 비늘갑', def: 6 }],
     themeObject: { name: '고대 비문', ch: '≡', color: 'darkCyan', spawnChance: 0.3, effectType: 'xp', effectValue: 25, logMessage: '고대 비문을 해독했다! 경험치 획득!' },
     specialRoomDesc: '바닷물에 잠긴 고대 제단이 있는 방이다.'
   },
@@ -276,8 +294,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '밤의 마수', ch: 'n', stats: { hp: 10, maxHp: 10, str: 6, def: 3 }, xp: 8, range: 3 }
     ],
     boss: { name: '니알라토텝', ch: 'N', stats: { hp: 40, maxHp: 40, str: 10, def: 7 }, xp: 38, range: 5 },
-    uniqueWeapons: [{ name: '촉수 채찍+', atk: 9, range: 3 }],
-    uniqueArmors: [{ name: '외신의 가죽', def: 7 }],
     themeObject: { name: '별의 파편', ch: '☆', color: 'magenta', spawnChance: 0.25, effectType: 'gamble', effectValue: 50, logMessage: '별의 파편에 손을 댔다...' },
     specialRoomDesc: '비유클리드 기하학으로 뒤틀린 방이다.'
   },
@@ -297,8 +313,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '차원의 방랑자', ch: '&', stats: { hp: 11, maxHp: 11, str: 7, def: 3 }, xp: 8, range: 3 }
     ],
     boss: { name: '크툴루', ch: 'C', stats: { hp: 50, maxHp: 50, str: 12, def: 8 }, xp: 50, range: 3 },
-    uniqueWeapons: [{ name: '크툴루의 발톱', atk: 10 }],
-    uniqueArmors: [{ name: '엘더 사인 갑주', def: 8 }],
     themeObject: { name: '차원문', ch: '門', color: 'darkGreen', spawnChance: 0.2, effectType: 'gamble', effectValue: 50, logMessage: '차원문이 열렸다...' },
     specialRoomDesc: '크툴루의 꿈이 서린 봉인의 방이다.'
   },
@@ -318,8 +332,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '기름 슬라임', ch: 's', stats: { hp: 12, maxHp: 12, str: 3, def: 3 }, xp: 6 }
     ],
     boss: { name: '공장장 오토', ch: 'O', stats: { hp: 28, maxHp: 28, str: 7, def: 5 }, xp: 26, range: 2 },
-    uniqueWeapons: [{ name: '증기 톱날', atk: 6 }, { name: '톱니 수리검', atk: 4, range: 4 }],
-    uniqueArmors: [{ name: '강철 작업복', def: 4 }],
     themeObject: { name: '고장난 자판기', ch: '■', color: 'darkYellow', spawnChance: 0.35, effectType: 'randomItem', logMessage: '자판기를 두드렸더니 무언가 나왔다!' },
     specialRoomDesc: '거대한 증기 엔진이 가동 중인 방이다.'
   },
@@ -339,8 +351,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '디젤 박쥐', ch: 'v', stats: { hp: 6, maxHp: 6, str: 7, def: 0 }, xp: 5, range: 3 }
     ],
     boss: { name: '시추왕 크랭크', ch: 'K', stats: { hp: 32, maxHp: 32, str: 8, def: 4 }, xp: 30, range: 3 },
-    uniqueWeapons: [{ name: '드릴 창', atk: 7, range: 2 }, { name: '다이너마이트', atk: 9, range: 4 }],
-    uniqueArmors: [{ name: '광부 헬멧', def: 3 }],
     themeObject: { name: '연료 통', ch: '⊙', color: 'darkRed', spawnChance: 0.3, effectType: 'gamble', effectValue: 55, logMessage: '연료 통을 열었다...' },
     specialRoomDesc: '검은 연료가 웅덩이처럼 고인 방이다.'
   },
@@ -360,8 +370,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '화염방사병', ch: 'F', stats: { hp: 9, maxHp: 9, str: 8, def: 1 }, xp: 7, range: 4 }
     ],
     boss: { name: '철의 장군 아이언클래드', ch: 'I', stats: { hp: 42, maxHp: 42, str: 10, def: 8 }, xp: 40, range: 2 },
-    uniqueWeapons: [{ name: '증기 해머', atk: 9 }],
-    uniqueArmors: [{ name: '기계 판금갑', def: 7 }, { name: '증기 실드', def: 6 }],
     themeObject: { name: '무기 선반', ch: '⌐', color: 'gray', spawnChance: 0.3, effectType: 'randomItem', logMessage: '무기 선반에서 장비를 발견했다!' },
     specialRoomDesc: '무기와 갑옷이 진열된 무기고 방이다.'
   },
@@ -381,8 +389,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '돌연변이 개', ch: 'd', stats: { hp: 11, maxHp: 11, str: 4, def: 3 }, xp: 6 }
     ],
     boss: { name: '황무지 군벌', ch: 'W', stats: { hp: 30, maxHp: 30, str: 8, def: 5 }, xp: 28, range: 4 },
-    uniqueWeapons: [{ name: '방사능 곤봉', atk: 6 }, { name: '약탈자의 총', atk: 5, range: 5 }],
-    uniqueArmors: [{ name: '방사능 방호복', def: 4 }],
     themeObject: { name: '방사능 웅덩이', ch: '☢', color: 'green', spawnChance: 0.3, effectType: 'gamble', effectValue: 50, logMessage: '방사능 웅덩이에 손을 담갔다...' },
     specialRoomDesc: '방사능 폐기물이 쌓인 위험한 방이다.'
   },
@@ -402,8 +408,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '폐허 거미', ch: 'x', stats: { hp: 7, maxHp: 7, str: 7, def: 1 }, xp: 5, range: 2 }
     ],
     boss: { name: '감염된 거수', ch: 'G', stats: { hp: 35, maxHp: 35, str: 9, def: 6 }, xp: 32, range: 3 },
-    uniqueWeapons: [{ name: '깨진 유리칼', atk: 5 }, { name: '쇠파이프 저격총', atk: 7, range: 5 }],
-    uniqueArmors: [{ name: '폐허 찌끄레기 갑옷', def: 3 }],
     themeObject: { name: '자동판매기 잔해', ch: '▣', color: 'darkYellow', spawnChance: 0.35, effectType: 'randomItem', logMessage: '잔해를 뒤져 물건을 찾았다!' },
     specialRoomDesc: '무너진 건물 안에 생존자의 흔적이 있는 방이다.'
   },
@@ -423,8 +427,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '전기 해파리', ch: 'j', stats: { hp: 8, maxHp: 8, str: 8, def: 1 }, xp: 7, range: 4 }
     ],
     boss: { name: '벙커 핵심 AI', ch: 'A', stats: { hp: 44, maxHp: 44, str: 11, def: 7 }, xp: 42, range: 5 },
-    uniqueWeapons: [{ name: '레이저 권총', atk: 7, range: 5 }, { name: '전기 곤봉', atk: 6 }],
-    uniqueArmors: [{ name: '방탄 조끼', def: 5 }],
     themeObject: { name: '비상 보급함', ch: '⊞', color: 'darkCyan', spawnChance: 0.3, effectType: 'heal50', logMessage: '비상 보급함을 열었다! 의료 키트 발견!' },
     specialRoomDesc: '비상 물자가 쌓인 보급 창고 방이다.'
   },
@@ -444,8 +446,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '글리치 웜', ch: 'w', stats: { hp: 9, maxHp: 9, str: 4, def: 2 }, xp: 5 }
     ],
     boss: { name: '코어 AI', ch: 'Ω', stats: { hp: 34, maxHp: 34, str: 8, def: 6 }, xp: 30, range: 5 },
-    uniqueWeapons: [{ name: '전자 채찍', atk: 6, range: 3 }, { name: '바이러스 주사기', atk: 5 }],
-    uniqueArmors: [{ name: '방화벽 실드', def: 5 }],
     themeObject: { name: '데이터 터미널', ch: '▦', color: 'cyan', spawnChance: 0.35, effectType: 'xp', effectValue: 20, logMessage: '데이터를 다운로드했다! 경험치 획득!' },
     specialRoomDesc: '거대한 서버 랙이 빛나는 코어 방이다.'
   },
@@ -465,8 +465,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '변이 문어', ch: 'q', stats: { hp: 12, maxHp: 12, str: 4, def: 3 }, xp: 6 }
     ],
     boss: { name: '심해왕 크라켄', ch: 'K', stats: { hp: 36, maxHp: 36, str: 9, def: 5 }, xp: 32 },
-    uniqueWeapons: [{ name: '수압 캐논', atk: 8, range: 4 }],
-    uniqueArmors: [{ name: '잠수 슈트', def: 4 }, { name: '티타늄 외골격', def: 6 }],
     themeObject: { name: '산소 탱크', ch: 'O', color: 'blue', spawnChance: 0.35, effectType: 'heal50', logMessage: '산소 탱크로 숨을 돌렸다! HP 회복!' },
     specialRoomDesc: '거대한 관측창 너머로 심해가 보이는 방이다.'
   },
@@ -486,8 +484,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '히토다마', ch: 'h', stats: { hp: 5, maxHp: 5, str: 7, def: 0 }, xp: 5, range: 4 }
     ],
     boss: { name: '구미호', ch: '9', stats: { hp: 38, maxHp: 38, str: 9, def: 5 }, xp: 34, range: 3 },
-    uniqueWeapons: [{ name: '퇴마의 부적검', atk: 7 }, { name: '불꽃 부채', atk: 5, range: 3 }],
-    uniqueArmors: [{ name: '오니 가면', def: 4 }],
     themeObject: { name: '소원 나무', ch: '♣', color: 'red', spawnChance: 0.35, effectType: 'gamble', effectValue: 65, logMessage: '소원 나무에 소원을 빌었다...' },
     specialRoomDesc: '거대한 토리이 문이 서있는 신성한 방이다.'
   },
@@ -507,8 +503,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '아누비스 병사', ch: 'A', stats: { hp: 10, maxHp: 10, str: 5, def: 3 }, xp: 7, range: 3 }
     ],
     boss: { name: '불멸의 파라오', ch: 'P', stats: { hp: 40, maxHp: 40, str: 10, def: 7 }, xp: 36, range: 4 },
-    uniqueWeapons: [{ name: '황금 코브라 지팡이', atk: 8, range: 2 }],
-    uniqueArmors: [{ name: '파라오의 가면', def: 5 }, { name: '미라 붕대 갑옷', def: 4 }],
     themeObject: { name: '카노푸스 항아리', ch: '⊔', color: 'yellow', spawnChance: 0.3, effectType: 'gamble', effectValue: 60, logMessage: '항아리를 열었다...' },
     specialRoomDesc: '황금빛 상형문자로 뒤덮인 보물실이다.'
   },
@@ -528,8 +522,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '주사위 마귀', ch: 'd', stats: { hp: 7, maxHp: 7, str: 7, def: 0 }, xp: 5 }
     ],
     boss: { name: '잭팟 악마', ch: 'J', stats: { hp: 32, maxHp: 32, str: 8, def: 5 }, xp: 30 },
-    uniqueWeapons: [{ name: '날카로운 카드', atk: 5, range: 4 }, { name: '칩 뭉치', atk: 4 }],
-    uniqueArmors: [{ name: '행운의 턱시도', def: 3 }],
     themeObject: { name: '슬롯머신', ch: '♠', color: 'yellow', spawnChance: 0.4, effectType: 'gamble', effectValue: 50, logMessage: '슬롯머신을 돌렸다...' },
     specialRoomDesc: '거대한 룰렛이 도는 VIP 방이다.'
   },
@@ -549,8 +541,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '유전자 슬라임', ch: 'G', stats: { hp: 13, maxHp: 13, str: 3, def: 4 }, xp: 6 }
     ],
     boss: { name: '프로토타입 오메가', ch: 'Φ', stats: { hp: 38, maxHp: 38, str: 9, def: 6 }, xp: 34, range: 4 },
-    uniqueWeapons: [{ name: '변이 촉수', atk: 7, range: 3 }, { name: '주사기 블레이드', atk: 6 }],
-    uniqueArmors: [{ name: '변이 외골격', def: 5 }],
     themeObject: { name: '배양 캡슐', ch: '⊕', color: 'green', spawnChance: 0.3, effectType: 'gamble', effectValue: 55, logMessage: '배양 캡슐을 열었다...' },
     specialRoomDesc: '깨진 배양 캡슐이 줄지어 있는 실험실이다.'
   },
@@ -570,8 +560,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '프리즘 정령', ch: 'p', stats: { hp: 9, maxHp: 9, str: 5, def: 3 }, xp: 6, range: 4 }
     ],
     boss: { name: '수정왕', ch: '◇', stats: { hp: 35, maxHp: 35, str: 8, def: 7 }, xp: 32 },
-    uniqueWeapons: [{ name: '수정 창', atk: 8, range: 2 }],
-    uniqueArmors: [{ name: '수정 갑옷', def: 6 }],
     themeObject: { name: '공명 수정', ch: '◇', color: 'magenta', spawnChance: 0.35, effectType: 'buffMaxHp', effectValue: 8, logMessage: '공명 수정이 몸에 스며들었다! MaxHP+8!' },
     specialRoomDesc: '거대한 수정 기둥이 무지개빛을 발하는 방이다.'
   },
@@ -591,8 +579,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '맹독 버섯', ch: 'M', stats: { hp: 7, maxHp: 7, str: 7, def: 1 }, xp: 5, range: 3 }
     ],
     boss: { name: '균류 여왕', ch: 'Q', stats: { hp: 30, maxHp: 30, str: 7, def: 5 }, xp: 28, range: 4 },
-    uniqueWeapons: [{ name: '포자 분사기', atk: 5, range: 4 }],
-    uniqueArmors: [{ name: '균사체 갑옷', def: 4 }],
     themeObject: { name: '거대 포자낭', ch: '◎', color: 'darkMagenta', spawnChance: 0.35, effectType: 'gamble', effectValue: 60, logMessage: '포자낭이 터졌다...' },
     specialRoomDesc: '형광 버섯이 천장까지 자란 거대 동굴이다.'
   },
@@ -612,8 +598,6 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '톱니 자동인형', ch: 'R', stats: { hp: 13, maxHp: 13, str: 5, def: 4 }, xp: 7 }
     ],
     boss: { name: '시간의 수호자', ch: '∞', stats: { hp: 36, maxHp: 36, str: 9, def: 6 }, xp: 34 },
-    uniqueWeapons: [{ name: '시계 태엽검', atk: 7 }, { name: '시간의 모래시계', atk: 6, range: 3 }],
-    uniqueArmors: [{ name: '태엽 갑옷', def: 5 }],
     themeObject: { name: '정지된 시계', ch: '⊗', color: 'darkYellow', spawnChance: 0.3, effectType: 'fullHeal', logMessage: '시계를 되돌렸다... 시간이 역행한다! HP 전체 회복!' },
     specialRoomDesc: '거대한 시계 메커니즘이 천천히 도는 방이다.'
   },
@@ -633,12 +617,22 @@ export const FLOOR_THEMES: FloorTheme[] = [
       { name: '활자 괴물', ch: 'L', stats: { hp: 11, maxHp: 11, str: 4, def: 4 }, xp: 7 }
     ],
     boss: { name: '금서의 수호자', ch: '∑', stats: { hp: 34, maxHp: 34, str: 8, def: 6 }, xp: 32, range: 5 },
-    uniqueWeapons: [{ name: '지식의 지팡이', atk: 8, range: 4 }],
-    uniqueArmors: [{ name: '마도서 장정', def: 5 }],
     themeObject: { name: '금서', ch: '⊡', color: 'white', spawnChance: 0.3, effectType: 'gamble', effectValue: 55, logMessage: '금서를 펼쳤다...' },
     specialRoomDesc: '끝없는 서가가 허공으로 뻗어있는 금서의 방이다.'
   }
 ]
+
+export const FLOOR_THEMES: FloorTheme[] = BASE_FLOOR_THEMES.map(theme => ({
+  ...theme,
+  ...(THEME_ITEM_REFS[theme.id] ?? {}),
+  ...(THEME_BALANCE[theme.id] ?? {
+    difficulty: 2.0,
+    riskProfile: 'balanced',
+    lootBias: 0,
+    eventBias: 0,
+    objectBias: 0
+  })
+}))
 
 const THEME_OBJECT_VARIANTS: Record<string, ThemeObject[]> = {
   cave: [{ name: '종유석', ch: '⌃', color: 'gray', spawnChance: 0.24, effectType: 'buffDef', effectValue: 1, logMessage: '단단한 종유석 파편을 주워 방어가 강화됐다.' }],
@@ -670,10 +664,106 @@ const THEME_OBJECT_VARIANTS: Record<string, ThemeObject[]> = {
   void_library: [{ name: '주석 사본', ch: 'p', color: 'white', spawnChance: 0.2, effectType: 'xp', effectValue: 22, logMessage: '사본의 주석에서 전술 지식을 얻었다.' }]
 }
 
+interface RetentionObjectDef {
+  id: string
+  name: string
+  ch: string
+  color: string
+  effectType: ThemeObject['effectType']
+  logMessage: string
+}
+
+export interface RetentionObjectBalance {
+  spawnChance: number
+  minFloor: number
+  exclusiveGroup?: string
+}
+
+const RETENTION_OBJECT_DEFS: RetentionObjectDef[] = [
+  { id: 'g_blood_altar', name: '피의 제단', ch: 'B', color: 'red', effectType: 'bloodAltar', logMessage: '피의 계약이 시작된다...' },
+  { id: 'g_echo_well', name: '메아리 우물', ch: 'W', color: 'cyan', effectType: 'echoWell', logMessage: '우물에서 지난 기억의 파문이 되돌아온다.' },
+  { id: 'g_broken_clock', name: '부서진 시계', ch: 't', color: 'darkYellow', effectType: 'brokenClock', logMessage: '시간의 톱니가 삐걱거리며 멈춘다.' },
+  { id: 'g_mirror_gate', name: '거울 문', ch: 'M', color: 'magenta', effectType: 'mirrorGate', logMessage: '거울 속에서 또 다른 네가 다가온다.' },
+  { id: 'g_cursed_vending', name: '저주 자판기', ch: 'V', color: 'darkMagenta', effectType: 'cursedVending', logMessage: '자판기가 불길한 소리를 내며 작동한다.' },
+  { id: 'g_pocket_rift', name: '균열 게이트', ch: 'R', color: 'darkCyan', effectType: 'pocketRift', logMessage: '공간이 찢기며 작은 포켓룸이 열린다.' },
+  { id: 'g_bounty_board', name: '현상금 게시판', ch: 'Q', color: 'yellow', effectType: 'bountyBoard', logMessage: '현상금 표식이 적들을 향해 번쩍인다.' },
+  { id: 'g_pact_statue', name: '계약 석상', ch: 'P', color: 'white', effectType: 'pactStatue', logMessage: '석상이 속삭인다. 대가를 치르면 힘을 주겠노라.' },
+  { id: 'g_memory_obelisk', name: '기억 오벨리스크', ch: 'O', color: 'blue', effectType: 'memoryObelisk', logMessage: '오벨리스크가 오래된 전투 기억을 주입한다.' },
+  { id: 'g_mutation_capsule', name: '변이 캡슐', ch: 'X', color: 'green', effectType: 'mutationCapsule', logMessage: '캡슐 속 변이체 유전자가 흐른다.' },
+  { id: 'g_climate_totem', name: '기후 토템', ch: 'C', color: 'cyan', effectType: 'climateTotem', logMessage: '토템이 층의 환경을 뒤틀기 시작한다.' },
+  { id: 'g_trap_workbench', name: '함정 작업대', ch: 'H', color: 'darkYellow', effectType: 'trapWorkbench', logMessage: '작업대 위 부품들이 덜컥거리며 결합된다.' },
+  { id: 'g_resonance_pillar', name: '공명 기둥', ch: '=', color: 'magenta', effectType: 'resonancePillar', logMessage: '기둥의 진동이 주변 오브젝트를 공명시킨다.' },
+  { id: 'g_noise_beacon', name: '소음 비콘', ch: 'N', color: 'yellow', effectType: 'noiseBeacon', logMessage: '비콘이 울리자 괴물들이 이를 갈며 몰려든다.' },
+  { id: 'g_campfire', name: '야영 모닥불', ch: 'F', color: 'red', effectType: 'campfire', logMessage: '짧은 휴식의 온기가 몸을 감싼다.' },
+  { id: 'g_rune_forge', name: '룬 대장간', ch: 'U', color: 'darkCyan', effectType: 'runeForge', logMessage: '대장간의 룬이 장비를 재구성한다.' },
+  { id: 'g_entropy_chest', name: '엔트로피 상자', ch: 'E', color: 'darkMagenta', effectType: 'entropyChest', logMessage: '상자를 여는 순간 운명이 요동친다.' },
+  { id: 'g_debt_broker', name: '빚의 상인', ch: 'D', color: 'darkGreen', effectType: 'debtBroker', logMessage: '상인이 미소짓는다. 지금은 공짜지만...' },
+  { id: 'g_ghost_shop', name: '유령 상점', ch: 'S', color: 'white', effectType: 'ghostShop', logMessage: '안개 속 장터에서 잔상 아이템이 떠오른다.' },
+  { id: 'g_chrono_bank', name: '시간 저금통', ch: 'K', color: 'darkYellow', effectType: 'chronoBank', logMessage: '저금통이 시간을 축적해 전투 리듬을 바꾼다.' },
+  { id: 'g_overheat_reactor', name: '과열 반응로', ch: '*', color: 'darkRed', effectType: 'overheatReactor', logMessage: '반응로가 과열되며 원거리 장비를 달군다.' },
+  { id: 'g_companion_egg', name: '동행 알', ch: '@', color: 'green', effectType: 'companionEgg', logMessage: '알이 깨지며 작은 동행의 기운이 스민다.' },
+  { id: 'g_reputation_idol', name: '평판 우상', ch: 'I', color: 'blue', effectType: 'reputationIdol', logMessage: '우상이 당신의 행적을 기록한다.' },
+  { id: 'g_foresight_cocoon', name: '예지 고치', ch: 'Y', color: 'cyan', effectType: 'foresightCocoon', logMessage: '고치가 터지며 지형의 미래가 보인다.' },
+  { id: 'g_parasite_pool', name: '기생 연못', ch: ':', color: 'darkGreen', effectType: 'parasitePool', logMessage: '연못 속 기생체가 장비와 몸에 들러붙는다.' },
+  { id: 'g_greed_beacon', name: '탐욕 등대', ch: '$', color: 'yellow', effectType: 'greedBeacon', logMessage: '등대 불빛이 금은보화를 향한 욕망을 키운다.' },
+  { id: 'g_guardian_statue', name: '수호 석상', ch: 'G', color: 'gray', effectType: 'guardianStatue', logMessage: '석상에 손을 대자 수호 인장이 새겨진다.' },
+  { id: 'g_chaos_prism', name: '혼돈 프리즘', ch: 'Z', color: 'magenta', effectType: 'chaosPrism', logMessage: '프리즘이 능력치를 뒤섞는다.' },
+  { id: 'g_codex_tablet', name: '고문서 석판', ch: 'L', color: 'white', effectType: 'codexTablet', logMessage: '석판 해독이 완료되며 비밀 지식이 열린다.' },
+  { id: 'g_omen_gate', name: '종말 징조문', ch: '!', color: 'red', effectType: 'omenGate', logMessage: '문이 열리고 보스의 징조가 몸에 각인된다.' }
+]
+
+const RETENTION_OBJECT_BALANCE: Record<string, RetentionObjectBalance> = {
+  g_blood_altar: { spawnChance: 0.05, minFloor: 1, exclusiveGroup: 'sacrifice' },
+  g_echo_well: { spawnChance: 0.045, minFloor: 1, exclusiveGroup: 'memory' },
+  g_broken_clock: { spawnChance: 0.03, minFloor: 2, exclusiveGroup: 'time' },
+  g_mirror_gate: { spawnChance: 0.03, minFloor: 2, exclusiveGroup: 'rift' },
+  g_cursed_vending: { spawnChance: 0.04, minFloor: 1, exclusiveGroup: 'economy' },
+  g_pocket_rift: { spawnChance: 0.028, minFloor: 3, exclusiveGroup: 'rift' },
+  g_bounty_board: { spawnChance: 0.03, minFloor: 2, exclusiveGroup: 'contract' },
+  g_pact_statue: { spawnChance: 0.028, minFloor: 3, exclusiveGroup: 'sacrifice' },
+  g_memory_obelisk: { spawnChance: 0.032, minFloor: 2, exclusiveGroup: 'memory' },
+  g_mutation_capsule: { spawnChance: 0.027, minFloor: 3, exclusiveGroup: 'chaos' },
+  g_climate_totem: { spawnChance: 0.03, minFloor: 3, exclusiveGroup: 'world' },
+  g_trap_workbench: { spawnChance: 0.032, minFloor: 1, exclusiveGroup: 'forge' },
+  g_resonance_pillar: { spawnChance: 0.028, minFloor: 4, exclusiveGroup: 'world' },
+  g_noise_beacon: { spawnChance: 0.03, minFloor: 2, exclusiveGroup: 'agro' },
+  g_campfire: { spawnChance: 0.045, minFloor: 1, exclusiveGroup: 'rest' },
+  g_rune_forge: { spawnChance: 0.028, minFloor: 4, exclusiveGroup: 'forge' },
+  g_entropy_chest: { spawnChance: 0.024, minFloor: 5, exclusiveGroup: 'forge' },
+  g_debt_broker: { spawnChance: 0.03, minFloor: 2, exclusiveGroup: 'economy' },
+  g_ghost_shop: { spawnChance: 0.026, minFloor: 4, exclusiveGroup: 'economy' },
+  g_chrono_bank: { spawnChance: 0.024, minFloor: 5, exclusiveGroup: 'time' },
+  g_overheat_reactor: { spawnChance: 0.024, minFloor: 5, exclusiveGroup: 'forge' },
+  g_companion_egg: { spawnChance: 0.028, minFloor: 3, exclusiveGroup: 'support' },
+  g_reputation_idol: { spawnChance: 0.024, minFloor: 4, exclusiveGroup: 'contract' },
+  g_foresight_cocoon: { spawnChance: 0.022, minFloor: 5, exclusiveGroup: 'world' },
+  g_parasite_pool: { spawnChance: 0.022, minFloor: 6, exclusiveGroup: 'chaos' },
+  g_greed_beacon: { spawnChance: 0.024, minFloor: 5, exclusiveGroup: 'economy' },
+  g_guardian_statue: { spawnChance: 0.028, minFloor: 3, exclusiveGroup: 'support' },
+  g_chaos_prism: { spawnChance: 0.02, minFloor: 6, exclusiveGroup: 'chaos' },
+  g_codex_tablet: { spawnChance: 0.02, minFloor: 7, exclusiveGroup: 'contract' },
+  g_omen_gate: { spawnChance: 0.018, minFloor: 8, exclusiveGroup: 'rift' }
+}
+
+const GLOBAL_RETENTION_OBJECTS: ThemeObject[] = RETENTION_OBJECT_DEFS.map(obj => ({
+  ...obj,
+  spawnChance: RETENTION_OBJECT_BALANCE[obj.id]?.spawnChance ?? 0
+}))
+
+export function getRetentionObjectBalance (id: string): RetentionObjectBalance | undefined {
+  return RETENTION_OBJECT_BALANCE[id]
+}
+
+export function retentionObjectCapForFloor (floor: number): number {
+  if (floor <= 2) return 1
+  if (floor <= 6) return 2
+  return 3
+}
+
 export function getThemeObjects (theme: FloorTheme): ThemeObject[] {
   const baseObjects = theme.themeObject !== undefined ? [{ ...theme.themeObject }] : []
   const extraObjects = THEME_OBJECT_VARIANTS[theme.id] ?? []
-  return [...baseObjects, ...extraObjects].map((obj, idx) => ({
+  return [...baseObjects, ...extraObjects, ...GLOBAL_RETENTION_OBJECTS].map((obj, idx) => ({
     ...obj,
     id: obj.id ?? `${theme.id}_obj_${idx}`
   }))

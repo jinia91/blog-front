@@ -1,6 +1,7 @@
 import {
   type GameState,
   type Enemy,
+  type EnemyDef,
   type MapItem,
   type WeaponData,
   Tile,
@@ -10,19 +11,128 @@ import {
   LEGENDARY_ARMORS,
   TOTAL_FLOORS,
   weaponForFloor,
-  armorForFloor
+  armorForFloor,
+  createEnemy,
+  scaleEnemyStats
 } from './types'
 import { checkLevelUp, nextPlayerAttackTurn } from './game-core-utils'
+import { getBossPhaseDecisionEvent } from './events'
+import { addThemeMark, resolveMarkSetUnlocks, emitNarrativeMetric, applyMarkSetEffect, findLatestRouteTag } from './narrative'
 
-function projectileGlyph (weapon: WeaponData | null): { ch: string, color: 'yellow' | 'cyan' | 'red' } {
+function projectileDirectionGlyph (dx: number, dy: number): string {
+  if (dx === 0 && dy < 0) return '↑'
+  if (dx === 0 && dy > 0) return '↓'
+  if (dy === 0 && dx > 0) return '→'
+  if (dy === 0 && dx < 0) return '←'
+  if (dx > 0 && dy < 0) return '↗'
+  if (dx > 0 && dy > 0) return '↘'
+  if (dx < 0 && dy < 0) return '↖'
+  if (dx < 0 && dy > 0) return '↙'
+  return '•'
+}
+
+function projectileGlyph (weapon: WeaponData | null, dx: number, dy: number): { ch: string, color: 'yellow' | 'cyan' | 'red' } {
   const range = weapon?.range ?? 1
-  if (range >= 4) return { ch: '→', color: 'cyan' }
-  if (range >= 2) return { ch: '•', color: 'yellow' }
+  const directional = projectileDirectionGlyph(dx, dy)
+  if (range >= 4) return { ch: directional, color: 'cyan' }
+  if (range >= 2) return { ch: directional, color: 'yellow' }
   return { ch: '*', color: 'red' }
 }
 
 function enemyAttackReady (state: GameState, enemy: Enemy): boolean {
   return state.turns >= enemy.nextAttackTurn
+}
+
+function bossPatternForContext (state: GameState): Enemy['bossPattern'] {
+  const routeTag = findLatestRouteTag(state.narrative)
+  if (routeTag === 'frozen_time' || routeTag === 'furnace_oath') return 'mutator'
+  if (routeTag === 'iron_protocol' || routeTag === 'abyssal_call') return 'predator'
+  if (state.currentTheme.id === 'clocktower' || state.currentTheme.id === 'lava' || state.currentTheme.id === 'ice') return 'mutator'
+  if (state.currentTheme.id === 'cyber_server' || state.currentTheme.id === 'bunker' || state.currentTheme.id === 'machine_factory') return 'predator'
+  return 'summoner'
+}
+
+function shouldTriggerBossPhase2 (state: GameState, enemy: Enemy): boolean {
+  if (!enemy.isBoss || !enemy.alive || enemy.bossPhase !== 1) return false
+  const hpRatio = enemy.stats.hp / Math.max(1, enemy.stats.maxHp)
+  const routeTag = findLatestRouteTag(state.narrative)
+  const hasAbyssSet = state.narrative.sequenceTags.includes('set_abyssal_call')
+  if (hpRatio <= 0.55) return true
+  if (routeTag !== null && hpRatio <= 0.7) return true
+  if (hasAbyssSet && hpRatio <= 0.75) return true
+  return false
+}
+
+function inBounds (x: number, y: number): boolean {
+  return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT
+}
+
+function canSpawnAddAt (state: GameState, x: number, y: number): boolean {
+  if (!inBounds(x, y)) return false
+  const tile = state.map.tiles[y][x]
+  if (tile === Tile.Wall || tile === Tile.Stairs || tile === Tile.Shop) return false
+  if (state.player.pos.x === x && state.player.pos.y === y) return false
+  for (const enemy of state.enemies) {
+    if (enemy.alive && enemy.pos.x === x && enemy.pos.y === y) return false
+  }
+  return true
+}
+
+function spawnBossAdds (state: GameState, enemies: Enemy[], boss: Enemy, count: number): Enemy[] {
+  const out = [...enemies]
+  const monsterDefs = state.currentTheme.monsters
+  let spawned = 0
+  const occupiedByOut = (x: number, y: number): boolean => out.some(enemy => enemy.alive && enemy.pos.x === x && enemy.pos.y === y)
+  for (let r = 1; r <= 3 && spawned < count; r++) {
+    for (let dy = -r; dy <= r && spawned < count; dy++) {
+      for (let dx = -r; dx <= r && spawned < count; dx++) {
+        if (Math.abs(dx) + Math.abs(dy) !== r) continue
+        const x = boss.pos.x + dx
+        const y = boss.pos.y + dy
+        if (!canSpawnAddAt(state, x, y)) continue
+        if (occupiedByOut(x, y)) continue
+        const def = monsterDefs[Math.floor(Math.random() * monsterDefs.length)]
+        const scaled = scaleEnemyStats(def.stats, state.floor, state.currentTheme, state.player.level)
+        const addDef: EnemyDef = {
+          ...def,
+          stats: scaled,
+          name: `페이즈 하수인 ${def.name}`,
+          xp: Math.floor(def.xp * 1.2),
+          speed: def.speed ?? def.attackSpeed
+        }
+        const newEnemy = createEnemy(addDef, { x, y }, false)
+        newEnemy.nextAttackTurn = state.turns + 1
+        newEnemy.bossPattern = boss.bossPattern
+        out.push(newEnemy)
+        spawned += 1
+      }
+    }
+  }
+  return out
+}
+
+function mutateBossArena (state: GameState, boss: Enemy, pattern: Enemy['bossPattern']): GameState['map'] {
+  const tiles = state.map.tiles.map(row => [...row])
+  const explored = state.map.explored.map(row => [...row])
+  const visible = state.map.visible.map(row => [...row])
+  const radius = 3
+  for (let dy = -radius; dy <= radius; dy++) {
+    for (let dx = -radius; dx <= radius; dx++) {
+      const x = boss.pos.x + dx
+      const y = boss.pos.y + dy
+      if (!inBounds(x, y)) continue
+      if (Math.abs(dx) + Math.abs(dy) > radius) continue
+      if (tiles[y][x] === Tile.Wall || tiles[y][x] === Tile.Stairs || tiles[y][x] === Tile.Shop) continue
+      if (pattern === 'mutator') {
+        tiles[y][x] = Math.random() < 0.5 ? Tile.ArcaneField : Tile.Bramble
+      } else if (pattern === 'predator') {
+        tiles[y][x] = Math.random() < 0.6 ? Tile.Bramble : Tile.ShallowWater
+      } else if (Math.random() < 0.25) {
+        tiles[y][x] = Tile.ArcaneField
+      }
+    }
+  }
+  return { ...state.map, tiles, explored, visible }
 }
 
 export function attackEnemy (
@@ -70,6 +180,9 @@ export function attackEnemy (
   enemy.stats.hp -= damage
 
   let newKills = state.kills
+  let bossTransitioned = false
+  let transitionSpawnCount = 0
+  let mapAfterTransition = state.map
 
   if (enemy.stats.hp <= 0) {
     enemy.alive = false
@@ -89,15 +202,67 @@ export function attackEnemy (
         newLog.push(`${monsterGold} Gold 획득!`)
       }
     }
+  } else if (shouldTriggerBossPhase2(state, enemy)) {
+    const routeTag = findLatestRouteTag(state.narrative)
+    enemy.bossPhase = 2
+    enemy.bossPattern = bossPatternForContext(state)
+    enemy.attackSpeed = Math.max(1, enemy.attackSpeed - 1)
+    enemy.stats.str += 2 + Math.floor(state.floor / 4)
+    enemy.stats.def += 1 + Math.floor(state.floor / 6)
+    bossTransitioned = true
+
+    const tags = state.narrative.sequenceTags
+    if (tags.includes('set_frozen_time')) {
+      enemy.nextAttackTurn += 1
+      newLog.push('낙인 공명(동결): 보스 각성이 지연됐다.')
+    }
+    if (tags.includes('set_furnace_oath')) {
+      enemy.stats.str += 2
+      newLog.push('낙인 공명(화로): 전장의 열기가 폭주한다.')
+    }
+    if (tags.includes('set_abyssal_call')) {
+      enemy.stats.str += 2
+      enemy.attackSpeed = Math.max(1, enemy.attackSpeed - 1)
+      newLog.push('낙인 공명(심연): 보스가 더 광폭해졌다.')
+    }
+    if (tags.includes('set_iron_protocol')) {
+      enemy.stats.def += 2
+      enemy.range = Math.max(enemy.range, 4)
+      transitionSpawnCount += 1
+    }
+    if (tags.includes('set_sunk_prophecy')) transitionSpawnCount += 1
+    if (tags.includes('set_rot_covenant')) enemy.bossPattern = 'mutator'
+
+    transitionSpawnCount += enemy.bossPattern === 'summoner' ? 2 : enemy.bossPattern === 'predator' ? 1 : 0
+    mapAfterTransition = mutateBossArena(state, enemy, enemy.bossPattern)
+
+    newLog.push(`BOSS ${enemy.name}이(가) 2페이즈에 돌입했다!`)
+    if (routeTag !== null) newLog.push(`연쇄 반응: ${routeTag}`)
+    if (enemy.bossPattern === 'summoner') newLog.push('페이즈 패턴: 하수인 소환')
+    else if (enemy.bossPattern === 'mutator') newLog.push('페이즈 패턴: 전장 변형')
+    else newLog.push('페이즈 패턴: 광폭 추격')
   }
 
-  const newEnemies = state.enemies.map((e, i) => i === enemyIdx ? enemy : e)
+  let newEnemies = state.enemies.map((e, i) => i === enemyIdx ? enemy : e)
+  if (bossTransitioned && transitionSpawnCount > 0) {
+    newEnemies = spawnBossAdds(state, newEnemies, enemy, transitionSpawnCount)
+    newLog.push(`보스가 하수인 ${transitionSpawnCount}체를 소환했다.`)
+  }
 
   let newItems = state.items
   // Boss drop: guaranteed upgrade but low-floor overpowered drops are suppressed.
   if (enemy.stats.hp <= 0 && enemy.isBoss) {
     let drop: MapItem
-    const legendaryChance = state.floor >= 8 ? 0.03 : 0
+    const routeTag = findLatestRouteTag(state.narrative)
+    const omenBonus = Math.min(0.25, state.player.omenMarks * 0.1)
+    const routeLegendBonus = routeTag === 'abyssal_call'
+      ? 0.03
+      : routeTag === 'furnace_oath'
+        ? 0.02
+        : routeTag === 'sunk_prophecy'
+          ? 0.015
+          : 0
+    const legendaryChance = (state.floor >= 8 ? 0.03 : 0) + omenBonus + routeLegendBonus
     if (Math.random() < legendaryChance) {
       // Legendary drop
       drop = Math.random() < 0.5
@@ -106,8 +271,9 @@ export function attackEnemy (
       newLog.push(`★ 환상의 ${drop.item.data.name}을(를) 발견했다! ★`)
     } else {
       const baseBoost = state.floor >= 6 ? 1 : 0
+      const routeBoost = routeTag === 'iron_protocol' ? 1 : 0
       const rareBoost = Math.random() < (state.floor >= 5 ? 0.30 : 0.12) ? 1 : 0
-      const dropFloor = Math.min(state.floor + baseBoost + rareBoost, TOTAL_FLOORS)
+      const dropFloor = Math.min(state.floor + baseBoost + rareBoost + routeBoost, TOTAL_FLOORS)
       drop = Math.random() < 0.5
         ? { pos: { ...enemy.pos }, item: { kind: 'weapon', data: weaponForFloor(dropFloor, state.currentTheme.id) }, ch: '/' }
         : { pos: { ...enemy.pos }, item: { kind: 'armor', data: armorForFloor(dropFloor, state.currentTheme.id) }, ch: ']' }
@@ -115,18 +281,74 @@ export function attackEnemy (
     newItems = [...state.items, drop]
   }
 
-  const projectile = isRanged && projectilePath.length > 0
-    ? { path: projectilePath, ...projectileGlyph(player.weapon) }
-    : null
+  let projectile = null
+  if (isRanged && projectilePath.length > 0) {
+    const firstStep = projectilePath[0]
+    const dx = Math.sign(firstStep.x - state.player.pos.x)
+    const dy = Math.sign(firstStep.y - state.player.pos.y)
+    projectile = { path: projectilePath, ...projectileGlyph(player.weapon, dx, dy) }
+  }
 
   let result: GameState = {
     ...state,
     player,
     enemies: newEnemies,
     items: newItems,
+    map: mapAfterTransition,
     log: newLog,
     kills: newKills,
     projectile
+  }
+  if (bossTransitioned) {
+    const phaseEvent = getBossPhaseDecisionEvent()
+    result = {
+      ...result,
+      activeEvent: { eventId: phaseEvent.id },
+      eventIdx: 0,
+      bossPhaseContext: {
+        enemyIndex: enemyIdx,
+        bossName: enemy.name,
+        phase: 2
+      }
+    }
+    result = emitNarrativeMetric(result, 'boss_phase_transition', {
+      boss: enemy.name,
+      pattern: enemy.bossPattern,
+      spawn_count: transitionSpawnCount
+    })
+  }
+  if (enemy.stats.hp <= 0 && enemy.isBoss && result.player.omenMarks > 0) {
+    result = {
+      ...result,
+      player: { ...result.player, omenMarks: Math.max(0, result.player.omenMarks - 1) },
+      log: [...result.log, '징조의 문 인장이 소모되며 보상이 증폭됐다!']
+    }
+  }
+  if (enemy.stats.hp <= 0 && enemy.isBoss) {
+    if (enemy.bossPhase === 2) {
+      result = emitNarrativeMetric(result, 'boss_phase_clear', { boss: enemy.name })
+    }
+    let narrative = addThemeMark(result.narrative, result.currentTheme.id, 2)
+    const markSetResult = resolveMarkSetUnlocks(narrative)
+    narrative = markSetResult.narrative
+    const nextLog = [...result.log, `낙인 획득: ${result.currentTheme.name} +2 (보스)`]
+    for (const setId of markSetResult.unlocked) {
+      nextLog.push(`낙인 조합 각성: ${setId}`)
+    }
+    result = {
+      ...result,
+      narrative,
+      log: nextLog
+    }
+    result = emitNarrativeMetric(result, 'theme_mark_gain', {
+      mark_id: result.currentTheme.id,
+      amount: 2,
+      reason: 'boss_kill'
+    })
+    for (const setId of markSetResult.unlocked) {
+      result = emitNarrativeMetric(result, 'theme_mark_set_complete', { set_id: setId })
+      result = applyMarkSetEffect(result, setId)
+    }
   }
   result = checkLevelUp(result)
   return result
@@ -175,9 +397,16 @@ function enemyAttackPlayer (state: GameState, enemyIdx: number, isRanged: boolea
 
   let over = state.over
   if (player.stats.hp <= 0) {
-    player.stats.hp = 0
-    over = true
-    newLog.push('당신은 쓰러졌다...')
+    if (player.reviveCharges > 0) {
+      player.reviveCharges -= 1
+      player.stats.hp = Math.max(1, Math.floor(player.stats.maxHp * 0.5))
+      over = false
+      newLog.push('수호의 석상이 발동했다! 죽음을 피하고 다시 일어섰다!')
+    } else {
+      player.stats.hp = 0
+      over = true
+      newLog.push('당신은 쓰러졌다...')
+    }
   }
 
   enemy.nextAttackTurn = state.turns + enemy.attackSpeed
@@ -380,7 +609,7 @@ function moveEnemyRandom (state: GameState, idx: number): GameState {
     const ny = enemy.pos.y + dir.y
     if (nx < 0 || nx >= MAP_WIDTH || ny < 0 || ny >= MAP_HEIGHT) continue
     const tile = state.map.tiles[ny][nx]
-    if (tile === Tile.Floor || tile === Tile.Door) {
+    if (tile !== Tile.Wall) {
       if (!isBlocked(state, nx, ny, idx)) {
         const newEnemies = state.enemies.map((e, i) => {
           if (i === idx) {

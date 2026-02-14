@@ -6,6 +6,7 @@ export const PANEL_WIDTH = 20
 export const FOV_RADIUS = 12
 export const MAX_INVENTORY = 8
 export const TOTAL_FLOORS = 10
+export const MAX_HERO_LEVEL = 10
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 
@@ -19,7 +20,11 @@ export enum Tile {
   Floor = 1,
   Door = 2,
   Stairs = 3,
-  Shop = 4
+  Shop = 4,
+  ShallowWater = 5,
+  Bramble = 6,
+  HealingMoss = 7,
+  ArcaneField = 8
 }
 
 export interface Room {
@@ -91,6 +96,8 @@ export interface Player {
   armor: ArmorData | null
   inventory: InvItem[]
   nextAttackTurn: number
+  reviveCharges: number
+  omenMarks: number
 }
 
 export interface Enemy {
@@ -104,6 +111,8 @@ export interface Enemy {
   range: number
   attackSpeed: number
   nextAttackTurn: number
+  bossPhase: 1 | 2
+  bossPattern: 'summoner' | 'mutator' | 'predator'
 }
 
 export interface EnemyDef {
@@ -112,8 +121,11 @@ export interface EnemyDef {
   stats: Stats
   xp: number
   range?: number // 1=melee, 2-3=mid, 4-5=ranged
-  attackSpeed?: number
+  speed?: number // attacks every N turns (lower is faster)
+  attackSpeed?: number // legacy alias for speed
 }
+
+export type ThemeRiskProfile = 'safe' | 'balanced' | 'risky' | 'deadly'
 
 export interface FloorTheme {
   id: string
@@ -124,13 +136,59 @@ export interface FloorTheme {
   flavorTexts: string[]
   monsters: EnemyDef[]
   boss: EnemyDef
-  uniqueWeapons?: WeaponData[]
-  uniqueArmors?: ArmorData[]
+  difficulty: number // 1.0~5.0
+  riskProfile: ThemeRiskProfile
+  lootBias: number // -0.15~+0.15
+  eventBias: number // -0.25~+0.35
+  objectBias: number // -0.25~+0.35
+  uniqueWeaponIds?: string[]
+  uniqueArmorIds?: string[]
   themeObject?: ThemeObject
   specialRoomDesc?: string
 }
 
-export type ThemeObjectEffect = 'heal30' | 'heal50' | 'fullHeal' | 'buffStr' | 'buffDef' | 'buffMaxHp' | 'gold' | 'xp' | 'gamble' | 'randomItem' | 'teleport'
+export type ThemeObjectEffect =
+  | 'heal30'
+  | 'heal50'
+  | 'fullHeal'
+  | 'buffStr'
+  | 'buffDef'
+  | 'buffMaxHp'
+  | 'gold'
+  | 'xp'
+  | 'gamble'
+  | 'randomItem'
+  | 'teleport'
+  | 'bloodAltar'
+  | 'echoWell'
+  | 'brokenClock'
+  | 'mirrorGate'
+  | 'cursedVending'
+  | 'pocketRift'
+  | 'bountyBoard'
+  | 'pactStatue'
+  | 'memoryObelisk'
+  | 'mutationCapsule'
+  | 'climateTotem'
+  | 'trapWorkbench'
+  | 'resonancePillar'
+  | 'noiseBeacon'
+  | 'campfire'
+  | 'runeForge'
+  | 'entropyChest'
+  | 'debtBroker'
+  | 'ghostShop'
+  | 'chronoBank'
+  | 'overheatReactor'
+  | 'companionEgg'
+  | 'reputationIdol'
+  | 'foresightCocoon'
+  | 'parasitePool'
+  | 'greedBeacon'
+  | 'guardianStatue'
+  | 'chaosPrism'
+  | 'codexTablet'
+  | 'omenGate'
 
 export interface ThemeObject {
   id?: string
@@ -181,10 +239,32 @@ export interface EventDef {
   resolve: (choiceIdx: number, state: GameState) => EventOutcome
   themeIds?: string[]
   minFloor?: number
+  requiredNarrativeTags?: string[]
 }
 
 export interface ActiveEvent {
   eventId: string
+}
+
+export interface RunNarrativeState {
+  marks: Record<string, number>
+  themeHistory: string[]
+  sequenceTags: string[]
+  relation: {
+    survivor: number
+    cultist: number
+    betrayal: number
+  }
+  omenStage: 0 | 1 | 2 | 3 | 4
+  recentOmenLines: string[]
+}
+
+export interface NarrativeMetricEvent {
+  key: string
+  turn: number
+  floor: number
+  themeId: string
+  payload: Record<string, string | number | boolean>
 }
 
 export interface GameState {
@@ -209,4 +289,15 @@ export interface GameState {
   activeEvent: ActiveEvent | null
   eventIdx: number
   projectile: ProjectileTrail | null
+  grimReaperTriggered: boolean
+  doomWarningIssued: boolean
+  lastDoomSymptomTurn: number
+  narrative: RunNarrativeState
+  metricEvents: NarrativeMetricEvent[]
+  floorEventMarkClaimed: boolean
+  bossPhaseContext: {
+    enemyIndex: number
+    bossName: string
+    phase: 2
+  } | null
 }
