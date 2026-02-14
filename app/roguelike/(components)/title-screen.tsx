@@ -14,22 +14,6 @@ const BOOT_LINES = [
 
 const FLAME_FRAMES = ['(~)', '{x}', '(*)', '{~}', '(x)', '{*}']
 
-const TITLE_ART = [
-  '      ,---.',
-  '     / x x \\',
-  '    |  ___  |',
-  '     \\ |=| /',
-  '      \'---\'',
-  '    /|     |\\',
-  '   d-+-----+-b',
-  '',
-  '  ╔════════════╗',
-  '  ║ 심 연 탐 색 ║',
-  '  ║ 크 롤 러   ║',
-  '  ╚════════════╝',
-  '  .:;:..:;:..:;:.'
-]
-
 export default function TitleScreen ({ onStart }: { onStart: () => void }): React.ReactElement {
   const [phase, setPhase] = useState<Phase>('booting')
   const [bootLine, setBootLine] = useState(0)
@@ -152,13 +136,9 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
         alignItems: 'center'
       }}
     >
-      <div style={{ marginBottom: '12px' }}>
-        {TITLE_ART.map((line, i) => (
-          <pre key={i} style={{ margin: 0, color: i <= 6 ? '#777766' : i >= 8 && i <= 10 ? '#aa0000' : '#444444', textAlign: 'center' }}>
-            {line}
-          </pre>
-        ))}
-      </div>
+      <pre style={{ margin: 0, color: '#aa0000', textAlign: 'center', marginBottom: '8px', fontSize: '18px', fontWeight: 700 }}>
+        어비스 크롤러
+      </pre>
 
       <pre style={{ margin: 0, color: '#993333', textAlign: 'center', marginBottom: '8px' }}>
         {flame} 어둠 속으로 내려가라 {flame}

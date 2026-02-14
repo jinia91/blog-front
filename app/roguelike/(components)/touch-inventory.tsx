@@ -69,13 +69,9 @@ export default function TouchInventory ({
 
   const isEquipped = (idx: number): boolean => {
     const item = inventorySlots[idx]
-    if (item === null) return false
-    if (item.kind === 'weapon' && player.weapon !== null) {
-      return item.data.name === player.weapon.name
-    }
-    if (item.kind === 'armor' && player.armor !== null) {
-      return item.data.name === player.armor.name
-    }
+    if (item?.id === undefined) return false
+    if (item.kind === 'weapon') return player.weaponItemId === item.id
+    if (item.kind === 'armor') return player.armorItemId === item.id
     return false
   }
 

@@ -11,18 +11,27 @@ import {
   type MapItem,
   type FloorTheme,
   type EnemyDef,
-  type InvItem,
   createEnemy,
   enemyCountForFloor,
   itemCountForFloor,
   weaponForFloor,
   armorForFloor,
   potionForFloor,
+  makeWeaponItem,
+  makeArmorItem,
+  makePotionItem,
   getThemeObjects,
   scaleEnemyStats,
   scaleBossStats
 } from './types'
 import { selectEventsForFloor } from './events'
+import {
+  type ScaledObjectDef,
+  type RoomIdentity,
+  OBJECT_SIZE_DIMENSIONS,
+  pickRoomIdentity,
+  selectScaledObjectsForFloor
+} from './object-scale-config'
 
 interface BSPNode {
   x: number
@@ -192,6 +201,79 @@ export function roomCenter (room: Room): Position {
   return {
     x: room.x + Math.floor(room.w / 2),
     y: room.y + Math.floor(room.h / 2)
+  }
+}
+
+function roomContains (room: Room, pos: Position): boolean {
+  return pos.x >= room.x && pos.x < room.x + room.w && pos.y >= room.y && pos.y < room.y + room.h
+}
+
+function shuffle<T> (arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = arr[i]
+    arr[i] = arr[j]
+    arr[j] = tmp
+  }
+  return arr
+}
+
+function tooCloseToDoor (map: DungeonMap, x: number, y: number): boolean {
+  for (let yy = y - 2; yy <= y + 2; yy++) {
+    for (let xx = x - 2; xx <= x + 2; xx++) {
+      if (xx < 0 || xx >= MAP_WIDTH || yy < 0 || yy >= MAP_HEIGHT) continue
+      if (map.tiles[yy][xx] === Tile.Door) return true
+    }
+  }
+  return false
+}
+
+function canPlaceScaledObject (
+  map: DungeonMap,
+  occupied: Set<string>,
+  topLeft: Position,
+  obj: ScaledObjectDef,
+  stairsPos: Position
+): boolean {
+  const mask = obj.footprintMask
+  for (let my = 0; my < mask.length; my++) {
+    const row = mask[my]
+    for (let mx = 0; mx < row.length; mx++) {
+      if (row[mx] !== '#') continue
+      const x = topLeft.x + mx
+      const y = topLeft.y + my
+      if (x <= 0 || x >= MAP_WIDTH - 1 || y <= 0 || y >= MAP_HEIGHT - 1) return false
+      if (map.tiles[y][x] !== Tile.Floor) return false
+      if (occupied.has(`${x},${y}`)) return false
+      if (Math.abs(x - stairsPos.x) + Math.abs(y - stairsPos.y) <= 2) return false
+      if (tooCloseToDoor(map, x, y)) return false
+    }
+  }
+  return true
+}
+
+function placeScaledObject (
+  items: MapItem[],
+  occupied: Set<string>,
+  topLeft: Position,
+  obj: ScaledObjectDef,
+  instanceId: string
+): void {
+  const token = `scaledObj:${obj.id}:${instanceId}`
+  const mask = obj.footprintMask
+  for (let my = 0; my < mask.length; my++) {
+    const row = mask[my]
+    for (let mx = 0; mx < row.length; mx++) {
+      if (row[mx] !== '#') continue
+      const x = topLeft.x + mx
+      const y = topLeft.y + my
+      items.push({
+        pos: { x, y },
+        item: makePotionItem({ name: token, healType: 'hp', value: 0 }),
+        ch: obj.symbol
+      })
+      occupied.add(`${x},${y}`)
+    }
   }
 }
 
@@ -414,7 +496,7 @@ function generateFinalChapterDungeon (theme: FloorTheme): {
   for (const obj of fixedObjects) {
     if (occupied.has(`${obj.x},${obj.y}`)) continue
     if (map.tiles[obj.y][obj.x] === Tile.Wall) continue
-    const dummyItem: InvItem = { kind: 'potion', data: { name: obj.name, healType: 'hp', value: 0 } }
+    const dummyItem = makePotionItem({ name: obj.name, healType: 'hp', value: 0 })
     items.push({ pos: { x: obj.x, y: obj.y }, item: dummyItem, ch: obj.ch })
     occupied.add(`${obj.x},${obj.y}`)
   }
@@ -422,11 +504,11 @@ function generateFinalChapterDungeon (theme: FloorTheme): {
   const finalPotionA = potionForFloor(TOTAL_FLOORS)
   const finalPotionB = potionForFloor(TOTAL_FLOORS)
   if (!occupied.has('33,30')) {
-    items.push({ pos: { x: 33, y: 30 }, item: { kind: 'potion', data: finalPotionA }, ch: '!' })
+    items.push({ pos: { x: 33, y: 30 }, item: makePotionItem(finalPotionA), ch: '!' })
     occupied.add('33,30')
   }
   if (!occupied.has('47,30')) {
-    items.push({ pos: { x: 47, y: 30 }, item: { kind: 'potion', data: finalPotionB }, ch: '!' })
+    items.push({ pos: { x: 47, y: 30 }, item: makePotionItem(finalPotionB), ch: '!' })
     occupied.add('47,30')
   }
 
@@ -515,6 +597,49 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
   }
 
   const items: MapItem[] = []
+
+  // Spawn multi-scale thematic objects (2x2~6x6), excluding stairs room.
+  const eligibleRoomIndices = map.rooms
+    .map((room, idx) => ({ room, idx }))
+    .filter(({ room, idx }) => idx !== 0 && !roomContains(room, stairsPos))
+    .map(({ idx }) => idx)
+
+  const roomIdentities: RoomIdentity[] = eligibleRoomIndices.map(() => pickRoomIdentity(floor, theme.id))
+  const scaledObjects = selectScaledObjectsForFloor({ floor, themeId: theme.id, roomIdentities })
+  let scaledObjInstanceSeq = 0
+  const roomScaledObjectCount = new Map<number, number>()
+
+  for (const obj of scaledObjects) {
+    const dims = OBJECT_SIZE_DIMENSIONS[obj.size]
+    const roomOrder = shuffle([...eligibleRoomIndices])
+    let placed = false
+
+    for (const roomIdx of roomOrder) {
+      const roomCount = roomScaledObjectCount.get(roomIdx) ?? 0
+      if (roomCount >= obj.spawnRules.maxPerRoom) continue
+      const room = map.rooms[roomIdx]
+      if (room.w < dims.w + 2 || room.h < dims.h + 2) continue
+
+      for (let attempt = 0; attempt < 35; attempt++) {
+        const maxX = room.x + room.w - dims.w - 1
+        const maxY = room.y + room.h - dims.h - 1
+        if (maxX <= room.x || maxY <= room.y) break
+        const topLeft: Position = {
+          x: room.x + 1 + Math.floor(Math.random() * (maxX - room.x)),
+          y: room.y + 1 + Math.floor(Math.random() * (maxY - room.y))
+        }
+        if (!canPlaceScaledObject(map, occupied, topLeft, obj, stairsPos)) continue
+        const instanceId = `f${floor}_${scaledObjInstanceSeq++}`
+        placeScaledObject(items, occupied, topLeft, obj, instanceId)
+        roomScaledObjectCount.set(roomIdx, roomCount + 1)
+        placed = true
+        break
+      }
+
+      if (placed) break
+    }
+  }
+
   const itemCount = itemCountForFloor(floor)
 
   for (let i = 0; i < itemCount; i++) {
@@ -529,26 +654,26 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
         if (roll < 0.3) {
           item = {
             pos,
-            item: { kind: 'weapon', data: weaponForFloor(floor, theme.id) },
+            item: makeWeaponItem(weaponForFloor(floor, theme.id)),
             ch: '/'
           }
-        } else if (roll < 0.55) {
+        } else if (roll < 0.48) {
           item = {
             pos,
-            item: { kind: 'armor', data: armorForFloor(floor, theme.id) },
+            item: makeArmorItem(armorForFloor(floor, theme.id)),
             ch: ']'
           }
-        } else if (roll < 0.8) {
+        } else if (roll < 0.82) {
           item = {
             pos,
-            item: { kind: 'potion', data: potionForFloor(floor) },
+            item: makePotionItem(potionForFloor(floor)),
             ch: '!'
           }
         } else {
           const goldAmount = 5 + Math.floor(floor * 3 + Math.random() * 10)
           item = {
             pos,
-            item: { kind: 'potion', data: { name: `${goldAmount} Gold`, healType: 'hp', value: 0 } },
+            item: makePotionItem({ name: `${goldAmount} Gold`, healType: 'hp', value: 0 }),
             ch: '$'
           }
         }
@@ -561,8 +686,8 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
     if (!placed) break
   }
 
-  // Spawn treasure chests (1-2 per floor)
-  const chestCount = 1 + (Math.random() < 0.5 ? 1 : 0)
+  // Spawn treasure chests (0-1 per floor)
+  const chestCount = Math.random() < 0.55 ? 1 : 0
   for (let i = 0; i < chestCount; i++) {
     let placed = false
     for (let attempt = 0; attempt < 50; attempt++) {
@@ -570,7 +695,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: 'chest', healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: 'chest', healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: 'C' })
         occupied.add(`${pos.x},${pos.y}`)
         placed = true
@@ -588,7 +713,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: 'fountain', healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: 'fountain', healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: '~' })
         occupied.add(`${pos.x},${pos.y}`)
         break
@@ -603,7 +728,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: 'shrine', healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: 'shrine', healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: '^' })
         occupied.add(`${pos.x},${pos.y}`)
         break
@@ -618,7 +743,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: 'cursed', healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: 'cursed', healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: '?' })
         occupied.add(`${pos.x},${pos.y}`)
         break
@@ -635,7 +760,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const room = map.rooms[randomRoomIdx]
       const pos = randomFloorPos(map, room, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: `themeObj:${obj.id ?? theme.id}`, healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: `themeObj:${obj.id ?? theme.id}`, healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: obj.ch })
         occupied.add(`${pos.x},${pos.y}`)
         break
@@ -674,7 +799,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
       const specialRoom = specialEligible[Math.floor(Math.random() * specialEligible.length)]
       const pos = randomFloorPos(map, specialRoom, occupied)
       if (pos !== null) {
-        const dummyItem: InvItem = { kind: 'potion', data: { name: `specialRoom:${theme.id}`, healType: 'hp', value: 0 } }
+        const dummyItem = makePotionItem({ name: `specialRoom:${theme.id}`, healType: 'hp', value: 0 })
         items.push({ pos, item: dummyItem, ch: '★' })
         occupied.add(`${pos.x},${pos.y}`)
       }
@@ -697,7 +822,7 @@ export function generateDungeon (floor: number, theme: FloorTheme): {
     const room = shuffledEventRooms[i]
     const pos = randomFloorPos(map, room, occupied)
     if (pos !== null) {
-      const dummyItem: InvItem = { kind: 'potion', data: { name: `event:${selectedEvents[i].id}`, healType: 'hp', value: 0 } }
+      const dummyItem = makePotionItem({ name: `event:${selectedEvents[i].id}`, healType: 'hp', value: 0 })
       items.push({ pos, item: dummyItem, ch: '!' })
       occupied.add(`${pos.x},${pos.y}`)
     }

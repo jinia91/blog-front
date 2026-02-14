@@ -5,10 +5,12 @@ import {
   LEGENDARY_WEAPONS, LEGENDARY_ARMORS,
   createPlayer, createEnemy, type EnemyDef, xpForLevel, selectThemeForFloor, getThemeById, weaponForFloor, armorForFloor, potionForFloor,
   weaponAttackSpeed, getThemeObjects,
+  makeWeaponItem, makeArmorItem, makePotionItem, withItemId,
   generateShopItems
 } from './types'
 import { generateDungeon, computeFOV } from './dungeon'
 import { getEventById } from './events'
+import { getScaledObjectById, type ObjectModifier, type ObjectRarity } from './object-scale-config'
 
 export type { GameState } from './types'
 
@@ -37,6 +39,14 @@ function rarityColor (rarity: ItemRarity | undefined): string {
   if (rarity === 'epic') return C.magenta
   if (rarity === 'legendary') return C.bold + C.yellow
   return C.white
+}
+
+function objectRarityColor (rarity: ObjectRarity): string {
+  if (rarity === 'common') return C.white
+  if (rarity === 'uncommon') return C.green
+  if (rarity === 'rare') return C.blue
+  if (rarity === 'epic') return C.magenta
+  return C.bold + C.red
 }
 
 function stripAnsi (str: string): string {
@@ -115,15 +125,61 @@ function padPanel (s: string): string {
   return padEndDisplay(s, PANEL_WIDTH)
 }
 
+function normalizePlayerItems (player: Player): Player {
+  const inventory = player.inventory.map(item => withItemId(item))
+
+  let weaponItemId = player.weaponItemId ?? null
+  if (player.weapon !== null && (weaponItemId === null || weaponItemId.length === 0)) {
+    weaponItemId = withItemId({ kind: 'weapon', data: player.weapon }).id
+  }
+
+  let armorItemId = player.armorItemId ?? null
+  if (player.armor !== null && (armorItemId === null || armorItemId.length === 0)) {
+    armorItemId = withItemId({ kind: 'armor', data: player.armor }).id
+  }
+
+  return { ...player, inventory, weaponItemId, armorItemId }
+}
+
+function scaledObjectSpawnTelemetry (items: MapItem[]): string | null {
+  const seen = new Set<string>()
+  const rarityCount: Record<ObjectRarity, number> = {
+    common: 0,
+    uncommon: 0,
+    rare: 0,
+    epic: 0,
+    mythic: 0
+  }
+
+  for (const item of items) {
+    if (item.item.kind !== 'potion') continue
+    const token = item.item.data.name
+    if (!token.startsWith('scaledObj:')) continue
+    if (seen.has(token)) continue
+    seen.add(token)
+    const parts = token.split(':')
+    const objId = parts[1]
+    if (objId === undefined) continue
+    const obj = getScaledObjectById(objId)
+    if (obj === undefined) continue
+    rarityCount[obj.rarity] += 1
+  }
+
+  const total = Object.values(rarityCount).reduce((sum, n) => sum + n, 0)
+  if (total <= 0) return null
+  return `[구조물 분포] C:${rarityCount.common} U:${rarityCount.uncommon} R:${rarityCount.rare} E:${rarityCount.epic} M:${rarityCount.mythic}`
+}
+
 export function initFloor (floor: number, existingPlayer: Player | null, usedThemeIds: string[] = []): GameState {
   const theme = floor === TOTAL_FLOORS
     ? (getThemeById(FINAL_CHAPTER_THEME_ID) ?? selectThemeForFloor(floor, usedThemeIds))
     : selectThemeForFloor(floor, usedThemeIds)
   const newUsedThemeIds = [...usedThemeIds, theme.id].slice(-3)
   const { map, playerPos, enemies, items } = generateDungeon(floor, theme)
-  const player = existingPlayer === null
+  const rawPlayer = existingPlayer === null
     ? createPlayer(playerPos)
     : { ...existingPlayer, pos: { ...playerPos } }
+  const player = normalizePlayerItems(rawPlayer)
 
   computeFOV(map, player.pos.x, player.pos.y)
 
@@ -139,6 +195,10 @@ export function initFloor (floor: number, existingPlayer: Player | null, usedThe
   if (floor !== TOTAL_FLOORS) {
     const flavorText = theme.flavorTexts[Math.floor(Math.random() * theme.flavorTexts.length)]
     log.push(flavorText)
+  }
+  const scaledTelemetry = scaledObjectSpawnTelemetry(items)
+  if (scaledTelemetry !== null) {
+    log.push(scaledTelemetry)
   }
 
   return {
@@ -504,23 +564,23 @@ function attackEnemy (
   const newEnemies = state.enemies.map((e, i) => i === enemyIdx ? enemy : e)
 
   let newItems = state.items
-  // Boss drop: guaranteed upgrade but low-floor overpowered drops are suppressed.
-  if (enemy.stats.hp <= 0 && enemy.isBoss) {
+  // Boss drop: not always guaranteed; low-floor overpowered drops are suppressed.
+  if (enemy.stats.hp <= 0 && enemy.isBoss && Math.random() < 0.65) {
     let drop: MapItem
-    const legendaryChance = state.floor >= 8 ? 0.03 : 0
+    const legendaryChance = state.floor >= 9 ? 0.015 : 0
     if (Math.random() < legendaryChance) {
       // Legendary drop
       drop = Math.random() < 0.5
-        ? { pos: { ...enemy.pos }, item: { kind: 'weapon', data: LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)] }, ch: '/' }
-        : { pos: { ...enemy.pos }, item: { kind: 'armor', data: LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)] }, ch: ']' }
+        ? { pos: { ...enemy.pos }, item: makeWeaponItem(LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)]), ch: '/' }
+        : { pos: { ...enemy.pos }, item: makeArmorItem(LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)]), ch: ']' }
       newLog.push(`★ 환상의 ${drop.item.data.name}을(를) 발견했다! ★`)
     } else {
-      const baseBoost = state.floor >= 6 ? 1 : 0
-      const rareBoost = Math.random() < (state.floor >= 5 ? 0.30 : 0.12) ? 1 : 0
+      const baseBoost = state.floor >= 8 ? 1 : 0
+      const rareBoost = Math.random() < (state.floor >= 7 ? 0.18 : 0.06) ? 1 : 0
       const dropFloor = Math.min(state.floor + baseBoost + rareBoost, TOTAL_FLOORS)
       drop = Math.random() < 0.5
-        ? { pos: { ...enemy.pos }, item: { kind: 'weapon', data: weaponForFloor(dropFloor, state.currentTheme.id) }, ch: '/' }
-        : { pos: { ...enemy.pos }, item: { kind: 'armor', data: armorForFloor(dropFloor, state.currentTheme.id) }, ch: ']' }
+        ? { pos: { ...enemy.pos }, item: makeWeaponItem(weaponForFloor(dropFloor, state.currentTheme.id)), ch: '/' }
+        : { pos: { ...enemy.pos }, item: makeArmorItem(armorForFloor(dropFloor, state.currentTheme.id)), ch: ']' }
     }
     newItems = [...state.items, drop]
   }
@@ -851,6 +911,96 @@ function moveEnemyAway (state: GameState, idx: number): GameState {
   return state
 }
 
+function applyObjectModifier (
+  player: Player,
+  modifier: ObjectModifier,
+  floor: number,
+  log: string[],
+  isRisk: boolean
+): { player: Player, turnDelta: number, log: string[] } {
+  const p = { ...player, stats: { ...player.stats }, inventory: [...player.inventory] }
+  const nextLog = [...log]
+  let turnDelta = 0
+  const signLabel = isRisk ? '-' : '+'
+
+  switch (modifier.kind) {
+    case 'hp': {
+      const raw = modifier.mode === 'percent'
+        ? Math.floor(p.stats.maxHp * modifier.value)
+        : modifier.value
+      const delta = isRisk ? -Math.abs(raw) : Math.abs(raw)
+      p.stats.hp = Math.max(1, Math.min(p.stats.maxHp, p.stats.hp + delta))
+      nextLog.push(`HP ${signLabel}${Math.abs(raw)}`)
+      break
+    }
+    case 'maxHp': {
+      const raw = Math.abs(modifier.value)
+      const delta = isRisk ? -raw : raw
+      p.stats.maxHp = Math.max(1, p.stats.maxHp + delta)
+      p.stats.hp = Math.min(p.stats.maxHp, Math.max(1, p.stats.hp + delta))
+      nextLog.push(`MaxHP ${signLabel}${raw}`)
+      break
+    }
+    case 'str': {
+      const raw = Math.abs(modifier.value)
+      p.stats.str = Math.max(1, p.stats.str + (isRisk ? -raw : raw))
+      nextLog.push(`STR ${signLabel}${raw}`)
+      break
+    }
+    case 'def': {
+      const raw = Math.abs(modifier.value)
+      p.stats.def = Math.max(0, p.stats.def + (isRisk ? -raw : raw))
+      nextLog.push(`DEF ${signLabel}${raw}`)
+      break
+    }
+    case 'gold': {
+      const raw = Math.max(1, Math.floor(Math.abs(modifier.value) * Math.max(1, floor / 2)))
+      p.gold = Math.max(0, p.gold + (isRisk ? -raw : raw))
+      nextLog.push(`Gold ${signLabel}${raw}`)
+      break
+    }
+    case 'xp': {
+      const raw = Math.max(1, Math.floor(Math.abs(modifier.value) * Math.max(1, floor / 2)))
+      p.xp = Math.max(0, p.xp + (isRisk ? -raw : raw))
+      nextLog.push(`XP ${signLabel}${raw}`)
+      break
+    }
+    case 'item': {
+      if (isRisk) break
+      if (p.inventory.length >= MAX_INVENTORY) {
+        nextLog.push('인벤토리가 가득 찼다')
+        break
+      }
+      const pool = modifier.itemPool ?? 'random'
+      if (pool === 'weapon' || (pool === 'random' && Math.random() < 0.34)) {
+        const wpn = weaponForFloor(floor)
+        p.inventory = [...p.inventory, makeWeaponItem(wpn)]
+        nextLog.push(`${wpn.name} 획득!`)
+      } else if (pool === 'armor' || (pool === 'random' && Math.random() < 0.5)) {
+        const arm = armorForFloor(floor)
+        p.inventory = [...p.inventory, makeArmorItem(arm)]
+        nextLog.push(`${arm.name} 획득!`)
+      } else {
+        const pot = potionForFloor(floor)
+        p.inventory = [...p.inventory, makePotionItem(pot)]
+        nextLog.push(`${pot.name} 획득!`)
+      }
+      break
+    }
+    case 'doom': {
+      const raw = Math.max(1, Math.abs(modifier.value))
+      turnDelta += isRisk ? raw : -raw
+      if (isRisk) nextLog.push(`종말 계수 +${raw}턴`)
+      else nextLog.push(`종말 계수 -${raw}턴`)
+      break
+    }
+    default:
+      break
+  }
+
+  return { player: p, turnDelta, log: nextLog }
+}
+
 function pickUpItems (state: GameState): GameState {
   const px = state.player.pos.x
   const py = state.player.pos.y
@@ -885,6 +1035,59 @@ function pickUpItems (state: GameState): GameState {
       activeEvent: { eventId },
       eventIdx: 0
     }
+  }
+
+  // Multi-scale object (2x2~6x6 footprint)
+  if (mapItem.item.kind === 'potion' && mapItem.item.data.name.startsWith('scaledObj:')) {
+    const token = mapItem.item.data.name
+    const parts = token.split(':')
+    const objectId = parts[1]
+    const instanceId = parts[2]
+    if (objectId === undefined || instanceId === undefined) return state
+    const usedToken = `scaledObj:${instanceId}`
+    if (state.usedObjects.includes(usedToken)) return state
+
+    const obj = getScaledObjectById(objectId)
+    if (obj === undefined) return state
+
+    let player = { ...state.player, stats: { ...state.player.stats }, inventory: [...state.player.inventory] }
+    let turns = state.turns
+    let logs = [...newLog]
+
+    logs.push(`${objectRarityColor(obj.rarity)}[구조물] ${obj.name}${C.reset}`)
+    if (obj.effects.length > 0) {
+      logs.push(obj.effects[0].note)
+    }
+
+    for (const risk of obj.risks) {
+      const applied = applyObjectModifier(player, risk, state.floor, logs, true)
+      player = applied.player
+      turns += applied.turnDelta
+      logs = applied.log
+    }
+
+    for (const reward of obj.rewards) {
+      const applied = applyObjectModifier(player, reward, state.floor, logs, false)
+      player = applied.player
+      turns += applied.turnDelta
+      logs = applied.log
+    }
+
+    const newItems = state.items.filter(it =>
+      !(it.item.kind === 'potion' && it.item.data.name === token)
+    )
+    const newUsedObjects = [...state.usedObjects, usedToken]
+
+    let next: GameState = {
+      ...state,
+      player,
+      items: newItems,
+      usedObjects: newUsedObjects,
+      turns: Math.max(0, turns),
+      log: logs
+    }
+    next = checkLevelUp(next)
+    return next
   }
 
   // Theme-specific object
@@ -962,11 +1165,11 @@ function pickUpItems (state: GameState): GameState {
           const isWeapon = Math.random() < 0.5
           if (isWeapon) {
             const wpn = weaponForFloor(state.floor, state.currentTheme.id)
-            player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
+            player.inventory = [...player.inventory, makeWeaponItem(wpn)]
             newLog.push(`${wpn.name} 발견!`)
           } else {
             const arm = armorForFloor(state.floor, state.currentTheme.id)
-            player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
+            player.inventory = [...player.inventory, makeArmorItem(arm)]
             newLog.push(`${arm.name} 발견!`)
           }
         } else {
@@ -1020,16 +1223,16 @@ function pickUpItems (state: GameState): GameState {
       newLog.push('이 방의 기운이 생명력을 준다! MaxHP +5!')
     }
 
-    // Bonus item from special room
-    if (player.inventory.length < MAX_INVENTORY) {
+    // Bonus item from special room (not guaranteed to reduce overall item flood)
+    if (player.inventory.length < MAX_INVENTORY && Math.random() < 0.55) {
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const wpn = weaponForFloor(Math.min(state.floor + 1, TOTAL_FLOORS), state.currentTheme.id)
-        player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
+        player.inventory = [...player.inventory, makeWeaponItem(wpn)]
         newLog.push(`${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 발견!`)
       } else {
         const arm = armorForFloor(Math.min(state.floor + 1, TOTAL_FLOORS), state.currentTheme.id)
-        player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
+        player.inventory = [...player.inventory, makeArmorItem(arm)]
         newLog.push(`${rarityColor(arm.rarity)}${arm.name}${C.reset} 발견!`)
       }
     }
@@ -1045,14 +1248,14 @@ function pickUpItems (state: GameState): GameState {
     const player = { ...state.player, stats: { ...state.player.stats } }
     newLog.push('보물상자를 열었다!')
     const roll = Math.random()
-    if (roll < 0.5) {
-      // Higher tier weapon or armor
-      const dropFloor = Math.min(state.floor + (state.floor >= 5 ? 1 : 0), TOTAL_FLOORS)
+    if (roll < 0.35) {
+      // Modest-tier weapon or armor
+      const dropFloor = Math.min(state.floor + (state.floor >= 7 ? 1 : 0), TOTAL_FLOORS)
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const wpn = weaponForFloor(dropFloor, state.currentTheme.id)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
+          player.inventory = [...player.inventory, makeWeaponItem(wpn)]
           newLog.push(`${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
@@ -1060,19 +1263,19 @@ function pickUpItems (state: GameState): GameState {
       } else {
         const arm = armorForFloor(dropFloor, state.currentTheme.id)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
+          player.inventory = [...player.inventory, makeArmorItem(arm)]
           newLog.push(`${rarityColor(arm.rarity)}${arm.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
         }
       }
-    } else if (roll < 0.75) {
+    } else if (roll < 0.55) {
       // Rare+ equipment (force uncommon or better)
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const wpn = rollWeaponByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
+          player.inventory = [...player.inventory, makeWeaponItem(wpn)]
           newLog.push(`${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
@@ -1080,7 +1283,7 @@ function pickUpItems (state: GameState): GameState {
       } else {
         const arm = rollArmorByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
+          player.inventory = [...player.inventory, makeArmorItem(arm)]
           newLog.push(`${rarityColor(arm.rarity)}${arm.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
@@ -1088,33 +1291,28 @@ function pickUpItems (state: GameState): GameState {
       }
     } else if (roll < 0.90) {
       // Gold
-      const goldAmount = state.floor * 15
+      const goldAmount = state.floor * 10
       player.gold += goldAmount
       newLog.push(`${goldAmount} Gold 획득!`)
     } else {
-      // 2 potions
+      // 1 potion
       const pot1 = potionForFloor(state.floor)
-      const pot2 = potionForFloor(state.floor)
       if (player.inventory.length < MAX_INVENTORY) {
-        player.inventory = [...player.inventory, { kind: 'potion', data: pot1 }]
+        player.inventory = [...player.inventory, makePotionItem(pot1)]
         newLog.push(`${pot1.name} 획득!`)
-      }
-      if (player.inventory.length < MAX_INVENTORY) {
-        player.inventory = [...player.inventory, { kind: 'potion', data: pot2 }]
-        newLog.push(`${pot2.name} 획득!`)
       }
     }
     // Legendary drops are late-floor only.
-    const chestLegendChance = state.floor >= 8 ? 0.03 : state.floor >= 6 ? 0.01 : 0
+    const chestLegendChance = state.floor >= 9 ? 0.01 : 0
     if (Math.random() < chestLegendChance && player.inventory.length < MAX_INVENTORY) {
       const isWeapon = Math.random() < 0.5
       if (isWeapon) {
         const leg = LEGENDARY_WEAPONS[Math.floor(Math.random() * LEGENDARY_WEAPONS.length)]
-        player.inventory = [...player.inventory, { kind: 'weapon', data: leg }]
+        player.inventory = [...player.inventory, makeWeaponItem(leg)]
         newLog.push(`★ 환상의 ${leg.name}을(를) 발견했다! ★`)
       } else {
         const leg = LEGENDARY_ARMORS[Math.floor(Math.random() * LEGENDARY_ARMORS.length)]
-        player.inventory = [...player.inventory, { kind: 'armor', data: leg }]
+        player.inventory = [...player.inventory, makeArmorItem(leg)]
         newLog.push(`★ 환상의 ${leg.name}을(를) 발견했다! ★`)
       }
     }
@@ -1165,7 +1363,7 @@ function pickUpItems (state: GameState): GameState {
       if (isWeapon) {
         const wpn = rollWeaponByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'weapon', data: wpn }]
+          player.inventory = [...player.inventory, makeWeaponItem(wpn)]
           newLog.push(`저주 제단에서 보상이! ${rarityColor(wpn.rarity)}${wpn.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
@@ -1173,7 +1371,7 @@ function pickUpItems (state: GameState): GameState {
       } else {
         const arm = rollArmorByRarity(state.floor, state.currentTheme.id, 1)
         if (player.inventory.length < MAX_INVENTORY) {
-          player.inventory = [...player.inventory, { kind: 'armor', data: arm }]
+          player.inventory = [...player.inventory, makeArmorItem(arm)]
           newLog.push(`저주 제단에서 보상이! ${rarityColor(arm.rarity)}${arm.name}${C.reset} 획득!`)
         } else {
           newLog.push('인벤토리가 가득 찼다')
@@ -1203,15 +1401,16 @@ function pickUpItems (state: GameState): GameState {
     return { ...state, log: newLog }
   }
 
-  const newInventory = [...state.player.inventory, mapItem.item]
-  const itemName = getItemName(mapItem.item)
-  const rColor = mapItem.item.kind === 'weapon'
-    ? rarityColor(mapItem.item.data.rarity)
-    : mapItem.item.kind === 'armor'
-      ? rarityColor(mapItem.item.data.rarity)
+  const pickedItem = withItemId(mapItem.item)
+  const newInventory = [...state.player.inventory, pickedItem]
+  const itemName = getItemName(pickedItem)
+  const rColor = pickedItem.kind === 'weapon'
+    ? rarityColor(pickedItem.data.rarity)
+    : pickedItem.kind === 'armor'
+      ? rarityColor(pickedItem.data.rarity)
       : C.green
   // Legendary special message
-  const itemRarity = mapItem.item.kind === 'weapon' ? mapItem.item.data.rarity : mapItem.item.kind === 'armor' ? mapItem.item.data.rarity : undefined
+  const itemRarity = pickedItem.kind === 'weapon' ? pickedItem.data.rarity : pickedItem.kind === 'armor' ? pickedItem.data.rarity : undefined
   if (itemRarity === 'legendary') {
     newLog.push(`★ 환상의 ${itemName}을(를) 발견했다! ★`)
   } else {
@@ -1233,35 +1432,43 @@ function getItemName (item: InvItem): string {
 export function useItem (state: GameState, idx: number): GameState {
   if (idx < 0 || idx >= state.player.inventory.length) return state
 
-  const item = state.player.inventory[idx]
+  const normalizedInventory = state.player.inventory.map(it => withItemId(it))
+  const item = normalizedInventory[idx]
   const newLog = [...state.log]
-  const player = { ...state.player, stats: { ...state.player.stats } }
+  const player = { ...state.player, stats: { ...state.player.stats }, inventory: normalizedInventory }
+  const itemId = item.id
 
   if (item.kind === 'weapon') {
-    if (player.weapon !== null && player.weapon.name === item.data.name && player.weapon.atk === item.data.atk) {
+    if (player.weapon !== null && player.weaponItemId !== null && player.weaponItemId === itemId) {
       player.weapon = null
+      player.weaponItemId = null
       newLog.push(`${item.data.name} \uD574\uC81C!`)
       return { ...state, player, log: newLog }
     }
     const newInventory = player.inventory.filter((_, i) => i !== idx)
     player.inventory = newInventory
     if (player.weapon !== null) {
-      player.inventory = [...player.inventory, { kind: 'weapon' as const, data: player.weapon }]
+      const previousWeapon = withItemId({ kind: 'weapon', data: player.weapon, id: player.weaponItemId ?? undefined })
+      player.inventory = [...player.inventory, previousWeapon]
     }
     player.weapon = item.data
+    player.weaponItemId = itemId
     newLog.push(`${item.data.name} \uC7A5\uCC29!`)
   } else if (item.kind === 'armor') {
-    if (player.armor !== null && player.armor.name === item.data.name && player.armor.def === item.data.def) {
+    if (player.armor !== null && player.armorItemId !== null && player.armorItemId === itemId) {
       player.armor = null
+      player.armorItemId = null
       newLog.push(`${item.data.name} \uD574\uC81C!`)
       return { ...state, player, log: newLog }
     }
     const newInventory = player.inventory.filter((_, i) => i !== idx)
     player.inventory = newInventory
     if (player.armor !== null) {
-      player.inventory = [...player.inventory, { kind: 'armor' as const, data: player.armor }]
+      const previousArmor = withItemId({ kind: 'armor', data: player.armor, id: player.armorItemId ?? undefined })
+      player.inventory = [...player.inventory, previousArmor]
     }
     player.armor = item.data
+    player.armorItemId = itemId
     newLog.push(`${item.data.name} \uC7A5\uCC29!`)
   } else if (item.kind === 'potion') {
     const newInventory = player.inventory.filter((_, i) => i !== idx)
@@ -1282,8 +1489,17 @@ export function useItem (state: GameState, idx: number): GameState {
 export function dropItem (state: GameState, idx: number): GameState {
   if (idx < 0 || idx >= state.player.inventory.length) return state
 
-  const item = state.player.inventory[idx]
-  const player = { ...state.player, inventory: state.player.inventory.filter((_, i) => i !== idx) }
+  const normalizedInventory = state.player.inventory.map(it => withItemId(it))
+  const item = normalizedInventory[idx]
+  const player = { ...state.player, inventory: normalizedInventory.filter((_, i) => i !== idx) }
+  if (player.weaponItemId !== null && player.weaponItemId === item.id) {
+    player.weapon = null
+    player.weaponItemId = null
+  }
+  if (player.armorItemId !== null && player.armorItemId === item.id) {
+    player.armor = null
+    player.armorItemId = null
+  }
   const newLog = [...state.log, `${getItemName(item)} 버리기`]
 
   return { ...state, player, log: newLog, projectile: null }
@@ -1308,8 +1524,9 @@ export function buyShopItem (state: GameState, idx: number): GameState {
   }
 
   player.gold -= shopItem.price
-  player.inventory = [...player.inventory, shopItem.item]
-  const itemName = getItemName(shopItem.item)
+  const boughtItem = withItemId(shopItem.item)
+  player.inventory = [...player.inventory, boughtItem]
+  const itemName = getItemName(boughtItem)
   newLog.push(`${itemName} 구매! (-${shopItem.price}G)`)
 
   const newShopItems = state.shopItems.map((si, i) =>
@@ -1371,8 +1588,9 @@ export function resolveEvent (state: GameState): GameState {
     player.stats.hp = player.stats.maxHp
   }
   if (outcome.giveItem !== undefined && player.inventory.length < MAX_INVENTORY) {
-    player.inventory = [...player.inventory, outcome.giveItem]
-    const itemName = outcome.giveItem.data.name
+    const rewardItem = withItemId(outcome.giveItem)
+    player.inventory = [...player.inventory, rewardItem]
+    const itemName = rewardItem.data.name
     newLog.push(`${itemName} 획득!`)
   }
 
@@ -1731,8 +1949,12 @@ export function renderGame (state: GameState, compact: boolean = false): string[
             mapStr += C.red + getEnemyChar(state, col, row) + C.reset
           }
         } else if (hasVisibleItem(state, col, row)) {
-          const ch = getItemChar(state, col, row)
+          const itemAtPos = getItemAtPos(state, col, row)
+          const ch = itemAtPos?.ch ?? getItemChar(state, col, row)
           const themeObjColor = themeObjectColorByChar(state, ch)
+          const scaledObjColor = itemAtPos?.item.kind === 'potion'
+            ? scaledObjectColorByToken(itemAtPos.item.data.name)
+            : null
           if (ch === '$') {
             mapStr += C.darkYellow + ch + C.reset
           } else if (ch === 'C') {
@@ -1747,6 +1969,8 @@ export function renderGame (state: GameState, compact: boolean = false): string[
             mapStr += C.magenta + ch + C.reset
           } else if (ch === '★') {
             mapStr += C.yellow + ch + C.reset
+          } else if (scaledObjColor !== null) {
+            mapStr += scaledObjColor + ch + C.reset
           } else if (themeObjColor !== null) {
             mapStr += themeObjColor + ch + C.reset
           } else {
@@ -1835,11 +2059,28 @@ function hasVisibleItem (state: GameState, x: number, y: number): boolean {
   return false
 }
 
+function getItemAtPos (state: GameState, x: number, y: number): MapItem | null {
+  for (const item of state.items) {
+    if (item.pos.x === x && item.pos.y === y) return item
+  }
+  return null
+}
+
 function getItemChar (state: GameState, x: number, y: number): string {
   for (const item of state.items) {
     if (item.pos.x === x && item.pos.y === y) return item.ch
   }
   return '?'
+}
+
+function scaledObjectColorByToken (token: string): string | null {
+  if (!token.startsWith('scaledObj:')) return null
+  const parts = token.split(':')
+  const objectId = parts[1]
+  if (objectId === undefined) return null
+  const obj = getScaledObjectById(objectId)
+  if (obj === undefined) return null
+  return objectRarityColor(obj.rarity)
 }
 
 function themeObjectColorByChar (state: GameState, ch: string): string | null {

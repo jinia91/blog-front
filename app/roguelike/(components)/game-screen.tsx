@@ -16,7 +16,8 @@ function detectMobileLayout (): boolean {
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches
   const touchCapable = navigator.maxTouchPoints > 0
   const shortEdge = Math.min(window.innerWidth, window.innerHeight)
-  return (coarsePointer || touchCapable) && shortEdge <= 1366
+  const narrowViewport = shortEdge <= 900 || window.innerWidth <= 900
+  return coarsePointer || touchCapable || narrowViewport
 }
 
 export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.ReactElement {
@@ -503,8 +504,15 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     <div className="flex flex-col items-center w-full relative">
       {/* ANSI Game View */}
       <div
-        className="font-mono leading-tight select-none"
-        style={{ fontSize, touchAction: 'none', maxWidth: '100vw', overflowX: 'hidden', paddingInline: '2px' }}
+        className="font-mono leading-tight select-none inline-block mx-auto"
+        style={{
+          fontSize,
+          touchAction: 'none',
+          width: isMobile ? '34ch' : 'fit-content',
+          maxWidth: '100vw',
+          overflowX: 'hidden',
+          paddingInline: '2px'
+        }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

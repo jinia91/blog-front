@@ -96,10 +96,36 @@ export interface PotionData {
   value: number
 }
 
+let ITEM_ID_SEQ = 0
+
+export function nextItemId (): string {
+  ITEM_ID_SEQ += 1
+  return `it_${ITEM_ID_SEQ.toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+}
+
 export type InvItem =
-  | { kind: 'weapon', data: WeaponData }
-  | { kind: 'armor', data: ArmorData }
-  | { kind: 'potion', data: PotionData }
+  | { id?: string, kind: 'weapon', data: WeaponData }
+  | { id?: string, kind: 'armor', data: ArmorData }
+  | { id?: string, kind: 'potion', data: PotionData }
+
+export function withItemId (item: InvItem): InvItem & { id: string } {
+  if (item.id !== undefined && item.id.length > 0) {
+    return { ...item, id: item.id }
+  }
+  return { ...item, id: nextItemId() }
+}
+
+export function makeWeaponItem (data: WeaponData): InvItem {
+  return { id: nextItemId(), kind: 'weapon', data }
+}
+
+export function makeArmorItem (data: ArmorData): InvItem {
+  return { id: nextItemId(), kind: 'armor', data }
+}
+
+export function makePotionItem (data: PotionData): InvItem {
+  return { id: nextItemId(), kind: 'potion', data }
+}
 
 export interface MapItem {
   pos: Position
@@ -121,7 +147,9 @@ export interface Player {
   xpNext: number
   gold: number
   weapon: WeaponData | null
+  weaponItemId: string | null
   armor: ArmorData | null
+  armorItemId: string | null
   inventory: InvItem[]
   nextAttackTurn: number
 }
@@ -896,10 +924,15 @@ export function generateShopItems (floor: number): ShopItem[] {
     return basePrice * floor
   }
 
-  items.push({ item: { kind: 'weapon', data: wpn }, price: priceOf({ kind: 'weapon', data: wpn }), sold: false })
-  items.push({ item: { kind: 'armor', data: arm }, price: priceOf({ kind: 'armor', data: arm }), sold: false })
-  items.push({ item: { kind: 'potion', data: pot1 }, price: 8 * floor, sold: false })
-  items.push({ item: { kind: 'potion', data: pot2 }, price: 8 * floor, sold: false })
+  const weaponItem = makeWeaponItem(wpn)
+  const armorItem = makeArmorItem(arm)
+  const potionItem1 = makePotionItem(pot1)
+  const potionItem2 = makePotionItem(pot2)
+
+  items.push({ item: weaponItem, price: priceOf(weaponItem), sold: false })
+  items.push({ item: armorItem, price: priceOf(armorItem), sold: false })
+  items.push({ item: potionItem1, price: 8 * floor, sold: false })
+  items.push({ item: potionItem2, price: 8 * floor, sold: false })
 
   return items
 }
@@ -1020,7 +1053,9 @@ export function createPlayer (pos: Position): Player {
     xpNext: xpForLevel(1),
     gold: 0,
     weapon: { name: '녹슨 단도', atk: 2, speed: 1 },
+    weaponItemId: nextItemId(),
     armor: null,
+    armorItemId: null,
     inventory: [],
     nextAttackTurn: 0
   }
@@ -1050,7 +1085,9 @@ export function enemyCountForFloor (floor: number): number {
 }
 
 export function itemCountForFloor (floor: number): number {
-  return 4 + Math.floor(Math.random() * 4)
+  if (floor <= 3) return 1 + Math.floor(Math.random() * 2) // 1-2
+  if (floor <= 7) return 2 + Math.floor(Math.random() * 2) // 2-3
+  return 2 + Math.floor(Math.random() * 3) // 2-4
 }
 
 export function scaleEnemyStats (base: Stats, floor: number): Stats {
