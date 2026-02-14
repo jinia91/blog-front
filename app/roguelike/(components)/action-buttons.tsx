@@ -6,6 +6,7 @@ interface ActionButtonsProps {
   onRanged: () => void
   onInventory: () => void
   onStats: () => void
+  onBack: () => void
   canDescend: boolean
   hasRangedWeapon: boolean
   isInventoryOpen: boolean
@@ -13,6 +14,8 @@ interface ActionButtonsProps {
   isOnShopTile?: boolean
   isShopOpen?: boolean
   isEventActive?: boolean
+  isBackDisabled?: boolean
+  backLabel?: string
 }
 
 export default function ActionButtons ({
@@ -20,13 +23,16 @@ export default function ActionButtons ({
   onRanged,
   onInventory,
   onStats,
+  onBack,
   canDescend,
   hasRangedWeapon,
   isInventoryOpen,
   isStatsOpen,
   isOnShopTile = false,
   isShopOpen = false,
-  isEventActive = false
+  isEventActive = false,
+  isBackDisabled = false,
+  backLabel = '↩'
 }: ActionButtonsProps): React.ReactElement {
   const touchedRef = React.useRef(false)
 
@@ -131,6 +137,23 @@ export default function ActionButtons ({
           aria-label="Ranged attack"
         >
           FR
+        </button>
+
+        {/* Center: Context back/close */}
+        <button
+          onTouchEnd={makeTouchEnd(onBack)}
+          onClick={makeClick(onBack)}
+          disabled={isBackDisabled}
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                      w-9 h-9 rounded-full border-2
+                      transition-all duration-100 flex items-center justify-center
+                      text-[9px] font-bold
+                      ${isBackDisabled
+                        ? 'bg-gray-800/80 border-gray-600 text-gray-500'
+                        : 'bg-rose-800/90 border-rose-500/70 text-rose-200 active:scale-90 active:brightness-125 shadow-md shadow-rose-400/20'}`}
+          aria-label="Back or close current panel"
+        >
+          {backLabel}
         </button>
       </div>
 

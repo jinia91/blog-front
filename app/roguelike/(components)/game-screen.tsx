@@ -11,10 +11,18 @@ import TouchInventory from './touch-inventory'
 import TouchStats from './touch-stats'
 import TouchEvent from './touch-event'
 
+function detectMobileLayout (): boolean {
+  if (typeof window === 'undefined') return false
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+  const touchCapable = navigator.maxTouchPoints > 0
+  const shortEdge = Math.min(window.innerWidth, window.innerHeight)
+  return (coarsePointer || touchCapable) && shortEdge <= 900
+}
+
 export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.ReactElement {
   const initialState = initFloor(1, null)
   const gameStateRef = useRef<GameState>(initialState)
-  const [viewLines, setViewLines] = useState<string[]>(() => renderGame(gameStateRef.current))
+  const [viewLines, setViewLines] = useState<string[]>(() => renderGame(gameStateRef.current, detectMobileLayout()))
 
   const onQuitRef = useRef(onQuit)
   useEffect(() => {
@@ -22,15 +30,19 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   }, [onQuit])
 
   // Mobile detection
-  const [isMobile, setIsMobile] = useState(false)
-  const isMobileRef = useRef(false)
+  const [isMobile, setIsMobile] = useState(detectMobileLayout())
+  const isMobileRef = useRef(isMobile)
   useEffect(() => {
     const check = (): void => {
-      setIsMobile(window.innerWidth < 768)
+      setIsMobile(detectMobileLayout())
     }
     check()
     window.addEventListener('resize', check)
-    return () => { window.removeEventListener('resize', check) }
+    window.addEventListener('orientationchange', check)
+    return () => {
+      window.removeEventListener('resize', check)
+      window.removeEventListener('orientationchange', check)
+    }
   }, [])
 
   useEffect(() => {
@@ -46,7 +58,8 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const [fontSize, setFontSize] = useState('12px')
   useEffect(() => {
     const calcFontSize = (): void => {
-      if (window.innerWidth < 768) {
+      const mobile = detectMobileLayout()
+      if (mobile) {
         // 34 chars total width in compact mode (VIEW_WIDTH + 2 borders = 34)
         const viewportWidth = Math.max(320, window.innerWidth)
         const charWidth = (viewportWidth - 20) / 34
@@ -58,7 +71,11 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     }
     calcFontSize()
     window.addEventListener('resize', calcFontSize)
-    return () => { window.removeEventListener('resize', calcFontSize) }
+    window.addEventListener('orientationchange', calcFontSize)
+    return () => {
+      window.removeEventListener('resize', calcFontSize)
+      window.removeEventListener('orientationchange', calcFontSize)
+    }
   }, [])
 
   // Derived state for mobile UI (since gameStateRef doesn't trigger re-renders)
@@ -70,6 +87,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isOnShopTile, setIsOnShopTile] = useState(false)
   const [isEventActive, setIsEventActive] = useState(false)
+  const [isBossDecisionActive, setIsBossDecisionActive] = useState(false)
   const [hasRangedWeapon, setHasRangedWeapon] = useState((initialState.player.weapon?.range ?? 1) > 1)
 
   // --- Shared action callbacks ---
@@ -82,6 +100,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setIsShopOpen(newState.shopOpen)
     setIsOnShopTile(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Shop)
     setIsEventActive(newState.activeEvent !== null)
+    setIsBossDecisionActive(newState.activeEvent?.eventId === 'boss_phase_decision')
     setHasRangedWeapon((newState.player.weapon?.range ?? 1) > 1)
   }, [])
 
@@ -147,6 +166,31 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const handleStatsToggle = useCallback((): void => {
     setIsStatsOpen(prev => !prev)
   }, [])
+
+  const handleBackAction = useCallback((): void => {
+    const current = gameStateRef.current
+    if (current.over || current.won) {
+      onQuitRef.current()
+      return
+    }
+    if (current.activeEvent !== null) {
+      updateState(cancelEvent(current))
+      return
+    }
+    if (current.shopOpen) {
+      updateState({ ...current, shopOpen: false })
+      return
+    }
+    if (current.invOpen) {
+      updateState({ ...current, invOpen: false })
+      return
+    }
+    if (isStatsOpen) {
+      setIsStatsOpen(false)
+      return
+    }
+    onQuitRef.current()
+  }, [updateState, isStatsOpen])
 
   const handleEventSelect = useCallback((idx: number): void => {
     const current = gameStateRef.current
@@ -511,6 +555,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
             onRanged={handleRangedAction}
             onInventory={handleInventoryToggle}
             onStats={handleStatsToggle}
+            onBack={handleBackAction}
             canDescend={canDescend}
             hasRangedWeapon={hasRangedWeapon}
             isInventoryOpen={isInvOpen}
@@ -518,6 +563,8 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
             isOnShopTile={isOnShopTile}
             isShopOpen={isShopOpen}
             isEventActive={isEventActive}
+            isBackDisabled={isBossDecisionActive}
+            backLabel={isBossDecisionActive ? '!' : isEventActive || isShopOpen || isInvOpen || isStatsOpen ? '닫기' : 'Q'}
           />
         </>
       )}
