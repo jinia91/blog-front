@@ -6,6 +6,7 @@ export const PANEL_WIDTH = 20
 export const FOV_RADIUS = 12
 export const MAX_INVENTORY = 8
 export const TOTAL_FLOORS = 10
+export const FINAL_CHAPTER_THEME_ID = 'rlyeh'
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 
@@ -1113,8 +1114,94 @@ export function getThemeObjects (theme: FloorTheme): ThemeObject[] {
   }))
 }
 
+type ThemeDifficultyTier = 'early' | 'mid' | 'late'
+
+interface ThemeSpawnRule {
+  tier: ThemeDifficultyTier
+  minFloor: number
+  maxFloor: number
+  weight: number
+}
+
+const DEFAULT_THEME_RULE: ThemeSpawnRule = {
+  tier: 'mid',
+  minFloor: 1,
+  maxFloor: TOTAL_FLOORS,
+  weight: 1
+}
+
+const THEME_SPAWN_RULES: Record<string, ThemeSpawnRule> = {
+  cave: { tier: 'early', minFloor: 1, maxFloor: 4, weight: 1.45 },
+  sewer: { tier: 'early', minFloor: 1, maxFloor: 5, weight: 1.4 },
+  forest: { tier: 'early', minFloor: 1, maxFloor: 5, weight: 1.35 },
+  crypt: { tier: 'early', minFloor: 1, maxFloor: 6, weight: 1.2 },
+  swamp: { tier: 'early', minFloor: 1, maxFloor: 6, weight: 1.2 },
+
+  ruins: { tier: 'mid', minFloor: 2, maxFloor: 7, weight: 1.15 },
+  wasteland: { tier: 'mid', minFloor: 2, maxFloor: 7, weight: 1.05 },
+  machine_factory: { tier: 'mid', minFloor: 3, maxFloor: 8, weight: 1.0 },
+  fuel_mine: { tier: 'mid', minFloor: 3, maxFloor: 8, weight: 0.95 },
+  deep_sea: { tier: 'mid', minFloor: 3, maxFloor: 8, weight: 0.95 },
+  cyber_server: { tier: 'mid', minFloor: 4, maxFloor: 9, weight: 0.92 },
+  bunker: { tier: 'mid', minFloor: 4, maxFloor: 9, weight: 0.9 },
+  yokai_shrine: { tier: 'mid', minFloor: 4, maxFloor: 9, weight: 0.9 },
+  pharaoh_tomb: { tier: 'mid', minFloor: 4, maxFloor: 9, weight: 0.88 },
+  lava: { tier: 'mid', minFloor: 5, maxFloor: 10, weight: 0.85 },
+  ice: { tier: 'mid', minFloor: 5, maxFloor: 10, weight: 0.85 },
+  crystal_cavern: { tier: 'mid', minFloor: 5, maxFloor: 10, weight: 0.8 },
+  fungal_garden: { tier: 'mid', minFloor: 5, maxFloor: 10, weight: 0.78 },
+
+  iron_fortress: { tier: 'late', minFloor: 6, maxFloor: 10, weight: 0.72 },
+  casino_hell: { tier: 'late', minFloor: 6, maxFloor: 10, weight: 0.68 },
+  mutation_lab: { tier: 'late', minFloor: 6, maxFloor: 10, weight: 0.66 },
+  clocktower: { tier: 'late', minFloor: 7, maxFloor: 10, weight: 0.62 },
+  abyss: { tier: 'late', minFloor: 7, maxFloor: 10, weight: 0.58 },
+  void_library: { tier: 'late', minFloor: 7, maxFloor: 10, weight: 0.56 },
+  sunken_temple: { tier: 'late', minFloor: 8, maxFloor: 10, weight: 0.5 },
+  eldritch_depths: { tier: 'late', minFloor: 8, maxFloor: 10, weight: 0.45 },
+  rlyeh: { tier: 'late', minFloor: 9, maxFloor: 10, weight: 0.28 }
+}
+
+function getThemeSpawnRule (themeId: string): ThemeSpawnRule {
+  return THEME_SPAWN_RULES[themeId] ?? DEFAULT_THEME_RULE
+}
+
+function isThemeUnlockedForFloor (themeId: string, floor: number): boolean {
+  const rule = getThemeSpawnRule(themeId)
+  return floor >= rule.minFloor && floor <= rule.maxFloor
+}
+
+function pickWeightedTheme (pool: FloorTheme[]): FloorTheme {
+  if (pool.length === 1) return pool[0]
+  const weights = pool.map(theme => Math.max(0.01, getThemeSpawnRule(theme.id).weight))
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+  if (totalWeight <= 0) return pool[Math.floor(Math.random() * pool.length)]
+  let roll = Math.random() * totalWeight
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i]
+    if (roll <= 0) return pool[i]
+  }
+  return pool[pool.length - 1]
+}
+
 export function selectThemeForFloor (floor: number, usedThemeIds: string[]): FloorTheme {
-  const available = FLOOR_THEMES.filter(t => !usedThemeIds.includes(t.id))
-  const pool = available.length > 0 ? available : FLOOR_THEMES
-  return pool[Math.floor(Math.random() * pool.length)]
+  const unlocked = FLOOR_THEMES.filter(theme => isThemeUnlockedForFloor(theme.id, floor))
+  const unlockedPool = unlocked.length > 0 ? unlocked : FLOOR_THEMES
+
+  const freshUnlocked = unlockedPool.filter(theme => !usedThemeIds.includes(theme.id))
+  if (freshUnlocked.length > 0) {
+    return pickWeightedTheme(freshUnlocked)
+  }
+
+  if (unlockedPool.length > 0) {
+    return pickWeightedTheme(unlockedPool)
+  }
+
+  const freshAll = FLOOR_THEMES.filter(theme => !usedThemeIds.includes(theme.id))
+  const fallback = freshAll.length > 0 ? freshAll : FLOOR_THEMES
+  return pickWeightedTheme(fallback)
+}
+
+export function getThemeById (themeId: string): FloorTheme | undefined {
+  return FLOOR_THEMES.find(theme => theme.id === themeId)
 }

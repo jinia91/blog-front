@@ -9,9 +9,21 @@ interface MobileHudProps {
   log: string[]
   themeName: string
   themeIcon: string
+  onToggleStats?: () => void
+  onToggleInventory?: () => void
+  isInventoryOpen?: boolean
 }
 
-export default function MobileHud ({ player, floor, log, themeName, themeIcon }: MobileHudProps): React.ReactElement {
+export default function MobileHud ({
+  player,
+  floor,
+  log,
+  themeName,
+  themeIcon,
+  onToggleStats,
+  onToggleInventory,
+  isInventoryOpen = false
+}: MobileHudProps): React.ReactElement {
   const sanitizeLog = useCallback((msg: string): string => {
     // eslint-disable-next-line no-control-regex
     const noAnsi = msg.replace(/\x1b\[[0-9;]*m/g, '')
@@ -59,6 +71,30 @@ export default function MobileHud ({ player, floor, log, themeName, themeIcon }:
           <span className="shrink-0">{themeIcon}</span>
           <span className="text-gray-400 truncate max-w-[64px]">{themeName}</span>
           <span className="text-yellow-400 shrink-0">B{floor}F</span>
+          <div className="ml-1 flex items-center gap-1">
+            {onToggleInventory !== undefined && (
+              <button
+                onClick={onToggleInventory}
+                className={`w-6 h-5 text-[11px] rounded border active:scale-95 ${
+                  isInventoryOpen
+                    ? 'border-blue-300 text-white bg-blue-500'
+                    : 'border-blue-400/70 text-blue-200 bg-blue-900/50'
+                }`}
+                aria-label="Toggle inventory"
+              >
+                🎒
+              </button>
+            )}
+            {onToggleStats !== undefined && (
+              <button
+                onClick={onToggleStats}
+                className="px-1.5 py-0.5 text-[10px] rounded border border-purple-400/70 text-purple-200 bg-purple-900/50 active:scale-95"
+                aria-label="Toggle stats"
+              >
+                ST
+              </button>
+            )}
+          </div>
         </div>
         {/* Row 2: Equipment + Gold */}
         <div className="flex items-center gap-1 text-[10px] mt-0.5">
@@ -83,6 +119,7 @@ export default function MobileHud ({ player, floor, log, themeName, themeIcon }:
           <p className="text-[10px] text-gray-600 leading-tight">...</p>
         )}
       </div>
+
     </div>
   )
 }

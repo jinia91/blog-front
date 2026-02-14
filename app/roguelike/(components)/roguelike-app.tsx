@@ -9,7 +9,7 @@ export default function RoguelikeApp (): React.ReactElement {
   const [phase, setPhase] = useState<AppPhase>('title')
 
   return (
-    <div className="w-full max-w-full min-h-dvh md:min-h-[50vh] md:h-[50vh] bg-black flex items-start md:items-center justify-center overflow-x-hidden overflow-y-hidden px-1 sm:px-2">
+    <div className="w-full max-w-full h-auto md:min-h-[50vh] md:h-[50vh] bg-black flex items-start md:items-center justify-center overflow-x-hidden overflow-y-hidden px-1 sm:px-2">
       {phase === 'title' && (
         <TitleScreen onStart={() => { setPhase('playing') }} />
       )}

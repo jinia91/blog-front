@@ -1,8 +1,9 @@
 import {
   type GameState, type Player, type InvItem, type MapItem, type Enemy, type ItemRarity, type WeaponData, type ArmorData, type ThemeObject,
   Tile, MAP_WIDTH, MAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT, PANEL_WIDTH, MAX_INVENTORY, TOTAL_FLOORS,
+  FINAL_CHAPTER_THEME_ID,
   LEGENDARY_WEAPONS, LEGENDARY_ARMORS,
-  createPlayer, xpForLevel, selectThemeForFloor, weaponForFloor, armorForFloor, potionForFloor,
+  createPlayer, createEnemy, type EnemyDef, xpForLevel, selectThemeForFloor, getThemeById, weaponForFloor, armorForFloor, potionForFloor,
   weaponAttackSpeed, getThemeObjects,
   generateShopItems
 } from './types'
@@ -115,7 +116,9 @@ function padPanel (s: string): string {
 }
 
 export function initFloor (floor: number, existingPlayer: Player | null, usedThemeIds: string[] = []): GameState {
-  const theme = selectThemeForFloor(floor, usedThemeIds)
+  const theme = floor === TOTAL_FLOORS
+    ? (getThemeById(FINAL_CHAPTER_THEME_ID) ?? selectThemeForFloor(floor, usedThemeIds))
+    : selectThemeForFloor(floor, usedThemeIds)
   const newUsedThemeIds = [...usedThemeIds, theme.id].slice(-3)
   const { map, playerPos, enemies, items } = generateDungeon(floor, theme)
   const player = existingPlayer === null
@@ -127,13 +130,15 @@ export function initFloor (floor: number, existingPlayer: Player | null, usedThe
   const log: string[] = []
   if (floor === 1) {
     log.push('\uB358\uC804\uC5D0 \uC785\uC7A5\uD588\uB2E4...')
+  } else if (floor === TOTAL_FLOORS) {
+    log.push('\uCD5C\uC885\uC7A5: \uC77C\uADF8\uB7EC\uC9C4 \uC11D\uD310 \uD68C\uB791\uC744 \uB118\uC5B4 \uBD09\uC778\uC758 \uC2EC\uC7A5\uC5D0 \uB2FF\uC558\uB2E4.')
+    log.push('\uAC70\uB300\uD55C \uC2E0\uC131\uC758 \uC2DC\uC120\uC774 \uC804\uC7A5 \uC804\uC5ED\uC744 \uAD00\uD1B5\uD55C\uB2E4...')
   } else {
     log.push(`${floor}\uCE35\uC5D0 \uB3C4\uCC29\uD588\uB2E4...`)
   }
-  const flavorText = theme.flavorTexts[Math.floor(Math.random() * theme.flavorTexts.length)]
-  log.push(flavorText)
-  if (floor === 10) {
-    log.push('\uAC70\uB300\uD55C \uC6A9\uC758 \uC228\uC18C\uB9AC\uAC00 \uB4E4\uB9B0\uB2E4...')
+  if (floor !== TOTAL_FLOORS) {
+    const flavorText = theme.flavorTexts[Math.floor(Math.random() * theme.flavorTexts.length)]
+    log.push(flavorText)
   }
 
   return {
@@ -190,6 +195,152 @@ function checkLevelUp (state: GameState): GameState {
 function clearProjectile (state: GameState): GameState {
   if (state.projectile === null) return state
   return { ...state, projectile: null }
+}
+
+const DOOM_WARNING_1 = 640
+const DOOM_WARNING_2 = 720
+const DOOM_WARNING_3 = 760
+const DOOM_REAPER_TURN = 800
+
+function isInsideRoom (room: { x: number, y: number, w: number, h: number }, x: number, y: number): boolean {
+  return x >= room.x && x < room.x + room.w && y >= room.y && y < room.y + room.h
+}
+
+function manhattan (a: { x: number, y: number }, b: { x: number, y: number }): number {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+}
+
+function findStairsPos (state: GameState): { x: number, y: number } | null {
+  for (let y = 0; y < MAP_HEIGHT; y++) {
+    for (let x = 0; x < MAP_WIDTH; x++) {
+      if (state.map.tiles[y][x] === Tile.Stairs) return { x, y }
+    }
+  }
+  return null
+}
+
+function isBlockedByUnit (state: GameState, x: number, y: number): boolean {
+  if (state.player.pos.x === x && state.player.pos.y === y) return true
+  for (const e of state.enemies) {
+    if (e.alive && e.pos.x === x && e.pos.y === y) return true
+  }
+  return false
+}
+
+function findReaperSpawnPos (state: GameState): { x: number, y: number } | null {
+  let bestPos: { x: number, y: number } | null = null
+  let bestDist = -1
+
+  for (let y = 1; y < MAP_HEIGHT - 1; y++) {
+    for (let x = 1; x < MAP_WIDTH - 1; x++) {
+      const tile = state.map.tiles[y][x]
+      if (tile !== Tile.Floor && tile !== Tile.Door) continue
+      if (isBlockedByUnit(state, x, y)) continue
+      const dist = manhattan(state.player.pos, { x, y })
+      if (dist > bestDist) {
+        bestDist = dist
+        bestPos = { x, y }
+      }
+    }
+  }
+
+  return bestPos
+}
+
+function applyDoomPressure (state: GameState): GameState {
+  if (state.over || state.won) return state
+  if (state.floor === TOTAL_FLOORS) return state
+
+  let next = state
+  let log = next.log
+  let used = next.usedObjects
+
+  const has = (token: string): boolean => used.includes(token)
+  const mark = (token: string): void => {
+    if (!has(token)) used = [...used, token]
+  }
+  const pushLog = (line: string): void => {
+    log = [...log, line]
+  }
+
+  if (next.turns >= DOOM_WARNING_1 && !has('__doom_warn_1')) {
+    mark('__doom_warn_1')
+    pushLog(`${C.darkYellow}[전조]${C.reset} 돌벽 너머에서 장송곡 같은 진동이 울린다...`)
+  }
+  if (next.turns >= DOOM_WARNING_2 && !has('__doom_warn_2')) {
+    mark('__doom_warn_2')
+    pushLog(`${C.darkYellow}[전조]${C.reset} 천장이 무너질 듯 떨리고 복도 끝이 어둠에 잠긴다...`)
+  }
+  if (next.turns >= DOOM_WARNING_3 && !has('__doom_warn_3')) {
+    mark('__doom_warn_3')
+    pushLog(`${C.red}[경고]${C.reset} 봉인 균열이 한계에 이르렀다. 곧 사신이 온다.`)
+  }
+
+  if (next.turns >= DOOM_REAPER_TURN && !has('__doom_reaper')) {
+    mark('__doom_reaper')
+    pushLog(`${C.bold}${C.red}[종말]${C.reset} 사신이 강림했다. 계단실 외 공간이 붕괴한다!`)
+
+    const stairsPos = findStairsPos(next)
+    let map = next.map
+    let player = next.player
+    let enemies = next.enemies
+    let items = next.items
+
+    if (stairsPos !== null) {
+      const stairsRoom = next.map.rooms.find(room => isInsideRoom(room, stairsPos.x, stairsPos.y))
+      if (stairsRoom !== undefined) {
+        const tiles = next.map.tiles.map(row => [...row])
+        for (const room of next.map.rooms) {
+          if (room === stairsRoom) continue
+          for (let y = room.y; y < room.y + room.h; y++) {
+            for (let x = room.x; x < room.x + room.w; x++) {
+              if (tiles[y][x] === Tile.Floor || tiles[y][x] === Tile.Door || tiles[y][x] === Tile.Shop) {
+                tiles[y][x] = Tile.Wall
+              }
+            }
+          }
+        }
+
+        tiles[stairsPos.y][stairsPos.x] = Tile.Stairs
+
+        if (!isInsideRoom(stairsRoom, player.pos.x, player.pos.y)) {
+          player = { ...player, pos: { x: stairsPos.x, y: stairsPos.y } }
+          pushLog(`${C.red}붕괴 파편에 휩쓸려 계단실로 밀려났다!${C.reset}`)
+        }
+        tiles[player.pos.y][player.pos.x] = Tile.Floor
+
+        enemies = enemies.filter(e => !e.alive || tiles[e.pos.y][e.pos.x] !== Tile.Wall)
+        items = items.filter(it => tiles[it.pos.y][it.pos.x] !== Tile.Wall)
+        map = { ...next.map, tiles }
+      }
+    }
+
+    const reaperDef: EnemyDef = {
+      name: '사신',
+      ch: '☠',
+      stats: { hp: 260, maxHp: 260, str: 22, def: 12 },
+      xp: 220,
+      range: 5,
+      attackSpeed: 1
+    }
+    const spawnPos = findReaperSpawnPos({ ...next, map, player, enemies })
+    if (spawnPos !== null) {
+      enemies = [...enemies, createEnemy(reaperDef, spawnPos, false)]
+      pushLog(`${C.red}사신이 전장에 출현했다...${C.reset}`)
+    }
+
+    next = { ...next, map, player, enemies, items }
+  }
+
+  if (log !== next.log || used !== next.usedObjects) {
+    next = { ...next, log, usedObjects: used }
+  }
+  return next
+}
+
+function advanceTurn (state: GameState): GameState {
+  const next = { ...state, turns: state.turns + 1 }
+  return applyDoomPressure(next)
 }
 
 function rarityRank (rarity: ItemRarity | undefined): number {
@@ -1266,7 +1417,7 @@ function consumeTurn (state: GameState, logMessage?: string): GameState {
   if (logMessage !== undefined) {
     next = { ...next, log: [...next.log, logMessage] }
   }
-  next = { ...next, turns: next.turns + 1 }
+  next = advanceTurn(next)
   next = processEnemyTurns(next)
   computeFOV(next.map, next.player.pos.x, next.player.pos.y)
   return next
@@ -1328,13 +1479,14 @@ export function movePlayer (state: GameState, dx: number, dy: number): GameState
   }
 
   const newPlayer = { ...baseState.player, pos: { x: nx, y: ny } }
-  let result: GameState = { ...baseState, player: newPlayer, turns: baseState.turns + 1 }
+  let result: GameState = { ...baseState, player: newPlayer }
+  result = advanceTurn(result)
 
   result = pickUpItems(result)
 
   // Check if on shop tile
   if (result.map.tiles[ny][nx] === Tile.Shop && !result.shopOpen) {
-    result = { ...result, log: [...result.log, '상점이다! S키로 열기'] }
+    result = { ...result, log: [...result.log, '상점이다! 상호작용으로 열기'] }
   }
 
   result = processEnemyTurns(result)
@@ -1432,7 +1584,7 @@ function getCamera (px: number, py: number): { cx: number, cy: number } {
   return { cx, cy }
 }
 
-function renderEvent (state: GameState): string[] {
+function renderEvent (state: GameState, compact: boolean = false): string[] {
   if (state.activeEvent === null) return []
   const eventDef = getEventById(state.activeEvent.eventId)
   if (eventDef === undefined) return []
@@ -1466,7 +1618,12 @@ function renderEvent (state: GameState): string[] {
   }
 
   lines.push('')
-  lines.push('  방향키:선택 Enter:결정 Esc:취소')
+  if (compact) {
+    lines.push('  터치: 항목 선택 후 상호작용')
+    lines.push('  닫기: 우측 닫기 버튼')
+  } else {
+    lines.push('  방향키:선택 Enter:결정 Esc:취소')
+  }
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push('')
@@ -1493,7 +1650,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
   const panelLines = compact ? [] : buildPanel(state)
 
   if (state.over) {
-    const mapLines = renderGameOver(state)
+    const mapLines = renderGameOver(state, compact)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
       if (compact) {
@@ -1504,7 +1661,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
       }
     }
   } else if (state.won) {
-    const mapLines = renderVictory(state)
+    const mapLines = renderVictory(state, compact)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
       if (compact) {
@@ -1515,7 +1672,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
       }
     }
   } else if (state.activeEvent !== null) {
-    const mapLines = renderEvent(state)
+    const mapLines = renderEvent(state, compact)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
       if (compact) {
@@ -1526,7 +1683,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
       }
     }
   } else if (state.shopOpen) {
-    const mapLines = renderShop(state)
+    const mapLines = renderShop(state, compact)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
       if (compact) {
@@ -1537,7 +1694,7 @@ export function renderGame (state: GameState, compact: boolean = false): string[
       }
     }
   } else if (state.invOpen) {
-    const mapLines = renderInventory(state)
+    const mapLines = renderInventory(state, compact)
     for (let row = 0; row < VIEW_HEIGHT; row++) {
       const mapStr = row < mapLines.length ? mapLines[row] : ' '.repeat(VIEW_WIDTH)
       if (compact) {
@@ -1746,7 +1903,7 @@ function buildPanel (state: GameState): string[] {
   return lines
 }
 
-function renderInventory (state: GameState): string[] {
+function renderInventory (state: GameState, compact: boolean = false): string[] {
   const lines: string[] = []
 
   lines.push(`  ${C.cyan}인벤토리${C.reset}`)
@@ -1774,8 +1931,13 @@ function renderInventory (state: GameState): string[] {
   }
 
   lines.push('')
-  lines.push('  방향키:선택 Enter:사용 X:버리기')
-  lines.push('  I:닫기')
+  if (compact) {
+    lines.push('  터치: 탭하여 선택/사용')
+    lines.push('  버리기: 선택 후 버튼')
+  } else {
+    lines.push('  방향키:선택 Enter:사용 X:버리기')
+    lines.push('  I:닫기')
+  }
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push('')
@@ -1784,7 +1946,7 @@ function renderInventory (state: GameState): string[] {
   return lines
 }
 
-function renderShop (state: GameState): string[] {
+function renderShop (state: GameState, compact: boolean = false): string[] {
   const lines: string[] = []
 
   lines.push(`  ${C.yellow}상점${C.reset}  골드: ${C.yellow}${state.player.gold}${C.reset}`)
@@ -1809,8 +1971,13 @@ function renderShop (state: GameState): string[] {
   }
 
   lines.push('')
-  lines.push('  방향키:선택 Enter:구매')
-  lines.push('  S/Esc:닫기')
+  if (compact) {
+    lines.push('  터치: 항목 선택 후 상호작용')
+    lines.push('  닫기: 우측 닫기 버튼')
+  } else {
+    lines.push('  방향키:선택 Enter:구매')
+    lines.push('  S/Esc:닫기')
+  }
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push('')
@@ -1831,7 +1998,7 @@ function getItemInfo (item: InvItem): string {
   return `STR+${item.data.value}`
 }
 
-function renderGameOver (state: GameState): string[] {
+function renderGameOver (state: GameState, compact: boolean = false): string[] {
   const lines: string[] = []
   const centerPad = Math.floor(VIEW_WIDTH / 2) - 10
   const pad = ' '.repeat(Math.max(0, centerPad))
@@ -1842,7 +2009,7 @@ function renderGameOver (state: GameState): string[] {
   lines.push(`${pad}  처치: ${state.kills}  턴: ${state.turns}`)
   lines.push(`${pad}  골드: ${C.yellow}${state.player.gold}${C.reset}`)
   lines.push('')
-  lines.push(`${pad}  Q키로 나가기`)
+  lines.push(compact ? `${pad}  화면 탭하여 나가기` : `${pad}  Q키로 나가기`)
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push('')
@@ -1851,7 +2018,7 @@ function renderGameOver (state: GameState): string[] {
   return lines
 }
 
-function renderVictory (state: GameState): string[] {
+function renderVictory (state: GameState, compact: boolean = false): string[] {
   const lines: string[] = []
   const centerPad = Math.floor(VIEW_WIDTH / 2) - 14
   const pad = ' '.repeat(Math.max(0, centerPad))
@@ -1862,7 +2029,7 @@ function renderVictory (state: GameState): string[] {
   lines.push(`${pad}  처치: ${state.kills}  턴: ${state.turns}`)
   lines.push(`${pad}  골드: ${C.yellow}${state.player.gold}${C.reset}`)
   lines.push('')
-  lines.push(`${pad}  Q키로 나가기`)
+  lines.push(compact ? `${pad}  화면 탭하여 나가기` : `${pad}  Q키로 나가기`)
 
   while (lines.length < VIEW_HEIGHT) {
     lines.push('')

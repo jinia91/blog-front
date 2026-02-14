@@ -4,35 +4,25 @@ import React, { useCallback } from 'react'
 interface ActionButtonsProps {
   onAction: () => void
   onRanged: () => void
-  onInventory: () => void
-  onStats: () => void
-  onBack: () => void
+  onExitShop: () => void
   canDescend: boolean
   hasRangedWeapon: boolean
   isInventoryOpen: boolean
-  isStatsOpen: boolean
   isOnShopTile?: boolean
   isShopOpen?: boolean
   isEventActive?: boolean
-  isBackDisabled?: boolean
-  backLabel?: string
 }
 
 export default function ActionButtons ({
   onAction,
   onRanged,
-  onInventory,
-  onStats,
-  onBack,
+  onExitShop,
   canDescend,
   hasRangedWeapon,
   isInventoryOpen,
-  isStatsOpen,
   isOnShopTile = false,
   isShopOpen = false,
-  isEventActive = false,
-  isBackDisabled = false,
-  backLabel = '↩'
+  isEventActive = false
 }: ActionButtonsProps): React.ReactElement {
   const touchedRef = React.useRef(false)
 
@@ -54,122 +44,59 @@ export default function ActionButtons ({
     }
   }, [])
 
+  const actionLabel = '상호작용'
+
+  const actionColor = canDescend
+    ? 'bg-green-600 border-green-400 text-white'
+    : isEventActive
+      ? 'bg-purple-600 border-purple-400 text-white'
+      : isShopOpen
+        ? 'bg-yellow-600 border-yellow-400 text-white'
+        : isOnShopTile
+          ? 'bg-yellow-700 border-yellow-500 text-white'
+          : 'bg-cyan-700 border-cyan-400 text-white'
+
   return (
     <div
       className="fixed right-2 z-50 md:right-3"
       style={{ bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
     >
-      {/* Diamond layout like SNES controller */}
-      <div className="relative" style={{ width: '120px', height: '120px' }}>
-        {/* Top: Stats button */}
-        <button
-          onTouchEnd={makeTouchEnd(onStats)}
-          onClick={makeClick(onStats)}
-          className={`absolute left-1/2 -translate-x-1/2 top-0
-                      w-10 h-10 rounded-full border-2
-                      active:scale-90 active:brightness-125
-                      transition-all duration-100 flex items-center justify-center
-                      shadow-md text-[10px] font-bold
-                      ${isStatsOpen
-                        ? 'bg-purple-500 border-purple-300 shadow-purple-400/50 text-white'
-                        : 'bg-purple-800/90 border-purple-500/70 text-purple-300'}`}
-          aria-label="Toggle stats"
-        >
-          ST
-        </button>
+      <div className="w-[170px] rounded-xl border border-gray-700 bg-black/55 backdrop-blur-md p-2 shadow-xl shadow-black/40">
+        <div className={`grid ${isShopOpen ? 'grid-cols-1 gap-2' : 'grid-cols-2 gap-2'}`}>
+          {isShopOpen && (
+            <button
+              onTouchEnd={makeTouchEnd(onExitShop)}
+              onClick={makeClick(onExitShop)}
+              className="h-10 rounded-lg border text-[12px] font-bold transition-all bg-red-700/95 border-red-400 text-white active:scale-95 active:brightness-110"
+              aria-label="Exit shop"
+            >
+              나가기
+            </button>
+          )}
 
-        {/* Left: Inventory button */}
-        <button
-          onTouchEnd={makeTouchEnd(onInventory)}
-          onClick={makeClick(onInventory)}
-          className={`absolute top-1/2 -translate-y-1/2 left-0
-                      w-11 h-11 rounded-full border-2
-                      active:scale-90 active:brightness-125
-                      transition-all duration-100 flex items-center justify-center
-                      shadow-md
-                      ${isInventoryOpen
-                        ? 'bg-blue-500 border-blue-300 shadow-blue-400/50'
-                        : 'bg-blue-800/90 border-blue-500/70'}`}
-          aria-label="Toggle inventory"
-        >
-          <span className="text-white text-sm font-bold">{'\u25C6'}</span>
-        </button>
+          <button
+            onTouchEnd={makeTouchEnd(onRanged)}
+            onClick={makeClick(onRanged)}
+            disabled={!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive}
+            className={`h-11 rounded-lg border text-[12px] font-bold transition-all
+                        ${!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive
+                          ? 'bg-gray-800/80 border-gray-600 text-gray-500'
+                          : 'bg-indigo-700/90 border-indigo-400 text-indigo-100 active:scale-95 active:brightness-110'}`}
+            aria-label="Ranged action"
+          >
+            사격
+          </button>
 
-        {/* Right/Center: Main Action button (largest) */}
-        <button
-          onTouchEnd={makeTouchEnd(onAction)}
-          onClick={makeClick(onAction)}
-          className={`absolute top-1/2 -translate-y-1/2 right-0
-                      w-14 h-14 rounded-full border-2
-                      active:scale-90 active:brightness-125
-                      transition-all duration-100 flex items-center justify-center
-                      shadow-lg font-bold text-lg
-                      ${canDescend
-                        ? 'bg-green-600 border-green-400 text-white shadow-green-400/60 animate-pulse-glow'
-                        : isEventActive
-                          ? 'bg-purple-600 border-purple-400 text-white shadow-purple-400/50'
-                          : isShopOpen
-                            ? 'bg-yellow-600 border-yellow-400 text-white shadow-yellow-400/50'
-                            : isInventoryOpen
-                              ? 'bg-amber-600 border-amber-400 text-white shadow-amber-400/50'
-                              : isOnShopTile
-                                ? 'bg-yellow-700 border-yellow-500 text-yellow-200 shadow-yellow-400/40'
-                                : 'bg-gray-700/90 border-gray-500/70 text-gray-400'
-                      }`}
-          aria-label={canDescend ? 'Descend stairs' : isEventActive ? 'Confirm event choice' : isShopOpen ? 'Buy item' : isInventoryOpen ? 'Use item' : isOnShopTile ? 'Open shop' : 'Action'}
-        >
-          {canDescend ? '\u25BC' : isEventActive ? '✓' : isShopOpen ? '$' : isOnShopTile ? '\u25A0' : '\u25B6'}
-        </button>
-
-        {/* Bottom: Ranged attack */}
-        <button
-          onTouchEnd={makeTouchEnd(onRanged)}
-          onClick={makeClick(onRanged)}
-          disabled={!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive}
-          className={`absolute left-1/2 -translate-x-1/2 bottom-0
-                      w-10 h-10 rounded-full border-2
-                      active:scale-90 transition-all duration-100
-                      flex items-center justify-center text-[10px] font-bold
-                      ${!hasRangedWeapon || isInventoryOpen || isShopOpen || isEventActive
-                        ? 'bg-gray-800/80 border-gray-600 text-gray-500'
-                        : 'bg-cyan-700/90 border-cyan-400 text-cyan-100 shadow-cyan-400/40 shadow-md'}
-                      `}
-          aria-label="Ranged attack"
-        >
-          FR
-        </button>
-
-        {/* Center: Context back/close */}
-        <button
-          onTouchEnd={makeTouchEnd(onBack)}
-          onClick={makeClick(onBack)}
-          disabled={isBackDisabled}
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                      w-9 h-9 rounded-full border-2
-                      transition-all duration-100 flex items-center justify-center
-                      text-[9px] font-bold
-                      ${isBackDisabled
-                        ? 'bg-gray-800/80 border-gray-600 text-gray-500'
-                        : 'bg-rose-800/90 border-rose-500/70 text-rose-200 active:scale-90 active:brightness-125 shadow-md shadow-rose-400/20'}`}
-          aria-label="Back or close current panel"
-        >
-          {backLabel}
-        </button>
+          <button
+            onTouchEnd={makeTouchEnd(onAction)}
+            onClick={makeClick(onAction)}
+            className={`h-11 rounded-lg border text-[12px] font-bold transition-all ${actionColor} active:scale-95 active:brightness-110`}
+            aria-label="Primary action"
+          >
+            {actionLabel}
+          </button>
+        </div>
       </div>
-
-      <style>{`
-        @keyframes pulse-glow {
-          0%, 100% {
-            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6), 0 0 24px rgba(34, 197, 94, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.5);
-          }
-        }
-        .animate-pulse-glow {
-          animation: pulse-glow 1.5s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   )
 }

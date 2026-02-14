@@ -2,6 +2,7 @@ import {
   MAP_WIDTH,
   MAP_HEIGHT,
   FOV_RADIUS,
+  TOTAL_FLOORS,
   Tile,
   type DungeonMap,
   type Position,
@@ -31,6 +32,20 @@ interface BSPNode {
   left?: BSPNode
   right?: BSPNode
   room?: Room
+}
+
+interface FixedEnemySpawn {
+  def: EnemyDef
+  pos: Position
+  isBoss?: boolean
+}
+
+interface GenerationBounds {
+  x: number
+  y: number
+  w: number
+  h: number
+  maxDepth: number
 }
 
 function createEmptyMap (): DungeonMap {
@@ -203,22 +218,242 @@ function manhattanDist (a: Position, b: Position): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 }
 
-export function generateDungeon (floor: number, theme: FloorTheme): {
+function generationBoundsForFloor (floor: number): GenerationBounds {
+  const maxRegularFloor = Math.max(1, TOTAL_FLOORS - 1)
+  const clampedFloor = Math.max(1, Math.min(floor, maxRegularFloor))
+  const denom = Math.max(1, maxRegularFloor - 1)
+  const progress = (clampedFloor - 1) / denom
+
+  const marginX = Math.round(10 - progress * 9) // F1: ~10, F9: ~1
+  const marginY = Math.round(6 - progress * 5) // F1: ~6,  F9: ~1
+
+  const w = Math.max(26, MAP_WIDTH - marginX * 2)
+  const h = Math.max(24, MAP_HEIGHT - marginY * 2)
+  const x = Math.floor((MAP_WIDTH - w) / 2)
+  const y = Math.floor((MAP_HEIGHT - h) / 2)
+  const maxDepth = floor <= 2 ? 4 : floor <= 5 ? 5 : 6
+
+  return { x, y, w, h, maxDepth }
+}
+
+function carveRect (map: DungeonMap, room: Room): void {
+  for (let y = room.y; y < room.y + room.h; y++) {
+    for (let x = room.x; x < room.x + room.w; x++) {
+      map.tiles[y][x] = Tile.Floor
+    }
+  }
+}
+
+function carveFinalChapterMap (map: DungeonMap): Room[] {
+  const outer: Room = { x: 2, y: 2, w: MAP_WIDTH - 4, h: MAP_HEIGHT - 4 }
+  carveRect(map, outer)
+
+  const xWalls = [26, 53]
+  const yWalls = [11, 22]
+
+  for (const x of xWalls) {
+    for (let y = outer.y; y < outer.y + outer.h; y++) {
+      map.tiles[y][x] = Tile.Wall
+    }
+  }
+  for (const y of yWalls) {
+    for (let x = outer.x; x < outer.x + outer.w; x++) {
+      map.tiles[y][x] = Tile.Wall
+    }
+  }
+
+  const vDoorYs = [8, 17, 27]
+  for (const y of vDoorYs) {
+    map.tiles[y][26] = Tile.Door
+    map.tiles[y][53] = Tile.Door
+  }
+  const hDoorXs = [14, 40, 66]
+  for (const x of hDoorXs) {
+    map.tiles[11][x] = Tile.Door
+    map.tiles[22][x] = Tile.Door
+  }
+
+  return [
+    { x: 28, y: 24, w: 24, h: 9 }, // start chamber
+    { x: 3, y: 3, w: 22, h: 7 },
+    { x: 28, y: 3, w: 24, h: 7 },
+    { x: 55, y: 3, w: 22, h: 7 },
+    { x: 3, y: 13, w: 22, h: 8 },
+    { x: 28, y: 13, w: 24, h: 8 },
+    { x: 55, y: 13, w: 22, h: 8 },
+    { x: 3, y: 24, w: 22, h: 9 },
+    { x: 55, y: 24, w: 22, h: 9 }
+  ]
+}
+
+function fixedFinalEnemySpawns (): FixedEnemySpawn[] {
+  const guard: EnemyDef = {
+    name: '심연 수호병',
+    ch: 'g',
+    stats: { hp: 42, maxHp: 42, str: 11, def: 6 },
+    xp: 56,
+    range: 1,
+    attackSpeed: 1
+  }
+  const gunner: EnemyDef = {
+    name: '의식 사수',
+    ch: 'a',
+    stats: { hp: 34, maxHp: 34, str: 12, def: 4 },
+    xp: 58,
+    range: 5,
+    attackSpeed: 3
+  }
+  const stalker: EnemyDef = {
+    name: '촉수 추적자',
+    ch: 't',
+    stats: { hp: 38, maxHp: 38, str: 13, def: 5 },
+    xp: 60,
+    range: 2,
+    attackSpeed: 2
+  }
+
+  const eliteKnight: EnemyDef = {
+    name: '[정예] 검은 서약기사',
+    ch: 'K',
+    stats: { hp: 94, maxHp: 94, str: 17, def: 10 },
+    xp: 160,
+    range: 1,
+    attackSpeed: 1
+  }
+  const eliteSniper: EnemyDef = {
+    name: '[정예] 심연 저격관',
+    ch: 'R',
+    stats: { hp: 84, maxHp: 84, str: 16, def: 8 },
+    xp: 170,
+    range: 6,
+    attackSpeed: 2
+  }
+  const eliteWarden: EnemyDef = {
+    name: '[정예] 봉인 파수자',
+    ch: 'W',
+    stats: { hp: 98, maxHp: 98, str: 15, def: 12 },
+    xp: 175,
+    range: 3,
+    attackSpeed: 2
+  }
+  const finalBoss: EnemyDef = {
+    name: '각성한 크툴루',
+    ch: 'C',
+    stats: { hp: 240, maxHp: 240, str: 21, def: 14 },
+    xp: 700,
+    range: 5,
+    attackSpeed: 2
+  }
+
+  return [
+    { def: guard, pos: { x: 8, y: 6 } },
+    { def: guard, pos: { x: 20, y: 8 } },
+    { def: gunner, pos: { x: 33, y: 7 } },
+    { def: gunner, pos: { x: 47, y: 8 } },
+    { def: guard, pos: { x: 60, y: 6 } },
+    { def: stalker, pos: { x: 71, y: 8 } },
+    { def: stalker, pos: { x: 10, y: 17 } },
+    { def: gunner, pos: { x: 22, y: 19 } },
+    { def: guard, pos: { x: 36, y: 16 } },
+    { def: guard, pos: { x: 45, y: 18 } },
+    { def: gunner, pos: { x: 58, y: 17 } },
+    { def: stalker, pos: { x: 69, y: 19 } },
+    { def: guard, pos: { x: 9, y: 29 } },
+    { def: stalker, pos: { x: 20, y: 31 } },
+    { def: guard, pos: { x: 34, y: 28 } },
+    { def: gunner, pos: { x: 46, y: 30 } },
+    { def: stalker, pos: { x: 59, y: 29 } },
+    { def: guard, pos: { x: 70, y: 31 } },
+    { def: eliteKnight, pos: { x: 40, y: 15 } },
+    { def: eliteSniper, pos: { x: 14, y: 24 } },
+    { def: eliteWarden, pos: { x: 66, y: 24 } },
+    { def: finalBoss, pos: { x: 40, y: 6 }, isBoss: true }
+  ]
+}
+
+function generateFinalChapterDungeon (theme: FloorTheme): {
   map: DungeonMap
   playerPos: Position
   enemies: Enemy[]
   items: MapItem[]
 } {
   const map = createEmptyMap()
+  map.rooms = carveFinalChapterMap(map)
 
-  const root: BSPNode = {
-    x: 1,
-    y: 1,
-    w: MAP_WIDTH - 2,
-    h: MAP_HEIGHT - 2
+  const playerPos: Position = { x: 40, y: 30 }
+  const stairsPos: Position = { x: 40, y: 3 }
+  map.tiles[playerPos.y][playerPos.x] = Tile.Floor
+  map.tiles[stairsPos.y][stairsPos.x] = Tile.Stairs
+
+  const occupied = new Set<string>([
+    `${playerPos.x},${playerPos.y}`,
+    `${stairsPos.x},${stairsPos.y}`
+  ])
+
+  const enemies: Enemy[] = []
+  for (const spawn of fixedFinalEnemySpawns()) {
+    const { x, y } = spawn.pos
+    if (x <= 0 || x >= MAP_WIDTH - 1 || y <= 0 || y >= MAP_HEIGHT - 1) continue
+    map.tiles[y][x] = Tile.Floor
+    const key = `${x},${y}`
+    if (occupied.has(key)) continue
+    enemies.push(createEnemy(spawn.def, { x, y }, spawn.isBoss === true))
+    occupied.add(key)
   }
 
-  splitNode(root, 0, 5)
+  const items: MapItem[] = []
+  const fixedObjects: Array<{ x: number, y: number, ch: string, name: string }> = [
+    { x: 40, y: 28, ch: '~', name: 'fountain' },
+    { x: 12, y: 27, ch: '^', name: 'shrine' },
+    { x: 68, y: 27, ch: '^', name: 'shrine' },
+    { x: 8, y: 15, ch: 'C', name: 'chest' },
+    { x: 72, y: 15, ch: 'C', name: 'chest' },
+    { x: 40, y: 24, ch: 'C', name: 'chest' },
+    { x: 40, y: 20, ch: '★', name: `specialRoom:${theme.id}` }
+  ]
+  for (const obj of fixedObjects) {
+    if (occupied.has(`${obj.x},${obj.y}`)) continue
+    if (map.tiles[obj.y][obj.x] === Tile.Wall) continue
+    const dummyItem: InvItem = { kind: 'potion', data: { name: obj.name, healType: 'hp', value: 0 } }
+    items.push({ pos: { x: obj.x, y: obj.y }, item: dummyItem, ch: obj.ch })
+    occupied.add(`${obj.x},${obj.y}`)
+  }
+
+  const finalPotionA = potionForFloor(TOTAL_FLOORS)
+  const finalPotionB = potionForFloor(TOTAL_FLOORS)
+  if (!occupied.has('33,30')) {
+    items.push({ pos: { x: 33, y: 30 }, item: { kind: 'potion', data: finalPotionA }, ch: '!' })
+    occupied.add('33,30')
+  }
+  if (!occupied.has('47,30')) {
+    items.push({ pos: { x: 47, y: 30 }, item: { kind: 'potion', data: finalPotionB }, ch: '!' })
+    occupied.add('47,30')
+  }
+
+  return { map, playerPos, enemies, items }
+}
+
+export function generateDungeon (floor: number, theme: FloorTheme): {
+  map: DungeonMap
+  playerPos: Position
+  enemies: Enemy[]
+  items: MapItem[]
+} {
+  if (floor === TOTAL_FLOORS) {
+    return generateFinalChapterDungeon(theme)
+  }
+
+  const map = createEmptyMap()
+
+  const bounds = generationBoundsForFloor(floor)
+  const root: BSPNode = {
+    x: bounds.x,
+    y: bounds.y,
+    w: bounds.w,
+    h: bounds.h
+  }
+
+  splitNode(root, 0, bounds.maxDepth)
   createRoomInNode(root, map)
   connectRooms(root, map)
 

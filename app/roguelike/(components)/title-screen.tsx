@@ -9,7 +9,7 @@ const BOOT_LINES = [
   '> 심연 생성 중... [████] OK',
   '> 모든 시스템 준비 완료.',
   '',
-  '> 아무 키나 눌러 계속...'
+  '> 화면 터치 또는 엔터로 계속...'
 ]
 
 const FLAME_FRAMES = ['(~)', '{x}', '(*)', '{~}', '(x)', '{*}']
@@ -188,18 +188,18 @@ export default function TitleScreen ({ onStart }: { onStart: () => void }): Reac
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
           <pre style={{ margin: 0, color: '#555555' }}>
-            [WASD/스와이프] 이동
+            [터치 패드] 이동
           </pre>
           <pre style={{ margin: 0, color: '#555555' }}>
-            [I/탭] 인벤토리
+            [가방 버튼] 인벤토리
           </pre>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
           <pre style={{ margin: 0, color: '#555555' }}>
-            [탭] 사용/공격/줍기
+            [상호작용] 사용/공격/하강
           </pre>
           <pre style={{ margin: 0, color: '#555555' }}>
-            {'[>] 내려가기'}
+            [원거리 버튼] 사격
           </pre>
         </div>
       </div>

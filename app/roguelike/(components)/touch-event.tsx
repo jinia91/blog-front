@@ -96,10 +96,10 @@ export default function TouchEvent ({
           </div>
           <button
             onClick={onCancel}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
-            aria-label="Close event"
+            className="px-2 py-1 text-xs font-bold text-gray-300 border border-gray-600 rounded hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Exit event"
           >
-            ✕
+            나가기
           </button>
         </div>
 

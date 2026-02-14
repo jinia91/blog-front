@@ -16,13 +16,13 @@ function detectMobileLayout (): boolean {
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches
   const touchCapable = navigator.maxTouchPoints > 0
   const shortEdge = Math.min(window.innerWidth, window.innerHeight)
-  return (coarsePointer || touchCapable) && shortEdge <= 900
+  return (coarsePointer || touchCapable) && shortEdge <= 1366
 }
 
 export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.ReactElement {
   const initialState = initFloor(1, null)
   const gameStateRef = useRef<GameState>(initialState)
-  const [viewLines, setViewLines] = useState<string[]>(() => renderGame(gameStateRef.current, detectMobileLayout()))
+  const [viewLines, setViewLines] = useState<string[]>(() => renderGame(gameStateRef.current, true))
 
   const onQuitRef = useRef(onQuit)
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   }, [onQuit])
 
   // Mobile detection
-  const [isMobile, setIsMobile] = useState(detectMobileLayout())
+  const [isMobile, setIsMobile] = useState(true)
   const isMobileRef = useRef(isMobile)
   useEffect(() => {
     const check = (): void => {
@@ -87,7 +87,6 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isOnShopTile, setIsOnShopTile] = useState(false)
   const [isEventActive, setIsEventActive] = useState(false)
-  const [isBossDecisionActive, setIsBossDecisionActive] = useState(false)
   const [hasRangedWeapon, setHasRangedWeapon] = useState((initialState.player.weapon?.range ?? 1) > 1)
 
   // --- Shared action callbacks ---
@@ -100,7 +99,6 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setIsShopOpen(newState.shopOpen)
     setIsOnShopTile(newState.map.tiles[newState.player.pos.y][newState.player.pos.x] === Tile.Shop)
     setIsEventActive(newState.activeEvent !== null)
-    setIsBossDecisionActive(newState.activeEvent?.eventId === 'boss_phase_decision')
     setHasRangedWeapon((newState.player.weapon?.range ?? 1) > 1)
   }, [])
 
@@ -167,30 +165,12 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
     setIsStatsOpen(prev => !prev)
   }, [])
 
-  const handleBackAction = useCallback((): void => {
+  const handleShopExit = useCallback((): void => {
     const current = gameStateRef.current
-    if (current.over || current.won) {
-      onQuitRef.current()
-      return
-    }
-    if (current.activeEvent !== null) {
-      updateState(cancelEvent(current))
-      return
-    }
     if (current.shopOpen) {
       updateState({ ...current, shopOpen: false })
-      return
     }
-    if (current.invOpen) {
-      updateState({ ...current, invOpen: false })
-      return
-    }
-    if (isStatsOpen) {
-      setIsStatsOpen(false)
-      return
-    }
-    onQuitRef.current()
-  }, [updateState, isStatsOpen])
+  }, [updateState])
 
   const handleEventSelect = useCallback((idx: number): void => {
     const current = gameStateRef.current
@@ -543,6 +523,9 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           log={gameStateRef.current.log}
           themeName={gameStateRef.current.currentTheme.name}
           themeIcon={gameStateRef.current.currentTheme.icon}
+          onToggleInventory={handleInventoryToggle}
+          isInventoryOpen={isInvOpen}
+          onToggleStats={handleStatsToggle}
         />
       )}
 
@@ -553,18 +536,13 @@ export default function GameScreen ({ onQuit }: { onQuit: () => void }): React.R
           <ActionButtons
             onAction={handleAction}
             onRanged={handleRangedAction}
-            onInventory={handleInventoryToggle}
-            onStats={handleStatsToggle}
-            onBack={handleBackAction}
+            onExitShop={handleShopExit}
             canDescend={canDescend}
             hasRangedWeapon={hasRangedWeapon}
             isInventoryOpen={isInvOpen}
-            isStatsOpen={isStatsOpen}
             isOnShopTile={isOnShopTile}
             isShopOpen={isShopOpen}
             isEventActive={isEventActive}
-            isBackDisabled={isBossDecisionActive}
-            backLabel={isBossDecisionActive ? '!' : isEventActive || isShopOpen || isInvOpen || isStatsOpen ? '닫기' : 'Q'}
           />
         </>
       )}
